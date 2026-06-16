@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lesson 2: Comparing &amp; Ordering Big Numbers — Tap &amp; Solve</title>
+<style>
+  :root{
+    --ink:#1f2933; --muted:#5b6770; --line:#e2e8f0; --bg:#f1f5f9;
+    --blue:#2563eb; --blue-bg:#eff6ff; --green:#16a34a; --green-bg:#dcfce7;
+    --red:#dc2626; --red-bg:#fef2f2; --amber:#b45309; --amber-bg:#fffbeb;
+    --purple:#7c3aed; --purple-bg:#f5f3ff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.55; background:var(--bg); padding:14px;
+    font-size:17px; -webkit-text-size-adjust:100%;
+  }
+  .page{max-width:760px; margin:0 auto; background:#fff; padding:20px 18px 40px;
+    border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,.07);}
+  h1{font-size:25px; margin:0 0 4px; line-height:1.2;}
+  h2{font-size:20px; margin:30px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line);}
+  h3{font-size:17px; margin:20px 0 6px;}
+  .sub{color:var(--muted); font-size:15px; margin:0 0 2px;}
+  .timechip{display:inline-block; background:var(--blue-bg); color:var(--blue);
+    font-weight:700; font-size:13px; padding:3px 11px; border-radius:999px; margin-right:8px;}
+
+  /* sticky score bar */
+  .scorebar{position:sticky; top:0; z-index:5; background:#fff; border:2px solid var(--line);
+    border-radius:14px; padding:10px 14px; margin:0 0 14px; display:flex; align-items:center;
+    justify-content:space-between; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  .scorebar .lbl{font-weight:700;}
+  .scorebar .stars{font-size:18px; letter-spacing:2px;}
+  .bar{flex:1; height:12px; background:var(--line); border-radius:999px; overflow:hidden; margin:0 4px;}
+  .bar>span{display:block; height:100%; width:0; background:var(--green); transition:width .3s;}
+
+  pre{background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:10px;
+    overflow:auto; font-size:12.5px; line-height:1.5; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:15px;}
+  th,td{border:1px solid var(--line); padding:7px 9px; text-align:left;}
+  th{background:#f1f5f9;}
+  td.n{text-align:right; white-space:nowrap;}
+
+  .note{background:var(--amber-bg); border-left:4px solid var(--amber); color:#7c4a06;
+    padding:9px 13px; border-radius:0 8px 8px 0; margin:12px 0; font-size:14px;}
+  .note b{color:var(--amber);}
+
+  /* question card */
+  .q{border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:12px 0; background:#fff;}
+  .q.right{background:var(--green-bg); border-color:#86efac;}
+  .q.wrong{background:var(--red-bg); border-color:#fca5a5;}
+  .qtext{font-weight:600; display:block; margin-bottom:9px;}
+  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  input.ans{flex:1; min-width:130px; font-size:18px; padding:11px 13px; border:2px solid var(--line);
+    border-radius:10px; outline:none; background:#fff; color:var(--ink);}
+  input.ans:focus{border-color:var(--blue);}
+  button{font-size:16px; font-weight:700; border:none; border-radius:10px; padding:11px 18px;
+    cursor:pointer; touch-action:manipulation;}
+  button:active{transform:translateY(1px);}
+  .check{background:var(--blue); color:#fff;}
+  .reveal{background:#e2e8f0; color:var(--ink); font-weight:600; padding:9px 14px; font-size:14px;}
+  .result{font-weight:700; margin-top:8px; display:block; font-size:15px;}
+  .result.ok{color:var(--green);}
+  .result.no{color:var(--red);}
+
+  /* tap-choice buttons (for <, >, = and multiple choice) */
+  .choices{display:flex; flex-wrap:wrap; gap:8px;}
+  .choice{background:#fff; border:2px solid var(--line); color:var(--ink); font-weight:700;
+    padding:11px 18px; border-radius:10px; min-width:56px;}
+  .choice.sel{border-color:var(--blue); background:var(--blue-bg); color:var(--blue);}
+  .q.right .choice.sel{border-color:var(--green); background:var(--green-bg); color:var(--green);}
+  .q.wrong .choice.sel{border-color:var(--red); background:var(--red-bg); color:var(--red);}
+  .sym{font-size:20px;}
+
+  .challenge{background:var(--purple-bg); border-left:4px solid var(--purple); padding:12px 16px;
+    border-radius:0 8px 8px 0; margin:16px 0;}
+  .pill{display:inline-block; background:var(--green); color:#fff; font-size:14px;
+    font-weight:700; padding:5px 16px; border-radius:999px;}
+  .resetbtn{background:#fff; border:2px solid var(--line); color:var(--muted); font-size:13px;
+    padding:8px 12px; border-radius:10px;}
+  ol{padding-left:22px;} ol li{margin:5px 0;}
+  hr{border:none; border-top:1px solid var(--line); margin:26px 0;}
+  .hint{font-size:13px; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="scorebar">
+    <div><span class="lbl">Score:</span> <span id="solved">0</span>/<span id="total">0</span></div>
+    <div class="bar"><span id="fill"></span></div>
+    <div class="stars" id="stars">⭐</div>
+  </div>
+
+  <h1>Lesson 2 — Comparing &amp; Ordering Big Numbers ⚖️</h1>
+  <p class="sub"><b>Summer Math · Going into 5th Grade</b> · about 30 minutes</p>
+  <p class="hint">Tap a symbol or type your answer, then tap <b>Check</b>. Green = got it!
+    Pink = try again. Your progress is saved on this tablet automatically.</p>
+
+  <h2><span class="timechip">0–5 min</span> Warm-Up</h2>
+  <p class="hint">Tap the symbol that makes each one true: <b>&lt;</b> means "less than,"
+    <b>&gt;</b> means "greater than," <b>=</b> means "equal."</p>
+
+  <div class="q" data-answer="&lt;" data-type="choice">
+    <span class="qtext">1. 38 &nbsp;___&nbsp; 83</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="&gt;" data-type="choice">
+    <span class="qtext">2. 510 &nbsp;___&nbsp; 150</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="=" data-type="choice">
+    <span class="qtext">3. 700 &nbsp;___&nbsp; 600 + 100</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+
+  <h2><span class="timechip">5–15 min</span> Teach: How to compare numbers</h2>
+  <p>To compare two numbers, <b>don't</b> just look at how many digits "feel" big.
+    Use this 3-step trick:</p>
+  <ol>
+    <li><b>Line them up by place value</b> (ones under ones, tens under tens…).
+      The number with <b>more digits</b> is bigger.</li>
+    <li>If they have the <b>same number of digits</b>, compare from the
+      <b>left</b> — the highest place first.</li>
+    <li><b>Stop at the first place where the digits are different.</b>
+      The bigger digit there wins. ✋</li>
+  </ol>
+<pre>
+  6,481      Same number of digits (4 each).
+  6,491      Thousands match (6=6). Hundreds match (4=4).
+  ^          Tens: 8 vs 9 → 9 wins.  So 6,491 &gt; 6,481.
+</pre>
+  <div class="note"><b>Mouth trick:</b> the &lt; or &gt; sign is a hungry mouth —
+    it always opens toward the <b>bigger</b> number. 25 &lt; 50 (mouth eats the 50).</div>
+
+  <h3>Reading the symbol the right direction</h3>
+  <p>You read left to right. <b>8 &gt; 3</b> says "8 is greater than 3."
+    <b>3 &lt; 8</b> says "3 is less than 8." Same fact, flipped.</p>
+
+  <h3>Ordering a list</h3>
+  <p><b>Least to greatest</b> = smallest first. <b>Greatest to least</b> = biggest first.
+    Compare two at a time using the trick above until the whole list is in order.</p>
+
+  <h2><span class="timechip">15–27 min</span> Practice</h2>
+
+  <h3>A) Tap &lt;, &gt;, or = to make it true</h3>
+  <div class="q" data-answer="&lt;" data-type="choice">
+    <span class="qtext">1. 4,206 &nbsp;___&nbsp; 4,260</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="&gt;" data-type="choice">
+    <span class="qtext">2. 18,000 &nbsp;___&nbsp; 9,999</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="&gt;" data-type="choice">
+    <span class="qtext">3. 52,140 &nbsp;___&nbsp; 52,041</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="=" data-type="choice">
+    <span class="qtext">4. 30,000 + 500 &nbsp;___&nbsp; 30,500</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="&lt;" data-type="choice">
+    <span class="qtext">5. 408,990 &nbsp;___&nbsp; 480,990</span>
+    <div class="choices">
+      <button class="choice sym" data-val="&lt;">&lt;</button>
+      <button class="choice sym" data-val="&gt;">&gt;</button>
+      <button class="choice sym" data-val="=">=</button>
+    </div>
+    <span class="result"></span>
+  </div>
+
+  <h3>B) Which is bigger? Type the bigger number</h3>
+  <div class="q" data-answer="7,305" data-type="num">
+    <span class="qtext">6. 7,305 &nbsp;or&nbsp; 7,035</span>
+    <div class="row"><input class="ans" inputmode="numeric" placeholder="type the bigger one"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="90,100" data-type="num">
+    <span class="qtext">7. 89,999 &nbsp;or&nbsp; 90,100</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="234,000" data-type="num">
+    <span class="qtext">8. 234,000 &nbsp;or&nbsp; 233,999</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h3>C) Order from LEAST to GREATEST</h3>
+  <p class="hint">Type the numbers smallest-first, separated by commas. Example: <b>12, 45, 78</b></p>
+  <div class="q" data-answer="406,460,604,640" data-type="list">
+    <span class="qtext">9. 640, 406, 604, 460</span>
+    <div class="row"><input class="ans" inputmode="numeric" placeholder="least … greatest"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="2099,2190,2901,2910" data-type="list">
+    <span class="qtext">10. 2,910, 2,099, 2,901, 2,190</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h3>D) Order from GREATEST to LEAST</h3>
+  <div class="q" data-answer="81000,80100,80010,80001" data-type="list">
+    <span class="qtext">11. 80,010, 80,001, 81,000, 80,100</span>
+    <div class="row"><input class="ans" inputmode="numeric" placeholder="greatest … least"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h3>E) Word problems</h3>
+  <div class="q" data-answer="Riverton" data-type="text">
+    <span class="qtext">12. Riverton has <b>34,820</b> people. Oakdale has <b>34,280</b> people.
+      Which town has MORE people?</span>
+    <div class="row"><input class="ans" placeholder="town name"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="Maya" data-type="text">
+    <span class="qtext">13. Maya scored <b>9,140</b> points. Leo scored <b>9,410</b> points.
+      Wait — re-read it: who scored <b>FEWER</b> points?</span>
+    <div class="row"><input class="ans" placeholder="name"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="7" data-type="num">
+    <span class="qtext">14. To make <b>5_,300 &gt; 56,300</b> true, what is the SMALLEST digit
+      that can go in the blank? <span class="hint">(the blank is the thousands place)</span></span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h2><span class="timechip">27–30 min</span> Wrap-Up</h2>
+  <div class="challenge">
+    <b>Challenge:</b> Using each of the digits <b>4, 0, 7, 1</b> exactly once,
+    make the <b>largest</b> possible 4-digit number, then type it.
+    <span class="hint">(Biggest digit goes in the biggest place!)</span>
+    <div class="q" data-answer="7410" data-type="num" style="background:transparent;border:none;padding:10px 0 0;margin:6px 0 0">
+      <div class="row"><input class="ans" inputmode="numeric" placeholder="the number"><button class="check">Check</button></div>
+      <span class="result"></span>
+    </div>
+  </div>
+  <p><b>Then ask:</b> "When two numbers have the same number of digits, where do you start comparing?"
+    <span class="hint">(Answer: the leftmost / biggest place.)</span></p>
+
+  <h2>✨ Stretch <span style="font-weight:400;font-size:14px;color:var(--muted)">(extra time)</span></h2>
+  <div class="q" data-answer="1047" data-type="num">
+    <span class="qtext">S1. Using the digits <b>4, 0, 7, 1</b> once each, make the <b>smallest</b>
+      4-digit number. <span class="hint">(It can't start with 0!)</span></span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="4,3,2,1,0" data-type="list">
+    <span class="qtext">S2. List every digit <b>0–9</b> that makes <b>3_8 &lt; 358</b> TRUE,
+      from greatest to least (separate with commas).</span>
+    <div class="row"><input class="ans" inputmode="numeric" placeholder="e.g. 4, 3, 2 …"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <div style="text-align:center; margin:30px 0 6px;">
+    <span class="pill" id="finish" style="display:none">🎉 You finished Lesson 2!</span>
+  </div>
+  <div style="text-align:center; margin-top:14px;">
+    <button class="resetbtn" id="reset">↺ Start over (clear my answers)</button>
+  </div>
+
+  <hr>
+  <p class="hint">Next up → Lesson 3: Rounding Big Numbers. Just ask!</p>
+</div>
+
+<script>
+(function(){
+  var KEY = "mathL2_v1";
+  var qs = Array.prototype.slice.call(document.querySelectorAll(".q"));
+  document.getElementById("total").textContent = qs.length;
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ saved = {}; }
+
+  function norm(s){ return (s||"").toString().trim().toLowerCase(); }
+  function digits(s){ return norm(s).replace(/[^0-9]/g,""); }
+  function text(s){ return norm(s).replace(/[^a-z0-9]/g,""); }
+  function listNorm(s){
+    return norm(s).split(/[,\s]+/)
+      .map(function(t){ return t.replace(/[^0-9]/g,""); })
+      .filter(function(t){ return t!==""; })
+      .join(",");
+  }
+  function isRight(val, ans, type){
+    if(type==="num")    return digits(val)!=="" && digits(val)===digits(ans);
+    if(type==="text")   return text(val)!=="" && text(val)===text(ans);
+    if(type==="list")   return listNorm(val)!=="" && listNorm(val)===listNorm(ans);
+    if(type==="choice") return norm(val)!=="" && norm(val)===norm(ans);
+    return false;
+  }
+
+  function updateScore(){
+    var done = qs.filter(function(q){ return q.classList.contains("right"); }).length;
+    document.getElementById("solved").textContent = done;
+    var pct = qs.length ? Math.round(done/qs.length*100) : 0;
+    document.getElementById("fill").style.width = pct + "%";
+    var stars = "⭐";
+    if(pct>=25) stars="⭐⭐";
+    if(pct>=50) stars="⭐⭐⭐";
+    if(pct>=75) stars="⭐⭐⭐⭐";
+    if(pct>=100) stars="🏆";
+    document.getElementById("stars").textContent = stars;
+    document.getElementById("finish").style.display = (done===qs.length) ? "inline-block" : "none";
+  }
+
+  function save(){
+    var data = {};
+    qs.forEach(function(q,i){
+      if(q.classList.contains("right")) data[i] = q.getAttribute("data-val") || (q.querySelector(".ans") ? q.querySelector(".ans").value : "");
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e){}
+  }
+
+  qs.forEach(function(q,i){
+    var input   = q.querySelector(".ans");
+    var btn     = q.querySelector(".check");
+    var result  = q.querySelector(".result");
+    var ans     = q.getAttribute("data-answer");
+    var type    = q.getAttribute("data-type");
+    var choices = Array.prototype.slice.call(q.querySelectorAll(".choice"));
+    var tries   = 0;
+
+    // restore saved correct answers
+    if(saved[i] !== undefined){
+      if(type==="choice"){
+        q.setAttribute("data-val", saved[i]);
+        choices.forEach(function(c){ if(c.getAttribute("data-val")===saved[i]) c.classList.add("sel"); });
+      } else if(input){
+        input.value = saved[i];
+      }
+      q.classList.add("right");
+      result.className = "result ok";
+      result.textContent = "✓ Correct!";
+    }
+
+    function markRight(){
+      q.classList.remove("wrong"); q.classList.add("right");
+      result.className = "result ok";
+      result.textContent = "✓ Correct! Nice work.";
+      save(); updateScore();
+    }
+    function markWrong(){
+      tries++;
+      q.classList.remove("right"); q.classList.add("wrong");
+      result.className = "result no";
+      if(tries >= 3){
+        result.innerHTML = "Not quite — the answer is <b>" + ans + "</b>. Set it to keep going!";
+      } else {
+        result.textContent = "Not quite — try again! 💪";
+      }
+      updateScore();
+    }
+
+    if(type==="choice"){
+      choices.forEach(function(c){
+        c.addEventListener("click", function(){
+          choices.forEach(function(x){ x.classList.remove("sel"); });
+          c.classList.add("sel");
+          var val = c.getAttribute("data-val");
+          q.setAttribute("data-val", val);
+          if(isRight(val, ans, type)) markRight(); else markWrong();
+        });
+      });
+    } else {
+      function check(){
+        if(isRight(input.value, ans, type)) markRight(); else markWrong();
+      }
+      btn.addEventListener("click", check);
+      input.addEventListener("keydown", function(e){ if(e.key==="Enter") check(); });
+      input.addEventListener("input", function(){
+        if(q.classList.contains("right") && !isRight(input.value, ans, type)){
+          q.classList.remove("right"); result.textContent=""; result.className="result";
+          save(); updateScore();
+        }
+      });
+    }
+  });
+
+  document.getElementById("reset").addEventListener("click", function(){
+    if(!confirm("Clear all answers and start over?")) return;
+    try { localStorage.removeItem(KEY); } catch(e){}
+    location.reload();
+  });
+
+  updateScore();
+})();
+</script>
+</body>
+</html>

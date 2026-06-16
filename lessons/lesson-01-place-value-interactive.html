@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lesson 1: Place Value — Tap & Solve</title>
+<style>
+  :root{
+    --ink:#1f2933; --muted:#5b6770; --line:#e2e8f0; --bg:#f1f5f9;
+    --blue:#2563eb; --blue-bg:#eff6ff; --green:#16a34a; --green-bg:#dcfce7;
+    --red:#dc2626; --red-bg:#fef2f2; --amber:#b45309; --amber-bg:#fffbeb;
+    --purple:#7c3aed; --purple-bg:#f5f3ff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.55; background:var(--bg); padding:14px;
+    font-size:17px; -webkit-text-size-adjust:100%;
+  }
+  .page{max-width:760px; margin:0 auto; background:#fff; padding:20px 18px 40px;
+    border-radius:16px; box-shadow:0 2px 10px rgba(0,0,0,.07);}
+  h1{font-size:25px; margin:0 0 4px; line-height:1.2;}
+  h2{font-size:20px; margin:30px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line);}
+  h3{font-size:17px; margin:20px 0 6px;}
+  .sub{color:var(--muted); font-size:15px; margin:0 0 2px;}
+  .timechip{display:inline-block; background:var(--blue-bg); color:var(--blue);
+    font-weight:700; font-size:13px; padding:3px 11px; border-radius:999px; margin-right:8px;}
+
+  /* sticky score bar */
+  .scorebar{position:sticky; top:0; z-index:5; background:#fff; border:2px solid var(--line);
+    border-radius:14px; padding:10px 14px; margin:0 0 14px; display:flex; align-items:center;
+    justify-content:space-between; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  .scorebar .lbl{font-weight:700;}
+  .scorebar .stars{font-size:18px; letter-spacing:2px;}
+  .bar{flex:1; height:12px; background:var(--line); border-radius:999px; overflow:hidden; margin:0 4px;}
+  .bar>span{display:block; height:100%; width:0; background:var(--green); transition:width .3s;}
+
+  pre{background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:10px;
+    overflow:auto; font-size:12.5px; line-height:1.5; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  table{border-collapse:collapse; width:100%; margin:12px 0; font-size:15px;}
+  th,td{border:1px solid var(--line); padding:7px 9px; text-align:left;}
+  th{background:#f1f5f9;}
+  td.n{text-align:right; white-space:nowrap;}
+
+  .note{background:var(--amber-bg); border-left:4px solid var(--amber); color:#7c4a06;
+    padding:9px 13px; border-radius:0 8px 8px 0; margin:12px 0; font-size:14px;}
+  .note b{color:var(--amber);}
+
+  /* question card */
+  .q{border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:12px 0; background:#fff;}
+  .q.right{background:var(--green-bg); border-color:#86efac;}
+  .q.wrong{background:var(--red-bg); border-color:#fca5a5;}
+  .qtext{font-weight:600; display:block; margin-bottom:9px;}
+  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  input.ans{flex:1; min-width:130px; font-size:18px; padding:11px 13px; border:2px solid var(--line);
+    border-radius:10px; outline:none; background:#fff; color:var(--ink);}
+  input.ans:focus{border-color:var(--blue);}
+  button{font-size:16px; font-weight:700; border:none; border-radius:10px; padding:11px 18px;
+    cursor:pointer; touch-action:manipulation;}
+  button:active{transform:translateY(1px);}
+  .check{background:var(--blue); color:#fff;}
+  .reveal{background:#e2e8f0; color:var(--ink); font-weight:600; padding:9px 14px; font-size:14px;}
+  .result{font-weight:700; margin-top:8px; display:block; font-size:15px;}
+  .result.ok{color:var(--green);}
+  .result.no{color:var(--red);}
+
+  .challenge{background:var(--purple-bg); border-left:4px solid var(--purple); padding:12px 16px;
+    border-radius:0 8px 8px 0; margin:16px 0;}
+  .pill{display:inline-block; background:var(--green); color:#fff; font-size:14px;
+    font-weight:700; padding:5px 16px; border-radius:999px;}
+  .resetbtn{background:#fff; border:2px solid var(--line); color:var(--muted); font-size:13px;
+    padding:8px 12px; border-radius:10px;}
+  ol{padding-left:22px;} ol li{margin:5px 0;}
+  hr{border:none; border-top:1px solid var(--line); margin:26px 0;}
+  .hint{font-size:13px; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="scorebar">
+    <div><span class="lbl">Score:</span> <span id="solved">0</span>/<span id="total">0</span></div>
+    <div class="bar"><span id="fill"></span></div>
+    <div class="stars" id="stars">⭐</div>
+  </div>
+
+  <h1>Lesson 1 — Place Value 🔢</h1>
+  <p class="sub"><b>Summer Math · Going into 5th Grade</b> · about 30 minutes</p>
+  <p class="hint">Type your answer, tap <b>Check</b>. Green = got it! Pink = try again.
+    Your progress is saved on this tablet automatically.</p>
+
+  <h2><span class="timechip">0–5 min</span> Warm-Up</h2>
+
+  <div class="q" data-answer="40" data-type="num">
+    <span class="qtext">1. In <b>47</b>, what is the <b>4</b> worth?</span>
+    <div class="row"><input class="ans" inputmode="numeric" placeholder="a number"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="80" data-type="num">
+    <span class="qtext">2. In <b>283</b>, what is the <b>8</b> worth?</span>
+    <div class="row"><input class="ans" inputmode="numeric" placeholder="a number"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="600" data-type="num">
+    <span class="qtext">3. In <b>615</b>, what is the <b>6</b> worth?</span>
+    <div class="row"><input class="ans" inputmode="numeric" placeholder="a number"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="note"><b>Say it out loud too:</b> read <b>309</b> ("three hundred nine")
+    and <b>1,250</b> ("one thousand, two hundred fifty"). No typing — just say them.</div>
+
+  <h2><span class="timechip">5–15 min</span> Teach: How place value works</h2>
+  <p>Every digit has <b>two things</b>: the digit itself, and the <b>place</b> it sits
+    in. The place tells you what it's <i>worth</i>. Each place to the <b>left</b> is
+    <b>10× bigger</b> than the one to its right.</p>
+<pre>
+Millions | Hund-Thous | Ten-Thous | Thousands | Hundreds | Tens | Ones
+1,000,000   100,000     10,000      1,000        100      10      1
+</pre>
+  <h3>Example 1 — break <b>6,482</b> apart</h3>
+  <table>
+    <tr><th>Digit</th><th>Place</th><th>Worth</th></tr>
+    <tr><td class="n">6</td><td>Thousands</td><td>6,000</td></tr>
+    <tr><td class="n">4</td><td>Hundreds</td><td>400</td></tr>
+    <tr><td class="n">8</td><td>Tens</td><td>80</td></tr>
+    <tr><td class="n">2</td><td>Ones</td><td>2</td></tr>
+  </table>
+  <p>Add them up: 6,000 + 400 + 80 + 2 = <b>6,482</b>. ✅ That's <b>expanded form</b>.</p>
+  <h3>Example 2 — <b>3,205,070</b></h3>
+  <p>Watch the <b>zeros</b> — they hold the empty spots. We read it:
+    <b>"three million, two hundred five thousand, seventy."</b> Read to a comma, say
+    "million," read to the next comma, say "thousand," then the rest.</p>
+
+  <h2><span class="timechip">15–27 min</span> Practice</h2>
+
+  <h3>A) What is the <b>bold</b> digit worth?</h3>
+  <div class="q" data-answer="8" data-type="num">
+    <span class="qtext">1. 5<b>8</b></span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="300" data-type="num">
+    <span class="qtext">2. <b>3</b>46</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="200" data-type="num">
+    <span class="qtext">3. 7,<b>2</b>05</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="90000" data-type="num">
+    <span class="qtext">4. <b>9</b>1,400</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="60000" data-type="num">
+    <span class="qtext">5. 4<b>6</b>8,003</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h3>B) Write each number in <b>expanded form</b></h3>
+  <p class="hint">Type it with plus signs, like <b>400+70+2</b> (spaces are fine).</p>
+  <div class="q" data-answer="80+5" data-type="expanded">
+    <span class="qtext">6. 85</span>
+    <div class="row"><input class="ans" placeholder="e.g. 80+5"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="600+30" data-type="expanded">
+    <span class="qtext">7. 630</span>
+    <div class="row"><input class="ans" placeholder="e.g. 600+30"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="2000+900+10+4" data-type="expanded">
+    <span class="qtext">8. 2,914</span>
+    <div class="row"><input class="ans"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="50000+200+6" data-type="expanded">
+    <span class="qtext">9. 50,206</span>
+    <div class="row"><input class="ans"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h3>C) Write the number from its parts</h3>
+  <div class="q" data-answer="3521" data-type="num">
+    <span class="qtext">10. 3,000 + 500 + 20 + 1 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="64709" data-type="num">
+    <span class="qtext">11. 60,000 + 4,000 + 700 + 9 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="208030" data-type="num">
+    <span class="qtext">12. 200,000 + 8,000 + 30 = <span class="hint">(careful — empty places get a 0!)</span></span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h3>D) Read &amp; write</h3>
+  <div class="q" data-answer="one thousand four hundred eight" data-type="words">
+    <span class="qtext">13. Write <b>1,408</b> in words</span>
+    <div class="row"><input class="ans" placeholder="type the words"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="twenty seven thousand five hundred" data-type="words">
+    <span class="qtext">14. Write <b>27,500</b> in words</span>
+    <div class="row"><input class="ans"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="60090" data-type="num">
+    <span class="qtext">15. Write the number for <b>"sixty thousand, ninety"</b></span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <h2><span class="timechip">27–30 min</span> Wrap-Up</h2>
+  <div class="challenge">
+    <b>Challenge:</b> A 4-digit number where the thousands digit is <b>7</b>, the
+    tens digit is <b>2</b>, and the hundreds and ones are both <b>0</b>.
+    <div class="q" data-answer="7020" data-type="num" style="background:transparent;border:none;padding:10px 0 0;margin:6px 0 0">
+      <div class="row"><input class="ans" inputmode="numeric" placeholder="the number"><button class="check">Check</button></div>
+      <span class="result"></span>
+    </div>
+  </div>
+  <p><b>Then ask:</b> "Tell me one thing you learned about place value today."</p>
+
+  <h2>✨ Stretch <span style="font-weight:400;font-size:14px;color:var(--muted)">(extra time)</span></h2>
+  <div class="q" data-answer="999999" data-type="num">
+    <span class="qtext">S1. What is the <b>largest</b> 6-digit number you can make?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-answer="158" data-type="num">
+    <span class="qtext">S2. Between 100 and 200, tens digit is 5, ones digit is 3 more than the tens. What number?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div>
+    <span class="result"></span>
+  </div>
+
+  <div style="text-align:center; margin:30px 0 6px;">
+    <span class="pill" id="finish" style="display:none">🎉 You finished Lesson 1!</span>
+  </div>
+  <div style="text-align:center; margin-top:14px;">
+    <button class="resetbtn" id="reset">↺ Start over (clear my answers)</button>
+  </div>
+
+  <hr>
+  <p class="hint">Next up → Lesson 2: Comparing &amp; Ordering Big Numbers. Just ask!</p>
+</div>
+
+<script>
+(function(){
+  var KEY = "mathL1_v1";
+  var qs = Array.prototype.slice.call(document.querySelectorAll(".q"));
+  document.getElementById("total").textContent = qs.length;
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ saved = {}; }
+
+  function norm(s){ return (s||"").toString().trim().toLowerCase(); }
+  function digits(s){ return norm(s).replace(/[^0-9]/g,""); }
+  function words(s){
+    return norm(s).replace(/-/g," ").replace(/[,\.]/g,"").replace(/\band\b/g," ")
+      .replace(/\s+/g," ").trim();
+  }
+  function expandedTerms(s){
+    return norm(s).replace(/\s+/g,"").split("+")
+      .map(function(t){ return parseInt(t.replace(/[^0-9]/g,""),10); })
+      .filter(function(n){ return n && n!==0; })
+      .sort(function(a,b){ return a-b; }).join(",");
+  }
+  function isRight(val, ans, type){
+    if(type==="num")      return digits(val)!=="" && digits(val)===digits(ans);
+    if(type==="words")    return words(val)!=="" && words(val)===words(ans);
+    if(type==="expanded") return expandedTerms(val)!=="" && expandedTerms(val)===expandedTerms(ans);
+    return false;
+  }
+
+  function updateScore(){
+    var done = qs.filter(function(q){ return q.classList.contains("right"); }).length;
+    document.getElementById("solved").textContent = done;
+    var pct = qs.length ? Math.round(done/qs.length*100) : 0;
+    document.getElementById("fill").style.width = pct + "%";
+    var stars = "⭐";
+    if(pct>=25) stars="⭐⭐";
+    if(pct>=50) stars="⭐⭐⭐";
+    if(pct>=75) stars="⭐⭐⭐⭐";
+    if(pct>=100) stars="🏆";
+    document.getElementById("stars").textContent = stars;
+    document.getElementById("finish").style.display = (done===qs.length) ? "inline-block" : "none";
+  }
+
+  function save(){
+    var data = {};
+    qs.forEach(function(q,i){
+      if(q.classList.contains("right")) data[i] = q.querySelector(".ans").value;
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e){}
+  }
+
+  qs.forEach(function(q,i){
+    var input  = q.querySelector(".ans");
+    var btn    = q.querySelector(".check");
+    var result = q.querySelector(".result");
+    var ans    = q.getAttribute("data-answer");
+    var type   = q.getAttribute("data-type");
+    var tries  = 0;
+
+    if(saved[i] !== undefined){
+      input.value = saved[i];
+      q.classList.add("right");
+      result.className = "result ok";
+      result.textContent = "✓ Correct!";
+    }
+
+    function check(){
+      if(isRight(input.value, ans, type)){
+        q.classList.remove("wrong"); q.classList.add("right");
+        result.className = "result ok";
+        result.textContent = "✓ Correct! Nice work.";
+        save(); updateScore();
+      } else {
+        tries++;
+        q.classList.remove("right"); q.classList.add("wrong");
+        result.className = "result no";
+        if(tries >= 3){
+          result.innerHTML = "Not quite — the answer is <b>" + ans + "</b>. " +
+            "Type it in to keep going!";
+        } else {
+          result.textContent = "Not quite — try again! 💪";
+        }
+        updateScore();
+      }
+    }
+    btn.addEventListener("click", check);
+    input.addEventListener("keydown", function(e){ if(e.key==="Enter") check(); });
+    input.addEventListener("input", function(){
+      if(q.classList.contains("right") && !isRight(input.value, ans, type)){
+        q.classList.remove("right"); result.textContent=""; result.className="result";
+        save(); updateScore();
+      }
+    });
+  });
+
+  document.getElementById("reset").addEventListener("click", function(){
+    if(!confirm("Clear all answers and start over?")) return;
+    try { localStorage.removeItem(KEY); } catch(e){}
+    location.reload();
+  });
+
+  updateScore();
+})();
+</script>
+</body>
+</html>
