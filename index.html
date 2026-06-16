@@ -135,6 +135,54 @@
   #doneBanner p{color:var(--muted);line-height:1.5}
   #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;
     padding:11px 18px;border-radius:11px;font-size:15px}
+
+  /* ---------- MODALS (mixer + quiz) ---------- */
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .modal .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px 22px 24px}
+  .modal h2{font-size:21px;margin:0 0 4px}
+  .modal .lead{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 14px}
+  .modal .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:9px;padding:6px 11px;font-weight:700;font-size:14px}
+
+  /* color mixer */
+  .mixrow{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+  .mixrow .ms{width:34px;height:34px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .mixrow .ms.sel{outline:3px solid var(--accent2);outline-offset:1px}
+  .mixlbl{font-size:12px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
+  .mixresult{display:flex;align-items:center;gap:16px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+  .mixresult .blob{width:74px;height:74px;border-radius:16px;border:2px solid #0005;flex:none;background:#fff}
+  .mixresult .txt{font-size:15px;line-height:1.4}
+  .mixresult .txt b{font-size:17px}
+  .mixresult .txt small{color:var(--muted);display:block;margin-top:3px;font-size:12.5px}
+
+  /* quiz */
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);
+    border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)}
+  .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.chosen{border-color:var(--ink)}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .qopt.wrong{background:#43222a;border-color:#ff6b81;color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
+  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;
+    padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  /* results + parent key */
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px}
+  .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700}
+  .answerkey .ak .correct{color:var(--good)}
+  .answerkey .ak .got{color:#ff8a9a}
+  .answerkey .ak .got.okgot{color:var(--good)}
 </style>
 </head>
 <body>
@@ -157,6 +205,8 @@
       <div class="lsub" id="lSub"></div>
     </div>
     <div class="spacer"></div>
+    <button class="back" id="mixerBtn">🎨 Color Mixer</button>
+    <button class="back" id="quizBtn">📝 Quiz</button>
     <button class="back" id="prevBtn">‹ Prev</button>
     <button class="back" id="nextLessonBtn">Next ›</button>
   </div>
@@ -204,6 +254,28 @@
   </div>
 </div>
 
+<!-- ============ COLOR MIXER ============ -->
+<div id="mixerModal" class="modal hidden">
+  <div class="sheet">
+    <button class="x" id="mixClose">✕</button>
+    <h2>🎨 Color Mixer</h2>
+    <p class="lead">Pick a color on the top row, then a color on the bottom row, and see what they make. Try the primary colors — <b>red, yellow, blue</b> — and find out which secondary colors they create!</p>
+    <div class="mixlbl">Color A</div>
+    <div class="mixrow" id="mixA"></div>
+    <div class="mixlbl">Color B</div>
+    <div class="mixrow" id="mixB"></div>
+    <div class="mixresult">
+      <div class="blob" id="mixBlob"></div>
+      <div class="txt" id="mixTxt"><b>Pick two colors ↑</b><small>The mix shows up here.</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ QUIZ ============ -->
+<div id="quizModal" class="modal hidden">
+  <div class="sheet" id="quizSheet"></div>
+</div>
+
 <script>
 /* ============================================================
    LESSON DATA — 14 interactive lessons.
@@ -247,15 +319,15 @@ const LESSONS = [
   {
     title:"The Color Wheel", element:"Element of Art: Color",
     desc:"Primary, secondary & complementary colors.",
-    materials:"Use the color swatches + the 🎡 Color wheel button.",
+    materials:"Use the color swatches, the 🎡 Color wheel button, and the 🎨 Color Mixer (top right).",
     phases:[
-      ["Primary colors are red, yellow, blue. Write them.","Guess: red+yellow=? blue+yellow=? red+blue=?"],
-      ["Primaries are the 'parents'. Mix two and you get a SECONDARY 'child' (orange, green, violet).","Mix a primary + a neighbor secondary = a TERTIARY 'grandchild'."],
-      ["Draw a big circle. Mark 3 even spots (like a triangle): red top, yellow bottom-right, blue bottom-left. Fill them in."],
-      ["Fill the secondary colors between the primaries: orange (red+yellow), green (yellow+blue), violet (blue+red).","Add tertiary colors in between if you can. Keep this wheel as a reference!"],
-      ["Which two colors sit directly across from each other? Those are COMPLEMENTS."],
+      ["The 3 PRIMARY colors are red, yellow, and blue. Write them down or draw a dot of each.","Why 'primary'? Because you CAN'T make them by mixing other colors — every other color comes from these three.","Quick guess before we test it: red + yellow = ? · blue + yellow = ? · red + blue = ?","Now open the 🎨 Color Mixer (top right) and check your guesses!"],
+      ["Mix two PRIMARY colors and you get a SECONDARY color: red+yellow=ORANGE, yellow+blue=GREEN, blue+red=VIOLET (purple).","Think of it like a family: primaries are the 'parents', secondaries are the 'children'.","Mix a primary with the secondary next to it and you get a TERTIARY color (the 'grandchildren') — like red-orange or blue-green.","Use the Mixer to make all 3 secondary colors yourself."],
+      ["Now build your own color wheel. Draw a big circle on the canvas.","Mark 3 even spots like a triangle: RED at top, YELLOW at bottom-right, BLUE at bottom-left. Fill each one in.","Leave space BETWEEN each primary — that's where the secondary colors will go."],
+      ["Fill the SECONDARY colors between the primaries: orange between red & yellow, green between yellow & blue, violet between blue & red.","If you have time, squeeze the 6 tertiary colors into the gaps too.","Press the 🎡 Color wheel button any time to compare yours to a real one. Keep your wheel — it's a reference for every future lesson!"],
+      ["COMPLEMENTARY colors sit directly ACROSS from each other on the wheel: red↔green, blue↔orange, yellow↔violet.","Side by side, complements make each other look brighter and 'pop'.","Look at your wheel: point to each complementary pair. Then take the 📝 Quiz to lock it in!"],
     ],
-    early:"Complementary Pop Art: pick one pair (blue & orange). Draw a fish or flower in one color, background in its complement. Watch it POP.",
+    early:"Complementary Pop Art: pick one pair (blue & orange). Draw a fish or flower in one color, background in its complement. Watch it POP. Then try a SUNSET using only warm colors blending into each other.",
   },
   {
     title:"Color Moods", element:"Element of Art: Color (warm/cool, tints/shades)",
@@ -643,6 +715,254 @@ function drawColorWheel(){
   ctx.fillText("color",cx,cy-2); ctx.fillText("wheel",cx,cy+12);
   ctx.textAlign="start";
 }
+
+/* ============================================================
+   COLOR MIXER  (interactive: pick two colors → see the result)
+   ============================================================ */
+const MIX_SWATCHES=[
+  {n:"Red",c:"#e63946",k:"red"},   {n:"Yellow",c:"#ffd166",k:"yellow"},
+  {n:"Blue",c:"#4d96ff",k:"blue"}, {n:"Orange",c:"#ff8a3d",k:"orange"},
+  {n:"Green",c:"#54b06b",k:"green"},{n:"Violet",c:"#9b5cff",k:"violet"},
+  {n:"White",c:"#ffffff",k:"white"},{n:"Black",c:"#111111",k:"black"},
+];
+const MIX={
+  "red|yellow":["#ff8a3d","Orange","A SECONDARY color! Red + Yellow = Orange."],
+  "blue|yellow":["#54b06b","Green","A SECONDARY color! Yellow + Blue = Green."],
+  "blue|red":["#8a5cd0","Violet (purple)","A SECONDARY color! Red + Blue = Violet."],
+  "orange|red":["#ff6a2a","Red-Orange","A TERTIARY color (a primary + a secondary)."],
+  "orange|yellow":["#ffac3d","Yellow-Orange","A TERTIARY color (a primary + a secondary)."],
+  "green|yellow":["#9bc14e","Yellow-Green","A TERTIARY color (a primary + a secondary)."],
+  "blue|green":["#3fa39a","Blue-Green","A TERTIARY color (a primary + a secondary)."],
+  "blue|violet":["#6f5cd6","Blue-Violet","A TERTIARY color (a primary + a secondary)."],
+  "red|violet":["#c34fa0","Red-Violet","A TERTIARY color (a primary + a secondary)."],
+  "blue|orange":["#7c6f57","Muddy Brown","Blue & Orange are COMPLEMENTS — mixed they make brown, but SIDE BY SIDE they pop!"],
+  "green|red":["#7c6b45","Muddy Brown","Red & Green are COMPLEMENTS — mixed they make brown, but SIDE BY SIDE they pop!"],
+  "violet|yellow":["#857665","Muddy Brown","Yellow & Violet are COMPLEMENTS — mixed they make brown, but SIDE BY SIDE they pop!"],
+};
+let mixA=null, mixB=null;
+function hexToRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function rgbToHex(r){return "#"+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");}
+function buildMixRow(host,which){
+  host.innerHTML="";
+  MIX_SWATCHES.forEach(s=>{
+    const d=document.createElement("div");
+    d.className="ms"; d.style.background=s.c; d.title=s.n; d.dataset.k=s.k;
+    d.onclick=()=>{
+      if(which==="A") mixA=s; else mixB=s;
+      host.querySelectorAll(".ms").forEach(x=>x.classList.remove("sel"));
+      d.classList.add("sel"); doMix();
+    };
+    host.appendChild(d);
+  });
+}
+function doMix(){
+  const blob=$("#mixBlob"), txt=$("#mixTxt");
+  if(!mixA||!mixB){ return; }
+  if(mixA.k===mixB.k){
+    blob.style.background=mixA.c;
+    txt.innerHTML=`<b>${mixA.n}</b><small>Same color mixed with itself — it stays ${mixA.n.toLowerCase()}!</small>`;
+    return;
+  }
+  // tint / shade
+  if(mixA.k==="white"||mixB.k==="white"){
+    const other=mixA.k==="white"?mixB:mixA;
+    const r=hexToRgb(other.c).map(v=>v+(255-v)*0.55);
+    blob.style.background=rgbToHex(r);
+    txt.innerHTML=`<b>Light ${other.n} (a TINT)</b><small>Any color + white = a tint (a lighter version).</small>`;
+    return;
+  }
+  if(mixA.k==="black"||mixB.k==="black"){
+    const other=mixA.k==="black"?mixB:mixA;
+    const r=hexToRgb(other.c).map(v=>v*0.45);
+    blob.style.background=rgbToHex(r);
+    txt.innerHTML=`<b>Dark ${other.n} (a SHADE)</b><small>Any color + black = a shade (a darker version).</small>`;
+    return;
+  }
+  const key=[mixA.k,mixB.k].sort().join("|");
+  if(MIX[key]){
+    const [c,name,note]=MIX[key];
+    blob.style.background=c;
+    txt.innerHTML=`<b>${name}</b><small>${note}</small>`;
+  } else {
+    const a=hexToRgb(mixA.c), b=hexToRgb(mixB.c);
+    blob.style.background=rgbToHex(a.map((v,i)=>(v+b[i])/2));
+    txt.innerHTML=`<b>A new mixed color</b><small>${mixA.n} + ${mixB.n} blended together.</small>`;
+  }
+}
+function openMixer(){ buildMixRow($("#mixA"),"A"); buildMixRow($("#mixB"),"B"); mixA=mixB=null;
+  $("#mixTxt").innerHTML="<b>Pick two colors ↑</b><small>The mix shows up here.</small>";
+  $("#mixBlob").style.background="#fff"; $("#mixerModal").classList.remove("hidden"); }
+$("#mixerBtn").onclick=openMixer;
+$("#mixClose").onclick=()=>$("#mixerModal").classList.add("hidden");
+
+/* ============================================================
+   QUIZ — one attempt per question, wrong stays wrong, the
+   answer is NOT shown to the student. A parent answer key and
+   score are available at the end so you can grade & review.
+   ============================================================ */
+const QUIZZES = {
+  0:[ // Line
+    {q:"Which kind of line feels the most CALM and restful?",opts:["Zigzag","Horizontal","Diagonal"],a:1},
+    {q:"What kind of line would best show a bolt of lightning?",opts:["Curved","Horizontal","Zigzag"],a:2},
+    {q:"A line is best described as…",opts:["A moving point / the path between two points","A type of color","A flat shape"],a:0},
+    {q:"Which line would you use to draw gentle, rolling hills?",opts:["Vertical","Curved","Zigzag"],a:1},
+  ],
+  1:[ // Shape & Form
+    {q:"A SHAPE is flat (2D). A FORM is…",opts:["Also flat","Solid (3D) — it has depth","A kind of color"],a:1},
+    {q:"What turns a flat circle into a 3D sphere on paper?",opts:["Shading (light & dark)","Making it bigger","Using more colors"],a:0},
+    {q:"Which is an ORGANIC shape?",opts:["Square","Triangle","A leaf"],a:2},
+    {q:"A square becomes which 3D form?",opts:["Sphere","Cube","Cone"],a:1},
+  ],
+  2:[ // Color Wheel
+    {q:"Which three are the PRIMARY colors?",opts:["Red, Yellow, Blue","Orange, Green, Violet","Red, Green, Blue"],a:0},
+    {q:"Red + Yellow makes which color?",opts:["Green","Orange","Violet"],a:1},
+    {q:"Blue + Yellow makes which color?",opts:["Green","Orange","Brown"],a:0},
+    {q:"Why are red, yellow and blue called 'primary'?",opts:["They are the brightest","You can't make them by mixing other colors","They are everyone's favorite"],a:1},
+    {q:"Colors directly ACROSS from each other on the wheel are called…",opts:["Primary colors","Complementary colors","Warm colors"],a:1},
+    {q:"What is the complement of BLUE?",opts:["Orange","Green","Red"],a:0},
+  ],
+  3:[ // Color Moods
+    {q:"Which group are the WARM colors?",opts:["Blue, green, violet","Red, orange, yellow","Black, white, gray"],a:1},
+    {q:"A color mixed with WHITE makes a…",opts:["Shade (darker)","Tint (lighter)","Complement"],a:1},
+    {q:"A color mixed with BLACK makes a…",opts:["Tint (lighter)","Shade (darker)","Primary"],a:1},
+    {q:"Cool colors (blue, green, violet) usually feel…",opts:["Hot and close","Calm and far away","Loud and fast"],a:1},
+  ],
+  4:[ // Value & Shading
+    {q:"VALUE means…",opts:["How light or dark something is","What color something is","How big something is"],a:0},
+    {q:"The brightest spot where light hits directly is the…",opts:["Cast shadow","Highlight","Core shadow"],a:1},
+    {q:"The dark shape an object throws onto the table is the…",opts:["Cast shadow","Highlight","Tint"],a:0},
+    {q:"To make a ball look round you should…",opts:["Color it all one flat color","Shade smoothly from light to dark","Outline it in black"],a:1},
+  ],
+  5:[ // Texture
+    {q:"IMPLIED texture is…",opts:["Texture you can really feel","Texture an artist DRAWS so it looks rough/fuzzy","A type of paint"],a:1},
+    {q:"Which marks would best draw FUR?",opts:["Stacked rectangles","Short curved strokes","Straight ruler lines"],a:1},
+    {q:"A photo of a cactus looks spiky but feels smooth. That texture is…",opts:["Real","Implied","Rubbed"],a:1},
+  ],
+  6:[ // Space
+    {q:"The empty space AROUND an object is called…",opts:["Positive space","Negative space","Middle ground"],a:1},
+    {q:"To make something look CLOSER, you draw it…",opts:["Smaller and higher up","Bigger and lower down","In the corner"],a:1},
+    {q:"When one object covers part of another, that trick is called…",opts:["Overlap","Shading","Balance"],a:0},
+  ],
+  7:[ // One-Point Perspective
+    {q:"The single dot where parallel lines seem to meet is the…",opts:["Horizon line","Vanishing point","Focal point"],a:1},
+    {q:"The horizon line is the same as your…",opts:["Eye level","Favorite color","Paper edge"],a:0},
+    {q:"In perspective, objects get ___ as they move toward the vanishing point.",opts:["Bigger","Smaller","Brighter"],a:1},
+  ],
+  8:[ // Balance & Symmetry
+    {q:"SYMMETRICAL balance means…",opts:["Both sides match like a mirror","One big shape on one side","A design that spreads from the center"],a:0},
+    {q:"A design that spreads out from a center point (like a flower) has ___ balance.",opts:["Radial","Asymmetrical","Symmetrical"],a:0},
+    {q:"True or false: asymmetrical art is always 'unbalanced'.",opts:["True","False — it can still feel balanced"],a:1},
+  ],
+  9:[ // Pattern & Rhythm
+    {q:"A single unit that repeats in a pattern is called the…",opts:["Motif","Rhythm","Value"],a:0},
+    {q:"A pattern that goes dot, star, dot, star is a(n)…",opts:["Alternating pattern","Radial pattern","Random pattern"],a:0},
+    {q:"RHYTHM in art is most like…",opts:["A beat in music for your eyes","The color of the paper","The size of the page"],a:0},
+  ],
+  10:[ // Emphasis & Focal Point
+    {q:"The spot your eye goes to FIRST is the…",opts:["Background","Focal point","Negative space"],a:1},
+    {q:"One red flower in a field of green stands out because of…",opts:["Color contrast","Texture","Symmetry"],a:0},
+    {q:"Setting one object apart from a crowd to draw attention is called…",opts:["Isolation","Overlap","Shading"],a:0},
+  ],
+  11:[ // Proportion & Portraits
+    {q:"On a face, the eyes sit about…",opts:["Near the very top of the head","Halfway down the head","Right above the mouth"],a:1},
+    {q:"PROPORTION is about…",opts:["The size relationship between parts","How dark a color is","The kind of line used"],a:0},
+    {q:"About how far apart are the two eyes?",opts:["One eye-width apart","Touching","Three eye-widths apart"],a:0},
+  ],
+  12:[ // Art History & Styles
+    {q:"Swirling, thick brushstrokes in 'The Starry Night' are the style of…",opts:["Mondrian","Van Gogh","Picasso"],a:1},
+    {q:"Grids of straight black lines with red, yellow & blue boxes are by…",opts:["Mondrian","Monet","Pollock"],a:0},
+    {q:"Breaking objects into shapes shown from many angles at once is…",opts:["Impressionism","Cubism (Picasso)","Realism"],a:1},
+  ],
+  13:[ // Capstone
+    {q:"Name one ELEMENT of art.",opts:["Line","Balance","Emphasis"],a:0},
+    {q:"Name one PRINCIPLE of design.",opts:["Color","Texture","Balance"],a:2},
+    {q:"A good finished artwork should have…",opts:["No focal point","One clear focal point","Only one color"],a:1},
+  ],
+};
+
+let quiz=null, qi=0, qAnswers=[];
+function openQuiz(){
+  quiz=QUIZZES[curLesson]||[];
+  qi=0; qAnswers=[];
+  if(!quiz.length){ return; }
+  $("#quizModal").classList.remove("hidden");
+  renderQuestion();
+}
+function renderQuestion(){
+  const sheet=$("#quizSheet");
+  if(qi>=quiz.length){ renderResults(); return; }
+  const item=quiz[qi];
+  sheet.innerHTML=`
+    <button class="x" id="qClose">✕</button>
+    <div class="qprog">Question ${qi+1} of ${quiz.length}</div>
+    <div class="qtext">${item.q}</div>
+    <div class="qopts" id="qopts"></div>
+    <div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;
+  const opts=$("#qopts");
+  item.opts.forEach((o,idx)=>{
+    const b=document.createElement("button");
+    b.className="qopt"; b.textContent=o;
+    b.onclick=()=>answer(idx,b);
+    opts.appendChild(b);
+  });
+}
+function answer(idx,btn){
+  const item=quiz[qi];
+  const correct = idx===item.a;
+  qAnswers[qi]=idx;
+  // lock every option; mark the chosen one only — do NOT reveal the right answer
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
+  btn.classList.add("chosen", correct?"right":"wrong");
+  const fb=$("#qfb");
+  fb.className="qfb "+(correct?"ok":"no");
+  fb.textContent = correct ? "✓ Correct!" : "✗ Marked wrong. We'll add this to your review list.";
+  const next=document.createElement("button");
+  next.className="qnext";
+  next.textContent = qi<quiz.length-1 ? "Next question →" : "See results →";
+  next.onclick=()=>{ qi++; renderQuestion(); };
+  $("#quizSheet").appendChild(next);
+}
+function renderResults(){
+  const total=quiz.length;
+  let right=0; quiz.forEach((it,i)=>{ if(qAnswers[i]===it.a) right++; });
+  const missed=quiz.map((it,i)=>({it,i})).filter(x=>qAnswers[x.i]!==x.it.a);
+  // save for the parent to look back at
+  try{ localStorage.setItem("quiz-L"+(curLesson+1), JSON.stringify({right,total,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/total*100);
+  const sheet=$("#quizSheet");
+  sheet.innerHTML=`
+    <button class="x" id="qClose">✕</button>
+    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
+    <div class="scorebig">${right} / ${total}</div>
+    <p class="lead">${right===total?"A perfect score — every question correct!":
+      "Here are the topics to go over again (the answers are saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
+    <div class="answerkey hidden" id="answerKey"></div>
+    <button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz;
+  $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{
+    const ak=$("#answerKey");
+    ak.classList.toggle("hidden");
+    if(!ak.dataset.built){
+      ak.innerHTML=quiz.map((it,i)=>{
+        const gotIdx=qAnswers[i];
+        const ok=gotIdx===it.a;
+        const got = gotIdx==null?"(no answer)":it.opts[gotIdx];
+        return `<div class="ak">
+          <div class="qq">${i+1}. ${it.q}</div>
+          <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
+          <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} He chose: ${got}</div>
+        </div>`;
+      }).join("");
+      ak.dataset.built="1";
+    }
+  };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+$("#quizBtn").onclick=openQuiz;
 </script>
 </body>
 </html>
