@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Art Lesson 2 — Warm &amp; Cool Colors (Interactive)</title>
+<style>
+  :root{
+    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#3a4059; --warn:#ffd166; --bad:#ff6b81;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .35em}
+  .hidden{display:none !important}
+
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px}
+  .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+  .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#211}
+
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)}
+  .phaserow.done .dot{background:var(--good);border-color:var(--good)}
+  .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px}
+  .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px}
+  .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#33304a;border:1px solid #4b3f6b}
+  .extra .lab{font-size:12px;font-weight:700;color:#caa9ff;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#e7e1f7}
+  .matbox{margin-top:12px;font-size:13px;color:var(--muted)} .matbox b{color:var(--ink)}
+
+  /* studio / activity zone */
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:16px;display:none}
+  .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:60ch}
+
+  /* draw */
+  .tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .swatches{display:flex;gap:6px}
+  .sw{width:26px;height:26px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .sw.active{outline:3px solid var(--ink);outline-offset:1px}
+  .tbtn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700}
+  .tbtn.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  canvas#pad{background:#fff;border-radius:10px;box-shadow:0 10px 40px #0007;touch-action:none;max-width:100%;display:block}
+
+  /* warm/cool game */
+  .tray{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+  .chip{width:54px;height:54px;border-radius:14px;border:3px solid #0005;cursor:pointer;position:relative;transition:transform .08s}
+  .chip.sel{outline:4px solid var(--ink);outline-offset:2px;transform:scale(1.08)}
+  .chip.placed{opacity:.25;pointer-events:none}
+  .buckets{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+  .bucket{flex:1;min-width:200px;min-height:130px;border-radius:16px;border:2px dashed var(--line);padding:12px}
+  .bucket.warm{background:linear-gradient(135deg,#5a2a18,#3a1f14)}
+  .bucket.cool{background:linear-gradient(135deg,#16314a,#142a3a)}
+  .bucket h4{margin:0 0 8px;font-size:15px}
+  .bucket .slots{display:flex;gap:8px;flex-wrap:wrap}
+  .bucket .slots .chip{cursor:default}
+  .gamemsg{margin-top:12px;font-weight:700;font-size:14px;min-height:1.2em}
+  .gamemsg.ok{color:var(--good)} .gamemsg.no{color:var(--bad)}
+
+  /* tint/shade */
+  .tsrow{display:flex;align-items:center;gap:14px;margin:16px 0;flex-wrap:wrap}
+  .tsblob{width:120px;height:120px;border-radius:18px;border:2px solid #0005}
+  .tslabel{font-size:18px;font-weight:800}
+  .tslabel small{display:block;color:var(--muted);font-weight:600;font-size:13px;margin-top:4px}
+  input[type=range]{width:260px;max-width:70vw}
+  .basepick{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+
+  /* mixer */
+  .mixlbl{font-size:12px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
+  .mixrow{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+  .mixrow .ms{width:34px;height:34px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .mixrow .ms.sel{outline:3px solid var(--accent2);outline-offset:1px}
+  .mixresult{display:flex;align-items:center;gap:16px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+  .mixresult .blob{width:74px;height:74px;border-radius:16px;border:2px solid #0005;flex:none;background:#fff}
+  .mixresult .txt b{font-size:17px} .mixresult .txt small{color:var(--muted);display:block;margin-top:3px;font-size:12.5px}
+
+  /* modal + quiz */
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+  .sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)}
+  .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
+  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px} .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700} .answerkey .ak .correct{color:var(--good)}
+  .answerkey .ak .got{color:#ff8a9a} .answerkey .ak .got.okgot{color:var(--good)}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+  #doneBanner h2{font-size:24px} #doneBanner p{color:var(--muted);line-height:1.5}
+  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+
+  @media (max-width:820px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;max-height:48%;border-right:none;border-bottom:1px solid var(--line)}
+    .clock{font-size:38px}
+  }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div>
+      <div class="ltitle">🎨 Art Lesson 2: Warm &amp; Cool Colors</div>
+      <div class="lsub">Color theory part 2 — warm vs. cool, plus tints &amp; shades · 30 minutes · 4th→5th refresher</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="game">🔥❄ Sorting Game</button>
+        <button class="tab" data-z="ts">🌗 Tint &amp; Shade</button>
+        <button class="tab" data-z="mix">🎨 Color Mixer</button>
+        <button class="tab" data-z="draw">✏ Draw</button>
+      </div>
+
+      <!-- WARM/COOL SORTING GAME -->
+      <div class="zone on" id="z-game">
+        <h3>Sort the colors: Warm 🔥 or Cool ❄</h3>
+        <p class="lead">Click a color to pick it up, then click the bucket you think it belongs in. Warm colors remind us of fire and sun; cool colors remind us of water and ice.</p>
+        <div class="tray" id="tray"></div>
+        <div class="buckets">
+          <div class="bucket warm" data-b="warm"><h4>🔥 Warm</h4><div class="slots" id="slot-warm"></div></div>
+          <div class="bucket cool" data-b="cool"><h4>❄ Cool</h4><div class="slots" id="slot-cool"></div></div>
+        </div>
+        <div class="gamemsg" id="gameMsg">Sorted 0 of 8</div>
+        <button class="tbtn" id="gameReset" style="margin-top:10px">↺ Reset game</button>
+      </div>
+
+      <!-- TINT & SHADE -->
+      <div class="zone" id="z-ts">
+        <h3>Make a Tint or a Shade</h3>
+        <p class="lead">Pick a base color, then slide. Toward white = a <b>tint</b> (lighter). Toward black = a <b>shade</b> (darker). The pure color is in the middle.</p>
+        <div class="basepick" id="tsBase"></div>
+        <div class="tsrow">
+          <div class="tsblob" id="tsBlob"></div>
+          <div>
+            <div class="tslabel" id="tsLabel">Pure color<small>Slide left or right →</small></div>
+          </div>
+        </div>
+        <div>← Shade (add black) &nbsp;&nbsp; <input type="range" id="tsRange" min="-100" max="100" value="0"> &nbsp;&nbsp; Tint (add white) →</div>
+      </div>
+
+      <!-- COLOR MIXER -->
+      <div class="zone" id="z-mix">
+        <h3>Color Mixer</h3>
+        <p class="lead">Remember Lesson 1? Pick a color on each row and see what they make. Try mixing a color with white or black to make tints and shades!</p>
+        <div class="mixlbl">Color A</div><div class="mixrow" id="mixA"></div>
+        <div class="mixlbl">Color B</div><div class="mixrow" id="mixB"></div>
+        <div class="mixresult"><div class="blob" id="mixBlob"></div>
+          <div class="txt" id="mixTxt"><b>Pick two colors ↑</b><small>The mix shows up here.</small></div></div>
+      </div>
+
+      <!-- DRAW -->
+      <div class="zone" id="z-draw">
+        <h3>Two Moods, One Scene</h3>
+        <p class="lead">Draw the SAME simple scene twice (left and right). Color the left side with ONLY warm colors and the right side with ONLY cool colors. See how the mood changes!</p>
+        <div class="tools">
+          <div class="swatches" id="swatches"></div>
+          <label style="font-size:12px;color:var(--muted)">Size <input type="range" id="size" min="1" max="40" value="7"></label>
+          <button class="tbtn on" id="penBtn">✏ Pen</button>
+          <button class="tbtn" id="eraserBtn">⌫ Eraser</button>
+          <button class="tbtn" id="clearBtn">🗑 Clear</button>
+          <button class="tbtn" id="saveBtn">⬇ Save PNG</button>
+        </div>
+        <canvas id="pad" width="900" height="540"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="doneBanner" class="modal hidden"><div class="box">
+  <h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p>
+  <button id="doneBtn">Next step ▶</button>
+</div></div>
+
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* ---------------- LESSON PHASES (total = 30 min) ---------------- */
+const PHASES=[
+  {name:"Warm-Up", min:5, tab:"game",
+   steps:["Open the 🔥❄ Sorting Game (already showing).","Sort all 8 colors into Warm or Cool. Warm = fire & sun; Cool = water & ice.","Got one wrong? It pops back — try again until all 8 are sorted."],
+   doline:"DO NOW: finish the sorting game →"},
+  {name:"Mini-Lesson", min:6, tab:"ts",
+   steps:["Warm colors (red, orange, yellow) seem to come TOWARD you. Cool colors (blue, green, violet) seem to back AWAY — artists use this for distance!","A TINT = a color + white (lighter, like pink from red).","A SHADE = a color + black (darker, like maroon from red).","Open 🌗 Tint & Shade, pick a color, and slide it from shade → pure → tint."],
+   doline:"DO NOW: make a tint and a shade of 3 different colors →"},
+  {name:"Guided Practice", min:6, tab:"draw",
+   steps:["On the Draw canvas, make a VALUE STRIP for one color: darkest shade on the left, pure color in the middle, lightest tint on the right (about 5 steps).","Then make a second strip with a different color.","Tip: use the 🎨 Color Mixer if you want to preview a mix first."],
+   doline:"DO NOW: draw two value strips (5 steps each) →"},
+  {name:"Main Activity", min:11, tab:"draw",
+   steps:["Draw the SAME simple scene twice on the canvas (a house + tree + sky works great).","LEFT side: color it with ONLY warm colors → it should feel sunny / daytime.","RIGHT side: color it with ONLY cool colors → it should feel like night / winter.","Take your time and fill the whole scene. Save your art with ⬇ Save PNG when done."],
+   doline:"DO NOW: warm scene on the left, cool scene on the right →"},
+  {name:"Reflection + Quiz", min:2, tab:"game",
+   steps:["Which mood did the warm colors make? Which did the cool colors make? Which do you like better, and why?","Now press 📝 Quiz (top right) to check what you learned.","Grown-up: the quiz shows a score and an answer key so you can grade it."],
+   doline:"DO NOW: take the 📝 Quiz →"},
+];
+
+/* ---------------- TIMER ---------------- */
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){
+  const wrap=$("#steps"); wrap.innerHTML="";
+  PHASES.forEach((p,idx)=>{
+    const row=document.createElement("div");
+    row.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    row.innerHTML=`<div class="dot"></div><div class="meta">
+      <div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div>
+      <ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
+      ${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    row.onclick=()=>selectPhase(idx,false);
+    wrap.appendChild(row);
+  });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">⭐ If you finish early (+10–15 min)</div><p>Monochromatic challenge: draw a brand-new picture using only ONE color's tints and shades — light to dark, nothing else. It teaches you to control value like a pro.</p>`;
+  wrap.appendChild(ex);
+  const mat=document.createElement("div"); mat.className="matbox";
+  mat.innerHTML=`<b>Materials:</b> Just this screen! (Paper, crayons or paint also work great alongside it.)`;
+  wrap.appendChild(mat);
+}
+function selectPhase(idx,autostart){
+  stopTimer(); curPhase=idx; const p=PHASES[idx];
+  remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps();
+  if(p.tab) showZone(p.tab);
+  const a=document.querySelector(".phaserow.active"); if(a) a.scrollIntoView({block:"nearest",behavior:"smooth"});
+  if(autostart) startTimer();
+}
+function updateClock(){
+  const m=Math.floor(remaining/60), s=remaining%60;
+  const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  el.classList.toggle("low",remaining<=30&&remaining>0);
+  $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";
+}
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stopTimer();phaseFinished();} }
+function startTimer(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stopTimer(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+function phaseFinished(){
+  const last=curPhase>=PHASES.length-1;
+  $("#doneTitle").textContent=last?"🎉 Lesson complete!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great work — you filled a full 30 minutes! Take the quiz if you haven't, save your art, or try the bonus challenge.":`Nice! Ready for: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  try{beep();}catch(e){}
+}
+$("#doneBtn").onclick=()=>{ $("#doneBanner").classList.add("hidden");
+  if(curPhase<PHASES.length-1) selectPhase(curPhase+1,true); };
+$("#startBtn").onclick=startTimer; $("#pauseBtn").onclick=stopTimer;
+$("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); else phaseFinished(); };
+let actx; function beep(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  [660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";
+    o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);}); }
+
+/* ---------------- TABS ---------------- */
+function showZone(z){
+  document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));
+  if(z==="draw") resizeCanvas();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+/* ---------------- WARM/COOL GAME ---------------- */
+const GAME=[
+  {n:"Red",c:"#e63946",g:"warm"},{n:"Orange",c:"#ff8a3d",g:"warm"},
+  {n:"Yellow",c:"#ffd166",g:"warm"},{n:"Pink/Coral",c:"#ff6f61",g:"warm"},
+  {n:"Blue",c:"#4d96ff",g:"cool"},{n:"Green",c:"#54b06b",g:"cool"},
+  {n:"Violet",c:"#9b5cff",g:"cool"},{n:"Teal",c:"#2fb3c4",g:"cool"},
+];
+let selChip=null, placed=0;
+function buildGame(){
+  placed=0; selChip=null;
+  $("#slot-warm").innerHTML=""; $("#slot-cool").innerHTML="";
+  const tray=$("#tray"); tray.innerHTML="";
+  GAME.forEach((g,i)=>{
+    const d=document.createElement("div"); d.className="chip"; d.style.background=g.c; d.title=g.n; d.dataset.i=i;
+    d.onclick=()=>{ document.querySelectorAll("#tray .chip").forEach(x=>x.classList.remove("sel"));
+      d.classList.add("sel"); selChip=i; };
+    tray.appendChild(d);
+  });
+  $("#gameMsg").className="gamemsg"; $("#gameMsg").textContent="Sorted 0 of 8";
+}
+document.querySelectorAll(".bucket").forEach(b=>{
+  b.onclick=()=>{
+    if(selChip==null){ flash("Pick a color first (click one above).","no"); return; }
+    const g=GAME[selChip], want=b.dataset.b;
+    const chipEl=document.querySelector(`#tray .chip[data-i="${selChip}"]`);
+    if(g.g===want){
+      const c=document.createElement("div"); c.className="chip"; c.style.background=g.c; c.title=g.n;
+      $("#slot-"+want).appendChild(c);
+      chipEl.classList.add("placed"); chipEl.classList.remove("sel"); selChip=null; placed++;
+      if(placed>=GAME.length){ flash("🎉 All 8 sorted correctly! You've got warm vs. cool down.","ok"); }
+      else flash(`Correct! ${g.n} is a ${want} color. Sorted ${placed} of 8.`,"ok");
+    } else {
+      chipEl.classList.remove("sel"); selChip=null;
+      flash(`Not quite — ${g.n} isn't a ${want} color. Try the other bucket!`,"no");
+    }
+  };
+});
+function flash(msg,kind){ const m=$("#gameMsg"); m.textContent=msg; m.className="gamemsg "+kind; }
+$("#gameReset").onclick=buildGame;
+
+/* ---------------- TINT & SHADE ---------------- */
+const TS_BASE=[{n:"Red",c:"#e63946"},{n:"Blue",c:"#4d96ff"},{n:"Green",c:"#54b06b"},
+  {n:"Yellow",c:"#ffd166"},{n:"Violet",c:"#9b5cff"},{n:"Orange",c:"#ff8a3d"}];
+let tsBaseC="#e63946";
+function hexToRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function rgbToHex(r){return"#"+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");}
+function buildTS(){
+  const host=$("#tsBase"); host.innerHTML="";
+  TS_BASE.forEach((b,i)=>{ const d=document.createElement("div"); d.className="sw"+(i===0?" active":"");
+    d.style.background=b.c; d.title=b.n;
+    d.onclick=()=>{ tsBaseC=b.c; document.querySelectorAll("#tsBase .sw").forEach(x=>x.classList.remove("active"));
+      d.classList.add("active"); updateTS(); };
+    host.appendChild(d); });
+  $("#tsRange").value=0; updateTS();
+}
+function updateTS(){
+  const t=+$("#tsRange").value, rgb=hexToRgb(tsBaseC); let out, lab, sub;
+  if(t>0){ out=rgb.map(v=>v+(255-v)*(t/100)); lab="Tint (lighter)"; sub=`Pure color + ${t}% white`; }
+  else if(t<0){ out=rgb.map(v=>v*(1-(-t/100))); lab="Shade (darker)"; sub=`Pure color + ${-t}% black`; }
+  else { out=rgb; lab="Pure color"; sub="Slide left for a shade, right for a tint"; }
+  $("#tsBlob").style.background=rgbToHex(out);
+  $("#tsLabel").innerHTML=`${lab}<small>${sub}</small>`;
+}
+$("#tsRange").oninput=updateTS;
+
+/* ---------------- COLOR MIXER ---------------- */
+const MIX_SW=[{n:"Red",c:"#e63946",k:"red"},{n:"Yellow",c:"#ffd166",k:"yellow"},{n:"Blue",c:"#4d96ff",k:"blue"},
+  {n:"Orange",c:"#ff8a3d",k:"orange"},{n:"Green",c:"#54b06b",k:"green"},{n:"Violet",c:"#9b5cff",k:"violet"},
+  {n:"White",c:"#ffffff",k:"white"},{n:"Black",c:"#111111",k:"black"}];
+const MIX={
+  "red|yellow":["#ff8a3d","Orange","A SECONDARY color! Red + Yellow = Orange."],
+  "blue|yellow":["#54b06b","Green","A SECONDARY color! Yellow + Blue = Green."],
+  "blue|red":["#8a5cd0","Violet","A SECONDARY color! Red + Blue = Violet."],
+  "blue|orange":["#7c6f57","Muddy Brown","Blue & Orange are COMPLEMENTS — mixed they make brown, but side by side they pop!"],
+  "green|red":["#7c6b45","Muddy Brown","Red & Green are COMPLEMENTS — mixed they make brown, but side by side they pop!"],
+  "violet|yellow":["#857665","Muddy Brown","Yellow & Violet are COMPLEMENTS — mixed they make brown, but side by side they pop!"]};
+let mixA=null,mixB=null;
+function buildMixRow(host,which){ host.innerHTML="";
+  MIX_SW.forEach(s=>{ const d=document.createElement("div"); d.className="ms"; d.style.background=s.c; d.title=s.n;
+    d.onclick=()=>{ if(which==="A")mixA=s; else mixB=s;
+      host.querySelectorAll(".ms").forEach(x=>x.classList.remove("sel")); d.classList.add("sel"); doMix(); };
+    host.appendChild(d); }); }
+function doMix(){ const blob=$("#mixBlob"),txt=$("#mixTxt"); if(!mixA||!mixB)return;
+  if(mixA.k===mixB.k){ blob.style.background=mixA.c; txt.innerHTML=`<b>${mixA.n}</b><small>Same color — it stays the same!</small>`; return; }
+  if(mixA.k==="white"||mixB.k==="white"){ const o=mixA.k==="white"?mixB:mixA;
+    blob.style.background=rgbToHex(hexToRgb(o.c).map(v=>v+(255-v)*0.55));
+    txt.innerHTML=`<b>Light ${o.n} (a TINT)</b><small>Any color + white = a tint (lighter).</small>`; return; }
+  if(mixA.k==="black"||mixB.k==="black"){ const o=mixA.k==="black"?mixB:mixA;
+    blob.style.background=rgbToHex(hexToRgb(o.c).map(v=>v*0.45));
+    txt.innerHTML=`<b>Dark ${o.n} (a SHADE)</b><small>Any color + black = a shade (darker).</small>`; return; }
+  const key=[mixA.k,mixB.k].sort().join("|");
+  if(MIX[key]){ const[c,n,note]=MIX[key]; blob.style.background=c; txt.innerHTML=`<b>${n}</b><small>${note}</small>`; }
+  else { const a=hexToRgb(mixA.c),b=hexToRgb(mixB.c); blob.style.background=rgbToHex(a.map((v,i)=>(v+b[i])/2));
+    txt.innerHTML=`<b>A new mixed color</b><small>${mixA.n} + ${mixB.n} blended.</small>`; }
+}
+
+/* ---------------- DRAW CANVAS ---------------- */
+const pad=$("#pad"), ctx=pad.getContext("2d");
+let drawing=false,lastX=0,lastY=0,penColor="#e63946",penSize=7,erasing=false;
+const PALETTE=["#000000","#e63946","#ff8a3d","#ffd166","#ff6f61","#54b06b","#2fb3c4","#4d96ff","#9b5cff","#8d5524","#ffffff","#a7adc4"];
+const swEl=$("#swatches");
+PALETTE.forEach((c,i)=>{ const d=document.createElement("div"); d.className="sw"+(i===1?" active":""); d.style.background=c;
+  d.onclick=()=>{ penColor=c; erasing=false; $("#penBtn").classList.add("on"); $("#eraserBtn").classList.remove("on");
+    document.querySelectorAll("#swatches .sw").forEach(s=>s.classList.remove("active")); d.classList.add("active"); };
+  swEl.appendChild(d); });
+$("#size").oninput=e=>penSize=+e.target.value;
+$("#penBtn").onclick=()=>{erasing=false;$("#penBtn").classList.add("on");$("#eraserBtn").classList.remove("on");};
+$("#eraserBtn").onclick=()=>{erasing=true;$("#eraserBtn").classList.add("on");$("#penBtn").classList.remove("on");};
+$("#clearBtn").onclick=()=>{ctx.fillStyle="#fff";ctx.fillRect(0,0,pad.width,pad.height);drawDivider();};
+$("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="art-lesson-2-warm-cool.png";a.href=pad.toDataURL("image/png");a.click();};
+function resizeCanvas(){ const host=pad.parentElement; const w=Math.min(host.clientWidth-32,1000);
+  if(w>320 && Math.abs(w-pad.width)>4){ const prev=ctx.getImageData(0,0,pad.width,pad.height);
+    pad.width=w; pad.height=Math.round(w*0.6); ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+    try{ctx.putImageData(prev,0,0);}catch(e){} drawDividerIfBlank(); }
+  ctx.lineCap="round"; ctx.lineJoin="round"; }
+function drawDivider(){ ctx.save(); ctx.strokeStyle="#ccc"; ctx.setLineDash([8,8]); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(pad.width/2,0); ctx.lineTo(pad.width/2,pad.height); ctx.stroke();
+  ctx.setLineDash([]); ctx.fillStyle="#e9542f"; ctx.font="bold 15px sans-serif"; ctx.fillText("🔥 WARM",16,26);
+  ctx.fillStyle="#3a86ff"; ctx.textAlign="right"; ctx.fillText("COOL ❄",pad.width-16,26); ctx.textAlign="start"; ctx.restore(); }
+let dividerDrawn=false;
+function drawDividerIfBlank(){ if(!dividerDrawn){ drawDivider(); dividerDrawn=true; } }
+function pos(e){ const r=pad.getBoundingClientRect();
+  const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left, cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  return [cx*(pad.width/r.width), cy*(pad.height/r.height)]; }
+function start(e){ e.preventDefault(); drawing=true; [lastX,lastY]=pos(e); dot(lastX,lastY); }
+function move(e){ if(!drawing)return; e.preventDefault(); const[x,y]=pos(e); stroke(lastX,lastY,x,y); [lastX,lastY]=[x,y]; }
+function stroke(x0,y0,x1,y1){ ctx.strokeStyle=erasing?"#fff":penColor; ctx.lineWidth=erasing?penSize*2.4:penSize;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); }
+function dot(x,y){ ctx.fillStyle=erasing?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(erasing?penSize*1.2:penSize/2),0,7); ctx.fill(); }
+pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>drawing=false);
+pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>drawing=false);
+
+/* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
+const QUIZ=[
+  {q:"Which group are the WARM colors?",opts:["Blue, green, violet","Red, orange, yellow","Black, white, gray"],a:1},
+  {q:"Which color is a COOL color?",opts:["Red","Orange","Blue"],a:2},
+  {q:"A color mixed with WHITE makes a…",opts:["Shade (darker)","Tint (lighter)","Complement"],a:1},
+  {q:"A color mixed with BLACK makes a…",opts:["Tint (lighter)","Shade (darker)","Primary color"],a:1},
+  {q:"Cool colors (blue, green, violet) usually feel…",opts:["Hot and close","Calm and far away","Loud and fast"],a:1},
+  {q:"Pink is best described as a…",opts:["Shade of red","Tint of red","Complement of red"],a:1},
+];
+let qi=0, qAns=[];
+$("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };
+function renderQ(){ const sheet=$("#quizSheet");
+  if(qi>=QUIZ.length){ return renderResults(); }
+  const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <div class="qprog">Question ${qi+1} of ${QUIZ.length}</div>
+    <div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;
+  const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t;
+    b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
+}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx;
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
+  btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no");
+  fb.textContent=correct?"✓ Correct!":"✗ Marked wrong. We'll add this to your review list.";
+  const n=document.createElement("button"); n.className="qnext";
+  n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";
+  n.onclick=()=>{ qi++; renderQ(); }; $("#quizSheet").appendChild(n);
+}
+function renderResults(){
+  let right=0; QUIZ.forEach((it,i)=>{ if(qAns[i]===it.a) right++; });
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);
+  try{ localStorage.setItem("art-l2-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/QUIZ.length*100);
+  const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
+    <div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"A perfect score — every answer correct!":"Topics to go over again (answers are saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
+    <div class="answerkey hidden" id="answerKey"></div>
+    <button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz; $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{ const ak=$("#answerKey"); ak.classList.toggle("hidden");
+    if(!ak.dataset.built){ ak.innerHTML=QUIZ.map((it,i)=>{ const g=qAns[i], ok=g===it.a;
+      const got=g==null?"(no answer)":it.opts[g];
+      return `<div class="ak"><div class="qq">${i+1}. ${it.q}</div>
+        <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
+        <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} He chose: ${got}</div></div>`; }).join("");
+      ak.dataset.built="1"; } };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+
+/* ---------------- INIT ---------------- */
+buildGame(); buildTS(); buildMixRow($("#mixA"),"A"); buildMixRow($("#mixB"),"B");
+ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height); drawDividerIfBlank();
+renderSteps(); selectPhase(0,false);
+window.addEventListener("resize",()=>{ if($("#z-draw").classList.contains("on")) resizeCanvas(); });
+</script>
+</body>
+</html>
