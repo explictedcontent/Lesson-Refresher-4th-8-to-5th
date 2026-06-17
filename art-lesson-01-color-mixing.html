@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Art Lesson 1 — Color Mixing (Interactive)</title>
+<style>
+  :root{
+    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#3a4059; --warn:#ffd166; --bad:#ff6b81;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .35em}
+  .hidden{display:none !important}
+
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px}
+  .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+  .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#211}
+
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)}
+  .phaserow.done .dot{background:var(--good);border-color:var(--good)}
+  .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px}
+  .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px}
+  .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#33304a;border:1px solid #4b3f6b}
+  .extra .lab{font-size:12px;font-weight:700;color:#caa9ff;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#e7e1f7}
+  .matbox{margin-top:12px;font-size:13px;color:var(--muted)} .matbox b{color:var(--ink)}
+
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:16px;display:none}
+  .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:60ch}
+
+  .tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .swatches{display:flex;gap:6px}
+  .sw{width:26px;height:26px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .sw.active{outline:3px solid var(--ink);outline-offset:1px}
+  .tbtn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700}
+  .tbtn.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  canvas#pad{background:#fff;border-radius:10px;box-shadow:0 10px 40px #0007;touch-action:none;max-width:100%;display:block}
+
+  /* mixer */
+  .mixlbl{font-size:12px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
+  .mixrow{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+  .mixrow .ms{width:40px;height:40px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .mixrow .ms.sel{outline:3px solid var(--accent2);outline-offset:2px}
+  .mixresult{display:flex;align-items:center;gap:16px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+  .mixresult .blob{width:80px;height:80px;border-radius:16px;border:2px solid #0005;flex:none;background:#fff}
+  .mixresult .txt b{font-size:18px} .mixresult .txt small{color:var(--muted);display:block;margin-top:3px;font-size:12.5px}
+
+  /* mix-match game */
+  .target{display:flex;align-items:center;gap:16px;margin:14px 0}
+  .target .tblob{width:84px;height:84px;border-radius:18px;border:2px solid #0005}
+  .target .tq{font-size:16px;font-weight:700}
+  .pickrow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .pick{width:54px;height:54px;border-radius:14px;border:3px solid #0005;cursor:pointer;transition:transform .08s}
+  .pick.sel{outline:4px solid var(--ink);outline-offset:2px;transform:scale(1.08)}
+  .gamemsg{margin-top:10px;font-weight:700;font-size:14px;min-height:1.2em}
+  .gamemsg.ok{color:var(--good)} .gamemsg.no{color:var(--bad)}
+
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+  .sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)}
+  .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
+  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px} .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700} .answerkey .ak .correct{color:var(--good)}
+  .answerkey .ak .got{color:#ff8a9a} .answerkey .ak .got.okgot{color:var(--good)}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+  #doneBanner h2{font-size:24px} #doneBanner p{color:var(--muted);line-height:1.5}
+  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+
+  @media (max-width:820px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;max-height:48%;border-right:none;border-bottom:1px solid var(--line)}
+    .clock{font-size:38px}
+  }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div>
+      <div class="ltitle">🎨 Art Lesson 1: Color Mixing</div>
+      <div class="lsub">Primary, secondary &amp; complementary colors · 30 minutes · 4th→5th refresher</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="mix">🎨 Color Mixer</button>
+        <button class="tab" data-z="game">🎯 Mix Match</button>
+        <button class="tab" data-z="draw">✏ Build a Color Wheel</button>
+      </div>
+
+      <!-- COLOR MIXER -->
+      <div class="zone on" id="z-mix">
+        <h3>Color Mixer — what makes what?</h3>
+        <p class="lead">Pick a color on the top row, then one on the bottom row, and see what they make. Start with the 3 PRIMARY colors — red, yellow, blue — and discover the secondary colors!</p>
+        <div class="mixlbl">Color A</div><div class="mixrow" id="mixA"></div>
+        <div class="mixlbl">Color B</div><div class="mixrow" id="mixB"></div>
+        <div class="mixresult"><div class="blob" id="mixBlob"></div>
+          <div class="txt" id="mixTxt"><b>Pick two colors ↑</b><small>The mix shows up here.</small></div></div>
+      </div>
+
+      <!-- MIX MATCH GAME -->
+      <div class="zone" id="z-game">
+        <h3>Mix Match 🎯</h3>
+        <p class="lead">Look at the target color. Click the TWO primary colors that mix together to make it. Get it right to move to the next one!</p>
+        <div class="target"><div class="tblob" id="tBlob"></div><div class="tq" id="tQ">Which two colors make this?</div></div>
+        <div class="pickrow" id="pickRow"></div>
+        <div class="gamemsg" id="gameMsg">Round 1 of 3</div>
+        <button class="tbtn" id="gameReset" style="margin-top:10px">↺ Play again</button>
+      </div>
+
+      <!-- DRAW -->
+      <div class="zone" id="z-draw">
+        <h3>Build Your Own Color Wheel</h3>
+        <p class="lead">Press “Show guide” for a circle with 6 spots. Put RED, YELLOW and BLUE in the 3 far-apart spots, then mix and fill the SECONDARY colors (orange, green, violet) in the spots between them. Keep this wheel — it helps in every art lesson!</p>
+        <div class="tools">
+          <div class="swatches" id="swatches"></div>
+          <label style="font-size:12px;color:var(--muted)">Size <input type="range" id="size" min="1" max="40" value="8"></label>
+          <button class="tbtn on" id="penBtn">✏ Pen</button>
+          <button class="tbtn" id="eraserBtn">⌫ Eraser</button>
+          <button class="tbtn" id="guideBtn">◎ Show guide</button>
+          <button class="tbtn" id="clearBtn">🗑 Clear</button>
+          <button class="tbtn" id="saveBtn">⬇ Save PNG</button>
+        </div>
+        <canvas id="pad" width="900" height="540"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="doneBanner" class="modal hidden"><div class="box">
+  <h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p>
+  <button id="doneBtn">Next step ▶</button>
+</div></div>
+
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* ---------------- PHASES (total = 30 min) ---------------- */
+const PHASES=[
+  {name:"Warm-Up", min:5, tab:"mix",
+   steps:["The 3 PRIMARY colors are red, yellow, and blue. Say them out loud.","Guess before you test: red + yellow = ? · blue + yellow = ? · red + blue = ?","Open the 🎨 Color Mixer (already showing) and check your guesses!"],
+   doline:"DO NOW: use the Mixer to test your 3 guesses →"},
+  {name:"Mini-Lesson", min:7, tab:"mix",
+   steps:["PRIMARY colors (red, yellow, blue) can't be made by mixing — that's why they're special.","Mix two primaries and you get a SECONDARY color: red+yellow=orange, yellow+blue=green, blue+red=violet.","Mix a primary with a secondary next to it and you get a TERTIARY color (like red-orange).","In the Mixer, make all 3 secondary colors yourself."],
+   doline:"DO NOW: make orange, green AND violet in the Mixer →"},
+  {name:"Guided Practice", min:6, tab:"game",
+   steps:["Open 🎯 Mix Match.","For each target color, click the TWO primaries that make it.","Finish all 3 rounds (orange, green, violet)."],
+   doline:"DO NOW: win all 3 rounds of Mix Match →"},
+  {name:"Main Activity", min:10, tab:"draw",
+   steps:["Open ✏ Build a Color Wheel and press “Show guide”.","Fill the 3 far-apart spots with the primaries: red, yellow, blue.","Mix and fill the secondary colors in the spots between them: orange, green, violet.","Save your finished wheel with ⬇ Save PNG."],
+   doline:"DO NOW: complete your 6-color wheel →"},
+  {name:"Reflection + Quiz", min:2, tab:"draw",
+   steps:["COMPLEMENTARY colors sit across from each other on the wheel (red↔green, blue↔orange, yellow↔violet). Find each pair on your wheel.","Now press 📝 Quiz (top right) to check what you learned.","Grown-up: the quiz shows a score and an answer key so you can grade it."],
+   doline:"DO NOW: take the 📝 Quiz →"},
+];
+
+/* ---------------- TIMER ---------------- */
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){
+  const wrap=$("#steps"); wrap.innerHTML="";
+  PHASES.forEach((p,idx)=>{
+    const row=document.createElement("div");
+    row.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    row.innerHTML=`<div class="dot"></div><div class="meta">
+      <div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div>
+      <ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
+      ${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    row.onclick=()=>selectPhase(idx,false);
+    wrap.appendChild(row);
+  });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">⭐ If you finish early (+10–15 min)</div><p>Complementary Pop Art: pick one pair (like blue & orange). Draw a fish or flower in one color and the background in its complement — watch how strongly it POPS!</p>`;
+  wrap.appendChild(ex);
+  const mat=document.createElement("div"); mat.className="matbox";
+  mat.innerHTML=`<b>Materials:</b> Just this screen! (Real paint or markers also work great alongside it.)`;
+  wrap.appendChild(mat);
+}
+function selectPhase(idx,autostart){
+  stopTimer(); curPhase=idx; const p=PHASES[idx];
+  remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps();
+  if(p.tab) showZone(p.tab);
+  const a=document.querySelector(".phaserow.active"); if(a) a.scrollIntoView({block:"nearest",behavior:"smooth"});
+  if(autostart) startTimer();
+}
+function updateClock(){
+  const m=Math.floor(remaining/60), s=remaining%60;
+  const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  el.classList.toggle("low",remaining<=30&&remaining>0);
+  $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";
+}
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stopTimer();phaseFinished();} }
+function startTimer(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stopTimer(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+function phaseFinished(){
+  const last=curPhase>=PHASES.length-1;
+  $("#doneTitle").textContent=last?"🎉 Lesson complete!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great work — you filled a full 30 minutes! Take the quiz if you haven't, save your color wheel, or try the bonus.":`Nice! Ready for: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  try{beep();}catch(e){}
+}
+$("#doneBtn").onclick=()=>{ $("#doneBanner").classList.add("hidden");
+  if(curPhase<PHASES.length-1) selectPhase(curPhase+1,true); };
+$("#startBtn").onclick=startTimer; $("#pauseBtn").onclick=stopTimer;
+$("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); else phaseFinished(); };
+let actx; function beep(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  [660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";
+    o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);}); }
+
+/* ---------------- TABS ---------------- */
+function showZone(z){
+  document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));
+  if(z==="draw") resizeCanvas();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+/* ---------------- COLOR MIXER ---------------- */
+function hexToRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function rgbToHex(r){return"#"+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");}
+const MIX_SW=[{n:"Red",c:"#e63946",k:"red"},{n:"Yellow",c:"#ffd166",k:"yellow"},{n:"Blue",c:"#4d96ff",k:"blue"},
+  {n:"Orange",c:"#ff8a3d",k:"orange"},{n:"Green",c:"#54b06b",k:"green"},{n:"Violet",c:"#9b5cff",k:"violet"},
+  {n:"White",c:"#ffffff",k:"white"},{n:"Black",c:"#111111",k:"black"}];
+const MIX={
+  "red|yellow":["#ff8a3d","Orange","A SECONDARY color! Red + Yellow = Orange."],
+  "blue|yellow":["#54b06b","Green","A SECONDARY color! Yellow + Blue = Green."],
+  "blue|red":["#8a5cd0","Violet (purple)","A SECONDARY color! Red + Blue = Violet."],
+  "orange|red":["#ff6a2a","Red-Orange","A TERTIARY color (a primary + a secondary)."],
+  "orange|yellow":["#ffac3d","Yellow-Orange","A TERTIARY color (a primary + a secondary)."],
+  "green|yellow":["#9bc14e","Yellow-Green","A TERTIARY color (a primary + a secondary)."],
+  "blue|green":["#3fa39a","Blue-Green","A TERTIARY color (a primary + a secondary)."],
+  "blue|violet":["#6f5cd6","Blue-Violet","A TERTIARY color (a primary + a secondary)."],
+  "red|violet":["#c34fa0","Red-Violet","A TERTIARY color (a primary + a secondary)."],
+  "blue|orange":["#7c6f57","Muddy Brown","Blue & Orange are COMPLEMENTS — mixed they make brown, but side by side they pop!"],
+  "green|red":["#7c6b45","Muddy Brown","Red & Green are COMPLEMENTS — mixed they make brown, but side by side they pop!"],
+  "violet|yellow":["#857665","Muddy Brown","Yellow & Violet are COMPLEMENTS — mixed they make brown, but side by side they pop!"]};
+let mixA=null,mixB=null;
+function buildMixRow(host,which){ host.innerHTML="";
+  MIX_SW.forEach(s=>{ const d=document.createElement("div"); d.className="ms"; d.style.background=s.c; d.title=s.n;
+    d.onclick=()=>{ if(which==="A")mixA=s; else mixB=s;
+      host.querySelectorAll(".ms").forEach(x=>x.classList.remove("sel")); d.classList.add("sel"); doMix(); };
+    host.appendChild(d); }); }
+function doMix(){ const blob=$("#mixBlob"),txt=$("#mixTxt"); if(!mixA||!mixB)return;
+  if(mixA.k===mixB.k){ blob.style.background=mixA.c; txt.innerHTML=`<b>${mixA.n}</b><small>Same color — it stays the same!</small>`; return; }
+  if(mixA.k==="white"||mixB.k==="white"){ const o=mixA.k==="white"?mixB:mixA;
+    blob.style.background=rgbToHex(hexToRgb(o.c).map(v=>v+(255-v)*0.55));
+    txt.innerHTML=`<b>Light ${o.n} (a TINT)</b><small>Any color + white = a tint (lighter).</small>`; return; }
+  if(mixA.k==="black"||mixB.k==="black"){ const o=mixA.k==="black"?mixB:mixA;
+    blob.style.background=rgbToHex(hexToRgb(o.c).map(v=>v*0.45));
+    txt.innerHTML=`<b>Dark ${o.n} (a SHADE)</b><small>Any color + black = a shade (darker).</small>`; return; }
+  const key=[mixA.k,mixB.k].sort().join("|");
+  if(MIX[key]){ const[c,n,note]=MIX[key]; blob.style.background=c; txt.innerHTML=`<b>${n}</b><small>${note}</small>`; }
+  else { const a=hexToRgb(mixA.c),b=hexToRgb(mixB.c); blob.style.background=rgbToHex(a.map((v,i)=>(v+b[i])/2));
+    txt.innerHTML=`<b>A new mixed color</b><small>${mixA.n} + ${mixB.n} blended.</small>`; }
+}
+
+/* ---------------- MIX MATCH GAME ---------------- */
+const PRIMS=[{n:"Red",c:"#e63946",k:"red"},{n:"Yellow",c:"#ffd166",k:"yellow"},{n:"Blue",c:"#4d96ff",k:"blue"}];
+const ROUNDS=[
+  {name:"Orange",c:"#ff8a3d",need:["red","yellow"]},
+  {name:"Green",c:"#54b06b",need:["blue","yellow"]},
+  {name:"Violet",c:"#9b5cff",need:["red","blue"]},
+];
+let round=0, picks=[];
+function buildGame(){ round=0; picks=[]; renderRound(); }
+function renderRound(){
+  picks=[];
+  const r=ROUNDS[round];
+  $("#tBlob").style.background=r.c;
+  $("#tQ").textContent=`Which TWO colors mix to make ${r.name}?`;
+  const row=$("#pickRow"); row.innerHTML="";
+  PRIMS.forEach(p=>{ const d=document.createElement("div"); d.className="pick"; d.style.background=p.c; d.title=p.n; d.dataset.k=p.k;
+    d.onclick=()=>togglePick(p.k,d); row.appendChild(d); });
+  $("#gameMsg").className="gamemsg"; $("#gameMsg").textContent=`Round ${round+1} of ${ROUNDS.length} — pick 2 colors`;
+}
+function togglePick(k,el){
+  const i=picks.indexOf(k);
+  if(i>=0){ picks.splice(i,1); el.classList.remove("sel"); }
+  else { if(picks.length>=2) return; picks.push(k); el.classList.add("sel"); }
+  if(picks.length===2) checkRound();
+}
+function checkRound(){
+  const r=ROUNDS[round], ok=r.need.slice().sort().join()===picks.slice().sort().join();
+  const m=$("#gameMsg");
+  if(ok){
+    if(round>=ROUNDS.length-1){ m.className="gamemsg ok"; m.textContent="🎉 You matched all 3 secondary colors! You're a mixing pro."; }
+    else { m.className="gamemsg ok"; m.textContent=`Correct! ${r.need[0]} + ${r.need[1]} = ${r.name}. Next round…`;
+      round++; setTimeout(renderRound,1100); }
+  } else {
+    m.className="gamemsg no"; m.textContent="Not quite — try a different pair!";
+    picks=[]; document.querySelectorAll("#pickRow .pick").forEach(x=>x.classList.remove("sel"));
+  }
+}
+$("#gameReset").onclick=buildGame;
+
+/* ---------------- DRAW CANVAS ---------------- */
+const pad=$("#pad"), ctx=pad.getContext("2d");
+let drawing=false,lastX=0,lastY=0,penColor="#e63946",penSize=8,erasing=false;
+const PALETTE=["#000000","#e63946","#ff8a3d","#ffd166","#54b06b","#2fb3c4","#4d96ff","#9b5cff","#ffffff","#8d5524"];
+const swEl=$("#swatches");
+PALETTE.forEach((c,i)=>{ const d=document.createElement("div"); d.className="sw"+(i===1?" active":""); d.style.background=c;
+  d.onclick=()=>{ penColor=c; erasing=false; $("#penBtn").classList.add("on"); $("#eraserBtn").classList.remove("on");
+    document.querySelectorAll("#swatches .sw").forEach(s=>s.classList.remove("active")); d.classList.add("active"); };
+  swEl.appendChild(d); });
+$("#size").oninput=e=>penSize=+e.target.value;
+$("#penBtn").onclick=()=>{erasing=false;$("#penBtn").classList.add("on");$("#eraserBtn").classList.remove("on");};
+$("#eraserBtn").onclick=()=>{erasing=true;$("#eraserBtn").classList.add("on");$("#penBtn").classList.remove("on");};
+$("#clearBtn").onclick=()=>{ctx.fillStyle="#fff";ctx.fillRect(0,0,pad.width,pad.height);guideDrawn=false;};
+$("#guideBtn").onclick=drawGuide;
+$("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="art-lesson-1-color-wheel.png";a.href=pad.toDataURL("image/png");a.click();};
+function resizeCanvas(){ const host=pad.parentElement; const w=Math.min(host.clientWidth-32,1000);
+  if(w>320 && Math.abs(w-pad.width)>4){ const prev=ctx.getImageData(0,0,pad.width,pad.height);
+    pad.width=w; pad.height=Math.round(w*0.6); ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+    try{ctx.putImageData(prev,0,0);}catch(e){} }
+  ctx.lineCap="round"; ctx.lineJoin="round"; }
+let guideDrawn=false;
+function drawGuide(){
+  const cx=pad.width/2, cy=pad.height/2, R=Math.min(pad.width,pad.height)*0.36;
+  ctx.save(); ctx.strokeStyle="#bbb"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+  const labels=["RED","ORANGE","YELLOW","GREEN","BLUE","VIOLET"];
+  for(let i=0;i<6;i++){ const a=(-90+i*60)*Math.PI/180; const x=cx+Math.cos(a)*R, y=cy+Math.sin(a)*R;
+    ctx.fillStyle="#eee"; ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle="#999"; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle="#666"; ctx.font="bold 11px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(labels[i], x, y+ (y<cy? -40:40)); }
+  ctx.textAlign="start"; ctx.textBaseline="alphabetic"; ctx.restore(); guideDrawn=true;
+}
+function pos(e){ const r=pad.getBoundingClientRect();
+  const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left, cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  return [cx*(pad.width/r.width), cy*(pad.height/r.height)]; }
+function start(e){ e.preventDefault(); drawing=true; [lastX,lastY]=pos(e); dot(lastX,lastY); }
+function move(e){ if(!drawing)return; e.preventDefault(); const[x,y]=pos(e); stroke(lastX,lastY,x,y); [lastX,lastY]=[x,y]; }
+function stroke(x0,y0,x1,y1){ ctx.strokeStyle=erasing?"#fff":penColor; ctx.lineWidth=erasing?penSize*2.4:penSize;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); }
+function dot(x,y){ ctx.fillStyle=erasing?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(erasing?penSize*1.2:penSize/2),0,7); ctx.fill(); }
+pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>drawing=false);
+pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>drawing=false);
+
+/* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
+const QUIZ=[
+  {q:"Which three are the PRIMARY colors?",opts:["Red, Yellow, Blue","Orange, Green, Violet","Red, Green, Blue"],a:0},
+  {q:"Red + Yellow makes which color?",opts:["Green","Orange","Violet"],a:1},
+  {q:"Blue + Yellow makes which color?",opts:["Green","Orange","Brown"],a:0},
+  {q:"Why are red, yellow and blue called 'primary'?",opts:["They are the brightest","You can't make them by mixing other colors","They are everyone's favorite"],a:1},
+  {q:"Colors directly ACROSS from each other on the wheel are called…",opts:["Primary colors","Complementary colors","Warm colors"],a:1},
+  {q:"What is the complement of BLUE?",opts:["Orange","Green","Red"],a:0},
+];
+let qi=0, qAns=[];
+$("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };
+function renderQ(){ const sheet=$("#quizSheet");
+  if(qi>=QUIZ.length){ return renderResults(); }
+  const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <div class="qprog">Question ${qi+1} of ${QUIZ.length}</div>
+    <div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;
+  const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t;
+    b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
+}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx;
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
+  btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no");
+  fb.textContent=correct?"✓ Correct!":"✗ Marked wrong. We'll add this to your review list.";
+  const n=document.createElement("button"); n.className="qnext";
+  n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";
+  n.onclick=()=>{ qi++; renderQ(); }; $("#quizSheet").appendChild(n);
+}
+function renderResults(){
+  let right=0; QUIZ.forEach((it,i)=>{ if(qAns[i]===it.a) right++; });
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);
+  try{ localStorage.setItem("art-l1-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/QUIZ.length*100);
+  const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
+    <div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"A perfect score — every answer correct!":"Topics to go over again (answers are saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
+    <div class="answerkey hidden" id="answerKey"></div>
+    <button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz; $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{ const ak=$("#answerKey"); ak.classList.toggle("hidden");
+    if(!ak.dataset.built){ ak.innerHTML=QUIZ.map((it,i)=>{ const g=qAns[i], ok=g===it.a;
+      const got=g==null?"(no answer)":it.opts[g];
+      return `<div class="ak"><div class="qq">${i+1}. ${it.q}</div>
+        <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
+        <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} He chose: ${got}</div></div>`; }).join("");
+      ak.dataset.built="1"; } };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+
+/* ---------------- INIT ---------------- */
+buildMixRow($("#mixA"),"A"); buildMixRow($("#mixB"),"B"); buildGame();
+ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+renderSteps(); selectPhase(0,false);
+window.addEventListener("resize",()=>{ if($("#z-draw").classList.contains("on")) resizeCanvas(); });
+</script>
+</body>
+</html>
