@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Art Lesson 3 — Value: Light &amp; Shadow (Interactive)</title>
+<style>
+  :root{
+    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#3a4059; --warn:#ffd166; --bad:#ff6b81;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .35em}
+  .hidden{display:none !important}
+
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px}
+  .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+  .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#211}
+
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)}
+  .phaserow.done .dot{background:var(--good);border-color:var(--good)}
+  .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px}
+  .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px}
+  .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#33304a;border:1px solid #4b3f6b}
+  .extra .lab{font-size:12px;font-weight:700;color:#caa9ff;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#e7e1f7}
+  .matbox{margin-top:12px;font-size:13px;color:var(--muted)} .matbox b{color:var(--ink)}
+
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:16px;display:none}
+  .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:62ch}
+
+  .tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .swatches{display:flex;gap:6px}
+  .sw{width:26px;height:26px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .sw.active{outline:3px solid var(--ink);outline-offset:1px}
+  .tbtn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700}
+  .tbtn.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  canvas#pad{background:#fff;border-radius:10px;box-shadow:0 10px 40px #0007;touch-action:none;max-width:100%;display:block}
+
+  /* value scale builder */
+  .vlbl{font-size:12px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:12px}
+  .greypicker{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .greypicker .gp{width:46px;height:46px;border-radius:10px;border:2px solid #0006;cursor:pointer}
+  .greypicker .gp.sel{outline:3px solid var(--accent2);outline-offset:2px}
+  .scalerow{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+  .cell{width:74px;height:74px;border-radius:12px;border:2px dashed #5a6080;background:#3a3f55;cursor:pointer;
+    display:flex;align-items:flex-end;justify-content:center;font-size:11px;font-weight:700;color:#0007;padding:4px}
+  .cell.filled{border-style:solid;border-color:#0005}
+  .checkmsg{margin-top:8px;font-weight:700;font-size:14px;min-height:1.2em}
+  .checkmsg.ok{color:var(--good)} .checkmsg.no{color:var(--bad)}
+
+  /* light the sphere */
+  .lstage{position:relative;width:100%;max-width:520px;height:360px;margin:10px 0;border-radius:16px;
+    background:linear-gradient(#20242f,#161922);overflow:hidden;border:1px solid var(--line)}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(#2b2f3d,#373d4f)}
+  .sphere{position:absolute;width:160px;height:160px;border-radius:50%;left:50%;top:120px;transform:translateX(-50%);
+    background:radial-gradient(circle at 35% 30%, #ffffff 0%, #d0d0d0 18%, #8a8a8a 45%, #3a3a3a 78%, #555 92%, #2a2a2a 100%)}
+  .cast{position:absolute;bottom:96px;left:50%;width:200px;height:42px;border-radius:50%;
+    background:radial-gradient(circle,#0009,#0000 70%);transform:translateX(-50%);filter:blur(3px)}
+  .sun{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#fff,#ffd166 60%,#ffaa00);
+    box-shadow:0 0 24px #ffd16699;cursor:grab;top:18px;left:60px;touch-action:none}
+  .lcontrols{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .lcontrols label{font-size:12.5px;color:var(--muted)}
+  .partbtn{margin-top:4px}
+  .partlabel{position:absolute;font-size:11px;font-weight:700;background:#000a;color:#fff;padding:2px 6px;border-radius:6px;white-space:nowrap;pointer-events:none}
+
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+  .sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)}
+  .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
+  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px} .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700} .answerkey .ak .correct{color:var(--good)}
+  .answerkey .ak .got{color:#ff8a9a} .answerkey .ak .got.okgot{color:var(--good)}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+  #doneBanner h2{font-size:24px} #doneBanner p{color:var(--muted);line-height:1.5}
+  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+
+  @media (max-width:820px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;max-height:48%;border-right:none;border-bottom:1px solid var(--line)}
+    .clock{font-size:38px}
+  }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div>
+      <div class="ltitle">🌗 Art Lesson 3: Value — Light &amp; Shadow</div>
+      <div class="lsub">Using light &amp; dark to make flat shapes look 3D · 30 minutes · 4th→5th refresher</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="scale">🌗 Value Scale</button>
+        <button class="tab" data-z="light">🔦 Light the Sphere</button>
+        <button class="tab" data-z="draw">✏ Shade a Ball</button>
+      </div>
+
+      <!-- VALUE SCALE -->
+      <div class="zone on" id="z-scale">
+        <h3>Build a Value Scale</h3>
+        <p class="lead"><b>Value</b> means how light or dark something is. Artists use a <b>value scale</b> to practice every step from white to black. Pick a gray below, then click a box to fill it. Fill all 5 boxes so they go from <b>lightest on the left</b> to <b>darkest on the right</b> — then press Check!</p>
+        <div class="vlbl">Pick a gray</div>
+        <div class="greypicker" id="greyPicker"></div>
+        <div class="vlbl">Your value scale (light → dark)</div>
+        <div class="scalerow" id="scaleRow"></div>
+        <button class="tbtn" id="checkScale">✓ Check my scale</button>
+        <button class="tbtn" id="resetScale">↺ Reset</button>
+        <div class="checkmsg" id="scaleMsg"></div>
+      </div>
+
+      <!-- LIGHT THE SPHERE -->
+      <div class="zone" id="z-light">
+        <h3>Light the Sphere 🔦</h3>
+        <p class="lead">Drag the <b>sun</b> around. Watch how the bright spot (<b>highlight</b>) and the dark side (<b>shadow</b>) move to the opposite side, and how the <b>cast shadow</b> stretches across the ground. Light always comes <i>from</i> one direction — that's what makes a ball look round!</p>
+        <div class="lstage" id="lstage">
+          <div class="ground"></div>
+          <div class="cast" id="cast"></div>
+          <div class="sphere" id="sphere"></div>
+          <div class="sun" id="sun"></div>
+        </div>
+        <div class="lcontrols">
+          <button class="tbtn partbtn" id="partsBtn">🏷 Show the 5 parts of shading</button>
+        </div>
+      </div>
+
+      <!-- DRAW -->
+      <div class="zone" id="z-draw">
+        <h3>Shade Your Own Ball</h3>
+        <p class="lead">Press “Show guide” for a circle, a ground line, and a sun showing the light direction. Shade it like a 3D ball: leave a white <b>highlight</b> near the sun, get gradually darker toward the far side (the <b>core shadow</b>), and add a soft <b>cast shadow</b> on the ground. Use the grays — press hard for dark, light for light!</p>
+        <div class="tools">
+          <div class="swatches" id="swatches"></div>
+          <label style="font-size:12px;color:var(--muted)">Size <input type="range" id="size" min="1" max="50" value="14"></label>
+          <button class="tbtn on" id="penBtn">✏ Pen</button>
+          <button class="tbtn" id="smudgeBtn">🫳 Soft</button>
+          <button class="tbtn" id="eraserBtn">⌫ Eraser</button>
+          <button class="tbtn" id="guideBtn">◎ Show guide</button>
+          <button class="tbtn" id="clearBtn">🗑 Clear</button>
+          <button class="tbtn" id="saveBtn">⬇ Save PNG</button>
+        </div>
+        <canvas id="pad" width="900" height="540"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="doneBanner" class="modal hidden"><div class="box">
+  <h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p>
+  <button id="doneBtn">Next step ▶</button>
+</div></div>
+
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* ---------------- PHASES (total = 30 min) ---------------- */
+const PHASES=[
+  {name:"Warm-Up", min:5, tab:"scale",
+   steps:["VALUE = how light or dark a color is. Squint at the room — what looks lightest? Darkest?","On the screen, build a VALUE SCALE: arrange grays from lightest (left) to darkest (right).","Press “Check my scale” to see if your order is correct."],
+   doline:"DO NOW: fill all 5 boxes light→dark, then Check →"},
+  {name:"Mini-Lesson", min:7, tab:"light",
+   steps:["Flat shapes look 3D when one side is light and the other is dark. That's the magic of value!","Light always comes from ONE direction. The bright spot is the HIGHLIGHT; the opposite side is in SHADOW.","Open 🔦 Light the Sphere and drag the sun around — watch the light and shadow move.","Press “Show the 5 parts of shading” to see: highlight, midtone, core shadow, reflected light, and cast shadow."],
+   doline:"DO NOW: drag the sun + show the 5 parts of shading →"},
+  {name:"Guided Practice", min:6, tab:"light",
+   steps:["Keep the sun in ONE spot (say, top-left).","Point to where the highlight is. Now point to the core shadow (darkest curved part).","Find the cast shadow — it falls on the ground on the side AWAY from the sun."],
+   doline:"DO NOW: name the highlight, core shadow & cast shadow →"},
+  {name:"Main Activity", min:10, tab:"draw",
+   steps:["Open ✏ Shade a Ball and press “Show guide”.","Decide your light comes from the sun in the corner. Leave a white HIGHLIGHT near it.","Shade gradually darker toward the far side. Use “Soft” to blend so there are no hard lines.","Add a soft CAST SHADOW on the ground, then Save your drawing with ⬇ Save PNG."],
+   doline:"DO NOW: shade a round 3D ball with a cast shadow →"},
+  {name:"Reflection + Quiz", min:2, tab:"draw",
+   steps:["Look at your ball — does it look round? The smoother the value change, the more 3D it looks.","Press 📝 Quiz (top right) to check what you learned about value, light and shadow.","Grown-up: the quiz shows a score and an answer key so you can grade it."],
+   doline:"DO NOW: take the 📝 Quiz →"},
+];
+
+/* ---------------- TIMER ---------------- */
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){
+  const wrap=$("#steps"); wrap.innerHTML="";
+  PHASES.forEach((p,idx)=>{
+    const row=document.createElement("div");
+    row.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    row.innerHTML=`<div class="dot"></div><div class="meta">
+      <div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div>
+      <ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
+      ${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    row.onclick=()=>selectPhase(idx,false);
+    wrap.appendChild(row);
+  });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">⭐ If you finish early (+10–15 min)</div><p>Shade two MORE objects with the same light: a cube (flat sides, sharp light/dark edges) and a can or cup (curved like the ball). Same light direction for all three makes them look like they belong together!</p>`;
+  wrap.appendChild(ex);
+  const mat=document.createElement("div"); mat.className="matbox";
+  mat.innerHTML=`<b>Materials:</b> Just this screen! (A pencil + paper and a real ball under a lamp make a great companion activity.)`;
+  wrap.appendChild(mat);
+}
+function selectPhase(idx,autostart){
+  stopTimer(); curPhase=idx; const p=PHASES[idx];
+  remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps();
+  if(p.tab) showZone(p.tab);
+  const a=document.querySelector(".phaserow.active"); if(a) a.scrollIntoView({block:"nearest",behavior:"smooth"});
+  if(autostart) startTimer();
+}
+function updateClock(){
+  const m=Math.floor(remaining/60), s=remaining%60;
+  const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  el.classList.toggle("low",remaining<=30&&remaining>0);
+  $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";
+}
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stopTimer();phaseFinished();} }
+function startTimer(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stopTimer(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+function phaseFinished(){
+  const last=curPhase>=PHASES.length-1;
+  $("#doneTitle").textContent=last?"🎉 Lesson complete!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great work — a full 30 minutes of shading! Take the quiz if you haven't, save your ball, or try the bonus objects.":`Nice! Ready for: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  try{beep();}catch(e){}
+}
+$("#doneBtn").onclick=()=>{ $("#doneBanner").classList.add("hidden");
+  if(curPhase<PHASES.length-1) selectPhase(curPhase+1,true); };
+$("#startBtn").onclick=startTimer; $("#pauseBtn").onclick=stopTimer;
+$("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); else phaseFinished(); };
+let actx; function beep(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  [660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";
+    o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);}); }
+
+/* ---------------- TABS ---------------- */
+function showZone(z){
+  document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));
+  if(z==="draw") resizeCanvas();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+/* ---------------- VALUE SCALE BUILDER ---------------- */
+const GREYS=["#ffffff","#cfcfcf","#9a9a9a","#5c5c5c","#1a1a1a"];
+const GVAL={"#ffffff":0,"#cfcfcf":1,"#9a9a9a":2,"#5c5c5c":3,"#1a1a1a":4};
+let selGrey=GREYS[0];
+const scaleVals=[null,null,null,null,null];
+function buildGreyPicker(){ const host=$("#greyPicker"); host.innerHTML="";
+  GREYS.forEach((c,i)=>{ const d=document.createElement("div"); d.className="gp"+(i===0?" sel":""); d.style.background=c;
+    d.onclick=()=>{ selGrey=c; host.querySelectorAll(".gp").forEach(x=>x.classList.remove("sel")); d.classList.add("sel"); };
+    host.appendChild(d); }); }
+function buildScaleRow(){ const host=$("#scaleRow"); host.innerHTML="";
+  for(let i=0;i<5;i++){ const c=document.createElement("div"); c.className="cell"; c.dataset.i=i;
+    c.textContent=(i===0?"lightest":i===4?"darkest":"");
+    if(scaleVals[i]!=null){ c.style.background=scaleVals[i]; c.classList.add("filled"); c.textContent=""; }
+    c.onclick=()=>{ scaleVals[i]=selGrey; buildScaleRow(); $("#scaleMsg").textContent=""; };
+    host.appendChild(c); } }
+$("#checkScale").onclick=()=>{ const m=$("#scaleMsg");
+  if(scaleVals.includes(null)){ m.className="checkmsg no"; m.textContent="Fill all 5 boxes first!"; return; }
+  let ok=true; for(let i=1;i<5;i++){ if(GVAL[scaleVals[i]]<=GVAL[scaleVals[i-1]]) ok=false; }
+  if(ok){ m.className="checkmsg ok"; m.textContent="🌟 Perfect! That goes smoothly from light to dark — a real value scale!"; }
+  else { m.className="checkmsg no"; m.textContent="Almost! Each box should be a little DARKER than the one before it. Try again."; } };
+$("#resetScale").onclick=()=>{ scaleVals.fill(null); buildScaleRow(); $("#scaleMsg").textContent=""; };
+
+/* ---------------- LIGHT THE SPHERE ---------------- */
+const lstage=$("#lstage"), sun=$("#sun"), sphere=$("#sphere"), cast=$("#cast");
+let lightAngle=Math.PI*1.15; // direction from sphere center to light
+function placeSun(px,py){
+  const r=lstage.getBoundingClientRect();
+  px=Math.max(8,Math.min(r.width-42,px)); py=Math.max(8,Math.min(r.height-42,py));
+  sun.style.left=px+"px"; sun.style.top=py+"px";
+  const scx=r.width/2, scy=120+80; // sphere center
+  lightAngle=Math.atan2((py+17)-scy,(px+17)-scx);
+  // highlight position on sphere = toward the light
+  const hx=50+Math.cos(lightAngle)*32, hy=50+Math.sin(lightAngle)*32;
+  sphere.style.background=`radial-gradient(circle at ${hx}% ${hy}%, #ffffff 0%, #dcdcdc 16%, #9a9a9a 42%, #3a3a3a 76%, #4a4a4a 90%, #262626 100%)`;
+  // cast shadow opposite the light, on the ground
+  const dx=-Math.cos(lightAngle), off=dx*70;
+  cast.style.transform=`translateX(calc(-50% + ${off}px)) scaleX(${1+Math.abs(dx)*0.6})`;
+  cast.style.opacity=String(0.45+Math.min(0.4,py/r.height*0.4));
+}
+function sunDrag(e){ e.preventDefault(); const r=lstage.getBoundingClientRect();
+  const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left-17, y=(e.touches?e.touches[0].clientY:e.clientY)-r.top-17;
+  placeSun(x,y); }
+let dragging=false;
+sun.addEventListener("mousedown",()=>dragging=true);
+sun.addEventListener("touchstart",()=>dragging=true,{passive:false});
+window.addEventListener("mousemove",e=>{if(dragging)sunDrag(e);});
+window.addEventListener("touchmove",e=>{if(dragging)sunDrag(e);},{passive:false});
+window.addEventListener("mouseup",()=>dragging=false);
+window.addEventListener("touchend",()=>dragging=false);
+let partsShown=false;
+const PARTS=[
+  {t:"1 Highlight",a:0,r:0.0,fromLight:true},
+  {t:"2 Midtone",side:"mid"},
+  {t:"3 Core shadow",fromLight:false},
+  {t:"4 Reflected light",reflect:true},
+  {t:"5 Cast shadow",cast:true},
+];
+$("#partsBtn").onclick=()=>{
+  partsShown=!partsShown;
+  lstage.querySelectorAll(".partlabel").forEach(n=>n.remove());
+  $("#partsBtn").textContent=partsShown?"🏷 Hide the 5 parts":"🏷 Show the 5 parts of shading";
+  if(!partsShown) return;
+  const r=lstage.getBoundingClientRect(), scx=r.width/2, scy=120+80, R=80;
+  const add=(txt,x,y)=>{ const d=document.createElement("div"); d.className="partlabel"; d.textContent=txt;
+    d.style.left=Math.max(2,Math.min(r.width-90,x))+"px"; d.style.top=Math.max(2,y)+"px"; lstage.appendChild(d); };
+  add("① Highlight", scx+Math.cos(lightAngle)*R*0.5-30, scy+Math.sin(lightAngle)*R*0.5-10);
+  add("② Midtone", scx-20, scy-6);
+  add("③ Core shadow", scx-Math.cos(lightAngle)*R*0.7-30, scy-Math.sin(lightAngle)*R*0.7-10);
+  add("④ Reflected light", scx-Math.cos(lightAngle)*R*0.95-40, scy-Math.sin(lightAngle)*R*0.95+24);
+  add("⑤ Cast shadow", scx-Math.cos(lightAngle)*120-30, scy+R-8);
+};
+
+/* ---------------- DRAW CANVAS ---------------- */
+const pad=$("#pad"), ctx=pad.getContext("2d");
+let drawing=false,lastX=0,lastY=0,penColor="#777777",penSize=14,mode="pen";
+const PALETTE=["#ffffff","#e0e0e0","#bdbdbd","#9a9a9a","#777777","#555555","#333333","#111111"];
+const swEl=$("#swatches");
+PALETTE.forEach((c,i)=>{ const d=document.createElement("div"); d.className="sw"+(i===4?" active":""); d.style.background=c;
+  d.onclick=()=>{ penColor=c; mode="pen"; $("#penBtn").classList.add("on"); $("#smudgeBtn").classList.remove("on"); $("#eraserBtn").classList.remove("on");
+    document.querySelectorAll("#swatches .sw").forEach(s=>s.classList.remove("active")); d.classList.add("active"); };
+  swEl.appendChild(d); });
+$("#size").oninput=e=>penSize=+e.target.value;
+function setMode(m){ mode=m; $("#penBtn").classList.toggle("on",m==="pen"); $("#smudgeBtn").classList.toggle("on",m==="smudge"); $("#eraserBtn").classList.toggle("on",m==="eraser"); }
+$("#penBtn").onclick=()=>setMode("pen");
+$("#smudgeBtn").onclick=()=>setMode("smudge");
+$("#eraserBtn").onclick=()=>setMode("eraser");
+$("#clearBtn").onclick=()=>{ctx.fillStyle="#fff";ctx.fillRect(0,0,pad.width,pad.height);};
+$("#guideBtn").onclick=drawGuide;
+$("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="art-lesson-3-shaded-ball.png";a.href=pad.toDataURL("image/png");a.click();};
+function resizeCanvas(){ const host=pad.parentElement; const w=Math.min(host.clientWidth-32,1000);
+  if(w>320 && Math.abs(w-pad.width)>4){ const prev=ctx.getImageData(0,0,pad.width,pad.height);
+    pad.width=w; pad.height=Math.round(w*0.6); ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+    try{ctx.putImageData(prev,0,0);}catch(e){} }
+  ctx.lineCap="round"; ctx.lineJoin="round"; }
+function drawGuide(){
+  const cx=pad.width*0.42, cy=pad.height*0.46, R=Math.min(pad.width,pad.height)*0.28;
+  ctx.save();
+  // ground line
+  ctx.strokeStyle="#ccc"; ctx.lineWidth=2; ctx.beginPath();
+  ctx.moveTo(0,cy+R+pad.height*0.06); ctx.lineTo(pad.width,cy+R+pad.height*0.06); ctx.stroke();
+  // ball outline
+  ctx.strokeStyle="#bbb"; ctx.lineWidth=2; ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+  // sun in top-right corner
+  const sx=pad.width-70, sy=60;
+  ctx.fillStyle="#ffd166"; ctx.beginPath(); ctx.arc(sx,sy,20,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle="#f0b400"; ctx.lineWidth=2;
+  for(let i=0;i<8;i++){const a=i*Math.PI/4; ctx.beginPath();
+    ctx.moveTo(sx+Math.cos(a)*26,sy+Math.sin(a)*26); ctx.lineTo(sx+Math.cos(a)*34,sy+Math.sin(a)*34); ctx.stroke();}
+  ctx.fillStyle="#999"; ctx.font="bold 13px sans-serif"; ctx.fillText("light comes from here →".replace("→",""), sx-150, sy-26);
+  ctx.fillStyle="#bbb"; ctx.font="12px sans-serif";
+  ctx.fillText("Keep a white highlight on the sun side · darkest on the far side · soft cast shadow on the ground", 16, pad.height-14);
+  ctx.restore();
+}
+function pos(e){ const r=pad.getBoundingClientRect();
+  const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left, cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  return [cx*(pad.width/r.width), cy*(pad.height/r.height)]; }
+function start(e){ e.preventDefault(); drawing=true; [lastX,lastY]=pos(e); applyDab(lastX,lastY); }
+function move(e){ if(!drawing)return; e.preventDefault(); const[x,y]=pos(e); strokeSeg(lastX,lastY,x,y); [lastX,lastY]=[x,y]; }
+function strokeSeg(x0,y0,x1,y1){
+  if(mode==="smudge"){ ctx.globalAlpha=0.06; ctx.strokeStyle="#888"; ctx.lineWidth=penSize*1.6;
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); ctx.globalAlpha=1; return; }
+  ctx.globalAlpha=mode==="pen"?0.85:1;
+  ctx.strokeStyle=mode==="eraser"?"#fff":penColor; ctx.lineWidth=mode==="eraser"?penSize*2:penSize;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); ctx.globalAlpha=1;
+}
+function applyDab(x,y){ if(mode==="smudge")return; ctx.globalAlpha=mode==="pen"?0.85:1;
+  ctx.fillStyle=mode==="eraser"?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(mode==="eraser"?penSize:penSize/2),0,7); ctx.fill(); ctx.globalAlpha=1; }
+pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>drawing=false);
+pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>drawing=false);
+
+/* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
+const QUIZ=[
+  {q:"In art, the word VALUE means…",opts:["How expensive a painting is","How light or dark something is","How many colors are used"],a:1},
+  {q:"What makes a flat circle look like a 3D ball?",opts:["Using lots of bright colors","Light on one side and dark on the other","Drawing it very big"],a:1},
+  {q:"The brightest spot on a ball, where the light hits most directly, is the…",opts:["Cast shadow","Highlight","Core shadow"],a:1},
+  {q:"The shadow a ball drops onto the ground or table is the…",opts:["Cast shadow","Highlight","Reflected light"],a:0},
+  {q:"A smooth change from light to dark (no hard lines) is called…",opts:["A value scale or blending","A complement","A primary color"],a:0},
+  {q:"If the light comes from the LEFT, the darkest part of the ball is on the…",opts:["Left side","Right side","Very top"],a:1},
+];
+let qi=0, qAns=[];
+$("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };
+function renderQ(){ const sheet=$("#quizSheet");
+  if(qi>=QUIZ.length){ return renderResults(); }
+  const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <div class="qprog">Question ${qi+1} of ${QUIZ.length}</div>
+    <div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;
+  const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t;
+    b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
+}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx;
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
+  btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no");
+  fb.textContent=correct?"✓ Correct!":"✗ Marked wrong. We'll add this to your review list.";
+  const n=document.createElement("button"); n.className="qnext";
+  n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";
+  n.onclick=()=>{ qi++; renderQ(); }; $("#quizSheet").appendChild(n);
+}
+function renderResults(){
+  let right=0; QUIZ.forEach((it,i)=>{ if(qAns[i]===it.a) right++; });
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);
+  try{ localStorage.setItem("art-l3-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/QUIZ.length*100);
+  const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
+    <div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"A perfect score — every answer correct!":"Topics to go over again (answers are saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
+    <div class="answerkey hidden" id="answerKey"></div>
+    <button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz; $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{ const ak=$("#answerKey"); ak.classList.toggle("hidden");
+    if(!ak.dataset.built){ ak.innerHTML=QUIZ.map((it,i)=>{ const g=qAns[i], ok=g===it.a;
+      const got=g==null?"(no answer)":it.opts[g];
+      return `<div class="ak"><div class="qq">${i+1}. ${it.q}</div>
+        <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
+        <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} He chose: ${got}</div></div>`; }).join("");
+      ak.dataset.built="1"; } };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+
+/* ---------------- INIT ---------------- */
+buildGreyPicker(); buildScaleRow();
+ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+renderSteps(); selectPhase(0,false);
+setTimeout(()=>placeSun(60,18),50);
+window.addEventListener("resize",()=>{ if($("#z-draw").classList.contains("on")) resizeCanvas(); });
+</script>
+</body>
+</html>
