@@ -241,6 +241,65 @@
       .score-num { font-size: 1.6em; }
       .ak-row { flex-direction: column; gap: 4px; }
     }
+
+    /* ── SAVE / PRINT BUTTONS ── */
+    .action-btns { display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+    .btn-save  { background: #27ae60; color: white; }
+    .btn-print { background: #2980b9; color: white; }
+    .btn-reset { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.5); }
+    .btn-save, .btn-print, .btn-reset {
+      padding: 14px 26px;
+      border-width: 0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-save:hover, .btn-print:hover, .btn-reset:hover { transform: scale(1.05); opacity: 0.9; }
+
+    /* floating save bar – appears once any question is answered */
+    #save-bar { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 200; gap: 10px; }
+    #save-bar.show { display: flex; }
+    #save-bar button {
+      padding: 11px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.88em;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    }
+    #save-bar .sb-save  { background: #27ae60; color: white; }
+    #save-bar .sb-print { background: #2980b9; color: white; }
+
+    /* restored-notice banner */
+    #restored-notice {
+      display: none;
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      color: #856404;
+      text-align: center;
+    }
+    #restored-notice.show { display: block; }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      body { background: white !important; padding: 0; }
+      .scoreboard { position: static !important; box-shadow: none; border: 2px solid #333; }
+      #save-bar, .progress-wrap, .action-btns, #restored-notice { display: none !important; }
+      .opt-btn:not(.state-correct):not(.state-wrong):not(.state-revealed),
+      .tf-btn:not(.state-correct):not(.state-wrong):not(.state-revealed) { display: none; }
+      .section { box-shadow: none !important; border: 1px solid #ccc; break-inside: avoid; }
+      #final-banner { box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #answer-key { box-shadow: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -251,6 +310,12 @@
     <div class="stars">🔬 🧪 🌍 🚀 🌱</div>
     <h1>Summer Science Refresher</h1>
     <div class="subtitle">Lesson 1: The World of Science &nbsp;|&nbsp; 4th Grade &rarr; 5th Grade</div>
+  </div>
+
+  <!-- RESTORED NOTICE -->
+  <div id="restored-notice">
+    📂 Previous session restored! Your answers are saved. Scroll down to see where you left off.
+    &nbsp; <button onclick="resetLesson()" style="background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:700;">Start Fresh</button>
   </div>
 
   <!-- SCOREBOARD -->
@@ -337,12 +402,23 @@
     <div class="final-score" id="final-score-txt">—</div>
     <p id="final-msg"></p>
     <div class="grade-msg" id="grade-msg"></div>
+    <div class="action-btns">
+      <button class="btn-save"  onclick="downloadResults()">💾 Download Results Report</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Print Results</button>
+      <button class="btn-reset" onclick="resetLesson()">🔄 Start Over</button>
+    </div>
   </div>
 
   <!-- ANSWER KEY -->
   <div id="answer-key">
     <div class="ak-header">📋 Answer Key</div>
     <div class="ak-body" id="ak-body"></div>
+  </div>
+
+  <!-- FLOATING SAVE BAR -->
+  <div id="save-bar">
+    <button class="sb-save"  onclick="downloadResults()">💾 Save Results</button>
+    <button class="sb-print" onclick="window.print()">🖨️ Print</button>
   </div>
 
 </div><!-- /container -->
@@ -702,9 +778,11 @@ const QUESTIONS = [
    STATE
    ════════════════════════════════════════════════ */
 const TOTAL = QUESTIONS.length;
+const STORAGE_KEY = 'science-lesson-1-v1';
 let answered = 0;
 let correctCount = 0;
 let wrongCount = 0;
+const answersRecord = {}; // { qId: { selectedIdx, selectedText, isCorrect, correctText, questionText, section, explanation } }
 
 /* ════════════════════════════════════════════════
    BUILD UI
@@ -758,35 +836,52 @@ function buildQuestions() {
 }
 
 /* ════════════════════════════════════════════════
-   HANDLE ANSWER
+   APPLY ANSWER STATE (shared by live answer + restore)
    ════════════════════════════════════════════════ */
-function handleAnswer(q, clickedBtn, clickedIdx) {
-  /* Lock all buttons for this question */
+function applyAnswerState(q, selectedIdx, isCorrect) {
   const allBtns = document.querySelectorAll(`[data-q="${q.id}"]`);
   allBtns.forEach(b => b.disabled = true);
 
   const card = document.getElementById(`card-${q.id}`);
   const fb   = document.getElementById(`fb-${q.id}`);
-
   card.classList.add('answered');
 
-  if (clickedIdx === q.correct) {
-    /* CORRECT */
-    clickedBtn.classList.add('state-correct');
+  if (isCorrect) {
+    allBtns[selectedIdx].classList.add('state-correct');
     fb.classList.add('show-correct');
     fb.innerHTML = '✅ <strong>Correct!</strong> ' + q.explanation;
-    correctCount++;
   } else {
-    /* WRONG — mark clicked red permanently, reveal green answer */
-    clickedBtn.classList.add('state-wrong');
+    allBtns[selectedIdx].classList.add('state-wrong');
     allBtns[q.correct].classList.add('state-revealed');
     fb.classList.add('show-wrong');
     fb.innerHTML = '❌ <strong>Not quite!</strong> ' + q.explanation;
-    wrongCount++;
   }
+}
+
+/* ════════════════════════════════════════════════
+   HANDLE ANSWER (live click)
+   ════════════════════════════════════════════════ */
+function handleAnswer(q, clickedBtn, clickedIdx) {
+  const isCorrect = clickedIdx === q.correct;
+
+  applyAnswerState(q, clickedIdx, isCorrect);
+
+  if (isCorrect) { correctCount++; } else { wrongCount++; }
+
+  answersRecord[q.id] = {
+    selectedIdx:  clickedIdx,
+    selectedText: q.options[clickedIdx],
+    isCorrect,
+    correctText:  q.answerLabel,
+    questionText: q.text,
+    section:      q.section,
+    explanation:  q.explanation
+  };
 
   answered++;
   updateScore();
+  saveToStorage();
+  document.getElementById('save-bar').classList.add('show');
 
   if (answered === TOTAL) {
     setTimeout(showFinalBanner, 600);
@@ -809,13 +904,14 @@ function updateScore() {
    FINAL BANNER
    ════════════════════════════════════════════════ */
 function showFinalBanner() {
+  saveToStorage(); // ensure completedAt is stored
   const pct = Math.round((correctCount / TOTAL) * 100);
   let emoji, msg;
   if (pct >= 90)      { emoji = '🏆'; msg = 'Outstanding work! You are a science superstar!'; }
   else if (pct >= 80) { emoji = '🌟'; msg = 'Great job! You really know your science!'; }
   else if (pct >= 70) { emoji = '👍'; msg = 'Good effort! Review the ones you missed and try again!'; }
-  else if (pct >= 60) { emoji = '📚'; msg = 'Keep studying — you\'ll get there! Science takes practice.'; }
-  else                { emoji = '💪'; msg = 'Don\'t give up! Read through the answer key and you\'ll improve!'; }
+  else if (pct >= 60) { emoji = '📚'; msg = "Keep studying — you'll get there! Science takes practice."; }
+  else                { emoji = '💪'; msg = "Don't give up! Read through the answer key and you'll improve!"; }
 
   document.getElementById('final-score-txt').textContent = `${correctCount} / ${TOTAL} — ${pct}%`;
   document.getElementById('final-msg').textContent = `You answered ${correctCount} questions correctly out of ${TOTAL}.`;
@@ -824,6 +920,170 @@ function showFinalBanner() {
   const banner = document.getElementById('final-banner');
   banner.classList.add('show');
   banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ════════════════════════════════════════════════
+   LOCAL STORAGE — SAVE
+   ════════════════════════════════════════════════ */
+function saveToStorage() {
+  const data = {
+    lessonId:    'science-lesson-1',
+    lessonTitle: 'Summer Science Refresher — Lesson 1: The World of Science',
+    savedAt:     new Date().toISOString(),
+    completed:   answered === TOTAL,
+    score:       { correct: correctCount, wrong: wrongCount, answered, total: TOTAL },
+    answers:     answersRecord
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+
+/* ════════════════════════════════════════════════
+   LOCAL STORAGE — RESTORE
+   ════════════════════════════════════════════════ */
+function restoreFromStorage() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) {}
+  if (!data || !data.answers || Object.keys(data.answers).length === 0) return;
+
+  let restoredCount = 0;
+  QUESTIONS.forEach(q => {
+    const rec = data.answers[q.id];
+    if (!rec) return;
+
+    applyAnswerState(q, rec.selectedIdx, rec.isCorrect);
+    answersRecord[q.id] = rec;
+    if (rec.isCorrect) { correctCount++; } else { wrongCount++; }
+    answered++;
+    restoredCount++;
+  });
+
+  if (restoredCount > 0) {
+    updateScore();
+    document.getElementById('save-bar').classList.add('show');
+    document.getElementById('restored-notice').classList.add('show');
+  }
+  if (answered === TOTAL) {
+    setTimeout(showFinalBanner, 400);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   RESET
+   ════════════════════════════════════════════════ */
+function resetLesson() {
+  if (confirm('Start over? This will erase the saved results for this lesson.')) {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    location.reload();
+  }
+}
+
+/* ════════════════════════════════════════════════
+   DOWNLOAD RESULTS REPORT
+   ════════════════════════════════════════════════ */
+function downloadResults() {
+  const pct  = TOTAL > 0 ? Math.round(correctCount / TOTAL * 100) : 0;
+  const date = new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' });
+
+  const sectionNames = {
+    1: 'The Scientific Method',
+    2: 'Lab Safety & Science Tools',
+    3: 'States of Matter',
+    4: 'Living Things',
+    5: 'Earth & Space Science'
+  };
+
+  const wrongQs   = QUESTIONS.filter(q => answersRecord[q.id] && !answersRecord[q.id].isCorrect);
+  const correctQs = QUESTIONS.filter(q => answersRecord[q.id] &&  answersRecord[q.id].isCorrect);
+  const unanswered = QUESTIONS.filter(q => !answersRecord[q.id]);
+
+  function wrongRows() {
+    if (wrongQs.length === 0) return '<p style="color:#27ae60;font-weight:700;">🎉 No wrong answers!</p>';
+    return wrongQs.map(q => {
+      const rec = answersRecord[q.id];
+      return `
+        <div style="border:2px solid #e74c3c;border-radius:10px;padding:14px 18px;margin-bottom:12px;background:#fff8f8;">
+          <div style="font-size:0.8em;color:#e74c3c;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">
+            Question ${q.id} — Section ${q.section}: ${sectionNames[q.section]}
+          </div>
+          <div style="font-weight:600;color:#222;margin-bottom:10px;">${q.text}</div>
+          <div style="background:#fde8e8;border-radius:6px;padding:8px 12px;margin-bottom:6px;color:#7b241c;">
+            ❌ <strong>Answer given:</strong> ${rec.selectedText}
+          </div>
+          <div style="background:#d4f5e2;border-radius:6px;padding:8px 12px;margin-bottom:6px;color:#145a32;">
+            ✅ <strong>Correct answer:</strong> ${q.answerLabel}
+          </div>
+          <div style="background:#f0f4ff;border-radius:6px;padding:8px 12px;color:#444;font-style:italic;">
+            💡 ${q.explanation}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function correctRows() {
+    return correctQs.map(q => `
+      <div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #eee;font-size:0.93em;">
+        <span style="font-weight:700;color:#27ae60;min-width:28px;">${q.id}.</span>
+        <span style="color:#145a32;font-weight:600;">${q.answerLabel}</span>
+        <span style="color:#666;font-style:italic;flex:1;">${q.text.substring(0,60)}${q.text.length>60?'…':''}</span>
+      </div>`).join('');
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Science Lesson 1 — Results Report</title>
+  <style>
+    body { font-family: 'Segoe UI', Verdana, sans-serif; max-width: 820px; margin: 0 auto; padding: 30px 24px; color: #222; }
+    h1 { color: #0f3460; margin-bottom: 4px; }
+    .meta { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+    .score-box { display:flex; gap:20px; background:#f0f4ff; border-radius:12px; padding:20px; margin-bottom:28px; flex-wrap:wrap; }
+    .sc { text-align:center; flex:1; min-width:80px; }
+    .sc-num { font-size:2.4em; font-weight:900; }
+    .sc-num.c { color:#27ae60; } .sc-num.w { color:#e74c3c; } .sc-num.p { color:#8e44ad; }
+    .sc-lbl { font-size:0.75em; text-transform:uppercase; letter-spacing:0.5px; color:#666; margin-top:3px; }
+    h2 { color:#0f3460; border-bottom:2px solid #e0e6ff; padding-bottom:6px; margin:28px 0 14px; }
+    @media print { body { padding:10px; } }
+  </style>
+</head>
+<body>
+  <h1>🔬 Summer Science Refresher</h1>
+  <h2 style="border:none;margin-top:0;color:#444;font-size:1.1em;">Lesson 1: The World of Science</h2>
+  <div class="meta">Report generated: ${date}</div>
+
+  <div class="score-box">
+    <div class="sc"><div class="sc-num c">${correctCount}</div><div class="sc-lbl">✅ Correct</div></div>
+    <div class="sc"><div class="sc-num w">${wrongCount}</div><div class="sc-lbl">❌ Wrong</div></div>
+    <div class="sc"><div class="sc-num" style="color:#2980b9;">${answered}</div><div class="sc-lbl">📝 Answered</div></div>
+    <div class="sc"><div class="sc-num p">${pct}%</div><div class="sc-lbl">⭐ Score</div></div>
+  </div>
+
+  <h2>❌ Questions Answered Incorrectly (${wrongQs.length})</h2>
+  ${wrongRows()}
+
+  ${unanswered.length > 0 ? `<h2>⏭️ Not Yet Answered (${unanswered.length})</h2>
+  <p style="color:#666;">${unanswered.map(q => 'Q' + q.id).join(', ')}</p>` : ''}
+
+  <h2>✅ Questions Answered Correctly (${correctQs.length})</h2>
+  <div style="background:#f0fff6;border-radius:10px;padding:14px 18px;">
+    ${correctRows() || '<p style="color:#666;">None yet.</p>'}
+  </div>
+
+  <p style="margin-top:30px;color:#999;font-size:0.8em;text-align:center;">
+    Summer Science Refresher — 4th Grade into 5th Grade
+  </p>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `science-lesson-1-results-${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ════════════════════════════════════════════════
@@ -865,6 +1125,7 @@ function buildAnswerKey() {
    ════════════════════════════════════════════════ */
 buildQuestions();
 buildAnswerKey();
+restoreFromStorage();
 </script>
 </body>
 </html>
