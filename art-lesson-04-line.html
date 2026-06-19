@@ -337,15 +337,30 @@ PALETTE.forEach((c,i)=>{ const d=document.createElement("div"); d.className="sw"
 $("#size").oninput=e=>penSize=+e.target.value;
 $("#penBtn").onclick=()=>{erasing=false;$("#penBtn").classList.add("on");$("#eraserBtn").classList.remove("on");};
 $("#eraserBtn").onclick=()=>{erasing=true;$("#eraserBtn").classList.add("on");$("#penBtn").classList.remove("on");};
-$("#clearBtn").onclick=()=>{ setGuide(curGuide); };
+$("#clearBtn").onclick=()=>{ setGuide(curGuide); saveCanvas(); };
 $("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="art-lesson-4-line.png";a.href=pad.toDataURL("image/png");a.click();};
-$("#g-types").onclick=()=>setGuide("types");
-$("#g-contour").onclick=()=>setGuide("contour");
-$("#g-textures").onclick=()=>setGuide("textures");
+$("#g-types").onclick=()=>{setGuide("types");saveCanvas();};
+$("#g-contour").onclick=()=>{setGuide("contour");saveCanvas();};
+$("#g-textures").onclick=()=>{setGuide("textures");saveCanvas();};
 function highlightGuideBtn(){ ["types","contour","textures"].forEach(g=>$("#g-"+g).classList.toggle("on",g===curGuide)); }
 
+/* ---------------- AUTO-SAVE (survives screen rotation & reloads) ---------------- */
+const CANVAS_KEY="art-l4-canvas";
+let _saveTimer=null,_toast=null;
+function _showToast(){ if(!_toast){_toast=document.createElement("div");
+    _toast.style.cssText="position:fixed;bottom:14px;right:14px;background:#1f3d2b;color:#d6f5df;border:1px solid #7bd88f;padding:7px 12px;border-radius:10px;font:600 12px sans-serif;z-index:80;opacity:0;transition:opacity .25s;pointer-events:none";
+    _toast.textContent="✓ Auto-saved"; document.body.appendChild(_toast);}
+  _toast.style.opacity="1"; clearTimeout(_toast._t); _toast._t=setTimeout(()=>{_toast.style.opacity="0";},900); }
+function saveCanvas(){ try{ localStorage.setItem(CANVAS_KEY,pad.toDataURL("image/png")); _showToast(); }catch(e){} }
+function autosave(){ clearTimeout(_saveTimer); _saveTimer=setTimeout(saveCanvas,400); }
+function restoreCanvas(){ try{ const d=localStorage.getItem(CANVAS_KEY); if(!d) return false;
+    const img=new Image(); img.onload=()=>{ ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height); ctx.drawImage(img,0,0,pad.width,pad.height); }; img.src=d; return true; }catch(e){ return false; } }
 function resizeCanvas(){ const host=pad.parentElement; const w=Math.min(host.clientWidth-32,1000);
-  if(w>320 && Math.abs(w-pad.width)>4){ pad.width=w; pad.height=Math.round(w*0.62); setGuide(curGuide); }
+  if(w>320 && Math.abs(w-pad.width)>4){
+    const off=document.createElement("canvas"); off.width=pad.width; off.height=pad.height; off.getContext("2d").drawImage(pad,0,0);
+    const ow=pad.width, oh=pad.height;
+    pad.width=w; pad.height=Math.round(w*0.62); ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+    ctx.drawImage(off,0,0,ow,oh,0,0,pad.width,pad.height); saveCanvas(); }
   ctx.lineCap="round"; ctx.lineJoin="round"; }
 
 function setGuide(kind){
@@ -434,8 +449,8 @@ function move(e){ if(!drawing)return; e.preventDefault(); const[x,y]=pos(e); str
 function stroke(x0,y0,x1,y1){ ctx.strokeStyle=erasing?"#fff":penColor; ctx.lineWidth=erasing?penSize*2.4:penSize;
   ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); }
 function dot(x,y){ ctx.fillStyle=erasing?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(erasing?penSize*1.2:penSize/2),0,7); ctx.fill(); }
-pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>drawing=false);
-pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>drawing=false);
+pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>{ if(drawing){ drawing=false; autosave(); } });
+pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>{ if(drawing){ drawing=false; autosave(); } });
 
 /* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
 const QUIZ=[
@@ -499,6 +514,7 @@ function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
 buildGame();
 ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
 renderSteps(); selectPhase(0,false);
+restoreCanvas();
 window.addEventListener("resize",()=>{ if($("#z-studio").classList.contains("on")) resizeCanvas(); });
 </script>
 </body>
