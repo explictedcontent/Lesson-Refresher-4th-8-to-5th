@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Studies Lesson 2 — U.S. Regions, States &amp; Capitals (4th → 5th Grade)</title>
+<style>
+  :root{
+    --bg:#16202b; --panel:#1f2c3a; --panel2:#27384a; --ink:#f3f7fb;
+    --muted:#9fb3c8; --accent:#ffb84d; --accent2:#5bd1c4; --good:#7bd88f;
+    --bad:#ff7a7a; --line:#33485f; --warn:#ffd166; --purple:#b58cff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.45;
+  }
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .4em}
+  .hidden{display:none !important}
+
+  /* ---------- HOME ---------- */
+  #home{max-width:1000px;margin:0 auto;padding:26px 20px 70px}
+  .hero{
+    background:linear-gradient(135deg,#3aa0ff,#5bd1c4 55%,#7bd88f);
+    border-radius:22px;padding:28px 30px;margin-bottom:22px;color:#06243a;
+  }
+  .hero h1{font-size:30px;line-height:1.12}
+  .hero p{margin:.5em 0 0;font-size:15.5px;opacity:.95;max-width:64ch}
+  .hero .pills{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  .hero .pill{background:rgba(255,255,255,.4);border:1px solid rgba(0,0,0,.12);
+    padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700}
+  .startbtn{
+    margin-top:18px;background:#06243a;color:#fff;border:none;font-weight:800;font-size:17px;
+    padding:13px 24px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+  .startbtn:hover{transform:translateY(-2px)}
+
+  .sectionhead{font-size:13px;letter-spacing:.08em;color:var(--accent2);font-weight:800;
+    text-transform:uppercase;margin:26px 0 10px}
+  .regiongrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .rcard{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;
+    text-align:left;color:var(--ink);transition:transform .08s ease,border-color .15s ease;
+  }
+  .rcard:hover{transform:translateY(-3px)}
+  .rcard .remoji{font-size:26px}
+  .rcard .rname{font-size:17px;font-weight:800;margin:6px 0 2px}
+  .rcard .rclimate{font-size:12.5px;color:var(--muted)}
+  .rcard ul{margin:10px 0 0;padding-left:18px;font-size:13.5px}
+  .rcard ul li{margin:3px 0}
+  .rcard .tag{display:inline-block;margin-top:10px;font-size:11px;padding:3px 9px;border-radius:999px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+  .teachernote{background:var(--panel);border:1px dashed var(--line);border-radius:14px;
+    padding:14px 16px;margin-top:24px;font-size:13.5px;color:var(--muted)}
+  .teachernote b{color:var(--ink)}
+
+  /* ---------- LESSON ---------- */
+  #lesson{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{
+    display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap;
+  }
+  .topbar .back,.topbar .ghost{
+    background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;
+  }
+  .topbar .ltitle{font-weight:800;font-size:16px}
+  .topbar .lsub{color:var(--muted);font-size:12.5px}
+  .spacer{flex:1}
+  .scorechip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+    padding:6px 14px;font-size:13.5px;font-weight:700}
+  .scorechip b{color:var(--good)}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{
+    width:330px;max-width:42vw;background:var(--panel);border-right:1px solid var(--line);
+    padding:16px;display:flex;flex-direction:column;gap:14px;overflow:auto;
+  }
+  .timerwrap{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .phasename{font-size:13px;color:var(--accent);font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+  .clock{font-size:40px;font-weight:800;letter-spacing:.02em;margin:2px 0 8px;font-variant-numeric:tabular-nums}
+  .bar{height:9px;background:#16202b;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel);color:var(--ink);padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);color:#3a2400;border-color:var(--accent)}
+  .steps{display:flex;flex-direction:column;gap:8px}
+  .steplink{display:flex;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);
+    border-radius:12px;padding:10px 12px;font-size:13.5px;text-align:left;color:var(--ink)}
+  .steplink .n{width:24px;height:24px;border-radius:999px;background:var(--bg);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 auto}
+  .steplink.active{border-color:var(--accent);background:#2b3a2a}
+  .steplink.active .n{background:var(--accent);color:#3a2400;border-color:var(--accent)}
+  .steplink small{display:block;color:var(--muted);font-size:11.5px}
+
+  .content{flex:1;min-width:0;overflow:auto;padding:24px 26px 60px}
+  .panelbox{max-width:760px;margin:0 auto}
+  .phasehead{font-size:13px;color:var(--accent2);font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+  .phasebig{font-size:24px;font-weight:800;margin:4px 0 4px}
+  .phaseintro{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+
+  /* explorer */
+  .expgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+  .expbtn{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 10px;
+    color:var(--ink);text-align:center;font-weight:700;font-size:14px}
+  .expbtn .e{font-size:26px;display:block;margin-bottom:4px}
+  .expbtn.active{border-color:var(--accent);background:var(--panel2)}
+  .expinfo{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .expinfo h3{font-size:20px}
+  .expinfo .climate{color:var(--accent);font-size:13px;font-weight:700;margin-bottom:10px}
+  .factrow{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;font-size:14px;margin:6px 0}
+  .factrow .k{color:var(--muted);font-weight:700}
+  .checkbar{margin-top:18px;color:var(--muted);font-size:13.5px}
+
+  /* question card */
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 18px}
+  .qmeta{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+  .qtag{background:var(--panel2);border:1px solid var(--line);padding:3px 10px;border-radius:999px;font-weight:700}
+  .qtext{font-size:19px;font-weight:700;margin:2px 0 16px;line-height:1.35}
+  .choices{display:flex;flex-direction:column;gap:10px}
+  .choice{display:flex;gap:12px;align-items:flex-start;background:var(--panel2);border:1.5px solid var(--line);
+    border-radius:13px;padding:13px 15px;color:var(--ink);font-size:15.5px;text-align:left;width:100%}
+  .choice:hover{border-color:var(--accent2)}
+  .choice .lt{width:26px;height:26px;border-radius:8px;background:var(--bg);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 auto;font-size:14px}
+  .choice.correct{border-color:var(--good);background:#21402c}
+  .choice.correct .lt{background:var(--good);color:#06270f}
+  .choice.wrong{border-color:var(--bad);background:#43222a}
+  .choice.wrong .lt{background:var(--bad);color:#3a0c0c}
+  .choice.disabled{opacity:.6;pointer-events:none}
+  .feedback{margin-top:16px;border-radius:13px;padding:14px 16px;font-size:14.5px;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:#21402c;border:1px solid var(--good)}
+  .feedback.no{background:#43222a;border:1px solid var(--bad)}
+  .feedback b{display:block;margin-bottom:3px;font-size:15px}
+  .qfoot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px;flex-wrap:wrap}
+  .nextq{background:var(--accent);color:#3a2400;border:none;border-radius:12px;padding:12px 22px;
+    font-size:15px;font-weight:800}
+  .nextq:disabled{opacity:.4;cursor:not-allowed}
+  .progressline{font-size:13px;color:var(--muted)}
+
+  /* matching */
+  .matchwrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .matchcol h4{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .matchitem{display:block;width:100%;text-align:left;background:var(--panel2);border:1.5px solid var(--line);
+    border-radius:12px;padding:12px 14px;color:var(--ink);font-size:14.5px;margin-bottom:9px}
+  .matchitem.sel{border-color:var(--accent);background:#3a3320}
+  .matchitem.done{border-color:var(--good);background:#21402c;opacity:.85;pointer-events:none}
+  .matchitem.shake{animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  /* reflection */
+  .reflectcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+  .reflectcard p{margin:0 0 6px;font-size:16px;font-weight:700}
+  .reflectcard small{color:var(--muted);font-size:13px}
+
+  .bigbtn{background:var(--accent2);color:#053a35;border:none;border-radius:12px;padding:12px 22px;
+    font-size:15px;font-weight:800;margin-top:8px}
+  .ghostbtn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:12px;
+    padding:11px 18px;font-size:14px;font-weight:700}
+
+  /* done banner */
+  #doneBanner{position:fixed;inset:0;background:rgba(8,12,18,.72);display:flex;align-items:center;
+    justify-content:center;padding:20px;z-index:50}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:26px 28px;max-width:460px;text-align:center}
+  #doneBanner h2{font-size:24px}
+  #doneBanner p{color:var(--muted);font-size:15px}
+  #doneBanner button{margin-top:14px;background:var(--accent);color:#3a2400;border:none;border-radius:12px;
+    padding:12px 22px;font-size:15px;font-weight:800}
+
+  @media (max-width:760px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;border-right:none;border-bottom:1px solid var(--line);
+      flex-direction:row;flex-wrap:wrap;gap:10px}
+    .timerwrap{flex:1;min-width:220px}
+    .steps{flex:1;min-width:200px}
+    .matchwrap{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<main id="home">
+  <div class="hero">
+    <h1>🗺️ Social Studies — Lesson 2</h1>
+    <h1 style="font-size:22px;font-weight:700;opacity:.9">U.S. Regions, States &amp; Capitals</h1>
+    <p>The United States is one big country split into <b>5 regions</b>, each with its own land,
+       weather, and famous places. In this lesson you'll explore all five, learn cool landmarks and
+       states, practice using a map and a compass, and crack the trick that the capital is <i>not</i>
+       always the biggest city. Then you'll prove what you know with a giant bank of problems.</p>
+    <div class="pills">
+      <span class="pill">⏱ 30 minutes</span>
+      <span class="pill">🧩 50+ problems</span>
+      <span class="pill">🧭 Map &amp; compass skills</span>
+      <span class="pill">4th → 5th grade</span>
+    </div>
+    <button class="startbtn" id="startLessonBtn">▶ Start the lesson</button>
+  </div>
+
+  <div class="sectionhead">Peek at the 5 U.S. regions (you'll explore these in the lesson)</div>
+  <div class="regiongrid" id="homeRegions"></div>
+
+  <div class="teachernote">
+    <b>For the grown-up:</b> Built for a real 30 minutes that won't run short. A timer breaks the
+    lesson into six steps, and the Quiz, Rapid Round, and Bonus pull from a pool of 50+ problems, so a
+    fast learner always has more to do — the <b>Bonus Challenge</b> can stretch it past 40 minutes.
+    The level is kept friendly for a 10-year-old: well-known states, landmarks, and just a few key
+    capitals. Read the explanations out loud and connect back to the big idea from Lesson 1:
+    <i>the land and climate shape how people live and work.</i>
+  </div>
+</main>
+
+<!-- ============ LESSON ============ -->
+<section id="lesson" class="hidden">
+  <div class="topbar">
+    <button class="back" id="homeBtn">← Home</button>
+    <div>
+      <div class="ltitle">U.S. Regions, States &amp; Capitals</div>
+      <div class="lsub" id="lSub">Step 1 of 6</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="scorechip">Score: <b id="scoreNum">0</b> <span id="scoreOf" style="color:var(--muted);font-weight:600"></span></div>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="content">
+      <div class="panelbox" id="panel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DONE BANNER ============ -->
+<div id="doneBanner" class="hidden">
+  <div class="box">
+    <h2 id="doneTitle">⏰ Time!</h2>
+    <p id="doneMsg"></p>
+    <button id="doneBtn">Go to next step</button>
+  </div>
+</div>
+
+<script>
+/* ===================================================================
+   DATA — The 5 U.S. regions + a big bank of problems (kid-friendly).
+   =================================================================== */
+
+const REGIONS = [
+  {
+    key:"northeast", name:"Northeast", emoji:"🗽", color:"#7bd88f",
+    climate:"Cold, snowy winters and four clear seasons",
+    states:"Maine, New York, Massachusetts, Pennsylvania, New Jersey, Connecticut, and more",
+    landmarks:"The Statue of Liberty, Niagara Falls, and the Liberty Bell in Philadelphia",
+    cities:"New York City and Boston",
+    special:"The first 13 colonies and the start of the American Revolution were here. Trick fact: New York's capital is Albany — not New York City!"
+  },
+  {
+    key:"southeast", name:"Southeast", emoji:"🐊", color:"#ffb84d",
+    climate:"Warm and humid, with hurricanes near the coast",
+    states:"Florida, Georgia, Virginia, the Carolinas, Tennessee, Louisiana, and more",
+    landmarks:"The Everglades, the Great Smoky Mountains, and Kennedy Space Center in Florida",
+    cities:"Atlanta and Miami",
+    special:"Long, warm growing seasons make this a top farming region — peaches, peanuts, and oranges. Trick fact: Florida's capital is Tallahassee, not Miami!"
+  },
+  {
+    key:"midwest", name:"Midwest", emoji:"🌽", color:"#ff9d6e",
+    climate:"Hot summers, cold winters, and lots of flat, open land",
+    states:"Ohio, Illinois, Michigan, Wisconsin, Minnesota, Iowa, Missouri, and more",
+    landmarks:"The Great Lakes and Mount Rushmore in South Dakota",
+    cities:"Chicago and Detroit",
+    special:"Called 'America's Breadbasket' because so much corn and wheat grow here. It borders four of the five Great Lakes."
+  },
+  {
+    key:"southwest", name:"Southwest", emoji:"🌵", color:"#5bd1c4",
+    climate:"Hot, dry deserts and canyons — not much rain",
+    states:"Texas, Arizona, New Mexico, and Oklahoma",
+    landmarks:"The Grand Canyon in Arizona and the Rio Grande river",
+    cities:"Houston and Phoenix",
+    special:"Texas is the biggest state in the lower 48. The region blends Native American, Mexican, and cowboy cultures."
+  },
+  {
+    key:"west", name:"West", emoji:"🏔️", color:"#b58cff",
+    climate:"A little of everything — snowy mountains, deserts, forests, and ocean beaches",
+    states:"California, Washington, Oregon, Colorado, Nevada, Alaska, Hawaii, and more",
+    landmarks:"The Rocky Mountains, the Golden Gate Bridge, Yellowstone, and Hawaii's volcanoes",
+    cities:"Los Angeles and Seattle",
+    special:"Alaska is the largest state and Hawaii is a chain of islands. Trick fact: California's capital is Sacramento, not Los Angeles!"
+  }
+];
+
+/* Multiple-choice question bank. answer = index of correct choice. */
+const QUIZ = [
+  {tag:"Regions", q:"The Statue of Liberty welcomes visitors in New York. New York is part of which region?", c:["Northeast","West","Midwest","Southwest"], a:0, why:"The Northeast holds New York, the Statue of Liberty, and the first 13 colonies."},
+  {tag:"Regions", q:"The Grand Canyon is a giant canyon in Arizona. Which region is Arizona in?", c:["Southeast","Southwest","Northeast","Midwest"], a:1, why:"Arizona and the hot, dry Grand Canyon are in the Southwest."},
+  {tag:"Regions", q:"Which region is nicknamed 'America's Breadbasket' for growing corn and wheat?", c:["Midwest","West","Northeast","Southeast"], a:0, why:"The flat, fertile Midwest grows huge amounts of grain."},
+  {tag:"Regions", q:"The Everglades and Kennedy Space Center are in Florida. Florida is in which region?", c:["Southeast","Southwest","West","Midwest"], a:0, why:"Warm, humid Florida is part of the Southeast."},
+  {tag:"Regions", q:"The Rocky Mountains, Hawaii, and the Pacific coast are all found in which region?", c:["West","Midwest","Northeast","Southeast"], a:0, why:"The West stretches from the Rockies to the Pacific and includes Alaska and Hawaii."},
+  {tag:"Regions", q:"Cold snowy winters, the first 13 colonies, and cities like Boston describe which region?", c:["Northeast","West","Southwest","Midwest"], a:0, why:"That's the Northeast — the oldest part of the country."},
+  {tag:"Regions", q:"Hot dry deserts, the Rio Grande, and the huge state of Texas describe which region?", c:["Southwest","Southeast","West","Midwest"], a:0, why:"That's the Southwest."},
+  {tag:"Landmarks", q:"Mount Rushmore, with four presidents carved into a mountain, is in South Dakota — which region?", c:["Midwest","West","Southwest","Northeast"], a:0, why:"South Dakota and Mount Rushmore are in the Midwest."},
+  {tag:"Landmarks", q:"The Golden Gate Bridge is a famous orange bridge in which state?", c:["California","Florida","New York","Texas"], a:0, why:"The Golden Gate Bridge crosses the bay in California, a West-region state."},
+  {tag:"Landmarks", q:"In which state would you visit the Statue of Liberty?", c:["New York","California","Illinois","Georgia"], a:0, why:"The Statue of Liberty stands in New York Harbor."},
+  {tag:"Landmarks", q:"The Great Lakes — five huge freshwater lakes — border which region?", c:["Midwest","Southwest","West","Southeast"], a:0, why:"The Midwest touches four of the five Great Lakes."},
+  {tag:"Landmarks", q:"Where is the Grand Canyon located?", c:["Arizona","Colorado","Nevada","Texas"], a:0, why:"The Grand Canyon was carved by the Colorado River in Arizona."},
+  {tag:"States", q:"Which is the LARGEST state in the United States?", c:["Alaska","Texas","California","Montana"], a:0, why:"Alaska is by far the largest state in land area."},
+  {tag:"States", q:"Which state is a chain of islands out in the Pacific Ocean?", c:["Hawaii","Florida","Rhode Island","Maine"], a:0, why:"Hawaii is made up of islands far out in the Pacific."},
+  {tag:"States", q:"Which is the largest state in the lower 48 (not counting Alaska)?", c:["Texas","California","Arizona","Montana"], a:0, why:"Texas is the biggest of the connected 48 states."},
+  {tag:"States", q:"Rhode Island is special because it is the…", c:["Smallest state","Largest state","Coldest state","Flattest state"], a:0, why:"Rhode Island is the smallest state in area."},
+  {tag:"Capitals", q:"What is the capital of the United States?", c:["Washington, D.C.","New York City","Los Angeles","Philadelphia"], a:0, why:"Washington, D.C. is the nation's capital, and it is not part of any state."},
+  {tag:"Capitals", q:"The capital of California is NOT Los Angeles. It is…", c:["Sacramento","San Francisco","San Diego","Hollywood"], a:0, why:"California's capital is Sacramento, even though L.A. is much bigger."},
+  {tag:"Capitals", q:"The capital of New York State is…", c:["Albany","New York City","Buffalo","Brooklyn"], a:0, why:"Albany is the capital — proof the capital isn't always the biggest city."},
+  {tag:"Capitals", q:"The capital of Texas is…", c:["Austin","Houston","Dallas","San Antonio"], a:0, why:"Austin is the Texas capital, though Houston has more people."},
+  {tag:"Capitals", q:"The capital of Florida is…", c:["Tallahassee","Miami","Orlando","Tampa"], a:0, why:"Tallahassee is the capital, not the bigger city of Miami."},
+  {tag:"Compass", q:"On a compass, which direction is the OPPOSITE of north?", c:["South","East","West","Up"], a:0, why:"North and South are opposites; East and West are opposites."},
+  {tag:"Compass", q:"If you travel from Florida up to Maine, you are mostly going…", c:["North","South","West","Down"], a:0, why:"Maine is in the far Northeast, so you head north."},
+  {tag:"Compass", q:"California is on the west coast and New York is on the east coast. To go from California to New York you travel mostly…", c:["East","West","South","North"], a:0, why:"You move east, toward the Atlantic Ocean."},
+  {tag:"Compass", q:"What do we call the direction halfway between North and East?", c:["Northeast","Northwest","Southeast","Southwest"], a:0, why:"Northeast (NE) sits between north and east on the compass rose."},
+  {tag:"Map Skills", q:"On most maps, which direction is at the TOP?", c:["North","South","East","West"], a:0, why:"Maps usually point north toward the top."},
+  {tag:"Map Skills", q:"A small star or dot inside a circle on a map usually marks a…", c:["Capital city","Mountain","River","Forest"], a:0, why:"A star (often in a circle) is the common symbol for a capital city."},
+  {tag:"Map Skills", q:"The box of symbols that explains what map pictures mean is called the map…", c:["Key (legend)","Title","Scale","Border"], a:0, why:"A map key, or legend, explains the symbols."},
+  {tag:"Map Skills", q:"A map's SCALE helps you measure…", c:["Distance","Temperature","Population","Time"], a:0, why:"Scale shows how distance on the map compares to real-world distance."},
+  {tag:"Geography", q:"Which ocean is on the WEST coast of the United States?", c:["Pacific Ocean","Atlantic Ocean","Indian Ocean","Arctic Ocean"], a:0, why:"The Pacific Ocean borders the west coast — California, Oregon, Washington."},
+  {tag:"Geography", q:"Which ocean is on the EAST coast of the United States?", c:["Atlantic Ocean","Pacific Ocean","Indian Ocean","Southern Ocean"], a:0, why:"The Atlantic Ocean borders the east coast."},
+  {tag:"Geography", q:"Which country is directly NORTH of the United States?", c:["Canada","Mexico","Brazil","Russia"], a:0, why:"Canada borders the U.S. to the north."},
+  {tag:"Geography", q:"Which country is directly SOUTH of the United States?", c:["Mexico","Canada","Cuba","Spain"], a:0, why:"Mexico borders the U.S. to the south."},
+  {tag:"Big Idea", q:"Why do different regions have different jobs, foods, and famous sights?", c:["Their land, climate, and resources are different","Everyone chose at random","The government assigns them","They are all exactly the same"], a:0, why:"Geography — land, climate, and resources — shapes life in each region. Same big idea as Lesson 1!"}
+];
+
+/* Rapid true/false round. a = true(1)/false(0) */
+const TF = [
+  {q:"Washington, D.C. is the capital of the United States.", a:1, why:"True — and it isn't part of any state."},
+  {q:"Alaska is the smallest state.", a:0, why:"False — Alaska is the LARGEST state."},
+  {q:"The Pacific Ocean is on the west coast of the U.S.", a:1, why:"True — it borders California, Oregon, and Washington."},
+  {q:"The capital of California is Los Angeles.", a:0, why:"False — California's capital is Sacramento."},
+  {q:"Hawaii is a chain of islands.", a:1, why:"True — it sits far out in the Pacific Ocean."},
+  {q:"The Great Lakes are in the West region.", a:0, why:"False — the Great Lakes are in the Midwest."},
+  {q:"On most maps, north is at the top.", a:1, why:"True — that's the usual map setup."},
+  {q:"Canada is the country directly south of the United States.", a:0, why:"False — Canada is to the NORTH; Mexico is to the south."},
+  {q:"The Grand Canyon is in Arizona.", a:1, why:"True — in the Southwest region."},
+  {q:"The Midwest is nicknamed America's Breadbasket.", a:1, why:"True — for its corn and wheat farms."},
+  {q:"A map key (legend) explains what the symbols mean.", a:1, why:"True — always check the key first."},
+  {q:"Texas is the smallest state in the lower 48.", a:0, why:"False — Texas is the LARGEST of the lower 48."}
+];
+
+/* Matching pairs: region key + clue */
+const MATCH = [
+  {region:"northeast", clue:"The Statue of Liberty, Boston, and the first 13 colonies"},
+  {region:"southeast", clue:"Florida's Everglades, warm weather, and peach farms"},
+  {region:"midwest", clue:"The Great Lakes, corn fields, and Mount Rushmore"},
+  {region:"southwest", clue:"Hot deserts, the Grand Canyon, and the state of Texas"},
+  {region:"west", clue:"The Rocky Mountains, the Golden Gate Bridge, Alaska, and Hawaii"}
+];
+
+/* Bonus (harder) questions */
+const BONUS = [
+  {tag:"Bonus", q:"A state touches the Pacific Ocean, has tall mountains, and its capital is Sacramento. Which state is it?", c:["California","Oregon","Nevada","Arizona"], a:0, why:"Pacific coast + Sacramento capital = California."},
+  {tag:"Bonus", q:"You see a star-in-a-circle next to 'Austin' on a map of Texas. What does that tell you?", c:["Austin is the state capital","Austin is a mountain","Austin is a river","Austin is the biggest city"], a:0, why:"The star symbol marks Austin as the capital — even though Houston is bigger."},
+  {tag:"Bonus", q:"Put these in order from the EAST coast to the WEST coast:", c:["New York → Illinois → California","California → Illinois → New York","Illinois → New York → California","New York → California → Illinois"], a:0, why:"New York (east) → Illinois (middle) → California (west)."},
+  {tag:"Bonus", q:"Which region would MOST likely have corn and wheat farms AND border the Great Lakes?", c:["Midwest","Southwest","Northeast","West"], a:0, why:"The Midwest has both the Great Lakes and huge grain farms."},
+  {tag:"Bonus", q:"A capital city is mainly the place where a state's…", c:["Government leaders meet and make laws","Tallest building stands","Biggest mall is","Most people always live"], a:0, why:"A capital is the seat of government — not always the biggest city."},
+  {tag:"Bonus", q:"You are in Florida and want to reach the Grand Canyon in Arizona. You travel mostly toward the…", c:["West","East","North","South"], a:0, why:"Arizona is far to the west of Florida."},
+  {tag:"Bonus", q:"Which group lists ONLY West-region states?", c:["California, Oregon, Washington","Texas, Florida, Ohio","Maine, Georgia, New York","Illinois, Iowa, Indiana"], a:0, why:"California, Oregon, and Washington are all West-coast states."},
+  {tag:"Bonus", q:"Why is Washington, D.C. NOT one of the 50 states?", c:["It is a special district for the national government","It is too small to count","It is in Canada","It is an island"], a:0, why:"D.C. (the District of Columbia) is a special federal district, not a state."}
+];
+
+/* ===================================================================
+   PHASE PLAN — six timed steps that add up to 30 minutes.
+   =================================================================== */
+const PHASES = [
+  {name:"Warm-Up: Explore", min:5,  kind:"explore",
+    intro:"Tap each region to discover its states, weather, landmarks, and big cities. Read every card out loud — you'll need these facts in a minute!"},
+  {name:"Teach Me", min:6, kind:"quiz", pool:"teach",
+    intro:"Six quick questions to lock in the big ideas about regions, landmarks, and the map. Read the explanation after each one."},
+  {name:"Match It", min:5, kind:"match",
+    intro:"Match each region to its clue. Click a region on the left, then its matching clue on the right."},
+  {name:"Quiz Challenge", min:8, kind:"quiz", pool:"quiz",
+    intro:"The main event! States, capitals, landmarks, oceans, and compass directions. Answer as many as you can before time runs out — you won't run out of questions."},
+  {name:"Rapid True / False", min:4, kind:"tf",
+    intro:"Fast round! Decide if each statement is TRUE or FALSE. Keep going until time's up."},
+  {name:"Reflect & Bonus", min:2, kind:"reflect",
+    intro:"Talk about what you learned — then try the Bonus Challenge if you have time."}
+];
+
+/* ===================================================================
+   APP
+   =================================================================== */
+const $ = s => document.querySelector(s);
+let curPhase = 0, remaining = 0, timerId = null, running = false;
+let score = 0, answered = 0;
+
+/* shuffle helper */
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ---- HOME region cards ---- */
+function buildHomeRegions(){
+  const wrap = $("#homeRegions");
+  REGIONS.forEach(r=>{
+    const d = document.createElement("div");
+    d.className = "rcard";
+    d.innerHTML = `<span class="remoji">${r.emoji}</span>
+      <div class="rname">${r.name}</div>
+      <div class="rclimate">${r.climate}</div>
+      <ul>
+        <li><b>Landmarks:</b> ${stripFirst(r.landmarks)}</li>
+        <li><b>Big cities:</b> ${stripFirst(r.cities)}</li>
+      </ul>
+      <span class="tag">States: ${r.states.split(",").slice(0,2).join(", ")}…</span>`;
+    wrap.appendChild(d);
+  });
+}
+function stripFirst(s){ return s.length>70 ? s.slice(0,68)+"…" : s; }
+
+/* ---- open lesson ---- */
+function openLesson(){
+  $("#home").classList.add("hidden");
+  $("#lesson").classList.remove("hidden");
+  curPhase = 0; score = 0; answered = 0;
+  updateScore();
+  renderSteps();
+  loadPhase(0);
+}
+function goHome(){
+  stopTimer();
+  $("#lesson").classList.add("hidden");
+  $("#home").classList.remove("hidden");
+}
+
+/* ---- sidebar steps ---- */
+function renderSteps(){
+  const box = $("#steps"); box.innerHTML = "";
+  PHASES.forEach((p,i)=>{
+    const b = document.createElement("button");
+    b.className = "steplink" + (i===curPhase ? " active":"");
+    b.innerHTML = `<span class="n">${i+1}</span><span>${p.name}<small>${p.min} min</small></span>`;
+    b.onclick = ()=> loadPhase(i);
+    box.appendChild(b);
+  });
+}
+
+/* ---- load a phase ---- */
+function loadPhase(i){
+  curPhase = i;
+  const p = PHASES[i];
+  $("#lSub").textContent = `Step ${i+1} of ${PHASES.length} — ${p.name}`;
+  $("#phaseName").textContent = p.name;
+  renderSteps();
+  setupTimer(p.min);
+  renderPhase(p);
+  window.scrollTo(0,0);
+  $(".content").scrollTop = 0;
+}
+
+/* ---- render the panel for a phase ---- */
+function renderPhase(p){
+  const panel = $("#panel");
+  const head = `<div class="phasehead">Step ${curPhase+1} of ${PHASES.length}</div>
+    <div class="phasebig">${p.name}</div>
+    <div class="phaseintro">${p.intro}</div>`;
+  if(p.kind==="explore")  panel.innerHTML = head + exploreHTML();
+  else if(p.kind==="match") panel.innerHTML = head + matchHTML();
+  else if(p.kind==="reflect") panel.innerHTML = head + reflectHTML();
+  else if(p.kind==="tf")   { panel.innerHTML = head + `<div id="qhost"></div>`; startTF(); }
+  else /* quiz */          { panel.innerHTML = head + `<div id="qhost"></div>`; startQuiz(p.pool); }
+
+  if(p.kind==="explore") wireExplore();
+  if(p.kind==="match")   wireMatch();
+  if(p.kind==="reflect") wireReflect();
+  $("#scoreOf").textContent = "";
+}
+
+/* ===================== EXPLORE ===================== */
+function exploreHTML(){
+  const btns = REGIONS.map((r,i)=>`<button class="expbtn${i===0?' active':''}" data-k="${r.key}">
+      <span class="e">${r.emoji}</span>${r.name}</button>`).join("");
+  return `<div class="expgrid">${btns}</div>
+    <div class="expinfo" id="expInfo"></div>
+    <div class="checkbar">✅ <b>Goal:</b> Open all 5 regions and read each card. Notice how the <i>land and weather</i> change what's famous in each place!</div>`;
+}
+function showRegion(key){
+  const r = REGIONS.find(x=>x.key===key);
+  $("#expInfo").innerHTML = `
+    <h3>${r.emoji} ${r.name}</h3>
+    <div class="climate">🌎 ${r.climate}</div>
+    <div class="factrow"><div class="k">States</div><div>${r.states}</div></div>
+    <div class="factrow"><div class="k">Landmarks</div><div>${r.landmarks}</div></div>
+    <div class="factrow"><div class="k">Big cities</div><div>${r.cities}</div></div>
+    <div class="factrow"><div class="k">Did you know?</div><div>${r.special}</div></div>`;
+}
+function wireExplore(){
+  showRegion(REGIONS[0].key);
+  document.querySelectorAll(".expbtn").forEach(b=>{
+    b.onclick = ()=>{
+      document.querySelectorAll(".expbtn").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      showRegion(b.dataset.k);
+    };
+  });
+}
+
+/* ===================== QUIZ / TEACH / BONUS ===================== */
+let qList = [], qIndex = 0, qLocked = false, qIsBonus = false;
+
+function poolFor(kind){
+  if(kind==="teach") return shuffle(QUIZ).slice(0,6);
+  if(kind==="quiz")  return shuffle(QUIZ);
+  if(kind==="bonus") return shuffle(BONUS);
+  return shuffle(QUIZ);
+}
+function startQuiz(poolName){
+  qIsBonus = (poolName==="bonus");
+  qList = poolFor(poolName);
+  qIndex = 0;
+  renderQuestion();
+}
+function renderQuestion(){
+  qLocked = false;
+  const q = qList[qIndex % qList.length];
+  // shuffle choices but track correct
+  const order = shuffle(q.c.map((t,idx)=>({t,idx})));
+  const correctPos = order.findIndex(o=>o.idx===q.a);
+  const letters = ["A","B","C","D","E"];
+  const host = $("#qhost");
+  host.innerHTML = `
+    <div class="qcard">
+      <div class="qmeta"><span class="qtag">${q.tag||"Question"}</span>
+        <span>Question ${qIndex+1}</span></div>
+      <div class="qtext">${q.q}</div>
+      <div class="choices" id="choices">
+        ${order.map((o,i)=>`<button class="choice" data-i="${i}">
+            <span class="lt">${letters[i]}</span><span>${o.t}</span></button>`).join("")}
+      </div>
+      <div class="feedback" id="fb"></div>
+      <div class="qfoot">
+        <span class="progressline" id="qprog">Answered ${answered} • Keep going until time's up</span>
+        <button class="nextq" id="nextQ" disabled>Next ▶</button>
+      </div>
+    </div>`;
+  $("#choices").querySelectorAll(".choice").forEach(btn=>{
+    btn.onclick = ()=> answerQ(parseInt(btn.dataset.i), correctPos, q);
+  });
+  $("#nextQ").onclick = ()=>{ qIndex++; if(qIndex>=qList.length) qList = shuffle(qList), qIndex=0; renderQuestion(); };
+}
+function answerQ(picked, correctPos, q){
+  if(qLocked) return;
+  qLocked = true;
+  const choices = $("#choices").querySelectorAll(".choice");
+  choices.forEach((c,i)=>{
+    c.classList.add("disabled");
+    if(i===correctPos) c.classList.add("correct");
+    if(i===picked && picked!==correctPos) c.classList.add("wrong");
+  });
+  const right = picked===correctPos;
+  answered++;
+  if(right) score += (qIsBonus?2:1);
+  updateScore();
+  const fb = $("#fb");
+  fb.className = "feedback show " + (right?"ok":"no");
+  fb.innerHTML = `<b>${right? "✅ Correct!"+(qIsBonus?" (+2 bonus points)":"") : "❌ Not quite."}</b>${q.why}`;
+  $("#nextQ").disabled = false;
+  $("#qprog").textContent = `Answered ${answered} • Keep going until time's up`;
+}
+
+/* ===================== RAPID TRUE / FALSE ===================== */
+let tfList = [], tfIndex = 0, tfLocked = false;
+function startTF(){
+  tfList = shuffle(TF); tfIndex = 0; renderTF();
+}
+function renderTF(){
+  tfLocked = false;
+  const t = tfList[tfIndex % tfList.length];
+  const host = $("#qhost");
+  host.innerHTML = `
+    <div class="qcard">
+      <div class="qmeta"><span class="qtag">True or False</span><span>Statement ${tfIndex+1}</span></div>
+      <div class="qtext">${t.q}</div>
+      <div class="choices" style="flex-direction:row;gap:14px">
+        <button class="choice" data-v="1" style="justify-content:center"><span class="lt">T</span><span>True</span></button>
+        <button class="choice" data-v="0" style="justify-content:center"><span class="lt">F</span><span>False</span></button>
+      </div>
+      <div class="feedback" id="fb"></div>
+      <div class="qfoot">
+        <span class="progressline">Answered ${answered} • Fast as you can!</span>
+        <button class="nextq" id="nextQ" disabled>Next ▶</button>
+      </div>
+    </div>`;
+  host.querySelectorAll(".choice").forEach(btn=>{
+    btn.onclick = ()=> answerTF(parseInt(btn.dataset.v), t);
+  });
+  $("#nextQ").onclick = ()=>{ tfIndex++; if(tfIndex>=tfList.length) tfList=shuffle(tfList), tfIndex=0; renderTF(); };
+}
+function answerTF(picked, t){
+  if(tfLocked) return; tfLocked = true;
+  const right = picked===t.a;
+  const btns = $("#qhost").querySelectorAll(".choice");
+  btns.forEach(b=>{
+    b.classList.add("disabled");
+    const v = parseInt(b.dataset.v);
+    if(v===t.a) b.classList.add("correct");
+    if(v===picked && !right) b.classList.add("wrong");
+  });
+  answered++; if(right) score++; updateScore();
+  const fb = $("#fb");
+  fb.className = "feedback show " + (right?"ok":"no");
+  fb.innerHTML = `<b>${right?"✅ Correct!":"❌ Not quite."}</b>${t.why}`;
+  $("#nextQ").disabled = false;
+}
+
+/* ===================== MATCH ===================== */
+let matchSel = null, matchDone = 0;
+function matchHTML(){
+  const left = shuffle(REGIONS).map(r=>`<button class="matchitem" data-region="${r.key}">${r.emoji} ${r.name}</button>`).join("");
+  const right = shuffle(MATCH).map(m=>`<button class="matchitem" data-clue="${m.region}">${m.clue}</button>`).join("");
+  return `<div class="matchwrap">
+      <div class="matchcol"><h4>Region</h4>${left}</div>
+      <div class="matchcol"><h4>Clue</h4>${right}</div>
+    </div>
+    <div class="checkbar" id="matchStatus">Matched 0 of ${MATCH.length}. Click a region, then its clue.</div>`;
+}
+function wireMatch(){
+  matchSel = null; matchDone = 0;
+  document.querySelectorAll('[data-region]').forEach(b=>{
+    b.onclick = ()=>{
+      document.querySelectorAll('[data-region]').forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel"); matchSel = b;
+    };
+  });
+  document.querySelectorAll('[data-clue]').forEach(b=>{
+    b.onclick = ()=>{
+      if(!matchSel){ b.classList.add("shake"); setTimeout(()=>b.classList.remove("shake"),300); return; }
+      if(matchSel.dataset.region === b.dataset.clue){
+        matchSel.classList.add("done"); matchSel.classList.remove("sel");
+        b.classList.add("done");
+        matchDone++; score++; answered++; updateScore();
+        $("#matchStatus").innerHTML = matchDone===MATCH.length
+          ? `🎉 <b>All ${MATCH.length} matched!</b> Great work. Wait for the timer or move to the next step.`
+          : `Matched ${matchDone} of ${MATCH.length}. Keep going!`;
+        matchSel = null;
+      } else {
+        b.classList.add("shake"); matchSel.classList.add("shake");
+        setTimeout(()=>{ b.classList.remove("shake"); if(matchSel) matchSel.classList.remove("shake"); },300);
+      }
+    };
+  });
+}
+
+/* ===================== REFLECT + BONUS ===================== */
+function reflectHTML(){
+  const prompts = [
+    ["Which U.S. region would you most want to visit, and what landmark would you see first?","Connect a place to its features."],
+    ["Pick two regions. Name one way the LAND is different and one thing they both have.","Compare and contrast."],
+    ["Why isn't the biggest city always the capital? Give one example you learned today.","Capital = government, not size."],
+    ["You're taking a trip from your home region to the opposite coast. Which directions would you travel, and what might you cross?","Apply the compass and your map."]
+  ];
+  const cards = prompts.map((p,i)=>`<div class="reflectcard"><p>${i+1}. ${p[0]}</p><small>💭 ${p[1]}</small></div>`).join("");
+  return cards + `
+    <div style="margin-top:18px">
+      <button class="bigbtn" id="bonusBtn">🏆 Try the Bonus Challenge (harder, +2 points each)</button>
+      <button class="ghostbtn" id="finishBtn" style="margin-left:8px">🎉 Finish the lesson</button>
+    </div>
+    <div id="qhost" style="margin-top:18px"></div>`;
+}
+function wireReflect(){
+  $("#bonusBtn").onclick = ()=>{
+    setupTimer(8); startTimer();
+    $("#phaseName").textContent = "Bonus Challenge";
+    $("#bonusBtn").classList.add("hidden");
+    startQuiz("bonus");
+  };
+  $("#finishBtn").onclick = ()=> showFinish();
+}
+
+/* ===================== SCORE ===================== */
+function updateScore(){ $("#scoreNum").textContent = score; }
+
+/* ===================== TIMER ===================== */
+function setupTimer(min){
+  stopTimer();
+  remaining = min*60; running = false;
+  paintClock();
+  $("#barFill").style.width = "0%";
+  $("#startBtn").textContent = "▶ Start";
+}
+function startTimer(){
+  if(running) return;
+  running = true; $("#startBtn").textContent = "▶ Running";
+  timerId = setInterval(()=>{
+    remaining--; paintClock();
+    if(remaining<=0){ stopTimer(); timeUp(); }
+  },1000);
+}
+function pauseTimer(){
+  if(!running) return;
+  running = false; clearInterval(timerId); timerId=null;
+  $("#startBtn").textContent = "▶ Resume";
+}
+function stopTimer(){ running=false; if(timerId){clearInterval(timerId);timerId=null;} }
+function paintClock(){
+  const m = Math.floor(Math.max(remaining,0)/60), s = Math.max(remaining,0)%60;
+  $("#clock").textContent = `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  const total = PHASES[curPhase].min*60;
+  const pct = Math.min(100, Math.max(0, (1 - remaining/total)*100));
+  $("#barFill").style.width = pct+"%";
+}
+function timeUp(){
+  const last = curPhase >= PHASES.length-1;
+  $("#doneTitle").textContent = "⏰ Time for this step!";
+  $("#doneMsg").innerHTML = last
+    ? "You've reached the end of the timer. Keep answering for more points, try the Bonus Challenge, or finish the lesson."
+    : "Nice focus! You can keep working on this step as long as you like, or move on to the next step.";
+  $("#doneBtn").textContent = last ? "See my results" : "Go to next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  $("#doneBtn").onclick = ()=>{
+    $("#doneBanner").classList.add("hidden");
+    if(last) showFinish(); else loadPhase(curPhase+1);
+  };
+}
+function showFinish(){
+  stopTimer();
+  $("#doneTitle").textContent = "🎉 Lesson complete!";
+  $("#doneMsg").innerHTML = `You answered <b>${answered}</b> problems and scored <b>${score} points</b>.<br>
+    Remember the big idea: <i>the land and climate shape what each region is famous for.</i><br>
+    Save this score, then come back tomorrow for the next Social Studies lesson!`;
+  $("#doneBtn").textContent = "Back to Home";
+  $("#doneBanner").classList.remove("hidden");
+  $("#doneBtn").onclick = ()=>{ $("#doneBanner").classList.add("hidden"); goHome(); };
+}
+
+/* ===================== WIRE GLOBAL BUTTONS ===================== */
+$("#startLessonBtn").onclick = openLesson;
+$("#homeBtn").onclick = goHome;
+$("#startBtn").onclick = ()=> running ? pauseTimer() : startTimer();
+$("#pauseBtn").onclick = pauseTimer;
+$("#skipBtn").onclick = ()=>{ if(curPhase<PHASES.length-1) loadPhase(curPhase+1); else showFinish(); };
+
+/* init */
+buildHomeRegions();
+</script>
+</body>
+</html>
