@@ -391,13 +391,26 @@ function setMode(m){ mode=m; $("#penBtn").classList.toggle("on",m==="pen"); $("#
 $("#penBtn").onclick=()=>setMode("pen");
 $("#smudgeBtn").onclick=()=>setMode("smudge");
 $("#eraserBtn").onclick=()=>setMode("eraser");
-$("#clearBtn").onclick=()=>{ctx.fillStyle="#fff";ctx.fillRect(0,0,pad.width,pad.height);};
-$("#guideBtn").onclick=drawGuide;
+$("#clearBtn").onclick=()=>{ctx.fillStyle="#fff";ctx.fillRect(0,0,pad.width,pad.height);saveCanvas();};
+$("#guideBtn").onclick=()=>{drawGuide();saveCanvas();};
 $("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="art-lesson-3-shaded-ball.png";a.href=pad.toDataURL("image/png");a.click();};
+/* ---------------- AUTO-SAVE (survives screen rotation & reloads) ---------------- */
+const CANVAS_KEY="art-l3-canvas";
+let _saveTimer=null,_toast=null;
+function _showToast(){ if(!_toast){_toast=document.createElement("div");
+    _toast.style.cssText="position:fixed;bottom:14px;right:14px;background:#1f3d2b;color:#d6f5df;border:1px solid #7bd88f;padding:7px 12px;border-radius:10px;font:600 12px sans-serif;z-index:80;opacity:0;transition:opacity .25s;pointer-events:none";
+    _toast.textContent="✓ Auto-saved"; document.body.appendChild(_toast);}
+  _toast.style.opacity="1"; clearTimeout(_toast._t); _toast._t=setTimeout(()=>{_toast.style.opacity="0";},900); }
+function saveCanvas(){ try{ localStorage.setItem(CANVAS_KEY,pad.toDataURL("image/png")); _showToast(); }catch(e){} }
+function autosave(){ clearTimeout(_saveTimer); _saveTimer=setTimeout(saveCanvas,400); }
+function restoreCanvas(){ try{ const d=localStorage.getItem(CANVAS_KEY); if(!d) return false;
+    const img=new Image(); img.onload=()=>{ ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height); ctx.drawImage(img,0,0,pad.width,pad.height); }; img.src=d; return true; }catch(e){ return false; } }
 function resizeCanvas(){ const host=pad.parentElement; const w=Math.min(host.clientWidth-32,1000);
-  if(w>320 && Math.abs(w-pad.width)>4){ const prev=ctx.getImageData(0,0,pad.width,pad.height);
+  if(w>320 && Math.abs(w-pad.width)>4){
+    const off=document.createElement("canvas"); off.width=pad.width; off.height=pad.height; off.getContext("2d").drawImage(pad,0,0);
+    const ow=pad.width, oh=pad.height;
     pad.width=w; pad.height=Math.round(w*0.6); ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
-    try{ctx.putImageData(prev,0,0);}catch(e){} }
+    ctx.drawImage(off,0,0,ow,oh,0,0,pad.width,pad.height); saveCanvas(); }
   ctx.lineCap="round"; ctx.lineJoin="round"; }
 function drawGuide(){
   const cx=pad.width*0.42, cy=pad.height*0.46, R=Math.min(pad.width,pad.height)*0.28;
@@ -433,8 +446,8 @@ function strokeSeg(x0,y0,x1,y1){
 }
 function applyDab(x,y){ if(mode==="smudge")return; ctx.globalAlpha=mode==="pen"?0.85:1;
   ctx.fillStyle=mode==="eraser"?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(mode==="eraser"?penSize:penSize/2),0,7); ctx.fill(); ctx.globalAlpha=1; }
-pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>drawing=false);
-pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>drawing=false);
+pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>{ if(drawing){ drawing=false; autosave(); } });
+pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>{ if(drawing){ drawing=false; autosave(); } });
 
 /* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
 const QUIZ=[
@@ -496,6 +509,7 @@ function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
 buildGreyPicker(); buildScaleRow();
 ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
 renderSteps(); selectPhase(0,false);
+restoreCanvas();
 setTimeout(()=>placeSun(60,18),50);
 window.addEventListener("resize",()=>{ if($("#z-draw").classList.contains("on")) resizeCanvas(); });
 </script>
