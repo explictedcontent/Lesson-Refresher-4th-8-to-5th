@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story Architect! — Narrative Writing (4th → 5th Grade)</title>
+<style>
+  :root{
+    --plum:#5b2a86; --grape:#8e44ad; --lav:#f3e8fb; --gold:#f6b93b;
+    --green:#27ae60; --red:#e74c3c; --paper:#fffdf9; --ink:#2b2b2b; --teal:#16a085;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Comic Sans MS","Trebuchet MS",Verdana,sans-serif; margin:0;
+    background:linear-gradient(135deg,#ede7f6,#fce4ec); color:var(--ink); line-height:1.6; padding:20px;}
+  .sheet{max-width:860px; margin:0 auto; background:var(--paper); border:4px solid var(--plum);
+    border-radius:18px; padding:28px 34px; box-shadow:0 10px 30px rgba(0,0,0,.15);}
+  header{text-align:center; margin-bottom:18px;}
+  header h1{color:var(--plum); font-size:2.1em; margin:.2em 0;}
+  .badge-emoji{font-size:2.6em;}
+  .tag{display:inline-block; background:var(--gold); color:#5a3d00; font-weight:bold;
+    padding:4px 12px; border-radius:20px; margin:3px; font-size:.85em;}
+  .timing{background:var(--lav); border-radius:12px; padding:10px 16px; font-size:.9em;}
+  section{background:#fff; border:2px dashed var(--grape); border-radius:14px; padding:18px 22px; margin:22px 0;}
+  section h2{color:var(--grape); margin-top:0; display:flex; align-items:center; gap:8px;}
+  .mins{margin-left:auto; font-size:.6em; background:var(--grape); color:#fff; padding:3px 10px; border-radius:20px;}
+  .say{background:#fff7e6; border-left:6px solid var(--gold); padding:10px 14px; border-radius:8px; font-style:italic; margin:12px 0;}
+  .say::before{content:"🗣️ SAY THIS: "; font-weight:bold; font-style:normal;}
+  .story{background:#f3fbf8; border:2px solid var(--teal); border-radius:12px; padding:16px 20px; font-family:Georgia,serif; line-height:1.7;}
+  .story h3{color:var(--teal); text-align:center; margin-top:0;}
+  input[type=text], textarea{width:100%; border:none; border-bottom:2px dotted var(--grape); background:#fcf9ff;
+    font-family:inherit; font-size:1em; padding:6px 4px; margin:4px 0; border-radius:4px 4px 0 0;}
+  textarea{border:2px dotted var(--grape); border-radius:8px; min-height:90px; resize:vertical;}
+  ol li, ul li{margin:8px 0;}
+  button{font-family:inherit; cursor:pointer; border:none; border-radius:10px; padding:8px 16px; font-weight:bold; font-size:.95em; margin:4px;}
+  .btn-go{background:var(--teal); color:#fff;}
+  .spark{text-align:center; background:var(--plum); color:#fff; border-radius:12px; padding:16px;}
+  .spark .out{font-size:1.15em; font-weight:bold; min-height:1.6em; margin:10px 0; color:#ffe08a;}
+  .mountain{display:flex; justify-content:space-between; text-align:center; gap:6px; flex-wrap:wrap;}
+  .mountain div{flex:1; min-width:120px; background:var(--lav); border-radius:10px; padding:10px; font-size:.9em;}
+  .mountain .peak{background:#ffe9c7;}
+  .choices button{display:block; width:100%; text-align:left; background:var(--lav); color:var(--plum); margin:6px 0; border:2px solid transparent;}
+  .choices button.correct{background:#d4f5dd; border-color:var(--green);}
+  .choices button.wrong{background:#fde2e0; border-color:var(--red);}
+  .feedback{font-weight:bold; min-height:1.4em;}
+  .twocol{display:flex; gap:14px; flex-wrap:wrap;}
+  .twocol > div{flex:1; min-width:220px; background:#faf5ff; border-radius:10px; padding:10px 14px;}
+  .checklist label{display:block; background:#f6f0ff; border-radius:8px; padding:8px 12px; margin:6px 0; cursor:pointer;}
+  .checklist input{transform:scale(1.4); margin-right:10px;}
+  .reflect span{display:inline-block; margin:0 6px; cursor:pointer; font-size:1.4em;}
+  details{background:#efe9fb; border-radius:10px; padding:8px 14px; margin-top:10px;}
+  summary{font-weight:bold; cursor:pointer; color:var(--plum);}
+  .badge-final{text-align:center; background:linear-gradient(135deg,var(--gold),#ffe08a); border-radius:16px; padding:18px; font-size:1.2em; font-weight:bold; color:#5a3d00;}
+  .tip{font-size:.9em; color:#666;}
+  @media print{body{background:#fff;} button,.spark{display:none;} .sheet{box-shadow:none;}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <div class="badge-emoji">🏗️✍️</div>
+    <h1>Story Architect!</h1>
+    <p><strong>ELA Refresher — Lesson 2: Narrative Writing · 4th → 5th Grade</strong></p>
+    <div>
+      <span class="tag">⏱️ 60 Minutes</span>
+      <span class="tag">📐 Story Structure</span>
+      <span class="tag">🦸 Characters</span>
+      <span class="tag">✨ Show Don't Tell</span>
+      <span class="tag">🎯 Interactive</span>
+    </div>
+  </header>
+
+  <div class="timing">
+    <strong>Build Plan (60 min):</strong>
+    Warm-Up 5 · Mentor Story 10 · Story Mountain 10 · Characters &amp; Setting 10 · Show Don't Tell 10 · Write Your Story 10 · Wrap-Up 5
+  </div>
+
+  <section>
+    <h2>👋 For the Grown-Up / Teacher</h2>
+    <p>This builds on Lesson 1. Today the learner becomes a <strong>Story Architect</strong> who designs a story from the blueprint up. Read the orange "SAY THIS" lines aloud, let them talk out ideas before writing, and celebrate creativity over perfection. Type into the boxes on screen or print it (everything still works on paper). Answer notes are at the bottom.</p>
+    <p class="tip">You'll need: pencil/scratch paper, and imagination. A built-in Story Spark generator is below to beat writer's block.</p>
+  </section>
+
+  <!-- PART 1 -->
+  <section>
+    <h2>⚡ Part 1 — Warm-Up: Story Spark <span class="mins">5 min</span></h2>
+    <p class="say">"Every great story starts with a spark of an idea. Let's catch one!"</p>
+    <div class="spark">
+      <div>Click for a surprise story idea! 🎲</div>
+      <div class="out" id="sparkOut">Press the button…</div>
+      <button class="btn-go" onclick="rollSpark()">🎲 Generate a Story Spark</button>
+    </div>
+    <p>Roll it a few times. When you find one you LOVE, write it here — this could become your story later!</p>
+    <input type="text" placeholder="My favorite story spark...">
+    <p class="tip">✏️ Now stretch it: who is the main character, and what is their BIG problem?</p>
+    <input type="text" placeholder="Main character + their problem...">
+  </section>
+
+  <!-- PART 2 -->
+  <section>
+    <h2>📖 Part 2 — Mentor Story (Read Like a Writer) <span class="mins">10 min</span></h2>
+    <p class="say">"Writers learn by reading. Notice HOW this story is built — we'll copy the moves!"</p>
+    <div class="story">
+      <h3>The Last Day of Summer</h3>
+      <p><strong>Beginning:</strong> Tomás had been waiting all summer to ride the giant water slide at Splash Park. Today was finally the day — but it was also the very last day the park would be open before it closed forever.</p>
+      <p><strong>Middle (the problem!):</strong> When Tomás reached the front of the line, the lifeguard held up her hand. "Sorry," she said. "You have to be this tall to ride." Tomás's heart dropped. He was one inch too short. His eyes stung, and the long walk back down the steps felt like a mile.</p>
+      <p>Then he had an idea. He remembered the thick-soled sneakers in his backpack. His hands trembled as he laced them up tight and climbed the steps again. He stood as straight as a flagpole next to the measuring stick.</p>
+      <p><strong>End (solution!):</strong> The lifeguard smiled. "Just made it!" Tomás zoomed down the slide, wind rushing past his ears, laughing the whole way. It was the best last day of summer he could have imagined.</p>
+    </div>
+    <p class="tip">🔎 Notice the labels: every story has a <strong>Beginning</strong>, a <strong>Middle with a problem</strong>, and an <strong>End with a solution</strong>.</p>
+  </section>
+
+  <!-- PART 3 -->
+  <section>
+    <h2>⛰️ Part 3 — The Story Mountain <span class="mins">10 min</span></h2>
+    <p>Strong stories climb a "Story Mountain." Read each part, then fill in what happened in the mentor story.</p>
+    <div class="mountain">
+      <div>1️⃣ <strong>Beginning</strong><br>Meet the character &amp; setting</div>
+      <div>2️⃣ <strong>Rising Action</strong><br>The problem appears</div>
+      <div class="peak">3️⃣ <strong>Climax</strong><br>The most exciting moment</div>
+      <div>4️⃣ <strong>Solution</strong><br>Problem gets solved</div>
+      <div>5️⃣ <strong>Ending</strong><br>How everyone feels</div>
+    </div>
+    <p style="margin-top:14px;"><strong>From "The Last Day of Summer":</strong></p>
+    <ol>
+      <li>Who is the character &amp; where are they? <input type="text" placeholder="..."></li>
+      <li>What is the problem? <input type="text" placeholder="..."></li>
+      <li>What is the most exciting moment (climax)? <input type="text" placeholder="..."></li>
+      <li>How is the problem solved? <input type="text" placeholder="..."></li>
+      <li>How does Tomás feel at the end? <input type="text" placeholder="..."></li>
+    </ol>
+  </section>
+
+  <!-- PART 4 -->
+  <section>
+    <h2>🦸 Part 4 — Build a Character &amp; Setting <span class="mins">10 min</span></h2>
+    <p class="say">"Readers love characters who feel REAL. Let's design one and a place for them to live."</p>
+    <div class="twocol">
+      <div>
+        <strong>🦸 My Character</strong>
+        <p>Name: <input type="text" placeholder="..."></p>
+        <p>Age &amp; one thing they look like: <input type="text" placeholder="..."></p>
+        <p>What they WANT more than anything: <input type="text" placeholder="..."></p>
+        <p>One fear or worry: <input type="text" placeholder="..."></p>
+      </div>
+      <div>
+        <strong>🏞️ My Setting</strong>
+        <p>Where does the story happen? <input type="text" placeholder="..."></p>
+        <p>When? (time of day / season): <input type="text" placeholder="..."></p>
+        <p>One thing you can SEE there: <input type="text" placeholder="..."></p>
+        <p>One thing you can HEAR there: <input type="text" placeholder="..."></p>
+      </div>
+    </div>
+    <p class="tip">💡 Architect tip: a problem the character has helps readers root for them!</p>
+  </section>
+
+  <!-- PART 5 -->
+  <section>
+    <h2>✨ Part 5 — Show, Don't Tell (Game) <span class="mins">10 min</span></h2>
+    <p class="say">"Don't just TELL us a feeling — SHOW it with actions and details, so readers can picture it!"</p>
+    <p>Example: Instead of <em>"He was scared,"</em> write <em>"His hands shook and he could hear his own heartbeat."</em></p>
+    <p>Click the sentence that <strong>SHOWS</strong> instead of tells:</p>
+
+    <p><strong>1.</strong> The feeling is HAPPY:</p>
+    <div class="choices">
+      <button onclick="pick(this,false)">(a) She was very happy.</button>
+      <button onclick="pick(this,true)">(b) She jumped up, grinning so wide her cheeks hurt.</button>
+    </div>
+    <p class="feedback"></p>
+
+    <p><strong>2.</strong> The feeling is COLD:</p>
+    <div class="choices">
+      <button onclick="pick(this,true)">(a) His teeth chattered as he hugged his arms tight.</button>
+      <button onclick="pick(this,false)">(b) It was a very cold day.</button>
+    </div>
+    <p class="feedback"></p>
+
+    <p><strong>3.</strong> The feeling is NERVOUS:</p>
+    <div class="choices">
+      <button onclick="pick(this,false)">(a) He felt nervous on stage.</button>
+      <button onclick="pick(this,true)">(b) His mouth went dry and his cards trembled in his hands.</button>
+    </div>
+    <p class="feedback"></p>
+
+    <p><strong>🌟 Your turn:</strong> Turn "She was tired" into a SHOW sentence:</p>
+    <input type="text" placeholder="Show us she's tired without using the word 'tired'...">
+  </section>
+
+  <!-- PART 6 -->
+  <section>
+    <h2>🏗️ Part 6 — Build Your Story! <span class="mins">10 min</span></h2>
+    <p class="say">"You have a spark, a character, a setting, and writer moves. Time to build!"</p>
+    <p><strong>Write a short story</strong> (6–10 sentences) using your character and setting from Part 4. Follow the Story Mountain: beginning → problem → exciting climax → solution → ending.</p>
+    <div class="checklist">
+      <strong>Story Architect Checklist — check each one off:</strong>
+      <label><input type="checkbox"> A <strong>beginning</strong> that introduces my character &amp; setting.</label>
+      <label><input type="checkbox"> A clear <strong>problem</strong> in the middle.</label>
+      <label><input type="checkbox"> An exciting <strong>climax</strong> (the biggest moment).</label>
+      <label><input type="checkbox"> A <strong>solution</strong> that solves the problem.</label>
+      <label><input type="checkbox"> At least one <strong>"show, don't tell"</strong> sentence.</label>
+      <label><input type="checkbox"> An <strong>ending</strong> that tells how the character feels.</label>
+    </div>
+    <textarea style="min-height:170px" placeholder="Once upon a time...  (write your story here!)"></textarea>
+  </section>
+
+  <!-- WRAP UP -->
+  <section>
+    <h2>🏅 Wrap-Up: Story Architect Badge <span class="mins">5 min</span></h2>
+    <p class="say">"Amazing building, Architect! Let's review the blueprint."</p>
+    <p class="reflect">Planning with the Story Mountain: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p class="reflect">Building a character &amp; setting: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p class="reflect">Show, don't tell &amp; writing my story: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p>My favorite part of my story:<input type="text"></p>
+    <p>One writer move I want to practice more:<input type="text"></p>
+    <div class="badge-final">🏅 CONGRATULATIONS! You earned your Story Architect Badge! 🏅</div>
+  </section>
+
+  <!-- ANSWER KEY -->
+  <section>
+    <details>
+      <summary>🔑 Teacher Notes &amp; Answer Key (click to open)</summary>
+      <p><strong>Part 3 — Story Mountain (from "The Last Day of Summer"):</strong><br>
+      1. Tomás, at Splash Park on the last day it's open.<br>
+      2. Problem: he is one inch too short to ride the slide.<br>
+      3. Climax: he laces up his thick-soled sneakers and stands at the measuring stick again.<br>
+      4. Solution: the extra height makes him just tall enough — "Just made it!"<br>
+      5. Ending: he's thrilled/joyful — the best last day of summer.</p>
+      <p><strong>Part 5 — Show, Don't Tell:</strong> 1=(b), 2=(a), 3=(b). The "tired" sentence will vary — look for actions/details (yawning, heavy eyelids, dragging feet) instead of the word "tired."</p>
+      <p><strong>Parts 1, 4, 6:</strong> Open-ended. Use the Part 6 checklist to give feedback. Praise specific moves: a vivid detail, a clear problem, a satisfying ending. Aim for effort and voice over perfect spelling.</p>
+      <p class="tip">Extension idea: have the learner read their finished story aloud and add ONE more "show, don't tell" sentence.</p>
+    </details>
+  </section>
+</div>
+
+<script>
+  // --- Story Spark generator ---
+  var who=["a curious kid","a brave puppy","a forgetful wizard","a shy new student","a robot who wants a friend","a girl who can talk to animals","twin brothers","a grumpy cat"];
+  var where=["on the last day of school","in a treehouse","during a big storm","at a brand-new planet","in a haunted library","at a soccer championship","in a tiny village","on a long road trip"];
+  var what=["loses something important","finds a mysterious map","has to make a tough choice","makes a surprising new friend","must win a contest","discovers a hidden door","has to be brave for the first time","accidentally causes a big mess"];
+  function rollSpark(){
+    var w=who[Math.floor(Math.random()*who.length)];
+    var p=where[Math.floor(Math.random()*where.length)];
+    var t=what[Math.floor(Math.random()*what.length)];
+    document.getElementById('sparkOut').textContent="✨ A story about "+w+" who, "+p+", "+t+".";
+  }
+  // --- Show-don't-tell game ---
+  function pick(btn,correct){
+    var box=btn.parentElement, fb=box.nextElementSibling;
+    Array.prototype.forEach.call(box.children,function(b){b.classList.remove('correct','wrong');});
+    if(correct){btn.classList.add('correct');fb.textContent="✅ Yes! That one SHOWS with details. Great architect eyes!";fb.style.color="#27ae60";}
+    else{btn.classList.add('wrong');fb.textContent="🔎 That one just TELLS. Look for the sentence with actions and details!";fb.style.color="#e74c3c";}
+  }
+  // --- Reflection ---
+  function cheer(span){
+    Array.prototype.forEach.call(span.parentElement.querySelectorAll('span'),function(s){s.style.background='';});
+    span.style.background='#ffe08a';span.style.borderRadius='8px';
+  }
+</script>
+</body>
+</html>
