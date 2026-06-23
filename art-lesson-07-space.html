@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Art Lesson 7 — Space (Interactive)</title>
+<style>
+  :root{
+    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#3a4059; --warn:#ffd166; --bad:#ff6b81;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .35em}
+  .hidden{display:none !important}
+
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px}
+  .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+  .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#211}
+
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)}
+  .phaserow.done .dot{background:var(--good);border-color:var(--good)}
+  .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px}
+  .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px}
+  .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#33304a;border:1px solid #4b3f6b}
+  .extra .lab{font-size:12px;font-weight:700;color:#caa9ff;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#e7e1f7}
+  .matbox{margin-top:12px;font-size:13px;color:var(--muted)} .matbox b{color:var(--ink)}
+
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:16px;display:none}
+  .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:62ch}
+
+  .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .swatches{display:flex;gap:6px}
+  .sw{width:26px;height:26px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .sw.active{outline:3px solid var(--ink);outline-offset:1px}
+  .tbtn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700}
+  .tbtn.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .guidebar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .guidebar .glab{font-size:12px;color:var(--muted);align-self:center;margin-right:2px}
+  canvas#pad{background:#fff;border-radius:10px;box-shadow:0 10px 40px #0007;touch-action:none;max-width:100%;display:block}
+
+  /* games */
+  .gameprompt{font-size:16px;font-weight:700;margin:8px 0}
+  .scene{display:flex;justify-content:center;margin:8px 0}
+  .scene svg{width:100%;max-width:460px;height:auto;background:#eaf3fb;border-radius:14px;border:2px solid #0003}
+  .pickrow{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
+  .pickrow .big{flex:1;min-width:130px;font-size:15px;font-weight:800;padding:14px 10px;border-radius:14px;border:2px solid var(--line);background:var(--panel2);color:var(--ink)}
+  .gamemsg{margin-top:8px;font-weight:700;font-size:14px;min-height:1.2em}
+  .gamemsg.ok{color:var(--good)} .gamemsg.no{color:var(--bad)}
+  .scorepill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;color:var(--accent2)}
+  .tap{cursor:pointer}
+
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+  .sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)}
+  .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
+  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px} .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700} .answerkey .ak .correct{color:var(--good)}
+  .answerkey .ak .got{color:#ff8a9a} .answerkey .ak .got.okgot{color:var(--good)}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+  #doneBanner h2{font-size:24px} #doneBanner p{color:var(--muted);line-height:1.5}
+  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+
+  @media (max-width:820px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;max-height:48%;border-right:none;border-bottom:1px solid var(--line)}
+    .clock{font-size:38px}
+  }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div>
+      <div class="ltitle">🏞 Art Lesson 7: Space</div>
+      <div class="lsub">Near &amp; far · foreground/background · positive &amp; negative space · ~38 minutes · 4th→5th refresher</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="closer">🌳 Which is Closer?</button>
+        <button class="tab" data-z="posneg">⬛ Positive / Negative</button>
+        <button class="tab" data-z="studio">✏ Space Studio</button>
+      </div>
+
+      <!-- WHICH IS CLOSER -->
+      <div class="zone on" id="z-closer">
+        <h3>Which is Closer? <span class="scorepill" id="closeScore">0 / 0</span></h3>
+        <p class="lead">On flat paper, artists use tricks to show <b>space</b> (near and far). Closer things look <b>bigger</b>, sit <b>lower</b> on the page, and can <b>overlap</b> (cover) the things behind them. Tap the tree that looks <b>CLOSER</b> to you!</p>
+        <div class="scene" id="closeScene"></div>
+        <div class="gamemsg" id="closeMsg">Round 1</div>
+      </div>
+
+      <!-- POSITIVE / NEGATIVE -->
+      <div class="zone" id="z-posneg">
+        <h3>Positive or Negative Space?</h3>
+        <p class="lead"><b>Positive space</b> = the OBJECT itself. <b>Negative space</b> = the empty area AROUND and between objects. Look at the teal-colored part — is it the object, or the space around it?</p>
+        <div class="scene" id="pnScene"></div>
+        <div class="gameprompt" id="pnPrompt">Is the TEAL part positive or negative space?</div>
+        <div class="pickrow">
+          <button class="big" id="btnPos">🟦 Positive<br><span style="font-weight:600;font-size:12px">(the object)</span></button>
+          <button class="big" id="btnNeg">⬜ Negative<br><span style="font-weight:600;font-size:12px">(space around it)</span></button>
+        </div>
+        <div class="gamemsg" id="pnMsg">Round 1</div>
+      </div>
+
+      <!-- SPACE STUDIO -->
+      <div class="zone" id="z-studio">
+        <h3>Space Studio</h3>
+        <p class="lead">Pick a <b>guide</b> and draw a scene with depth. Remember the tricks: near = <b>big &amp; low</b>, far = <b>small &amp; high</b>, and let close things <b>overlap</b> far things. Your work <b>auto-saves</b> as you go.</p>
+        <div class="guidebar">
+          <span class="glab">Guide:</span>
+          <button class="tbtn on" id="g-scene">① Depth scene</button>
+          <button class="tbtn" id="g-overlap">② Overlap &amp; size</button>
+        </div>
+        <div class="tools">
+          <div class="swatches" id="swatches"></div>
+          <label style="font-size:12px;color:var(--muted)">Size <input type="range" id="size" min="1" max="40" value="6"></label>
+          <button class="tbtn on" id="penBtn">✏ Pen</button>
+          <button class="tbtn" id="eraserBtn">⌫ Eraser</button>
+          <button class="tbtn" id="clearBtn">🗑 Clear</button>
+          <button class="tbtn" id="saveBtn">⬇ Save PNG</button>
+        </div>
+        <canvas id="pad" width="900" height="560"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="doneBanner" class="modal hidden"><div class="box">
+  <h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p>
+  <button id="doneBtn">Next step ▶</button>
+</div></div>
+
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* ---------------- PHASES (total = 38 min) ---------------- */
+const PHASES=[
+  {name:"Warm-Up", min:5, tab:"closer",
+   steps:["SPACE is the area in, around and between things in art.","To show DEPTH on flat paper, artists make near things BIGGER, LOWER, and let them OVERLAP far things.","Open 🌳 Which is Closer? and tap the tree that looks closer each time."],
+   doline:"DO NOW: tap the closer tree in each scene →"},
+  {name:"Mini-Lesson", min:7, tab:"posneg",
+   steps:["Every artwork has POSITIVE space (the objects) and NEGATIVE space (the empty area around them).","Good artists plan BOTH — the empty space is part of the design!","Open ⬛ Positive / Negative and decide what the teal part is each time."],
+   doline:"DO NOW: sort positive vs negative space →"},
+  {name:"Guided Practice", min:6, tab:"posneg",
+   steps:["Finish all the positive/negative rounds.","Look around the room: your hand is positive space — the gaps between your fingers are negative space.","Hold up an object and notice the interesting shapes of the empty space around it."],
+   doline:"DO NOW: finish the rounds + spot real negative space →"},
+  {name:"Main Activity — Depth Scene", min:9, tab:"studio", guide:"scene",
+   steps:["Open ✏ Space Studio and press “① Depth scene”.","Draw a BIG tree or animal low in the FOREGROUND (it feels close).","Draw SMALLER things higher up near the horizon for the BACKGROUND (they feel far).","Add a path or river that gets narrower as it goes back — that pulls the eye into the distance!"],
+   doline:"DO NOW: draw a scene with foreground & background →"},
+  {name:"Main Activity — Overlap & Size", min:8, tab:"studio", guide:"overlap",
+   steps:["Press “② Overlap & size”.","Draw the SAME thing 3 times (3 trees, 3 fish, 3 houses).","Make one big & low (near), one medium, one small & high (far).","Let the near one OVERLAP (cover part of) the ones behind it. Save with ⬇ Save PNG."],
+   doline:"DO NOW: draw 3 sizes that overlap for depth →"},
+  {name:"Reflection + Quiz", min:3, tab:"studio",
+   steps:["Look at your scene — does part of it feel close and part feel far away?","Press 📝 Quiz (top right) to check what you learned about space.","Grown-up: the quiz shows a score and an answer key so you can grade it."],
+   doline:"DO NOW: take the 📝 Quiz →"},
+];
+
+/* ---------------- TIMER ---------------- */
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){
+  const wrap=$("#steps"); wrap.innerHTML="";
+  PHASES.forEach((p,idx)=>{
+    const row=document.createElement("div");
+    row.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    row.innerHTML=`<div class="dot"></div><div class="meta">
+      <div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div>
+      <ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
+      ${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    row.onclick=()=>selectPhase(idx,false);
+    wrap.appendChild(row);
+  });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">⭐ If you finish early</div><p>Negative-space art: lay a few small objects (keys, scissors, a fork) on paper. Don't draw the objects — color in only the SPACES AROUND them. The objects appear like magic from the negative space!</p>`;
+  wrap.appendChild(ex);
+  const mat=document.createElement("div"); mat.className="matbox";
+  mat.innerHTML=`<b>Materials:</b> Just this screen! (Paper + pencil is great for the negative-space activity and for sketching a deep landscape.)`;
+  wrap.appendChild(mat);
+}
+function selectPhase(idx,autostart){
+  stopTimer(); curPhase=idx; const p=PHASES[idx];
+  remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps();
+  if(p.tab) showZone(p.tab);
+  if(p.guide){ setGuide(p.guide); }
+  const a=document.querySelector(".phaserow.active"); if(a) a.scrollIntoView({block:"nearest",behavior:"smooth"});
+  if(autostart) startTimer();
+}
+function updateClock(){
+  const m=Math.floor(remaining/60), s=remaining%60;
+  const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  el.classList.toggle("low",remaining<=30&&remaining>0);
+  $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";
+}
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stopTimer();phaseFinished();} }
+function startTimer(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stopTimer(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+function phaseFinished(){
+  const last=curPhase>=PHASES.length-1;
+  $("#doneTitle").textContent=last?"🎉 Lesson complete!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great work — you made a flat page feel deep! Take the quiz if you haven't, save your scene, or try the negative-space art.":`Nice! Ready for: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  try{beep();}catch(e){}
+}
+$("#doneBtn").onclick=()=>{ $("#doneBanner").classList.add("hidden");
+  if(curPhase<PHASES.length-1) selectPhase(curPhase+1,true); };
+$("#startBtn").onclick=startTimer; $("#pauseBtn").onclick=stopTimer;
+$("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); else phaseFinished(); };
+let actx; function beep(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  [660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";
+    o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);}); }
+
+/* ---------------- TABS ---------------- */
+function showZone(z){
+  document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));
+  if(z==="studio") resizeCanvas();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ---------------- WHICH IS CLOSER GAME ---------------- */
+function treeSVG(cx,baseY,scale,id){
+  const tw=14*scale, th=46*scale, cr=26*scale;
+  return `<g class="tap" data-id="${id}">
+    <rect x="${cx-tw/2}" y="${baseY-th}" width="${tw}" height="${th}" fill="#8a5a2b"/>
+    <circle cx="${cx}" cy="${baseY-th}" r="${cr}" fill="#4f9d5a"/>
+    <circle cx="${cx-cr*0.55}" cy="${baseY-th+cr*0.3}" r="${cr*0.7}" fill="#57ab63"/>
+    <circle cx="${cx+cr*0.55}" cy="${baseY-th+cr*0.3}" r="${cr*0.7}" fill="#57ab63"/>
+  </g>`;
+}
+// each round: which tree is closer + which cue
+const CLOSE_ROUNDS=[
+  {a:{cx:130,base:175,scale:1.25},b:{cx:330,base:120,scale:0.7},closer:"a",cue:"It's bigger AND lower on the page — that means closer."},
+  {a:{cx:140,base:120,scale:0.65},b:{cx:330,base:178,scale:1.3},closer:"b",cue:"Lower and larger = closer to you."},
+  {a:{cx:160,base:170,scale:1.15},b:{cx:300,base:150,scale:1.15},closer:"a",cue:"Same size, but the lower one feels closer."},
+  {a:{cx:150,base:165,scale:1.2},b:{cx:300,base:120,scale:0.8},closer:"a",cue:"Bigger and lower wins — it's in the foreground."},
+  {a:{cx:150,base:120,scale:0.7},b:{cx:320,base:175,scale:1.25},closer:"b",cue:"The big, low tree is in front."},
+];
+let closeIdx=0, closeRight=0, closeDone=0;
+function buildCloser(){ closeIdx=0; closeRight=0; closeDone=0; renderCloser(); }
+function renderCloser(){
+  if(closeIdx>=CLOSE_ROUNDS.length){
+    $("#closeScene").innerHTML="";
+    $("#closeMsg").className="gamemsg ok"; $("#closeMsg").textContent=`🎉 Done! ${closeRight} of ${CLOSE_ROUNDS.length} correct.`;
+    $("#closeScore").textContent=`${closeRight} / ${CLOSE_ROUNDS.length}`; return;
+  }
+  const r=CLOSE_ROUNDS[closeIdx];
+  const order=shuffle([["a",r.a],["b",r.b]]);
+  let inner=`<rect x="0" y="180" width="460" height="60" fill="#bfe0a8"/>`;
+  order.forEach(([id,t])=>{ inner+=treeSVG(t.cx,t.base,t.scale,id); });
+  $("#closeScene").innerHTML=`<svg viewBox="0 0 460 240">${inner}</svg>`;
+  $("#closeScene").querySelectorAll(".tap").forEach(g=>g.addEventListener("click",()=>pickClose(g.dataset.id)));
+  $("#closeMsg").className="gamemsg"; $("#closeMsg").textContent=`Scene ${closeIdx+1} of ${CLOSE_ROUNDS.length} — tap the CLOSER tree`;
+  $("#closeScore").textContent=`${closeRight} / ${closeDone}`;
+}
+function pickClose(id){
+  const r=CLOSE_ROUNDS[closeIdx]; closeDone++;
+  if(id===r.closer){ closeRight++; $("#closeMsg").className="gamemsg ok"; $("#closeMsg").textContent="✓ Correct! "+r.cue; }
+  else { $("#closeMsg").className="gamemsg no"; $("#closeMsg").textContent="✗ Look again — "+r.cue; }
+  $("#closeScore").textContent=`${closeRight} / ${closeDone}`;
+  closeIdx++; setTimeout(renderCloser,1300);
+}
+
+/* ---------------- POSITIVE / NEGATIVE GAME ---------------- */
+// figure path on a 200x140 box; "teal" colors either the figure or the ground
+const PN_FIG={
+  star:`<polygon points="100,18 119,72 176,72 130,104 148,160 100,126 52,160 70,104 24,72 81,72"/>`,
+  tree:`<rect x="92" y="86" width="16" height="44"/><circle cx="100" cy="70" r="40"/>`,
+  heart:`<path d="M100 134 C40 96 46 48 78 48 C92 48 100 60 100 60 C100 60 108 48 122 48 C154 48 160 96 100 134 Z"/>`,
+  hand:`<path d="M70 130 L70 80 Q70 72 78 72 Q86 72 86 80 L86 60 Q86 52 94 52 Q102 52 102 60 L102 58 Q102 50 110 50 Q118 50 118 58 L118 66 Q118 58 126 58 Q134 58 134 66 L134 104 Q134 130 104 130 Z"/>`
+};
+const PN_ROUNDS=[
+  {fig:"star", tealIsFigure:true},
+  {fig:"tree", tealIsFigure:false},
+  {fig:"heart", tealIsFigure:true},
+  {fig:"hand", tealIsFigure:false},
+];
+let pnIdx=0, pnLocked=false, pnRight=0;
+function buildPN(){ pnIdx=0; pnRight=0; renderPN(); }
+function renderPN(){
+  pnLocked=false;
+  if(pnIdx>=PN_ROUNDS.length){
+    $("#pnScene").innerHTML=""; $("#pnPrompt").textContent="";
+    $("#pnMsg").className="gamemsg ok"; $("#pnMsg").textContent=`🎉 Done! You got ${pnRight} of ${PN_ROUNDS.length}.`;
+    return;
+  }
+  const r=PN_ROUNDS[pnIdx];
+  const bg=r.tealIsFigure?"#ffffff":"#5bd1c4";
+  const fg=r.tealIsFigure?"#5bd1c4":"#ffffff";
+  const stroke=r.tealIsFigure?"#cdd2e0":"#2b9e92";
+  $("#pnScene").innerHTML=`<svg viewBox="0 0 200 140" style="background:${bg}">
+    <g fill="${fg}" stroke="${stroke}" stroke-width="2">${PN_FIG[r.fig]}</g></svg>`;
+  $("#pnPrompt").textContent="Is the TEAL part positive (the object) or negative (the space around it)?";
+  $("#pnMsg").className="gamemsg"; $("#pnMsg").textContent=`Round ${pnIdx+1} of ${PN_ROUNDS.length}`;
+}
+function answerPN(guess){
+  if(pnLocked) return; pnLocked=true;
+  const r=PN_ROUNDS[pnIdx];
+  const correct=(guess==="pos" && r.tealIsFigure) || (guess==="neg" && !r.tealIsFigure);
+  const m=$("#pnMsg");
+  if(correct){ pnRight++; m.className="gamemsg ok"; m.textContent= r.tealIsFigure?"✓ Yes! Teal is the OBJECT — positive space.":"✓ Yes! Teal is the EMPTY area — negative space."; }
+  else { m.className="gamemsg no"; m.textContent= r.tealIsFigure?"✗ The teal IS the object, so it's positive space.":"✗ The teal is the area around the object, so it's negative space."; }
+  pnIdx++; setTimeout(renderPN,1400);
+}
+$("#btnPos").onclick=()=>answerPN("pos");
+$("#btnNeg").onclick=()=>answerPN("neg");
+
+/* ---------------- SPACE STUDIO CANVAS ---------------- */
+const pad=$("#pad"), ctx=pad.getContext("2d");
+let drawing=false,lastX=0,lastY=0,penColor="#2b6f3a",penSize=6,erasing=false,curGuide="scene";
+const PALETTE=["#2b6f3a","#8a5a2b","#4d96ff","#ffd166","#e63946","#9b5cff","#1a1a1a","#ffffff"];
+const swEl=$("#swatches");
+PALETTE.forEach((c,i)=>{ const d=document.createElement("div"); d.className="sw"+(i===0?" active":""); d.style.background=c;
+  d.onclick=()=>{ penColor=c; erasing=false; $("#penBtn").classList.add("on"); $("#eraserBtn").classList.remove("on");
+    document.querySelectorAll("#swatches .sw").forEach(s=>s.classList.remove("active")); d.classList.add("active"); };
+  swEl.appendChild(d); });
+$("#size").oninput=e=>penSize=+e.target.value;
+$("#penBtn").onclick=()=>{erasing=false;$("#penBtn").classList.add("on");$("#eraserBtn").classList.remove("on");};
+$("#eraserBtn").onclick=()=>{erasing=true;$("#eraserBtn").classList.add("on");$("#penBtn").classList.remove("on");};
+$("#clearBtn").onclick=()=>{ setGuide(curGuide); saveCanvas(); };
+$("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="art-lesson-7-space.png";a.href=pad.toDataURL("image/png");a.click();};
+$("#g-scene").onclick=()=>{setGuide("scene");saveCanvas();};
+$("#g-overlap").onclick=()=>{setGuide("overlap");saveCanvas();};
+function highlightGuideBtn(){ ["scene","overlap"].forEach(g=>$("#g-"+g).classList.toggle("on",g===curGuide)); }
+
+/* ---------------- AUTO-SAVE (survives screen rotation & reloads) ---------------- */
+const CANVAS_KEY="art-l7-canvas";
+let _saveTimer=null,_toast=null;
+function _showToast(){ if(!_toast){_toast=document.createElement("div");
+    _toast.style.cssText="position:fixed;bottom:14px;right:14px;background:#1f3d2b;color:#d6f5df;border:1px solid #7bd88f;padding:7px 12px;border-radius:10px;font:600 12px sans-serif;z-index:80;opacity:0;transition:opacity .25s;pointer-events:none";
+    _toast.textContent="✓ Auto-saved"; document.body.appendChild(_toast);}
+  _toast.style.opacity="1"; clearTimeout(_toast._t); _toast._t=setTimeout(()=>{_toast.style.opacity="0";},900); }
+function saveCanvas(){ try{ localStorage.setItem(CANVAS_KEY,pad.toDataURL("image/png")); _showToast(); }catch(e){} }
+function autosave(){ clearTimeout(_saveTimer); _saveTimer=setTimeout(saveCanvas,400); }
+function restoreCanvas(){ try{ const d=localStorage.getItem(CANVAS_KEY); if(!d) return false;
+    const img=new Image(); img.onload=()=>{ ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height); ctx.drawImage(img,0,0,pad.width,pad.height); }; img.src=d; return true; }catch(e){ return false; } }
+function resizeCanvas(){ const host=pad.parentElement; const w=Math.min(host.clientWidth-32,1000);
+  if(w>320 && Math.abs(w-pad.width)>4){
+    const off=document.createElement("canvas"); off.width=pad.width; off.height=pad.height; off.getContext("2d").drawImage(pad,0,0);
+    const ow=pad.width, oh=pad.height;
+    pad.width=w; pad.height=Math.round(w*0.62); ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+    ctx.drawImage(off,0,0,ow,oh,0,0,pad.width,pad.height); saveCanvas(); }
+  ctx.lineCap="round"; ctx.lineJoin="round"; }
+
+function setGuide(kind){
+  curGuide=kind; highlightGuideBtn();
+  ctx.setLineDash([]); ctx.globalAlpha=1;
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+  ctx.save();
+  if(kind==="scene") guideScene();
+  else if(kind==="overlap") guideOverlap();
+  ctx.restore();
+  ctx.lineCap="round"; ctx.lineJoin="round";
+}
+function guideScene(){
+  const W=pad.width,H=pad.height, hor=H*0.42;
+  // sky and ground tints
+  ctx.fillStyle="#eef6ff"; ctx.fillRect(0,0,W,hor);
+  ctx.fillStyle="#f1f8ec"; ctx.fillRect(0,hor,W,H-hor);
+  ctx.strokeStyle="#bcd0e6"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,hor); ctx.lineTo(W,hor); ctx.stroke();
+  ctx.fillStyle="#8aa0bd"; ctx.font="bold 13px sans-serif"; ctx.fillText("← horizon line →",W-160,hor-8);
+  ctx.fillStyle="#7e9bbf"; ctx.font="bold 14px sans-serif";
+  ctx.fillText("BACKGROUND  (far = small & high, near the horizon)", 16, hor-14);
+  ctx.fillStyle="#5b8a4e"; ctx.fillText("FOREGROUND  (near = BIG & LOW, down here)", 16, H-16);
+  // a narrowing path as a depth hint
+  ctx.strokeStyle="#d8c79a"; ctx.setLineDash([8,7]); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(W*0.46,hor); ctx.lineTo(W*0.30,H); ctx.moveTo(W*0.54,hor); ctx.lineTo(W*0.70,H); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle="#bcae86"; ctx.font="italic 12px sans-serif"; ctx.fillText("tip: a path that gets narrower looks like it goes far away", W*0.30, H*0.7);
+}
+function guideOverlap(){
+  const W=pad.width,H=pad.height, base=H*0.8;
+  ctx.fillStyle="#f1f8ec"; ctx.fillRect(0,base,W,H-base);
+  ctx.strokeStyle="#cdd2e0"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,base); ctx.lineTo(W,base); ctx.stroke();
+  ctx.fillStyle="#8a90a6"; ctx.font="bold 15px sans-serif";
+  ctx.fillText("Draw the same thing 3 times. Big & low = near, small & high = far. Let the near one OVERLAP the others.",16,26);
+  ctx.setLineDash([7,6]); ctx.strokeStyle="#cdd2e0"; ctx.lineWidth=2; ctx.fillStyle="#9aa0b5"; ctx.font="bold 12px sans-serif";
+  const guides=[{x:W*0.30,y:base,r:Math.min(70,W*0.085),lab:"NEAR (big & low)"},
+                {x:W*0.52,y:base-H*0.12,r:Math.min(46,W*0.055),lab:"middle"},
+                {x:W*0.70,y:base-H*0.22,r:Math.min(28,W*0.034),lab:"FAR (small & high)"}];
+  guides.forEach(g=>{ ctx.beginPath(); ctx.arc(g.x,g.y-g.r,g.r,0,Math.PI*2); ctx.stroke();
+    ctx.fillText(g.lab,g.x-g.r,g.y+16); });
+  ctx.setLineDash([]);
+}
+
+function pos(e){ const r=pad.getBoundingClientRect();
+  const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left, cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  return [cx*(pad.width/r.width), cy*(pad.height/r.height)]; }
+function start(e){ e.preventDefault(); drawing=true; [lastX,lastY]=pos(e); dot(lastX,lastY); }
+function move(e){ if(!drawing)return; e.preventDefault(); const[x,y]=pos(e); stroke(lastX,lastY,x,y); [lastX,lastY]=[x,y]; }
+function stroke(x0,y0,x1,y1){ ctx.strokeStyle=erasing?"#fff":penColor; ctx.lineWidth=erasing?penSize*2.4:penSize;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); }
+function dot(x,y){ ctx.fillStyle=erasing?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(erasing?penSize*1.2:penSize/2),0,7); ctx.fill(); }
+pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>{ if(drawing){ drawing=false; autosave(); } });
+pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>{ if(drawing){ drawing=false; autosave(); } });
+
+/* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
+const QUIZ=[
+  {q:"In art, SPACE means…",opts:["The area in, around and between objects","Only outer space and stars","How bright a color is"],a:0},
+  {q:"POSITIVE space is…",opts:["The empty area around things","The object itself","The darkest value"],a:1},
+  {q:"NEGATIVE space is…",opts:["The empty area around and between objects","The main object","A type of line"],a:0},
+  {q:"To make something look CLOSER, you usually draw it…",opts:["Smaller and higher up","Bigger and lower down","In the corner"],a:1},
+  {q:"Things that are FAR away are usually drawn…",opts:["Bigger and lower","Smaller and higher (near the horizon)","With more detail"],a:1},
+  {q:"When one object covers part of another, that's called…",opts:["Overlapping","Shading","Stippling"],a:0},
+  {q:"The part of a picture that feels closest to you is the…",opts:["Background","Foreground","Horizon"],a:1},
+  {q:"A road drawn getting narrower as it goes back makes it look…",opts:["Closer","Farther away (deep)","Flatter"],a:1},
+];
+let qi=0, qAns=[];
+$("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };
+function renderQ(){ const sheet=$("#quizSheet");
+  if(qi>=QUIZ.length){ return renderResults(); }
+  const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <div class="qprog">Question ${qi+1} of ${QUIZ.length}</div>
+    <div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;
+  const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t;
+    b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
+}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx;
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
+  btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no");
+  fb.textContent=correct?"✓ Correct!":"✗ Marked wrong. We'll add this to your review list.";
+  const n=document.createElement("button"); n.className="qnext";
+  n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";
+  n.onclick=()=>{ qi++; renderQ(); }; $("#quizSheet").appendChild(n);
+}
+function renderResults(){
+  let right=0; QUIZ.forEach((it,i)=>{ if(qAns[i]===it.a) right++; });
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);
+  try{ localStorage.setItem("art-l7-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/QUIZ.length*100);
+  const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
+    <div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"A perfect score — every answer correct!":"Topics to go over again (answers are saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
+    <div class="answerkey hidden" id="answerKey"></div>
+    <button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz; $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{ const ak=$("#answerKey"); ak.classList.toggle("hidden");
+    if(!ak.dataset.built){ ak.innerHTML=QUIZ.map((it,i)=>{ const g=qAns[i], ok=g===it.a;
+      const got=g==null?"(no answer)":it.opts[g];
+      return `<div class="ak"><div class="qq">${i+1}. ${it.q}</div>
+        <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
+        <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} He chose: ${got}</div></div>`; }).join("");
+      ak.dataset.built="1"; } };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+
+/* ---------------- INIT ---------------- */
+buildCloser(); buildPN();
+ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+renderSteps(); selectPhase(0,false);
+restoreCanvas();
+window.addEventListener("resize",()=>{ if($("#z-studio").classList.contains("on")) resizeCanvas(); });
+</script>
+</body>
+</html>
