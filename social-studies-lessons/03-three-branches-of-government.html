@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Studies Lesson 3 — How the U.S. Government Works: The 3 Branches (4th → 5th Grade)</title>
+<style>
+  :root{
+    --bg:#16202b; --panel:#1f2c3a; --panel2:#27384a; --ink:#f3f7fb;
+    --muted:#9fb3c8; --accent:#ffb84d; --accent2:#5bd1c4; --good:#7bd88f;
+    --bad:#ff7a7a; --line:#33485f; --warn:#ffd166; --purple:#b58cff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.45;
+  }
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .4em}
+  .hidden{display:none !important}
+
+  /* ---------- HOME ---------- */
+  #home{max-width:1000px;margin:0 auto;padding:26px 20px 70px}
+  .hero{
+    background:linear-gradient(135deg,#b54de0,#6a5cff 55%,#3aa0ff);
+    border-radius:22px;padding:28px 30px;margin-bottom:22px;color:#fff;
+  }
+  .hero h1{font-size:30px;line-height:1.12}
+  .hero p{margin:.5em 0 0;font-size:15.5px;opacity:.96;max-width:64ch}
+  .hero .pills{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  .hero .pill{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);
+    padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600}
+  .startbtn{
+    margin-top:18px;background:#fff;color:#5a2b8c;border:none;font-weight:800;font-size:17px;
+    padding:13px 24px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+  .startbtn:hover{transform:translateY(-2px)}
+
+  .sectionhead{font-size:13px;letter-spacing:.08em;color:var(--accent2);font-weight:800;
+    text-transform:uppercase;margin:26px 0 10px}
+  .regiongrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .rcard{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;
+    text-align:left;color:var(--ink);transition:transform .08s ease,border-color .15s ease;
+  }
+  .rcard:hover{transform:translateY(-3px)}
+  .rcard .remoji{font-size:26px}
+  .rcard .rname{font-size:17px;font-weight:800;margin:6px 0 2px}
+  .rcard .rclimate{font-size:12.5px;color:var(--muted)}
+  .rcard ul{margin:10px 0 0;padding-left:18px;font-size:13.5px}
+  .rcard ul li{margin:3px 0}
+  .rcard .tag{display:inline-block;margin-top:10px;font-size:11px;padding:3px 9px;border-radius:999px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+  .teachernote{background:var(--panel);border:1px dashed var(--line);border-radius:14px;
+    padding:14px 16px;margin-top:24px;font-size:13.5px;color:var(--muted)}
+  .teachernote b{color:var(--ink)}
+
+  /* ---------- LESSON ---------- */
+  #lesson{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{
+    display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap;
+  }
+  .topbar .back,.topbar .ghost{
+    background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;
+  }
+  .topbar .ltitle{font-weight:800;font-size:16px}
+  .topbar .lsub{color:var(--muted);font-size:12.5px}
+  .spacer{flex:1}
+  .scorechip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+    padding:6px 14px;font-size:13.5px;font-weight:700}
+  .scorechip b{color:var(--good)}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{
+    width:330px;max-width:42vw;background:var(--panel);border-right:1px solid var(--line);
+    padding:16px;display:flex;flex-direction:column;gap:14px;overflow:auto;
+  }
+  .timerwrap{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .phasename{font-size:13px;color:var(--accent);font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+  .clock{font-size:40px;font-weight:800;letter-spacing:.02em;margin:2px 0 8px;font-variant-numeric:tabular-nums}
+  .bar{height:9px;background:#16202b;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel);color:var(--ink);padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);color:#3a2400;border-color:var(--accent)}
+  .steps{display:flex;flex-direction:column;gap:8px}
+  .steplink{display:flex;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);
+    border-radius:12px;padding:10px 12px;font-size:13.5px;text-align:left;color:var(--ink)}
+  .steplink .n{width:24px;height:24px;border-radius:999px;background:var(--bg);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:0 0 auto}
+  .steplink.active{border-color:var(--accent);background:#2b3a2a}
+  .steplink.active .n{background:var(--accent);color:#3a2400;border-color:var(--accent)}
+  .steplink small{display:block;color:var(--muted);font-size:11.5px}
+
+  .content{flex:1;min-width:0;overflow:auto;padding:24px 26px 60px}
+  .panelbox{max-width:760px;margin:0 auto}
+  .phasehead{font-size:13px;color:var(--accent2);font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+  .phasebig{font-size:24px;font-weight:800;margin:4px 0 4px}
+  .phaseintro{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+
+  /* explorer */
+  .expgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+  .expbtn{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 10px;
+    color:var(--ink);text-align:center;font-weight:700;font-size:14px}
+  .expbtn .e{font-size:26px;display:block;margin-bottom:4px}
+  .expbtn.active{border-color:var(--accent);background:var(--panel2)}
+  .expinfo{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .expinfo h3{font-size:20px}
+  .expinfo .climate{color:var(--accent);font-size:13px;font-weight:700;margin-bottom:10px}
+  .factrow{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;font-size:14px;margin:6px 0}
+  .factrow .k{color:var(--muted);font-weight:700}
+  .checkbar{margin-top:18px;color:var(--muted);font-size:13.5px}
+
+  /* question card */
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 18px}
+  .qmeta{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);margin-bottom:8px}
+  .qtag{background:var(--panel2);border:1px solid var(--line);padding:3px 10px;border-radius:999px;font-weight:700}
+  .qtext{font-size:19px;font-weight:700;margin:2px 0 16px;line-height:1.35}
+  .choices{display:flex;flex-direction:column;gap:10px}
+  .choice{display:flex;gap:12px;align-items:flex-start;background:var(--panel2);border:1.5px solid var(--line);
+    border-radius:13px;padding:13px 15px;color:var(--ink);font-size:15.5px;text-align:left;width:100%}
+  .choice:hover{border-color:var(--accent2)}
+  .choice .lt{width:26px;height:26px;border-radius:8px;background:var(--bg);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 auto;font-size:14px}
+  .choice.correct{border-color:var(--good);background:#21402c}
+  .choice.correct .lt{background:var(--good);color:#06270f}
+  .choice.wrong{border-color:var(--bad);background:#43222a}
+  .choice.wrong .lt{background:var(--bad);color:#3a0c0c}
+  .choice.disabled{opacity:.6;pointer-events:none}
+  .feedback{margin-top:16px;border-radius:13px;padding:14px 16px;font-size:14.5px;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:#21402c;border:1px solid var(--good)}
+  .feedback.no{background:#43222a;border:1px solid var(--bad)}
+  .feedback b{display:block;margin-bottom:3px;font-size:15px}
+  .qfoot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px;flex-wrap:wrap}
+  .nextq{background:var(--accent);color:#3a2400;border:none;border-radius:12px;padding:12px 22px;
+    font-size:15px;font-weight:800}
+  .nextq:disabled{opacity:.4;cursor:not-allowed}
+  .progressline{font-size:13px;color:var(--muted)}
+
+  /* matching */
+  .matchwrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .matchcol h4{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .matchitem{display:block;width:100%;text-align:left;background:var(--panel2);border:1.5px solid var(--line);
+    border-radius:12px;padding:12px 14px;color:var(--ink);font-size:14.5px;margin-bottom:9px}
+  .matchitem.sel{border-color:var(--accent);background:#3a3320}
+  .matchitem.done{border-color:var(--good);background:#21402c;opacity:.85;pointer-events:none}
+  .matchitem.shake{animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  /* reflection */
+  .reflectcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+  .reflectcard p{margin:0 0 6px;font-size:16px;font-weight:700}
+  .reflectcard small{color:var(--muted);font-size:13px}
+
+  .bigbtn{background:var(--accent2);color:#053a35;border:none;border-radius:12px;padding:12px 22px;
+    font-size:15px;font-weight:800;margin-top:8px}
+  .ghostbtn{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:12px;
+    padding:11px 18px;font-size:14px;font-weight:700}
+
+  /* done banner */
+  #doneBanner{position:fixed;inset:0;background:rgba(8,12,18,.72);display:flex;align-items:center;
+    justify-content:center;padding:20px;z-index:50}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    padding:26px 28px;max-width:460px;text-align:center}
+  #doneBanner h2{font-size:24px}
+  #doneBanner p{color:var(--muted);font-size:15px}
+  #doneBanner button{margin-top:14px;background:var(--accent);color:#3a2400;border:none;border-radius:12px;
+    padding:12px 22px;font-size:15px;font-weight:800}
+
+  @media (max-width:760px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;border-right:none;border-bottom:1px solid var(--line);
+      flex-direction:row;flex-wrap:wrap;gap:10px}
+    .timerwrap{flex:1;min-width:220px}
+    .steps{flex:1;min-width:200px}
+    .matchwrap{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<main id="home">
+  <div class="hero">
+    <h1>🏛️ Social Studies — Lesson 3</h1>
+    <h1 style="font-size:22px;font-weight:700;opacity:.95">How the U.S. Government Works — The 3 Branches</h1>
+    <p>Our country's government is split into <b>three branches</b> so that no single person or group
+       ever gets too much power. One branch <i>makes</i> the laws, one <i>carries them out</i>, and one
+       <i>decides what they mean</i>. In this lesson you'll meet all three branches, learn how they keep
+       each other fair (<b>checks and balances</b>), and prove what you know with a giant bank of problems.</p>
+    <div class="pills">
+      <span class="pill">⏱ 30 minutes</span>
+      <span class="pill">🧩 50+ problems</span>
+      <span class="pill">⚖️ Checks &amp; balances</span>
+      <span class="pill">4th → 5th grade</span>
+    </div>
+    <button class="startbtn" id="startLessonBtn">▶ Start the lesson</button>
+  </div>
+
+  <div class="sectionhead">Peek at the parts of our government (you'll explore these in the lesson)</div>
+  <div class="regiongrid" id="homeRegions"></div>
+
+  <div class="teachernote">
+    <b>For the grown-up:</b> Built for a real 30 minutes that won't run short. A timer breaks the lesson
+    into six steps, and the Quiz, Rapid Round, and Bonus pull from a pool of 50+ problems, so a fast
+    learner always has more to do — the <b>Bonus Challenge</b> can stretch it past 40 minutes. The level
+    is kept friendly for a 10-year-old. Read the explanations out loud and connect to the big idea:
+    <i>power is split up on purpose so the government stays fair.</i>
+  </div>
+</main>
+
+<!-- ============ LESSON ============ -->
+<section id="lesson" class="hidden">
+  <div class="topbar">
+    <button class="back" id="homeBtn">← Home</button>
+    <div>
+      <div class="ltitle">How the U.S. Government Works</div>
+      <div class="lsub" id="lSub">Step 1 of 6</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="scorechip">Score: <b id="scoreNum">0</b> <span id="scoreOf" style="color:var(--muted);font-weight:600"></span></div>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="content">
+      <div class="panelbox" id="panel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DONE BANNER ============ -->
+<div id="doneBanner" class="hidden">
+  <div class="box">
+    <h2 id="doneTitle">⏰ Time!</h2>
+    <p id="doneMsg"></p>
+    <button id="doneBtn">Go to next step</button>
+  </div>
+</div>
+
+<script>
+/* ===================================================================
+   DATA — The 3 branches (+ Constitution & checks) and a big problem bank.
+   =================================================================== */
+
+const REGIONS = [
+  {
+    key:"legislative", name:"Legislative Branch", emoji:"🏛️", tag:"Branch of government",
+    sub:"Makes the laws",
+    job:"Writes and votes on bills to create new laws, and decides how the country spends its money",
+    who:"Congress — the Senate (2 senators per state) and the House of Representatives (more members for states with more people)",
+    where:"The U.S. Capitol building in Washington, D.C.",
+    special:"It takes BOTH the Senate and the House to agree before a bill can move forward to the President."
+  },
+  {
+    key:"executive", name:"Executive Branch", emoji:"🦅", tag:"Branch of government",
+    sub:"Carries out the laws",
+    job:"Signs bills into law (or vetoes them), leads the military, and meets with other world leaders",
+    who:"The President, the Vice President, and a Cabinet of advisors",
+    where:"The White House in Washington, D.C.",
+    special:"Americans elect a President every 4 years, and one person can serve at most two terms (8 years)."
+  },
+  {
+    key:"judicial", name:"Judicial Branch", emoji:"⚖️", tag:"Branch of government",
+    sub:"Explains the laws",
+    job:"Decides what laws mean and whether they follow the Constitution",
+    who:"Judges called justices — the Supreme Court has 9 of them",
+    where:"The Supreme Court building in Washington, D.C.",
+    special:"Supreme Court justices serve for life, so they can make fair decisions without worrying about elections."
+  },
+  {
+    key:"constitution", name:"The Constitution", emoji:"📜", tag:"Founding document",
+    sub:"The rulebook for our government",
+    job:"Sets up the three branches and lists the rights and freedoms of the people",
+    who:"Written by the Founders in 1787; it begins with the famous words 'We the People'",
+    where:"The original is kept in the National Archives in Washington, D.C.",
+    special:"The first 10 changes (amendments) are the Bill of Rights — they protect freedoms like speech and religion."
+  },
+  {
+    key:"checks", name:"Checks & Balances", emoji:"🔄", tag:"Big idea",
+    sub:"How the branches keep each other fair",
+    job:"Lets each branch limit the other two, so no single part of government becomes too powerful",
+    who:"All three branches share power on purpose",
+    where:"Built right into the Constitution",
+    special:"Example: the President can veto a bill, but Congress can override that veto with enough votes."
+  }
+];
+
+/* Multiple-choice question bank. answer = index of correct choice. */
+const QUIZ = [
+  {tag:"Branches", q:"Which branch of government MAKES the laws?", c:["Legislative (Congress)","Executive (President)","Judicial (Courts)","The military"], a:0, why:"The legislative branch — Congress — writes and votes on laws."},
+  {tag:"Branches", q:"Which branch CARRIES OUT (enforces) the laws?", c:["Executive (President)","Legislative (Congress)","Judicial (Courts)","The Supreme Court"], a:0, why:"The executive branch, led by the President, carries out the laws."},
+  {tag:"Branches", q:"Which branch decides what laws MEAN and if they follow the Constitution?", c:["Judicial (Courts)","Legislative (Congress)","Executive (President)","The Senate"], a:0, why:"The judicial branch — the courts — interprets the laws."},
+  {tag:"Who's Who", q:"Congress is made up of two parts. They are…", c:["The Senate and the House of Representatives","The President and Vice President","The Supreme Court and the Cabinet","The Army and the Navy"], a:0, why:"Congress = the Senate + the House of Representatives."},
+  {tag:"Who's Who", q:"Who is the leader of the executive branch?", c:["The President","The Chief Justice","The Speaker of the House","A senator"], a:0, why:"The President leads the executive branch."},
+  {tag:"Who's Who", q:"The highest court in the whole country is the…", c:["Supreme Court","City Court","Traffic Court","Court of Congress"], a:0, why:"The Supreme Court is the highest court in the judicial branch."},
+  {tag:"Who's Who", q:"How many justices serve on the Supreme Court?", c:["9","3","50","100"], a:0, why:"Nine justices sit on the Supreme Court."},
+  {tag:"Who's Who", q:"How many U.S. senators does each state get?", c:["2","1","5","10"], a:0, why:"Every state gets exactly 2 senators, no matter how big or small it is."},
+  {tag:"Who's Who", q:"The number of representatives a state has in the House depends on its…", c:["Population (number of people)","Size in miles","Age","Weather"], a:0, why:"States with more people get more representatives in the House."},
+  {tag:"Vocabulary", q:"A 'bill' is…", c:["An idea for a new law before it is passed","A kind of money","A judge","A state"], a:0, why:"A bill is a proposed law; if it passes and is signed, it becomes a law."},
+  {tag:"Vocabulary", q:"When the President says NO to a bill, it is called a…", c:["Veto","Vote","Law","Branch"], a:0, why:"A veto is the President's power to reject a bill."},
+  {tag:"Checks", q:"Congress can cancel the President's veto. This is called an…", c:["Override","Election","Appeal","Amendment"], a:0, why:"With enough votes (two-thirds), Congress can override a veto."},
+  {tag:"Checks", q:"Why does the government have THREE branches instead of one all-powerful leader?", c:["So no single part becomes too powerful","To make it confusing","Because there are three states","To save money"], a:0, why:"Splitting power keeps any one branch from controlling everything — that's checks and balances."},
+  {tag:"Checks", q:"The system where each branch can limit the others is called…", c:["Checks and balances","Show and tell","Supply and demand","Stars and stripes"], a:0, why:"Checks and balances keeps the three branches equal."},
+  {tag:"Checks", q:"The Supreme Court can check Congress by…", c:["Deciding a law is unconstitutional and throwing it out","Electing the President","Printing money","Declaring war"], a:0, why:"The courts can strike down laws that break the Constitution."},
+  {tag:"Constitution", q:"The Constitution is best described as…", c:["The plan and rulebook for our government","A type of tax","The President's house","A branch of the military"], a:0, why:"The Constitution sets up the government and lists people's rights."},
+  {tag:"Constitution", q:"The Constitution famously begins with the words…", c:["\"We the People\"","\"Once upon a time\"","\"Dear America\"","\"Four score and seven\""], a:0, why:"'We the People' shows the government's power comes from citizens."},
+  {tag:"Constitution", q:"The first 10 amendments (changes) to the Constitution are called the…", c:["Bill of Rights","Three Branches","Cabinet","Great Lakes"], a:0, why:"The Bill of Rights protects freedoms like speech, religion, and a fair trial."},
+  {tag:"Constitution", q:"A freedom protected by the Bill of Rights is freedom of…", c:["Speech","Homework","Candy","Flying"], a:0, why:"Freedom of speech lets people share their opinions."},
+  {tag:"Who's Who", q:"Where does Congress meet to make laws?", c:["The U.S. Capitol","The White House","The Supreme Court","An amusement park"], a:0, why:"Congress meets in the Capitol building in Washington, D.C."},
+  {tag:"Who's Who", q:"Where does the President live and work?", c:["The White House","The Capitol","The Supreme Court","City Hall"], a:0, why:"The President's home and office is the White House."},
+  {tag:"Branches", q:"Signing bills into law, leading the military, and meeting world leaders are jobs of the…", c:["Executive branch","Legislative branch","Judicial branch","Supreme Court"], a:0, why:"Those are the President's executive duties."},
+  {tag:"Branches", q:"Writing bills, voting on laws, and deciding how to spend money are jobs of the…", c:["Legislative branch","Executive branch","Judicial branch","Cabinet"], a:0, why:"That's Congress — the legislative branch."},
+  {tag:"Vocabulary", q:"A law starts as a bill. After Congress passes it, it usually becomes a law when it is…", c:["Signed by the President","Drawn by an artist","Approved by a judge first","Voted on by every citizen"], a:0, why:"After Congress passes a bill, the President signs it into law."},
+  {tag:"Big Idea", q:"In a democracy, the power of the government comes from…", c:["The people (citizens who vote)","One king","The army","The richest person"], a:0, why:"In a democracy, citizens vote and hold the power."},
+  {tag:"Who's Who", q:"How often do Americans elect a President?", c:["Every 4 years","Every year","Every 20 years","Never"], a:0, why:"Presidential elections happen every four years."},
+  {tag:"Checks", q:"Which branch approves (or rejects) the judges the President picks for the Supreme Court?", c:["The Senate (Congress)","The Army","The Cabinet","No one"], a:0, why:"The President nominates justices, but the Senate must approve them — a check."},
+  {tag:"Branches", q:"A police officer enforcing a law is doing the work of which KIND of branch?", c:["Executive","Legislative","Judicial","None"], a:0, why:"Carrying out and enforcing laws is the executive job."},
+  {tag:"Branches", q:"A judge deciding what a law means in a courtroom is doing the work of which branch?", c:["Judicial","Executive","Legislative","Military"], a:0, why:"Interpreting laws is the judicial branch."},
+  {tag:"Vocabulary", q:"Choosing leaders by voting is called an…", c:["Election","Invention","Equation","Eruption"], a:0, why:"An election is how citizens pick their leaders."},
+  {tag:"Constitution", q:"Washington, D.C. is important because it is where…", c:["All three branches of the federal government are based","The biggest mall is","The tallest mountain is","Most movies are made"], a:0, why:"The capital, Washington, D.C., is home to all three branches."},
+  {tag:"Branches", q:"The President is the leader (commander) of the military. This power belongs to the…", c:["Executive branch","Judicial branch","Legislative branch","Supreme Court"], a:0, why:"Commanding the military is an executive power."},
+  {tag:"Big Idea", q:"Splitting the government into branches that watch each other helps protect…", c:["People's freedom and fairness","The weather","Sports teams","Video games"], a:0, why:"Checks and balances protect freedom by stopping too much power in one place."},
+  {tag:"Who's Who", q:"The Vice President mainly helps the…", c:["President (executive branch)","Supreme Court","Mayor","Army only"], a:0, why:"The Vice President supports the President in the executive branch."}
+];
+
+/* Rapid true/false round. a = true(1)/false(0) */
+const TF = [
+  {q:"The legislative branch (Congress) makes the laws.", a:1, why:"True — Congress writes and votes on laws."},
+  {q:"The President is the leader of the judicial branch.", a:0, why:"False — the President leads the EXECUTIVE branch."},
+  {q:"The Supreme Court is the highest court in the country.", a:1, why:"True — it's the top of the judicial branch."},
+  {q:"Each state has 5 senators.", a:0, why:"False — each state has exactly 2 senators."},
+  {q:"A veto is when the President says no to a bill.", a:1, why:"True — it's a key executive power."},
+  {q:"The Constitution is the plan and rulebook for our government.", a:1, why:"True — it sets up the branches and our rights."},
+  {q:"There are three branches of government.", a:1, why:"True — legislative, executive, and judicial."},
+  {q:"Congress can override a President's veto.", a:1, why:"True — with a two-thirds vote, Congress can override a veto."},
+  {q:"The Bill of Rights is the first 10 amendments to the Constitution.", a:1, why:"True — it protects basic freedoms."},
+  {q:"The judicial branch carries out and enforces the laws.", a:0, why:"False — the EXECUTIVE branch enforces laws; the judicial branch explains them."},
+  {q:"In a democracy, citizens vote to choose their leaders.", a:1, why:"True — the power comes from the people."},
+  {q:"The President serves for life.", a:0, why:"False — a President is elected for 4-year terms, with a 2-term limit."}
+];
+
+/* Matching pairs: branch key + clue */
+const MATCH = [
+  {region:"legislative", clue:"This part writes and votes on new laws (the Senate + the House)"},
+  {region:"executive", clue:"The President leads this part and signs or vetoes bills"},
+  {region:"judicial", clue:"Nine justices on the Supreme Court decide what laws mean"},
+  {region:"constitution", clue:"The plan for our whole government; begins 'We the People'"},
+  {region:"checks", clue:"Each branch can limit the others so none gets too powerful"}
+];
+
+/* Bonus (harder) questions */
+const BONUS = [
+  {tag:"Bonus", q:"Congress passes a bill, but the President vetoes it. What can Congress do next?", c:["Override the veto with enough votes","Nothing — it's over","Send it to the Supreme Court to sign","Make the President resign"], a:0, why:"Congress can override a veto with a two-thirds vote — a classic check."},
+  {tag:"Bonus", q:"A new law says people can't share their opinions about the government. The Supreme Court would MOST likely…", c:["Strike it down for breaking the Bill of Rights","Cheer for it","Sign it into law","Ignore it forever"], a:0, why:"It violates freedom of speech, so the courts can declare it unconstitutional."},
+  {tag:"Bonus", q:"The Capitol building belongs to which branch?", c:["Legislative (Congress)","Executive (President)","Judicial (Courts)","The military"], a:0, why:"Congress meets in the Capitol — the legislative branch."},
+  {tag:"Bonus", q:"Why do Supreme Court justices serve for life instead of being elected?", c:["So they can be fair without worrying about elections","Because no one else wants the job","So they never have to work","Because they are kings"], a:0, why:"Lifetime terms let justices focus on the law, not on winning votes."},
+  {tag:"Bonus", q:"The President wants to add a new justice to the Supreme Court. Who must approve that choice?", c:["The Senate","The Army","The Vice President alone","The state governors"], a:0, why:"The Senate approves or rejects the President's Supreme Court picks."},
+  {tag:"Bonus", q:"Which list puts the path of a law in the RIGHT order?", c:["Idea → bill → Congress votes → President signs → law","Law → bill → idea","President signs → idea → bill","Supreme Court writes → law"], a:0, why:"An idea becomes a bill, Congress votes, the President signs, and it becomes a law."},
+  {tag:"Bonus", q:"A mayor running a city and the President running the country are both doing what KIND of job?", c:["Executive — carrying out laws","Judicial — judging cases","Legislative — making laws","None of these"], a:0, why:"Leaders who carry out and enforce laws do executive work, at any level."},
+  {tag:"Bonus", q:"Checks and balances exist mainly to prevent…", c:["One branch from gaining too much power","People from voting","States from having capitals","Laws from ever changing"], a:0, why:"The whole point is to stop any single branch from becoming too powerful."}
+];
+
+/* ===================================================================
+   PHASE PLAN — six timed steps that add up to 30 minutes.
+   =================================================================== */
+const PHASES = [
+  {name:"Warm-Up: Explore", min:5,  kind:"explore",
+    intro:"Tap each part of the government to learn its job, who's in it, and where it works. Read every card out loud — you'll need these facts in a minute!"},
+  {name:"Teach Me", min:6, kind:"quiz", pool:"teach",
+    intro:"Six quick questions to lock in the big ideas about the three branches. Read the explanation after each one."},
+  {name:"Match It", min:5, kind:"match",
+    intro:"Match each part of the government to its clue. Click one on the left, then its matching clue on the right."},
+  {name:"Quiz Challenge", min:8, kind:"quiz", pool:"quiz",
+    intro:"The main event! Branches, jobs, vocabulary, the Constitution, and checks and balances. Answer as many as you can before time runs out — you won't run out of questions."},
+  {name:"Rapid True / False", min:4, kind:"tf",
+    intro:"Fast round! Decide if each statement is TRUE or FALSE. Keep going until time's up."},
+  {name:"Reflect & Bonus", min:2, kind:"reflect",
+    intro:"Talk about what you learned — then try the Bonus Challenge if you have time."}
+];
+
+/* ===================================================================
+   APP
+   =================================================================== */
+const $ = s => document.querySelector(s);
+let curPhase = 0, remaining = 0, timerId = null, running = false;
+let score = 0, answered = 0;
+
+/* shuffle helper */
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ---- HOME cards ---- */
+function buildHomeRegions(){
+  const wrap = $("#homeRegions");
+  REGIONS.forEach(r=>{
+    const d = document.createElement("div");
+    d.className = "rcard";
+    d.innerHTML = `<span class="remoji">${r.emoji}</span>
+      <div class="rname">${r.name}</div>
+      <div class="rclimate">${r.sub}</div>
+      <ul>
+        <li><b>Job:</b> ${stripFirst(r.job)}</li>
+        <li><b>Who:</b> ${stripFirst(r.who)}</li>
+      </ul>
+      <span class="tag">${r.tag}</span>`;
+    wrap.appendChild(d);
+  });
+}
+function stripFirst(s){ return s.length>72 ? s.slice(0,70)+"…" : s; }
+
+/* ---- open lesson ---- */
+function openLesson(){
+  $("#home").classList.add("hidden");
+  $("#lesson").classList.remove("hidden");
+  curPhase = 0; score = 0; answered = 0;
+  updateScore();
+  renderSteps();
+  loadPhase(0);
+}
+function goHome(){
+  stopTimer();
+  $("#lesson").classList.add("hidden");
+  $("#home").classList.remove("hidden");
+}
+
+/* ---- sidebar steps ---- */
+function renderSteps(){
+  const box = $("#steps"); box.innerHTML = "";
+  PHASES.forEach((p,i)=>{
+    const b = document.createElement("button");
+    b.className = "steplink" + (i===curPhase ? " active":"");
+    b.innerHTML = `<span class="n">${i+1}</span><span>${p.name}<small>${p.min} min</small></span>`;
+    b.onclick = ()=> loadPhase(i);
+    box.appendChild(b);
+  });
+}
+
+/* ---- load a phase ---- */
+function loadPhase(i){
+  curPhase = i;
+  const p = PHASES[i];
+  $("#lSub").textContent = `Step ${i+1} of ${PHASES.length} — ${p.name}`;
+  $("#phaseName").textContent = p.name;
+  renderSteps();
+  setupTimer(p.min);
+  renderPhase(p);
+  window.scrollTo(0,0);
+  $(".content").scrollTop = 0;
+}
+
+/* ---- render the panel for a phase ---- */
+function renderPhase(p){
+  const panel = $("#panel");
+  const head = `<div class="phasehead">Step ${curPhase+1} of ${PHASES.length}</div>
+    <div class="phasebig">${p.name}</div>
+    <div class="phaseintro">${p.intro}</div>`;
+  if(p.kind==="explore")  panel.innerHTML = head + exploreHTML();
+  else if(p.kind==="match") panel.innerHTML = head + matchHTML();
+  else if(p.kind==="reflect") panel.innerHTML = head + reflectHTML();
+  else if(p.kind==="tf")   { panel.innerHTML = head + `<div id="qhost"></div>`; startTF(); }
+  else /* quiz */          { panel.innerHTML = head + `<div id="qhost"></div>`; startQuiz(p.pool); }
+
+  if(p.kind==="explore") wireExplore();
+  if(p.kind==="match")   wireMatch();
+  if(p.kind==="reflect") wireReflect();
+  $("#scoreOf").textContent = "";
+}
+
+/* ===================== EXPLORE ===================== */
+function exploreHTML(){
+  const btns = REGIONS.map((r,i)=>`<button class="expbtn${i===0?' active':''}" data-k="${r.key}">
+      <span class="e">${r.emoji}</span>${r.name}</button>`).join("");
+  return `<div class="expgrid">${btns}</div>
+    <div class="expinfo" id="expInfo"></div>
+    <div class="checkbar">✅ <b>Goal:</b> Open all 5 cards and read each one. Notice how the three branches each have a different job — and how they keep each other fair!</div>`;
+}
+function showRegion(key){
+  const r = REGIONS.find(x=>x.key===key);
+  $("#expInfo").innerHTML = `
+    <h3>${r.emoji} ${r.name}</h3>
+    <div class="climate">⭐ ${r.sub}</div>
+    <div class="factrow"><div class="k">Main job</div><div>${r.job}</div></div>
+    <div class="factrow"><div class="k">Who's in it</div><div>${r.who}</div></div>
+    <div class="factrow"><div class="k">Where</div><div>${r.where}</div></div>
+    <div class="factrow"><div class="k">Did you know?</div><div>${r.special}</div></div>`;
+}
+function wireExplore(){
+  showRegion(REGIONS[0].key);
+  document.querySelectorAll(".expbtn").forEach(b=>{
+    b.onclick = ()=>{
+      document.querySelectorAll(".expbtn").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      showRegion(b.dataset.k);
+    };
+  });
+}
+
+/* ===================== QUIZ / TEACH / BONUS ===================== */
+let qList = [], qIndex = 0, qLocked = false, qIsBonus = false;
+
+function poolFor(kind){
+  if(kind==="teach") return shuffle(QUIZ).slice(0,6);
+  if(kind==="quiz")  return shuffle(QUIZ);
+  if(kind==="bonus") return shuffle(BONUS);
+  return shuffle(QUIZ);
+}
+function startQuiz(poolName){
+  qIsBonus = (poolName==="bonus");
+  qList = poolFor(poolName);
+  qIndex = 0;
+  renderQuestion();
+}
+function renderQuestion(){
+  qLocked = false;
+  const q = qList[qIndex % qList.length];
+  // shuffle choices but track correct
+  const order = shuffle(q.c.map((t,idx)=>({t,idx})));
+  const correctPos = order.findIndex(o=>o.idx===q.a);
+  const letters = ["A","B","C","D","E"];
+  const host = $("#qhost");
+  host.innerHTML = `
+    <div class="qcard">
+      <div class="qmeta"><span class="qtag">${q.tag||"Question"}</span>
+        <span>Question ${qIndex+1}</span></div>
+      <div class="qtext">${q.q}</div>
+      <div class="choices" id="choices">
+        ${order.map((o,i)=>`<button class="choice" data-i="${i}">
+            <span class="lt">${letters[i]}</span><span>${o.t}</span></button>`).join("")}
+      </div>
+      <div class="feedback" id="fb"></div>
+      <div class="qfoot">
+        <span class="progressline" id="qprog">Answered ${answered} • Keep going until time's up</span>
+        <button class="nextq" id="nextQ" disabled>Next ▶</button>
+      </div>
+    </div>`;
+  $("#choices").querySelectorAll(".choice").forEach(btn=>{
+    btn.onclick = ()=> answerQ(parseInt(btn.dataset.i), correctPos, q);
+  });
+  $("#nextQ").onclick = ()=>{ qIndex++; if(qIndex>=qList.length) qList = shuffle(qList), qIndex=0; renderQuestion(); };
+}
+function answerQ(picked, correctPos, q){
+  if(qLocked) return;
+  qLocked = true;
+  const choices = $("#choices").querySelectorAll(".choice");
+  choices.forEach((c,i)=>{
+    c.classList.add("disabled");
+    if(i===correctPos) c.classList.add("correct");
+    if(i===picked && picked!==correctPos) c.classList.add("wrong");
+  });
+  const right = picked===correctPos;
+  answered++;
+  if(right) score += (qIsBonus?2:1);
+  updateScore();
+  const fb = $("#fb");
+  fb.className = "feedback show " + (right?"ok":"no");
+  fb.innerHTML = `<b>${right? "✅ Correct!"+(qIsBonus?" (+2 bonus points)":"") : "❌ Not quite."}</b>${q.why}`;
+  $("#nextQ").disabled = false;
+  $("#qprog").textContent = `Answered ${answered} • Keep going until time's up`;
+}
+
+/* ===================== RAPID TRUE / FALSE ===================== */
+let tfList = [], tfIndex = 0, tfLocked = false;
+function startTF(){
+  tfList = shuffle(TF); tfIndex = 0; renderTF();
+}
+function renderTF(){
+  tfLocked = false;
+  const t = tfList[tfIndex % tfList.length];
+  const host = $("#qhost");
+  host.innerHTML = `
+    <div class="qcard">
+      <div class="qmeta"><span class="qtag">True or False</span><span>Statement ${tfIndex+1}</span></div>
+      <div class="qtext">${t.q}</div>
+      <div class="choices" style="flex-direction:row;gap:14px">
+        <button class="choice" data-v="1" style="justify-content:center"><span class="lt">T</span><span>True</span></button>
+        <button class="choice" data-v="0" style="justify-content:center"><span class="lt">F</span><span>False</span></button>
+      </div>
+      <div class="feedback" id="fb"></div>
+      <div class="qfoot">
+        <span class="progressline">Answered ${answered} • Fast as you can!</span>
+        <button class="nextq" id="nextQ" disabled>Next ▶</button>
+      </div>
+    </div>`;
+  host.querySelectorAll(".choice").forEach(btn=>{
+    btn.onclick = ()=> answerTF(parseInt(btn.dataset.v), t);
+  });
+  $("#nextQ").onclick = ()=>{ tfIndex++; if(tfIndex>=tfList.length) tfList=shuffle(tfList), tfIndex=0; renderTF(); };
+}
+function answerTF(picked, t){
+  if(tfLocked) return; tfLocked = true;
+  const right = picked===t.a;
+  const btns = $("#qhost").querySelectorAll(".choice");
+  btns.forEach(b=>{
+    b.classList.add("disabled");
+    const v = parseInt(b.dataset.v);
+    if(v===t.a) b.classList.add("correct");
+    if(v===picked && !right) b.classList.add("wrong");
+  });
+  answered++; if(right) score++; updateScore();
+  const fb = $("#fb");
+  fb.className = "feedback show " + (right?"ok":"no");
+  fb.innerHTML = `<b>${right?"✅ Correct!":"❌ Not quite."}</b>${t.why}`;
+  $("#nextQ").disabled = false;
+}
+
+/* ===================== MATCH ===================== */
+let matchSel = null, matchDone = 0;
+function matchHTML(){
+  const left = shuffle(REGIONS).map(r=>`<button class="matchitem" data-region="${r.key}">${r.emoji} ${r.name}</button>`).join("");
+  const right = shuffle(MATCH).map(m=>`<button class="matchitem" data-clue="${m.region}">${m.clue}</button>`).join("");
+  return `<div class="matchwrap">
+      <div class="matchcol"><h4>Part of government</h4>${left}</div>
+      <div class="matchcol"><h4>Clue</h4>${right}</div>
+    </div>
+    <div class="checkbar" id="matchStatus">Matched 0 of ${MATCH.length}. Click one on the left, then its clue.</div>`;
+}
+function wireMatch(){
+  matchSel = null; matchDone = 0;
+  document.querySelectorAll('[data-region]').forEach(b=>{
+    b.onclick = ()=>{
+      document.querySelectorAll('[data-region]').forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel"); matchSel = b;
+    };
+  });
+  document.querySelectorAll('[data-clue]').forEach(b=>{
+    b.onclick = ()=>{
+      if(!matchSel){ b.classList.add("shake"); setTimeout(()=>b.classList.remove("shake"),300); return; }
+      if(matchSel.dataset.region === b.dataset.clue){
+        matchSel.classList.add("done"); matchSel.classList.remove("sel");
+        b.classList.add("done");
+        matchDone++; score++; answered++; updateScore();
+        $("#matchStatus").innerHTML = matchDone===MATCH.length
+          ? `🎉 <b>All ${MATCH.length} matched!</b> Great work. Wait for the timer or move to the next step.`
+          : `Matched ${matchDone} of ${MATCH.length}. Keep going!`;
+        matchSel = null;
+      } else {
+        b.classList.add("shake"); matchSel.classList.add("shake");
+        setTimeout(()=>{ b.classList.remove("shake"); if(matchSel) matchSel.classList.remove("shake"); },300);
+      }
+    };
+  });
+}
+
+/* ===================== REFLECT + BONUS ===================== */
+function reflectHTML(){
+  const prompts = [
+    ["If you were President for a day, what law would you want to sign — and which branch would have to write it first?","Connect roles: Congress writes, the President signs."],
+    ["Why is it a GOOD thing that no single branch has all the power?","Checks and balances keep things fair."],
+    ["Pick one branch and explain its main job in your own words, like you're teaching a younger kid.","Teaching it back shows you understand it."],
+    ["Name one freedom from the Bill of Rights and why it matters to you.","Connect the Constitution to your own life."]
+  ];
+  const cards = prompts.map((p,i)=>`<div class="reflectcard"><p>${i+1}. ${p[0]}</p><small>💭 ${p[1]}</small></div>`).join("");
+  return cards + `
+    <div style="margin-top:18px">
+      <button class="bigbtn" id="bonusBtn">🏆 Try the Bonus Challenge (harder, +2 points each)</button>
+      <button class="ghostbtn" id="finishBtn" style="margin-left:8px">🎉 Finish the lesson</button>
+    </div>
+    <div id="qhost" style="margin-top:18px"></div>`;
+}
+function wireReflect(){
+  $("#bonusBtn").onclick = ()=>{
+    setupTimer(8); startTimer();
+    $("#phaseName").textContent = "Bonus Challenge";
+    $("#bonusBtn").classList.add("hidden");
+    startQuiz("bonus");
+  };
+  $("#finishBtn").onclick = ()=> showFinish();
+}
+
+/* ===================== SCORE ===================== */
+function updateScore(){ $("#scoreNum").textContent = score; }
+
+/* ===================== TIMER ===================== */
+function setupTimer(min){
+  stopTimer();
+  remaining = min*60; running = false;
+  paintClock();
+  $("#barFill").style.width = "0%";
+  $("#startBtn").textContent = "▶ Start";
+}
+function startTimer(){
+  if(running) return;
+  running = true; $("#startBtn").textContent = "▶ Running";
+  timerId = setInterval(()=>{
+    remaining--; paintClock();
+    if(remaining<=0){ stopTimer(); timeUp(); }
+  },1000);
+}
+function pauseTimer(){
+  if(!running) return;
+  running = false; clearInterval(timerId); timerId=null;
+  $("#startBtn").textContent = "▶ Resume";
+}
+function stopTimer(){ running=false; if(timerId){clearInterval(timerId);timerId=null;} }
+function paintClock(){
+  const m = Math.floor(Math.max(remaining,0)/60), s = Math.max(remaining,0)%60;
+  $("#clock").textContent = `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  const total = PHASES[curPhase].min*60;
+  const pct = Math.min(100, Math.max(0, (1 - remaining/total)*100));
+  $("#barFill").style.width = pct+"%";
+}
+function timeUp(){
+  const last = curPhase >= PHASES.length-1;
+  $("#doneTitle").textContent = "⏰ Time for this step!";
+  $("#doneMsg").innerHTML = last
+    ? "You've reached the end of the timer. Keep answering for more points, try the Bonus Challenge, or finish the lesson."
+    : "Nice focus! You can keep working on this step as long as you like, or move on to the next step.";
+  $("#doneBtn").textContent = last ? "See my results" : "Go to next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  $("#doneBtn").onclick = ()=>{
+    $("#doneBanner").classList.add("hidden");
+    if(last) showFinish(); else loadPhase(curPhase+1);
+  };
+}
+function showFinish(){
+  stopTimer();
+  $("#doneTitle").textContent = "🎉 Lesson complete!";
+  $("#doneMsg").innerHTML = `You answered <b>${answered}</b> problems and scored <b>${score} points</b>.<br>
+    Remember the big idea: <i>power is split into three branches so the government stays fair.</i><br>
+    Save this score, then come back tomorrow for the next Social Studies lesson!`;
+  $("#doneBtn").textContent = "Back to Home";
+  $("#doneBanner").classList.remove("hidden");
+  $("#doneBtn").onclick = ()=>{ $("#doneBanner").classList.add("hidden"); goHome(); };
+}
+
+/* ===================== WIRE GLOBAL BUTTONS ===================== */
+$("#startLessonBtn").onclick = openLesson;
+$("#homeBtn").onclick = goHome;
+$("#startBtn").onclick = ()=> running ? pauseTimer() : startTimer();
+$("#pauseBtn").onclick = pauseTimer;
+$("#skipBtn").onclick = ()=>{ if(curPhase<PHASES.length-1) loadPhase(curPhase+1); else showFinish(); };
+
+/* init */
+buildHomeRegions();
+</script>
+</body>
+</html>
