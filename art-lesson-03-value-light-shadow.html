@@ -512,6 +512,12 @@ renderSteps(); selectPhase(0,false);
 restoreCanvas();
 setTimeout(()=>placeSun(60,18),50);
 window.addEventListener("resize",()=>{ if($("#z-draw").classList.contains("on")) resizeCanvas(); });
+/* ---------------- SAFETY SAVE (app closes / backgrounds / loses focus) ---------------- */
+function flushSave(){ try{ clearTimeout(_saveTimer); saveCanvas(); }catch(e){} }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") flushSave(); });
+window.addEventListener("pagehide",flushSave);
+window.addEventListener("beforeunload",flushSave);
+window.addEventListener("blur",flushSave);
 </script>
 </body>
 </html>
