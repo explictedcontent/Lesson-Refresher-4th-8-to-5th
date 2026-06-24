@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fact Finder! — Main Idea &amp; Summarizing (4th → 5th Grade)</title>
+<style>
+  :root{
+    --forest:#1e6b4f; --leaf:#2e9e6b; --mint:#e6f7ef; --gold:#f6b93b;
+    --green:#27ae60; --red:#e74c3c; --paper:#fffdf7; --ink:#2b2b2b; --orange:#e67e22;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Comic Sans MS","Trebuchet MS",Verdana,sans-serif; margin:0;
+    background:linear-gradient(135deg,#e0f2e9,#fff7e6); color:var(--ink); line-height:1.6; padding:20px;}
+  .sheet{max-width:860px; margin:0 auto; background:var(--paper); border:4px solid var(--forest);
+    border-radius:18px; padding:28px 34px; box-shadow:0 10px 30px rgba(0,0,0,.15);}
+  header{text-align:center; margin-bottom:18px;}
+  header h1{color:var(--forest); font-size:2.1em; margin:.2em 0;}
+  .badge-emoji{font-size:2.6em;}
+  .tag{display:inline-block; background:var(--gold); color:#5a3d00; font-weight:bold;
+    padding:4px 12px; border-radius:20px; margin:3px; font-size:.85em;}
+  .timing{background:var(--mint); border-radius:12px; padding:10px 16px; font-size:.9em;}
+  section{background:#fff; border:2px dashed var(--leaf); border-radius:14px; padding:18px 22px; margin:22px 0;}
+  section h2{color:var(--leaf); margin-top:0; display:flex; align-items:center; gap:8px;}
+  .mins{margin-left:auto; font-size:.6em; background:var(--leaf); color:#fff; padding:3px 10px; border-radius:20px;}
+  .say{background:#fff7e6; border-left:6px solid var(--gold); padding:10px 14px; border-radius:8px; font-style:italic; margin:12px 0;}
+  .say::before{content:"🗣️ SAY THIS: "; font-weight:bold; font-style:normal;}
+  .article{background:#f4faf6; border:2px solid var(--forest); border-radius:12px; padding:16px 20px; font-family:Georgia,serif; line-height:1.7;}
+  .article h3{color:var(--forest); text-align:center; margin-top:0;}
+  .article h4{color:var(--orange); margin-bottom:2px;}
+  input[type=text], textarea{width:100%; border:none; border-bottom:2px dotted var(--leaf); background:#f8fdfa;
+    font-family:inherit; font-size:1em; padding:6px 4px; margin:4px 0; border-radius:4px 4px 0 0;}
+  textarea{border:2px dotted var(--leaf); border-radius:8px; min-height:90px; resize:vertical;}
+  ol li, ul li{margin:8px 0;}
+  button{font-family:inherit; cursor:pointer; border:none; border-radius:10px; padding:8px 16px; font-weight:bold; font-size:.95em; margin:4px;}
+  .choices button{display:block; width:100%; text-align:left; background:var(--mint); color:var(--forest); margin:6px 0; border:2px solid transparent;}
+  .choices button.correct{background:#d4f5dd; border-color:var(--green);}
+  .choices button.wrong{background:#fde2e0; border-color:var(--red);}
+  .feedback{font-weight:bold; min-height:1.4em;}
+  .table-graphic{display:flex; align-items:stretch; gap:8px; flex-wrap:wrap; margin:10px 0;}
+  .tabletop{flex-basis:100%; background:var(--gold); color:#5a3d00; text-align:center; font-weight:bold; border-radius:10px; padding:10px;}
+  .leg{flex:1; min-width:130px; background:var(--mint); border-radius:10px; padding:10px; font-size:.9em; text-align:center;}
+  .checklist label{display:block; background:#eef9f2; border-radius:8px; padding:8px 12px; margin:6px 0; cursor:pointer;}
+  .checklist input{transform:scale(1.4); margin-right:10px;}
+  .wordbank{background:#fff3d6; border-radius:10px; padding:10px 14px; font-size:.92em;}
+  .reflect span{display:inline-block; margin:0 6px; cursor:pointer; font-size:1.4em;}
+  details{background:#e8f5ee; border-radius:10px; padding:8px 14px; margin-top:10px;}
+  summary{font-weight:bold; cursor:pointer; color:var(--forest);}
+  .badge-final{text-align:center; background:linear-gradient(135deg,var(--gold),#ffe08a); border-radius:16px; padding:18px; font-size:1.2em; font-weight:bold; color:#5a3d00;}
+  .tip{font-size:.9em; color:#666;}
+  @media print{body{background:#fff;} button{display:none;} .sheet{box-shadow:none;}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <div class="badge-emoji">🔬📰</div>
+    <h1>Fact Finder!</h1>
+    <p><strong>ELA Refresher — Lesson 3: Main Idea &amp; Summarizing · 4th → 5th Grade</strong></p>
+    <div>
+      <span class="tag">⏱️ 60 Minutes</span>
+      <span class="tag">📰 Nonfiction</span>
+      <span class="tag">🎯 Main Idea</span>
+      <span class="tag">🔑 Key Details</span>
+      <span class="tag">📝 Summarizing</span>
+    </div>
+  </header>
+
+  <div class="timing">
+    <strong>Investigation Plan (60 min):</strong>
+    Warm-Up 5 · Read the Article 12 · Main Idea 10 · Key Details Hunt 10 · Summarizing 13 · Write a Summary 7 · Wrap-Up 3
+  </div>
+
+  <section>
+    <h2>👋 For the Grown-Up / Teacher</h2>
+    <p>Lesson 3 shifts from stories to <strong>nonfiction</strong> — a key 5th-grade skill. The learner becomes a <strong>Fact Finder</strong> who digs out the main idea, gathers key details, and boils a whole article down to a short summary. Read the orange "SAY THIS" lines aloud and let them explain their thinking. Type into boxes on screen or print it. Answer key is at the bottom.</p>
+    <p class="tip">You'll need: pencil/scratch paper and a highlighter (or colored pencil) if printing.</p>
+  </section>
+
+  <!-- PART 1 -->
+  <section>
+    <h2>🧠 Part 1 — Warm-Up: What's It Mostly About? <span class="mins">5 min</span></h2>
+    <p class="say">"A 'main idea' is what something is MOSTLY about. Let's practice spotting it fast!"</p>
+    <p>For each list of words, what is it <strong>mostly</strong> about? Write one word.</p>
+    <p>1. leash, bark, fetch, wag, paws → <input type="text" style="width:50%" placeholder="mostly about..."></p>
+    <p>2. goalie, kick, field, net, teammate → <input type="text" style="width:50%" placeholder="mostly about..."></p>
+    <p>3. clouds, rain, thunder, lightning, umbrella → <input type="text" style="width:50%" placeholder="mostly about..."></p>
+    <p class="tip">🔎 Fact Finder Talk: The <strong>main idea</strong> is the big point. The little facts that back it up are the <strong>key details</strong>.</p>
+  </section>
+
+  <!-- PART 2 -->
+  <section>
+    <h2>📰 Part 2 — Read the Article <span class="mins">12 min</span></h2>
+    <p class="say">"Read like a Fact Finder. Each section has a heading — that's a clue to the main idea!"</p>
+    <div class="article">
+      <h3>Octopuses: The Ocean's Clever Escape Artists</h3>
+      <p>The octopus may be one of the smartest animals in the entire ocean. These soft-bodied creatures have amazed scientists with their surprising brainpower and their clever tricks for staying safe.</p>
+      <h4>Master of Disguise</h4>
+      <p>One of the octopus's best skills is camouflage. In less than a second, it can change the color AND the texture of its skin to match a rock, a patch of sand, or a bed of coral. This helps it hide from hungry predators and sneak up on its own prey. Some octopuses can even copy the shape of other sea animals, like a flat, poisonous fish, to scare enemies away.</p>
+      <h4>Brainy Problem-Solvers</h4>
+      <p>Octopuses are excellent problem-solvers. In laboratories, they have learned to open jars to reach the food inside, and they can find their way through tricky mazes. They are also famous escape artists. Because an octopus has no bones, it can squeeze its entire body through a hole no bigger than its eyeball — which means a small gap in a tank is all it needs to slip away.</p>
+      <h4>Built for Survival</h4>
+      <p>If hiding and squeezing don't work, the octopus has a backup plan. It can shoot a cloud of dark ink into the water to confuse a predator while it jets away to safety. With three hearts pumping blue blood and eight powerful arms, the octopus is built to survive in a dangerous ocean.</p>
+    </div>
+    <p class="tip">📌 Tip: read it twice. The first time for fun, the second time hunting for facts.</p>
+  </section>
+
+  <!-- PART 3 -->
+  <section>
+    <h2>🎯 Part 3 — Find the Main Idea (Game) <span class="mins">10 min</span></h2>
+    <p>Click the choice that best states the <strong>main idea of the WHOLE article</strong>:</p>
+    <div class="choices">
+      <button onclick="pick(this,false)">(a) Octopuses can change color to match a rock.</button>
+      <button onclick="pick(this,true)">(b) Octopuses are very smart and have many clever ways to stay safe.</button>
+      <button onclick="pick(this,false)">(c) Octopuses have three hearts and blue blood.</button>
+    </div>
+    <p class="feedback"></p>
+    <p class="tip">💡 Why? The main idea covers the <em>whole</em> article. Choices (a) and (c) are just single details from one part.</p>
+    <p style="margin-top:14px;"><strong>Now match each heading to its section's main idea:</strong></p>
+    <p>"Master of Disguise" is mostly about… <input type="text" placeholder="..."></p>
+    <p>"Brainy Problem-Solvers" is mostly about… <input type="text" placeholder="..."></p>
+    <p>"Built for Survival" is mostly about… <input type="text" placeholder="..."></p>
+  </section>
+
+  <!-- PART 4 -->
+  <section>
+    <h2>🔑 Part 4 — Key Details Hunt <span class="mins">10 min</span></h2>
+    <p class="say">"A strong main idea stands on key details — like a table stands on legs. Let's find the legs!"</p>
+    <div class="table-graphic">
+      <div class="tabletop">MAIN IDEA: Octopuses are smart and have clever ways to stay safe.</div>
+      <div class="leg">🦵 Detail 1<br><input type="text" placeholder="..."></div>
+      <div class="leg">🦵 Detail 2<br><input type="text" placeholder="..."></div>
+      <div class="leg">🦵 Detail 3<br><input type="text" placeholder="..."></div>
+    </div>
+    <p><strong>Fact check — true or false?</strong> Click your answer.</p>
+    <p><strong>1.</strong> An octopus can change color in less than a second.</p>
+    <div class="choices">
+      <button onclick="pick(this,true)">TRUE</button>
+      <button onclick="pick(this,false)">FALSE</button>
+    </div>
+    <p class="feedback"></p>
+    <p><strong>2.</strong> An octopus has bones, so it cannot squeeze through small holes.</p>
+    <div class="choices">
+      <button onclick="pick(this,false)">TRUE</button>
+      <button onclick="pick(this,true)">FALSE</button>
+    </div>
+    <p class="feedback"></p>
+    <p><strong>3.</strong> An octopus can shoot ink to confuse a predator.</p>
+    <div class="choices">
+      <button onclick="pick(this,true)">TRUE</button>
+      <button onclick="pick(this,false)">FALSE</button>
+    </div>
+    <p class="feedback"></p>
+  </section>
+
+  <!-- PART 5 -->
+  <section>
+    <h2>📝 Part 5 — Learn to Summarize <span class="mins">13 min</span></h2>
+    <p class="say">"A summary is SHORT. It tells only the most important parts — not every single fact."</p>
+    <p><strong>The "Somebody-Wanted-But-So" trick works for facts too — try the "Who + Big Idea + 2 Details" recipe:</strong></p>
+    <div class="wordbank">
+      <strong>Summary Recipe:</strong> 1) Name the topic. → 2) State the main idea. → 3) Add 2–3 key details. → 4) Keep it to 3–4 sentences!
+    </div>
+    <p>Click the BEST summary of the article:</p>
+    <div class="choices">
+      <button onclick="pick(this,false)">(a) Octopuses are amazing. I really like them. They live in the ocean and are my favorite animal ever.</button>
+      <button onclick="pick(this,true)">(b) Octopuses are very smart and have clever ways to stay safe. They camouflage to hide, solve problems like opening jars, squeeze through tiny holes, and shoot ink to escape predators.</button>
+      <button onclick="pick(this,false)">(c) An octopus has three hearts and blue blood. It can copy a flat, poisonous fish. It has eight arms.</button>
+    </div>
+    <p class="feedback"></p>
+    <p class="tip">💡 Why? (a) gives opinions, not facts. (c) lists only small details and misses the main idea. (b) has the topic, main idea, AND key details — just right!</p>
+  </section>
+
+  <!-- PART 6 -->
+  <section>
+    <h2>✍️ Part 6 — Write Your Own Summary <span class="mins">7 min</span></h2>
+    <p class="say">"Your turn, Fact Finder! Summarize the octopus article in your own words."</p>
+    <div class="checklist">
+      <strong>Summary Checklist — check each one off:</strong>
+      <label><input type="checkbox"> I named the <strong>topic</strong> (octopuses).</label>
+      <label><input type="checkbox"> I stated the <strong>main idea</strong> in my own words.</label>
+      <label><input type="checkbox"> I included <strong>2–3 key details</strong>.</label>
+      <label><input type="checkbox"> I kept it <strong>short</strong> (3–4 sentences).</label>
+      <label><input type="checkbox"> I left out tiny details and opinions.</label>
+    </div>
+    <textarea style="min-height:130px" placeholder="Write your 3–4 sentence summary here..."></textarea>
+  </section>
+
+  <!-- WRAP UP -->
+  <section>
+    <h2>🏅 Wrap-Up: Fact Finder Badge <span class="mins">3 min</span></h2>
+    <p class="reflect">Finding the main idea: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p class="reflect">Spotting key details: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p class="reflect">Writing a short summary: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p>The coolest octopus fact I learned:<input type="text"></p>
+    <div class="badge-final">🏅 CONGRATULATIONS! You earned your Fact Finder Badge! 🏅</div>
+  </section>
+
+  <!-- ANSWER KEY -->
+  <section>
+    <details>
+      <summary>🔑 Teacher Notes &amp; Answer Key (click to open)</summary>
+      <p><strong>Part 1 — Warm-up:</strong> 1. dogs, 2. soccer, 3. a storm / rainy weather. (Accept close answers.)</p>
+      <p><strong>Part 3 — Main idea:</strong> (b). Section main ideas: "Master of Disguise" = how octopuses camouflage/hide; "Brainy Problem-Solvers" = octopuses solve problems &amp; escape; "Built for Survival" = octopuses have backup defenses (ink) and bodies built to survive.</p>
+      <p><strong>Part 4 — Key details (any 3):</strong> change color &amp; texture in under a second; copy other animals' shapes; open jars / solve mazes; no bones, so they squeeze through tiny holes; shoot ink to confuse predators; three hearts and eight arms. <br><em>Fact check:</em> 1=TRUE, 2=FALSE (octopuses have NO bones), 3=TRUE.</p>
+      <p><strong>Part 5 — Best summary:</strong> (b).</p>
+      <p><strong>Part 6 — Writing:</strong> Use the checklist. A strong summary names the topic, states the main idea in the student's own words, includes 2–3 key details, stays to 3–4 sentences, and leaves out opinions/tiny facts. Praise précis over copying sentences word-for-word.</p>
+      <p class="tip">Extension: have the learner find the main idea of just ONE section and write a one-sentence summary of it.</p>
+    </details>
+  </section>
+</div>
+
+<script>
+  function pick(btn,correct){
+    var box=btn.parentElement, fb=box.nextElementSibling;
+    Array.prototype.forEach.call(box.children,function(b){b.classList.remove('correct','wrong');});
+    if(correct){btn.classList.add('correct');fb.textContent="✅ Correct! Sharp fact-finding!";fb.style.color="#27ae60";}
+    else{btn.classList.add('wrong');fb.textContent="🔎 Not quite — look back at the article for the evidence and try again!";fb.style.color="#e74c3c";}
+  }
+  function cheer(span){
+    Array.prototype.forEach.call(span.parentElement.querySelectorAll('span'),function(s){s.style.background='';});
+    span.style.background='#ffe08a';span.style.borderRadius='8px';
+  }
+</script>
+</body>
+</html>
