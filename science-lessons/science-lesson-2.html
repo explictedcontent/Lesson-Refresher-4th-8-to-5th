@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Refresher – Lesson 2: Earth, Life &amp; Forces</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a3d62 0%, #1e3799 50%, #0c2461 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #00b894, #0984e3);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      color: white;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 32px rgba(0,184,148,0.4);
+    }
+    .header h1 { font-size: 2.2em; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .header .subtitle { font-size: 1.1em; opacity: 0.9; }
+    .header .stars { font-size: 1.8em; margin-bottom: 10px; }
+
+    /* RESTORED NOTICE */
+    #restored-notice {
+      display: none;
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      color: #856404;
+      text-align: center;
+    }
+    #restored-notice.show { display: block; }
+
+    /* SCOREBOARD */
+    .scoreboard {
+      background: white;
+      border-radius: 15px;
+      padding: 18px 25px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+      border: 3px solid #00b894;
+    }
+    .score-item { text-align: center; }
+    .score-num { font-size: 2.2em; font-weight: 900; line-height: 1; }
+    .score-num.correct { color: #27ae60; }
+    .score-num.wrong   { color: #e74c3c; }
+    .score-num.total   { color: #2980b9; }
+    .score-num.pct     { color: #8e44ad; }
+    .score-label { font-size: 0.8em; color: #666; margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* PROGRESS BAR */
+    .progress-wrap { background: #ddd; border-radius: 10px; height: 10px; margin-bottom: 25px; overflow: hidden; }
+    #progress-bar { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #00b894, #00cec9); width: 0%; transition: width 0.4s ease; }
+
+    /* SECTIONS */
+    .section { background: white; border-radius: 18px; margin-bottom: 30px; overflow: hidden; box-shadow: 0 6px 25px rgba(0,0,0,0.2); }
+    .section-header { padding: 18px 25px; color: white; font-size: 1.25em; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+    .section-header .icon { font-size: 1.5em; }
+    .s1 .section-header { background: linear-gradient(135deg, #0984e3, #00b894); }
+    .s2 .section-header { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+    .s3 .section-header { background: linear-gradient(135deg, #e17055, #fdcb6e); color: #2d3436; }
+    .s4 .section-header { background: linear-gradient(135deg, #d63031, #e84393); }
+    .s5 .section-header { background: linear-gradient(135deg, #2d3436, #636e72); }
+    .section-body { padding: 20px 25px; }
+
+    /* QUESTION CARDS */
+    .q-card {
+      background: #f8f9ff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 18px;
+      border-left: 5px solid #0984e3;
+    }
+    .q-card.answered { border-left-color: #bbb; }
+    .q-card:last-child { margin-bottom: 0; }
+    .q-num { font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #0984e3; margin-bottom: 6px; }
+    .q-text { font-size: 1.1em; font-weight: 600; color: #222; margin-bottom: 14px; line-height: 1.5; }
+
+    /* OPTIONS */
+    .options { display: flex; flex-direction: column; gap: 9px; }
+    .opt-btn {
+      padding: 12px 18px;
+      border: 2px solid #dde1f0;
+      border-radius: 9px;
+      background: white;
+      cursor: pointer;
+      font-size: 1em;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      color: #333;
+      font-family: inherit;
+    }
+    .opt-btn:hover:not(:disabled) { background: #eef5ff; border-color: #0984e3; transform: translateX(3px); }
+    .opt-btn:disabled { cursor: not-allowed; }
+    .opt-btn.state-correct  { background: #d4f5e2; border-color: #27ae60; color: #145a32; font-weight: 700; }
+    .opt-btn.state-wrong    { background: #fde8e8; border-color: #e74c3c; color: #7b241c; font-weight: 700; text-decoration: line-through; }
+    .opt-btn.state-revealed { background: #fef9e7; border-color: #f39c12; color: #784212; font-weight: 700; }
+
+    /* TRUE/FALSE */
+    .tf-row { display: flex; gap: 12px; }
+    .tf-btn {
+      flex: 1; padding: 14px; border: 2px solid #dde1f0; border-radius: 9px;
+      background: white; cursor: pointer; font-size: 1.1em; font-weight: 700;
+      text-align: center; transition: all 0.15s; font-family: inherit; color: #333;
+    }
+    .tf-btn:hover:not(:disabled) { transform: scale(1.04); }
+    .tf-btn:disabled { cursor: not-allowed; }
+
+    /* FEEDBACK */
+    .q-feedback { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 0.95em; display: none; }
+    .q-feedback.show-correct { display: block; background: #d4f5e2; color: #145a32; border: 1px solid #27ae60; }
+    .q-feedback.show-wrong   { display: block; background: #fde8e8; color: #7b241c; border: 1px solid #e74c3c; }
+
+    /* FINAL BANNER */
+    #final-banner {
+      display: none; background: linear-gradient(135deg, #00b894, #0984e3);
+      border-radius: 20px; padding: 35px; text-align: center; color: white;
+      margin-bottom: 30px; box-shadow: 0 8px 32px rgba(0,184,148,0.5);
+    }
+    #final-banner.show { display: block; }
+    #final-banner h2 { font-size: 2em; margin-bottom: 12px; }
+    #final-banner .final-score { font-size: 3.5em; font-weight: 900; margin: 10px 0; }
+    #final-banner p { font-size: 1.2em; opacity: 0.9; }
+    .grade-msg { font-size: 1.5em; margin-top: 15px; }
+    .action-btns { display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+    .btn-save  { background: #27ae60; color: white; border-width: 0; }
+    .btn-print { background: #2980b9; color: white; border-width: 0; }
+    .btn-reset { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.5); }
+    .btn-save, .btn-print, .btn-reset {
+      padding: 14px 26px; border-radius: 10px; font-size: 1em;
+      font-weight: 700; cursor: pointer; font-family: inherit; transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-save:hover, .btn-print:hover, .btn-reset:hover { transform: scale(1.05); opacity: 0.9; }
+
+    /* ANSWER KEY */
+    #answer-key { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 25px rgba(0,0,0,0.2); margin-bottom: 30px; }
+    .ak-header { background: linear-gradient(135deg, #0a3d62, #1e3799); color: white; padding: 20px 25px; font-size: 1.4em; font-weight: 700; }
+    .ak-body { padding: 20px 25px; }
+    .ak-section-title { font-size: 1em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #0984e3; margin: 18px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #eef0ff; }
+    .ak-row { display: flex; gap: 14px; padding: 9px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.97em; align-items: flex-start; }
+    .ak-row:last-child { border-bottom: none; }
+    .ak-num { font-weight: 700; color: #0984e3; min-width: 30px; }
+    .ak-ans { font-weight: 600; color: #145a32; flex: 1; }
+    .ak-exp { color: #666; font-style: italic; flex: 2; }
+
+    /* FLOATING SAVE BAR */
+    #save-bar { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 200; gap: 10px; }
+    #save-bar.show { display: flex; }
+    #save-bar button { padding: 11px 16px; border: none; border-radius: 10px; font-size: 0.88em; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: 0 4px 15px rgba(0,0,0,0.35); }
+    #save-bar .sb-save  { background: #27ae60; color: white; }
+    #save-bar .sb-print { background: #2980b9; color: white; }
+
+    /* PRINT */
+    @media print {
+      body { background: white !important; padding: 0; }
+      .scoreboard { position: static !important; box-shadow: none; border: 2px solid #333; }
+      #save-bar, .progress-wrap, .action-btns, #restored-notice { display: none !important; }
+      .opt-btn:not(.state-correct):not(.state-wrong):not(.state-revealed),
+      .tf-btn:not(.state-correct):not(.state-wrong):not(.state-revealed) { display: none; }
+      .section { box-shadow: none !important; border: 1px solid #ccc; break-inside: avoid; }
+      #final-banner, #answer-key { box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 1.5em; }
+      .scoreboard { flex-wrap: wrap; gap: 10px; }
+      .score-num { font-size: 1.6em; }
+      .ak-row { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="stars">💧 🌿 🦅 ⚡ 🪐</div>
+    <h1>Summer Science Refresher</h1>
+    <div class="subtitle">Lesson 2: Earth, Life &amp; Forces &nbsp;|&nbsp; 4th Grade &rarr; 5th Grade</div>
+  </div>
+
+  <div id="restored-notice">
+    📂 Previous session restored! Your answers are saved. Scroll down to see where you left off.
+    &nbsp;<button onclick="resetLesson()" style="background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:700;">Start Fresh</button>
+  </div>
+
+  <div class="scoreboard">
+    <div class="score-item"><div class="score-num correct" id="sc-correct">0</div><div class="score-label">✅ Correct</div></div>
+    <div class="score-item"><div class="score-num wrong"   id="sc-wrong">0</div><div class="score-label">❌ Wrong</div></div>
+    <div class="score-item"><div class="score-num total"   id="sc-answered">0</div><div class="score-label">📝 Answered</div></div>
+    <div class="score-item"><div class="score-num pct"     id="sc-pct">—</div><div class="score-label">⭐ Score</div></div>
+  </div>
+
+  <div class="progress-wrap"><div id="progress-bar"></div></div>
+
+  <div class="section s1">
+    <div class="section-header"><span class="icon">💧</span>Section 1: The Water Cycle (Questions 1–7)</div>
+    <div class="section-body" id="s1-body"></div>
+  </div>
+
+  <div class="section s2">
+    <div class="section-header"><span class="icon">🌿</span>Section 2: Ecosystems &amp; Food Webs (Questions 8–15)</div>
+    <div class="section-body" id="s2-body"></div>
+  </div>
+
+  <div class="section s3">
+    <div class="section-header"><span class="icon">🦅</span>Section 3: Adaptations (Questions 16–22)</div>
+    <div class="section-body" id="s3-body"></div>
+  </div>
+
+  <div class="section s4">
+    <div class="section-header"><span class="icon">⚡</span>Section 4: Forces &amp; Motion (Questions 23–30)</div>
+    <div class="section-body" id="s4-body"></div>
+  </div>
+
+  <div class="section s5">
+    <div class="section-header"><span class="icon">🪐</span>Section 5: Our Solar System (Questions 31–37)</div>
+    <div class="section-body" id="s5-body"></div>
+  </div>
+
+  <div id="final-banner">
+    <h2>🎉 Lesson 2 Complete! 🎉</h2>
+    <div class="final-score" id="final-score-txt">—</div>
+    <p id="final-msg"></p>
+    <div class="grade-msg" id="grade-msg"></div>
+    <div class="action-btns">
+      <button class="btn-save"  onclick="downloadResults()">💾 Download Results Report</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Print Results</button>
+      <button class="btn-reset" onclick="resetLesson()">🔄 Start Over</button>
+    </div>
+  </div>
+
+  <div id="answer-key">
+    <div class="ak-header">📋 Answer Key</div>
+    <div class="ak-body" id="ak-body"></div>
+  </div>
+
+  <div id="save-bar">
+    <button class="sb-save"  onclick="downloadResults()">💾 Save Results</button>
+    <button class="sb-print" onclick="window.print()">🖨️ Print</button>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   QUESTION DATA  –  Lesson 2: Earth, Life & Forces
+   ══════════════════════════════════════════════════════ */
+const QUESTIONS = [
+
+  /* ── SECTION 1: The Water Cycle ── */
+  {
+    id:1, section:1, type:'mc',
+    text:'What are the four main stages of the water cycle?',
+    options:['Rain, snow, hail, and sleet','Evaporation, condensation, precipitation, and collection','Clouds, wind, thunder, and lightning','Solid, liquid, gas, and plasma'],
+    correct:1,
+    answerLabel:'Evaporation, condensation, precipitation, and collection',
+    explanation:'Water evaporates from oceans and lakes, condenses into clouds, falls as precipitation (rain, snow, sleet), and collects in bodies of water — then the cycle repeats!'
+  },
+  {
+    id:2, section:1, type:'mc',
+    text:'What is evaporation in the water cycle?',
+    options:['When water falls from clouds as rain','When water vapor turns into liquid drops in clouds','When liquid water is heated and turns into water vapor (gas)','When water freezes into ice'],
+    correct:2,
+    answerLabel:'When liquid water is heated and turns into water vapor (gas)',
+    explanation:'The Sun heats water in oceans, lakes, and puddles, causing it to evaporate — turning from a liquid into an invisible gas called water vapor.'
+  },
+  {
+    id:3, section:1, type:'mc',
+    text:'What is condensation in the water cycle?',
+    options:['When liquid water turns into vapor','When water vapor cools and turns back into tiny liquid water drops, forming clouds','When rain falls from clouds to Earth','When water collects in rivers and lakes'],
+    correct:1,
+    answerLabel:'When water vapor cools and turns back into tiny liquid water drops, forming clouds',
+    explanation:'As water vapor rises and cools high in the atmosphere, it condenses into tiny droplets that cluster together to form clouds.'
+  },
+  {
+    id:4, section:1, type:'mc',
+    text:'What is precipitation?',
+    options:['The process of water evaporating from oceans','When water collects in oceans and lakes after rain','Any form of water — rain, snow, sleet, or hail — that falls from clouds to Earth','When clouds form high in the sky'],
+    correct:2,
+    answerLabel:'Any form of water — rain, snow, sleet, or hail — that falls from clouds to Earth',
+    explanation:'Precipitation is all the ways water falls from the sky! Whether it\'s rain, snow, sleet, or hail depends on the temperature.'
+  },
+  {
+    id:5, section:1, type:'tf',
+    text:'TRUE or FALSE: The water on Earth today is the same water that dinosaurs drank millions of years ago.',
+    options:['True','False'],
+    correct:0,
+    answerLabel:'True',
+    explanation:'Water cycles continuously on Earth! The same water has been evaporating, condensing, and precipitating for billions of years — so yes, some of that water was around when dinosaurs were alive!'
+  },
+  {
+    id:6, section:1, type:'mc',
+    text:'What is the main energy source that powers the water cycle?',
+    options:['Wind','The Moon\'s gravity','The Sun','Earth\'s hot core'],
+    correct:2,
+    answerLabel:'The Sun',
+    explanation:'The Sun provides the heat energy needed to evaporate water from Earth\'s surface, which starts the whole water cycle!'
+  },
+  {
+    id:7, section:1, type:'mc',
+    text:'Where does MOST of Earth\'s water evaporation come from?',
+    options:['Lakes and rivers','The oceans','Rain puddles on the ground','Underground water sources'],
+    correct:1,
+    answerLabel:'The oceans',
+    explanation:'About 90% of the water that evaporates into the atmosphere comes from the oceans, which cover more than 70% of Earth\'s surface!'
+  },
+
+  /* ── SECTION 2: Ecosystems & Food Webs ── */
+  {
+    id:8, section:2, type:'mc',
+    text:'What is an ecosystem?',
+    options:['A type of science experiment done outdoors','A community of living things AND their non-living environment working together','A list of all the animals that live in a forest','The scientific study of planets and space'],
+    correct:1,
+    answerLabel:'A community of living things AND their non-living environment working together',
+    explanation:'An ecosystem includes all the plants, animals, and other organisms in an area PLUS the non-living things like water, air, sunlight, and soil.'
+  },
+  {
+    id:9, section:2, type:'mc',
+    text:'In a food chain, which direction does energy flow?',
+    options:['From consumers to producers','From predators back to their prey','From producers (like plants) to consumers (like animals)','From decomposers up to producers'],
+    correct:2,
+    answerLabel:'From producers (like plants) to consumers (like animals)',
+    explanation:'Energy flows from the Sun → plants (producers) → herbivores (primary consumers) → carnivores (secondary consumers). Energy always moves from producers to consumers!'
+  },
+  {
+    id:10, section:2, type:'mc',
+    text:'What is a decomposer?',
+    options:['An animal that only eats plants','An organism that breaks down dead organisms and returns nutrients to the soil','An animal that sits at the top of the food chain','A plant that makes food from sunlight'],
+    correct:1,
+    answerLabel:'An organism that breaks down dead organisms and returns nutrients to the soil',
+    explanation:'Decomposers like bacteria and fungi are nature\'s recyclers! They break down dead plants and animals, returning nutrients to the soil so new plants can grow.'
+  },
+  {
+    id:11, section:2, type:'tf',
+    text:'TRUE or FALSE: A food web shows how multiple food chains in an ecosystem are connected to each other.',
+    options:['True','False'],
+    correct:0,
+    answerLabel:'True',
+    explanation:'A food chain shows one pathway of energy. A food web shows how many different food chains overlap and connect — giving a more realistic picture of who eats whom!'
+  },
+  {
+    id:12, section:2, type:'mc',
+    text:'What do we call an animal that ONLY eats plants?',
+    options:['Carnivore','Omnivore','Herbivore','Decomposer'],
+    correct:2,
+    answerLabel:'Herbivore',
+    explanation:'Herbivores eat ONLY plants. Examples include rabbits, deer, horses, and caterpillars. "Herb" means plant!'
+  },
+  {
+    id:13, section:2, type:'mc',
+    text:'What do we call an animal that eats BOTH plants AND other animals?',
+    options:['Herbivore','Carnivore','Producer','Omnivore'],
+    correct:3,
+    answerLabel:'Omnivore',
+    explanation:'Omnivores eat both plants and animals. Humans are omnivores! Bears, raccoons, and pigs are too. "Omni" means "all" or "everything."'
+  },
+  {
+    id:14, section:2, type:'mc',
+    text:'What is a predator?',
+    options:['An animal that is hunted and eaten by other animals','An organism that makes its own food from sunlight','An animal that hunts and eats other animals for food','A plant that is the first link in a food chain'],
+    correct:2,
+    answerLabel:'An animal that hunts and eats other animals for food',
+    explanation:'A predator is the hunter! Lions, eagles, sharks, and wolves are all predators. The animal being hunted is called the prey.'
+  },
+  {
+    id:15, section:2, type:'tf',
+    text:'TRUE or FALSE: If all the plants in an ecosystem disappeared, the animals would be fine because they could just eat each other.',
+    options:['True','False'],
+    correct:1,
+    answerLabel:'False',
+    explanation:'Without plants (producers), herbivores would starve first. Then carnivores would lose their food source too. The entire ecosystem would collapse because ALL energy starts with plants!'
+  },
+
+  /* ── SECTION 3: Adaptations ── */
+  {
+    id:16, section:3, type:'mc',
+    text:'What is an adaptation?',
+    options:['When an animal moves to a new habitat for the winter','A feature or behavior that helps a living thing survive in its environment','The way animals change color with the seasons','When animals learn new skills from their parents'],
+    correct:1,
+    answerLabel:'A feature or behavior that helps a living thing survive in its environment',
+    explanation:'Adaptations can be physical (like thick fur) or behavioral (like hibernating). They develop over many generations and help organisms thrive in their habitat.'
+  },
+  {
+    id:17, section:3, type:'mc',
+    text:'Why do polar bears have white fur?',
+    options:['White fur is thicker and keeps them warmer than colored fur','White fur helps them blend in (camouflage) with the snow and ice so prey can\'t see them coming','They don\'t get enough sunlight to produce colored fur','Their white fur scares away other predators'],
+    correct:1,
+    answerLabel:'White fur helps them blend in (camouflage) with the snow and ice',
+    explanation:'A polar bear\'s white coat is actually camouflage — it helps them blend into the snowy Arctic environment so they can sneak up on seals and other prey.'
+  },
+  {
+    id:18, section:3, type:'tf',
+    text:'TRUE or FALSE: Camouflage is a type of adaptation that helps animals blend into their surroundings.',
+    options:['True','False'],
+    correct:0,
+    answerLabel:'True',
+    explanation:'Camouflage is a great example of a physical adaptation! Animals like stick insects, chameleons, and snowshoe hares use color and patterns to hide from predators or prey.'
+  },
+  {
+    id:19, section:3, type:'mc',
+    text:'A cactus can survive in the hot, dry desert because it:',
+    options:['Finds underground streams to drink from every day','Stores water in its thick, fleshy stem for use during dry periods','Only grows during the night when it is cooler','Gets all the water it needs from the air around it'],
+    correct:1,
+    answerLabel:'Stores water in its thick, fleshy stem for use during dry periods',
+    explanation:'A cactus is perfectly adapted for desert life! Its thick stem stores water, its spines prevent animals from stealing that water, and its shallow roots quickly soak up any rainfall.'
+  },
+  {
+    id:20, section:3, type:'mc',
+    text:'What is migration?',
+    options:['When animals change color to match the seasons','When animals enter a deep sleep to survive the winter','When animals travel long distances to find food or more suitable weather','When animals build new homes in a different location'],
+    correct:2,
+    answerLabel:'When animals travel long distances to find food or more suitable weather',
+    explanation:'Many animals migrate seasonally! Birds fly south in the fall to find warmer weather and food. Monarch butterflies migrate thousands of miles. Gray whales swim between feeding and breeding grounds.'
+  },
+  {
+    id:21, section:3, type:'mc',
+    text:'What is hibernation?',
+    options:['When animals migrate south for warmer weather','A deep sleep-like state animals enter to survive winter when food is scarce','When animals shed their heavy fur coat in summer','When animals bury food underground to eat later'],
+    correct:1,
+    answerLabel:'A deep sleep-like state animals enter to survive winter when food is scarce',
+    explanation:'During hibernation, an animal\'s heart rate, breathing, and body temperature all drop dramatically to save energy. Bears, groundhogs, and bats are famous hibernators!'
+  },
+  {
+    id:22, section:3, type:'mc',
+    text:'Which of these is an example of a STRUCTURAL (physical body) adaptation?',
+    options:['A bear sleeping through the winter (hibernation)','A bird flying south for the winter (migration)','A duck having waterproof feathers that repel water','A dog learning to sit when told by its owner'],
+    correct:2,
+    answerLabel:'A duck having waterproof feathers that repel water',
+    explanation:'A duck\'s waterproof feathers are a structural adaptation — a physical body feature. Hibernation and migration are behavioral adaptations (things animals DO, not things they HAVE).'
+  },
+
+  /* ── SECTION 4: Forces & Motion ── */
+  {
+    id:23, section:4, type:'mc',
+    text:'What is a force?',
+    options:['A type of energy stored in food that gives us power','A push or pull that can change an object\'s motion, shape, or position','The speed at which an object is moving','The weight or heaviness of an object'],
+    correct:1,
+    answerLabel:'A push or pull that can change an object\'s motion, shape, or position',
+    explanation:'Forces are pushes and pulls! You use forces every day — pushing open a door, pulling a wagon, kicking a ball. Forces make things start moving, stop, or change direction.'
+  },
+  {
+    id:24, section:4, type:'mc',
+    text:'What is gravity?',
+    options:['A force that pushes objects upward away from Earth','A force of attraction that pulls objects with mass toward each other','The energy stored in batteries and electrical devices','The speed at which all objects fall to the ground'],
+    correct:1,
+    answerLabel:'A force of attraction that pulls objects with mass toward each other',
+    explanation:'Gravity is what keeps you on the ground! The more mass an object has, the stronger its gravitational pull. Earth\'s gravity pulls everything toward its center.'
+  },
+  {
+    id:25, section:4, type:'tf',
+    text:'TRUE or FALSE: Friction is a force that slows down moving objects.',
+    options:['True','False'],
+    correct:0,
+    answerLabel:'True',
+    explanation:'Friction is the force that acts between two surfaces rubbing together. It resists motion, causing moving objects to slow down and stop. Without friction, we couldn\'t even walk!'
+  },
+  {
+    id:26, section:4, type:'mc',
+    text:'What unit do scientists use to measure the strength of a force?',
+    options:['Kilogram (kg)','Meter (m)','Newton (N)','Liter (L)'],
+    correct:2,
+    answerLabel:'Newton (N)',
+    explanation:'Forces are measured in Newtons, named after the famous scientist Sir Isaac Newton. He figured out the laws of motion and gravity!'
+  },
+  {
+    id:27, section:4, type:'mc',
+    text:'If you push a heavy box and a light box with the SAME amount of force, what happens?',
+    options:['The heavy box moves faster','Both boxes move at exactly the same speed','The light box moves faster because it has less mass to push','Neither box will move until you push harder'],
+    correct:2,
+    answerLabel:'The light box moves faster because it has less mass to push',
+    explanation:'The same force produces more acceleration on a lighter object! This is Newton\'s Second Law: Force = Mass × Acceleration. Less mass = more acceleration from the same force.'
+  },
+  {
+    id:28, section:4, type:'mc',
+    text:'What is inertia?',
+    options:['The force of gravity pulling objects down','The tendency of objects to keep doing what they\'re already doing (staying still or moving) unless a force acts on them','The amount of matter packed into an object','The speed at which a falling object accelerates'],
+    correct:1,
+    answerLabel:'The tendency of objects to keep doing what they\'re already doing unless a force acts on them',
+    explanation:'Inertia explains why you slide forward when a car stops suddenly — your body wants to keep moving! It also explains why a ball at rest stays at rest until you kick it. This is Newton\'s First Law.'
+  },
+  {
+    id:29, section:4, type:'tf',
+    text:'TRUE or FALSE: An object at rest will stay at rest forever unless a force acts on it.',
+    options:['True','False'],
+    correct:0,
+    answerLabel:'True',
+    explanation:'This is Newton\'s First Law of Motion! An object at rest stays at rest, and an object in motion stays in motion — unless an unbalanced force acts on it. This is the law of inertia.'
+  },
+  {
+    id:30, section:4, type:'mc',
+    text:'A ball rolls across a smooth tile floor and then onto a rough carpet. What happens to its speed?',
+    options:['It speeds up on the carpet because there is more traction','It moves at the same speed because the ball doesn\'t change','It slows down on the carpet because there is more friction between the ball and carpet','It immediately stops the moment it hits the carpet'],
+    correct:2,
+    answerLabel:'It slows down on the carpet because there is more friction',
+    explanation:'Rough surfaces create more friction than smooth ones. More friction means more force resisting the ball\'s motion, so it slows down faster on carpet than on smooth tile!'
+  },
+
+  /* ── SECTION 5: Our Solar System ── */
+  {
+    id:31, section:5, type:'mc',
+    text:'How many planets are currently in our solar system?',
+    options:['7','8','9','10'],
+    correct:1,
+    answerLabel:'8',
+    explanation:'Our solar system has 8 planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. Pluto was reclassified as a "dwarf planet" in 2006.'
+  },
+  {
+    id:32, section:5, type:'mc',
+    text:'What is the correct order of the first four planets from the Sun?',
+    options:['Mercury, Venus, Earth, Mars','Mars, Earth, Venus, Mercury','Mercury, Earth, Venus, Mars','Venus, Mercury, Earth, Mars'],
+    correct:0,
+    answerLabel:'Mercury, Venus, Earth, Mars',
+    explanation:'A helpful way to remember: "My Very Excellent Mother" — Mercury, Venus, Earth, Mars! These four are the rocky inner planets.'
+  },
+  {
+    id:33, section:5, type:'tf',
+    text:'TRUE or FALSE: Jupiter is the largest planet in our solar system.',
+    options:['True','False'],
+    correct:0,
+    answerLabel:'True',
+    explanation:'Jupiter is HUGE! It\'s so large that more than 1,300 Earths could fit inside it. It\'s mostly made of gas (hydrogen and helium), which is why it\'s called a "gas giant."'
+  },
+  {
+    id:34, section:5, type:'mc',
+    text:'What is an asteroid?',
+    options:['A small moon that orbits Earth alongside our Moon','A rocky object that orbits the Sun, mostly found between Mars and Jupiter in the "asteroid belt"','A ball of ice and rock that grows a glowing tail when it passes near the Sun','A type of small star found at the edge of our solar system'],
+    correct:1,
+    answerLabel:'A rocky object that orbits the Sun, mostly found in the asteroid belt between Mars and Jupiter',
+    explanation:'Asteroids are rocky leftovers from when our solar system formed. Most are in the "asteroid belt" between Mars and Jupiter. They range in size from tiny pebbles to hundreds of miles across!'
+  },
+  {
+    id:35, section:5, type:'mc',
+    text:'What is a comet?',
+    options:['A rocky planet with no atmosphere at the edge of the solar system','A small moon that orbits Jupiter','A ball of ice, dust, and rock that develops a bright glowing tail when it passes near the Sun','An asteroid that has broken off from the asteroid belt'],
+    correct:2,
+    answerLabel:'A ball of ice, dust, and rock that develops a bright glowing tail when near the Sun',
+    explanation:'When a comet gets close to the Sun, the Sun\'s heat vaporizes the ice, creating a glowing tail of gas and dust that can stretch millions of miles! The tail always points AWAY from the Sun.'
+  },
+  {
+    id:36, section:5, type:'tf',
+    text:'TRUE or FALSE: All eight planets in our solar system rotate (spin) in exactly the same direction.',
+    options:['True','False'],
+    correct:1,
+    answerLabel:'False',
+    explanation:'Most planets spin counterclockwise when viewed from above, but Venus spins clockwise, and Uranus is tilted so far on its side that it essentially rolls around the Sun! Space is full of surprises!'
+  },
+  {
+    id:37, section:5, type:'mc',
+    text:'Saturn is famous for its rings. What are Saturn\'s rings mostly made of?',
+    options:['Solid gold and silver metals','Chunks of ice and rock ranging from tiny grains to boulders','Clouds of colorful gas left over from ancient explosions','Liquid water frozen in a giant disc around the planet'],
+    correct:1,
+    answerLabel:'Chunks of ice and rock ranging from tiny grains to boulders',
+    explanation:'Saturn\'s beautiful rings are made of billions of pieces of ice and rock, ranging from tiny ice crystals to chunks as big as a house! The rings are wide but surprisingly thin.'
+  }
+];
+
+/* ══════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════ */
+const TOTAL = QUESTIONS.length;
+const STORAGE_KEY = 'science-lesson-2-v1';
+let answered = 0, correctCount = 0, wrongCount = 0;
+const answersRecord = {};
+
+/* ══════════════════════════════════════════════════════
+   BUILD QUESTIONS
+   ══════════════════════════════════════════════════════ */
+function buildQuestions() {
+  const bodies = {
+    1: document.getElementById('s1-body'),
+    2: document.getElementById('s2-body'),
+    3: document.getElementById('s3-body'),
+    4: document.getElementById('s4-body'),
+    5: document.getElementById('s5-body')
+  };
+  QUESTIONS.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'q-card'; card.id = 'card-' + q.id;
+
+    const numEl = document.createElement('div');
+    numEl.className = 'q-num'; numEl.textContent = 'Question ' + q.id;
+
+    const textEl = document.createElement('div');
+    textEl.className = 'q-text'; textEl.textContent = q.text;
+
+    const wrap = document.createElement('div');
+    wrap.className = q.type === 'tf' ? 'tf-row' : 'options';
+
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = q.type === 'tf' ? 'tf-btn' : 'opt-btn';
+      btn.textContent = (q.type === 'mc' ? String.fromCharCode(65 + idx) + ')  ' : '') + opt;
+      btn.dataset.q = q.id; btn.dataset.idx = idx;
+      btn.addEventListener('click', () => handleAnswer(q, btn, idx));
+      wrap.appendChild(btn);
+    });
+
+    const fb = document.createElement('div');
+    fb.className = 'q-feedback'; fb.id = 'fb-' + q.id;
+
+    card.appendChild(numEl); card.appendChild(textEl); card.appendChild(wrap); card.appendChild(fb);
+    bodies[q.section].appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   APPLY ANSWER STATE (used by live answer & restore)
+   ══════════════════════════════════════════════════════ */
+function applyAnswerState(q, selectedIdx, isCorrect) {
+  const allBtns = document.querySelectorAll('[data-q="' + q.id + '"]');
+  allBtns.forEach(b => b.disabled = true);
+  const card = document.getElementById('card-' + q.id);
+  const fb   = document.getElementById('fb-'   + q.id);
+  card.classList.add('answered');
+  if (isCorrect) {
+    allBtns[selectedIdx].classList.add('state-correct');
+    fb.classList.add('show-correct');
+    fb.innerHTML = '✅ <strong>Correct!</strong> ' + q.explanation;
+  } else {
+    allBtns[selectedIdx].classList.add('state-wrong');
+    allBtns[q.correct].classList.add('state-revealed');
+    fb.classList.add('show-wrong');
+    fb.innerHTML = '❌ <strong>Not quite!</strong> ' + q.explanation;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   HANDLE ANSWER
+   ══════════════════════════════════════════════════════ */
+function handleAnswer(q, clickedBtn, clickedIdx) {
+  const isCorrect = clickedIdx === q.correct;
+  applyAnswerState(q, clickedIdx, isCorrect);
+  if (isCorrect) { correctCount++; } else { wrongCount++; }
+  answersRecord[q.id] = {
+    selectedIdx:  clickedIdx,
+    selectedText: q.options[clickedIdx],
+    isCorrect,
+    correctText:  q.answerLabel,
+    questionText: q.text,
+    section:      q.section,
+    explanation:  q.explanation
+  };
+  answered++;
+  updateScore();
+  saveToStorage();
+  document.getElementById('save-bar').classList.add('show');
+  if (answered === TOTAL) setTimeout(showFinalBanner, 600);
+}
+
+/* ══════════════════════════════════════════════════════
+   SCOREBOARD
+   ══════════════════════════════════════════════════════ */
+function updateScore() {
+  document.getElementById('sc-correct').textContent  = correctCount;
+  document.getElementById('sc-wrong').textContent    = wrongCount;
+  document.getElementById('sc-answered').textContent = answered;
+  const pct = Math.round(correctCount / answered * 100);
+  document.getElementById('sc-pct').textContent = answered > 0 ? pct + '%' : '—';
+  document.getElementById('progress-bar').style.width = (answered / TOTAL * 100) + '%';
+}
+
+/* ══════════════════════════════════════════════════════
+   FINAL BANNER
+   ══════════════════════════════════════════════════════ */
+function showFinalBanner() {
+  saveToStorage();
+  const pct = Math.round(correctCount / TOTAL * 100);
+  let emoji, msg;
+  if (pct >= 90)      { emoji = '🏆'; msg = 'Outstanding! You crushed Lesson 2!'; }
+  else if (pct >= 80) { emoji = '🌟'; msg = 'Great job! You really know your science!'; }
+  else if (pct >= 70) { emoji = '👍'; msg = 'Good effort! Review the ones you missed!'; }
+  else if (pct >= 60) { emoji = '📚'; msg = "Keep studying — you're getting there!"; }
+  else                { emoji = '💪'; msg = "Don't give up! Check the answer key and try again!"; }
+  document.getElementById('final-score-txt').textContent = correctCount + ' / ' + TOTAL + ' — ' + pct + '%';
+  document.getElementById('final-msg').textContent = 'You answered ' + correctCount + ' questions correctly out of ' + TOTAL + '.';
+  document.getElementById('grade-msg').textContent = emoji + ' ' + msg;
+  const banner = document.getElementById('final-banner');
+  banner.classList.add('show');
+  banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ══════════════════════════════════════════════════════
+   LOCAL STORAGE — SAVE
+   ══════════════════════════════════════════════════════ */
+function saveToStorage() {
+  const data = {
+    lessonId: 'science-lesson-2',
+    lessonTitle: 'Summer Science Refresher — Lesson 2: Earth, Life & Forces',
+    savedAt: new Date().toISOString(),
+    completed: answered === TOTAL,
+    score: { correct: correctCount, wrong: wrongCount, answered, total: TOTAL },
+    answers: answersRecord
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════════════
+   LOCAL STORAGE — RESTORE
+   ══════════════════════════════════════════════════════ */
+function restoreFromStorage() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e) {}
+  if (!data || !data.answers || Object.keys(data.answers).length === 0) return;
+  let restored = 0;
+  QUESTIONS.forEach(q => {
+    const rec = data.answers[q.id];
+    if (!rec) return;
+    applyAnswerState(q, rec.selectedIdx, rec.isCorrect);
+    answersRecord[q.id] = rec;
+    if (rec.isCorrect) { correctCount++; } else { wrongCount++; }
+    answered++; restored++;
+  });
+  if (restored > 0) {
+    updateScore();
+    document.getElementById('save-bar').classList.add('show');
+    document.getElementById('restored-notice').classList.add('show');
+  }
+  if (answered === TOTAL) setTimeout(showFinalBanner, 400);
+}
+
+/* ══════════════════════════════════════════════════════
+   RESET
+   ══════════════════════════════════════════════════════ */
+function resetLesson() {
+  if (confirm('Start over? This will erase saved results for this lesson.')) {
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    location.reload();
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   DOWNLOAD RESULTS REPORT
+   ══════════════════════════════════════════════════════ */
+function downloadResults() {
+  const pct  = TOTAL > 0 ? Math.round(correctCount / TOTAL * 100) : 0;
+  const date = new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' });
+  const sectionNames = {
+    1:'The Water Cycle', 2:'Ecosystems & Food Webs',
+    3:'Adaptations', 4:'Forces & Motion', 5:'Our Solar System'
+  };
+
+  const wrongQs    = QUESTIONS.filter(q => answersRecord[q.id] && !answersRecord[q.id].isCorrect);
+  const correctQs  = QUESTIONS.filter(q => answersRecord[q.id] &&  answersRecord[q.id].isCorrect);
+  const unanswered = QUESTIONS.filter(q => !answersRecord[q.id]);
+
+  function wrongRows() {
+    if (wrongQs.length === 0) return '<p style="color:#27ae60;font-weight:700;">🎉 No wrong answers!</p>';
+    return wrongQs.map(q => {
+      const rec = answersRecord[q.id];
+      return `<div style="border:2px solid #e74c3c;border-radius:10px;padding:14px 18px;margin-bottom:12px;background:#fff8f8;">
+        <div style="font-size:0.8em;color:#e74c3c;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Question ${q.id} — Section ${q.section}: ${sectionNames[q.section]}</div>
+        <div style="font-weight:600;color:#222;margin-bottom:10px;">${q.text}</div>
+        <div style="background:#fde8e8;border-radius:6px;padding:8px 12px;margin-bottom:6px;color:#7b241c;">❌ <strong>Answer given:</strong> ${rec.selectedText}</div>
+        <div style="background:#d4f5e2;border-radius:6px;padding:8px 12px;margin-bottom:6px;color:#145a32;">✅ <strong>Correct answer:</strong> ${q.answerLabel}</div>
+        <div style="background:#f0f4ff;border-radius:6px;padding:8px 12px;color:#444;font-style:italic;">💡 ${q.explanation}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function correctRows() {
+    return correctQs.map(q =>
+      `<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #eee;font-size:0.93em;">
+        <span style="font-weight:700;color:#27ae60;min-width:28px;">${q.id}.</span>
+        <span style="color:#145a32;font-weight:600;">${q.answerLabel}</span>
+        <span style="color:#666;font-style:italic;flex:1;">${q.text.substring(0,65)}${q.text.length>65?'…':''}</span>
+      </div>`
+    ).join('');
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<title>Science Lesson 2 — Results Report</title>
+<style>
+  body{font-family:'Segoe UI',Verdana,sans-serif;max-width:820px;margin:0 auto;padding:30px 24px;color:#222;}
+  h1{color:#0a3d62;margin-bottom:4px;}
+  .meta{color:#666;font-size:.9em;margin-bottom:24px;}
+  .score-box{display:flex;gap:20px;background:#f0f8ff;border-radius:12px;padding:20px;margin-bottom:28px;flex-wrap:wrap;}
+  .sc{text-align:center;flex:1;min-width:80px;}
+  .sc-num{font-size:2.4em;font-weight:900;}
+  .sc-lbl{font-size:.75em;text-transform:uppercase;letter-spacing:.5px;color:#666;margin-top:3px;}
+  h2{color:#0a3d62;border-bottom:2px solid #d6eaf8;padding-bottom:6px;margin:28px 0 14px;}
+  @media print{body{padding:10px;}}
+</style></head>
+<body>
+  <h1>🔬 Summer Science Refresher</h1>
+  <h2 style="border:none;margin-top:0;color:#444;font-size:1.1em;">Lesson 2: Earth, Life &amp; Forces</h2>
+  <div class="meta">Report generated: ${date}</div>
+  <div class="score-box">
+    <div class="sc"><div class="sc-num" style="color:#27ae60;">${correctCount}</div><div class="sc-lbl">✅ Correct</div></div>
+    <div class="sc"><div class="sc-num" style="color:#e74c3c;">${wrongCount}</div><div class="sc-lbl">❌ Wrong</div></div>
+    <div class="sc"><div class="sc-num" style="color:#2980b9;">${answered}</div><div class="sc-lbl">📝 Answered</div></div>
+    <div class="sc"><div class="sc-num" style="color:#8e44ad;">${pct}%</div><div class="sc-lbl">⭐ Score</div></div>
+  </div>
+  <h2>❌ Questions Answered Incorrectly (${wrongQs.length})</h2>
+  ${wrongRows()}
+  ${unanswered.length > 0 ? `<h2>⏭️ Not Yet Answered (${unanswered.length})</h2><p style="color:#666;">${unanswered.map(q=>'Q'+q.id).join(', ')}</p>` : ''}
+  <h2>✅ Questions Answered Correctly (${correctQs.length})</h2>
+  <div style="background:#f0fff6;border-radius:10px;padding:14px 18px;">
+    ${correctRows() || '<p style="color:#666;">None yet.</p>'}
+  </div>
+  <p style="margin-top:30px;color:#999;font-size:.8em;text-align:center;">Summer Science Refresher — 4th Grade into 5th Grade</p>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'science-lesson-2-results-' + new Date().toISOString().slice(0,10) + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ══════════════════════════════════════════════════════
+   BUILD ANSWER KEY
+   ══════════════════════════════════════════════════════ */
+function buildAnswerKey() {
+  const body = document.getElementById('ak-body');
+  const sectionNames = {
+    1:'💧 Section 1: The Water Cycle',
+    2:'🌿 Section 2: Ecosystems & Food Webs',
+    3:'🦅 Section 3: Adaptations',
+    4:'⚡ Section 4: Forces & Motion',
+    5:'🪐 Section 5: Our Solar System'
+  };
+  let lastSection = 0;
+  QUESTIONS.forEach(q => {
+    if (q.section !== lastSection) {
+      const t = document.createElement('div');
+      t.className = 'ak-section-title';
+      t.textContent = sectionNames[q.section];
+      body.appendChild(t);
+      lastSection = q.section;
+    }
+    const row = document.createElement('div');
+    row.className = 'ak-row';
+    row.innerHTML = `<span class="ak-num">${q.id}.</span><span class="ak-ans">${q.answerLabel}</span><span class="ak-exp">${q.explanation}</span>`;
+    body.appendChild(row);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════ */
+buildQuestions();
+buildAnswerKey();
+restoreFromStorage();
+</script>
+</body>
+</html>
