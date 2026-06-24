@@ -4,6 +4,16 @@ Different lessons for summer to keep a refreshed outlook for next school year.
 A combination of multiple subjects learned throughout 4th grade, plus some more
 advanced material to get ready for 5th grade.
 
+## 🏠 Start here — the home page
+
+Open [`index.html`](index.html) for the interactive home page. Every subject is
+listed as a clickable card at the top, and the full list of all lessons is at the
+bottom. Each subject also has its own folder:
+
+- 🎨 **Art** — [`art-lessons/index.html`](art-lessons/index.html) (interactive Art Studio, 14 lessons)
+- 🌎 **Social Studies** — [`social-studies-lessons/index.html`](social-studies-lessons/index.html) (3 lessons &amp; growing)
+- ➗ **Math** — coming soon
+
 ## 🎨 Art Refresher Course (14 lessons)
 
 A complete 14-lesson art refresher for a 4th-grader heading into 5th grade. Each lesson is
