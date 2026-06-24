@@ -3,966 +3,240 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Art Refresher — Interactive Lessons (4th → 5th Grade)</title>
+<title>Summer Refresher Course — 4th to 5th Grade</title>
 <style>
   :root{
     --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
-    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
-    --line:#3a4059; --warn:#ffd166;
+    --muted:#a7adc4; --line:#3a4059; --warn:#ffd166; --good:#7bd88f;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%}
+  *{box-sizing:border-box;margin:0;padding:0}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased;
+    background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;
   }
-  button{font-family:inherit;cursor:pointer}
-  h1,h2,h3{margin:0 0 .35em}
-  .hidden{display:none !important}
+  a{text-decoration:none;color:inherit}
 
-  /* ---------- HOME ---------- */
-  #home{max-width:1000px;margin:0 auto;padding:28px 20px 60px}
+  /* ── PAGE ── */
+  .page{max-width:1060px;margin:0 auto;padding:32px 20px 70px}
+
+  /* ── HERO ── */
   .hero{
-    background:linear-gradient(135deg,#ff7a59,#ff5e93 55%,#9b5cff);
-    border-radius:20px;padding:26px 28px;margin-bottom:22px;color:#fff;
+    background:linear-gradient(135deg,#6c5ce7 0%,#a855f7 40%,#ec4899 75%,#f97316 100%);
+    border-radius:22px;padding:32px 34px;margin-bottom:30px;color:#fff;
+    box-shadow:0 8px 40px rgba(108,92,231,.35);
   }
-  .hero h1{font-size:30px;line-height:1.1}
-  .hero p{margin:.4em 0 0;font-size:15px;opacity:.95;max-width:62ch}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-  .card{
-    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;
-    text-align:left;color:var(--ink);transition:transform .08s ease,border-color .15s ease;
-    display:flex;flex-direction:column;gap:8px;min-height:128px;
-  }
-  .card:hover{transform:translateY(-3px);border-color:var(--accent)}
-  .card .num{font-size:13px;color:var(--accent2);font-weight:700;letter-spacing:.05em}
-  .card .ct{font-size:17px;font-weight:700;line-height:1.2}
-  .card .cd{font-size:13px;color:var(--muted);line-height:1.35}
-  .chip{align-self:flex-start;margin-top:auto;font-size:11px;background:var(--panel2);
-    color:var(--muted);padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+  .hero-top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+  .hero-icon{font-size:42px;line-height:1}
+  .hero h1{font-size:32px;font-weight:800;line-height:1.1}
+  .hero p{font-size:15px;opacity:.93;max-width:68ch;line-height:1.65;margin-top:4px}
+  .hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+    color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
 
-  /* ---------- LESSON VIEW ---------- */
-  #lesson{position:fixed;inset:0;display:flex;flex-direction:column}
-  .topbar{
-    display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
-    border-bottom:1px solid var(--line);flex-wrap:wrap;
-  }
-  .topbar .back{
-    background:var(--panel2);color:var(--ink);border:1px solid var(--line);
-    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;
-  }
-  .topbar .ltitle{font-weight:700;font-size:16px}
-  .topbar .lsub{color:var(--muted);font-size:13px}
-  .spacer{flex:1}
-
-  .stage{flex:1;display:flex;min-height:0}
-  .side{
-    width:360px;max-width:42vw;background:var(--panel);border-right:1px solid var(--line);
-    display:flex;flex-direction:column;min-height:0;
-  }
-  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
-  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}
-  .clock.low{color:var(--warn)}
-  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}
-  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
-  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  .tbtns button{
-    flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
-    border-radius:10px;padding:9px 8px;font-size:13px;font-weight:600;
-  }
-  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#211}
-  .tbtns .primary:hover{filter:brightness(1.05)}
-
-  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
-  .phaserow{
-    display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;
-    border:1px solid transparent;
-  }
-  .phaserow.active{background:var(--panel2);border-color:var(--line)}
-  .phaserow.done .dot{background:var(--good);border-color:var(--good)}
-  .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
-  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
-  .phaserow .meta{flex:1}
-  .phaserow .pn{font-weight:700;font-size:14px}
-  .phaserow .pm{font-size:12px;color:var(--muted)}
-  .phaserow ul{margin:6px 0 0;padding-left:18px}
-  .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
-  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#33304a;border:1px solid #4b3f6b}
-  .extra .lab{font-size:12px;font-weight:700;color:#caa9ff;text-transform:uppercase;letter-spacing:.05em}
-  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#e7e1f7}
-  .matbox{margin-top:12px;font-size:13px;color:var(--muted)}
-  .matbox b{color:var(--ink)}
-
-  /* ---------- CANVAS / STUDIO ---------- */
-  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
-  .tools{
-    display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);
-    border-bottom:1px solid var(--line);flex-wrap:wrap;
-  }
-  .swatches{display:flex;gap:6px}
-  .sw{width:26px;height:26px;border-radius:50%;border:2px solid #0006;cursor:pointer}
-  .sw.active{outline:3px solid var(--ink);outline-offset:1px}
-  .tools label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
-  .tools input[type=range]{width:110px}
-  .tools input[type=color]{width:34px;height:30px;border:none;background:none;padding:0;cursor:pointer}
-  .tbtn{
-    border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;
-    padding:8px 11px;font-size:13px;font-weight:600;
-  }
-  .tbtn.on{background:var(--accent2);color:#0a2;border-color:var(--accent2);color:#063}
-  .canvas-host{flex:1;position:relative;display:flex;align-items:center;justify-content:center;padding:14px;min-height:0}
-  canvas#pad{background:#fff;border-radius:10px;box-shadow:0 10px 40px #0007;touch-action:none;max-width:100%;max-height:100%}
-  .hint{position:absolute;top:18px;left:50%;transform:translateX(-50%);background:#000a;color:#fff;
-    padding:6px 12px;border-radius:999px;font-size:12px;pointer-events:none}
-
-  /* color wheel helper popover */
-  .wheelwrap{display:flex;align-items:center;gap:8px}
-  .wheelbtn{font-size:12px}
-
-  @media (max-width:760px){
-    .stage{flex-direction:column}
-    .side{width:100%;max-width:none;max-height:46%;border-right:none;border-bottom:1px solid var(--line)}
-    .clock{font-size:38px}
+  /* ── SECTION LABEL ── */
+  .section-label{
+    font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;
   }
 
-  /* done banner */
-  #doneBanner{
-    position:fixed;inset:0;background:#0b0c12cc;display:flex;align-items:center;justify-content:center;z-index:50;
+  /* ── SUBJECT GRID ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:40px}
+
+  .subject-card{
+    background:var(--panel);border:2px solid var(--line);border-radius:18px;
+    padding:22px 20px;display:flex;flex-direction:column;gap:10px;
+    transition:transform .1s ease,border-color .15s ease,box-shadow .15s ease;
+    cursor:pointer;position:relative;overflow:hidden;
   }
-  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:420px;text-align:center}
-  #doneBanner h2{font-size:24px}
-  #doneBanner p{color:var(--muted);line-height:1.5}
-  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;
-    padding:11px 18px;border-radius:11px;font-size:15px}
+  .subject-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,.3)}
+  .subject-card.soon{opacity:.48;cursor:default}
+  .subject-card.soon:hover{transform:none;box-shadow:none}
 
-  /* ---------- MODALS (mixer + quiz) ---------- */
-  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
-  .modal .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;
-    width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px 22px 24px}
-  .modal h2{font-size:21px;margin:0 0 4px}
-  .modal .lead{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 14px}
-  .modal .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);
-    border-radius:9px;padding:6px 11px;font-weight:700;font-size:14px}
+  /* per-subject accent colours */
+  .subject-card.science { border-color:#00b894; }
+  .subject-card.science:hover { border-color:#00cec9; box-shadow:0 8px 28px rgba(0,184,148,.25); }
+  .subject-card.art     { border-color:#ff7a59; }
+  .subject-card.art:hover     { border-color:#ff5e93; box-shadow:0 8px 28px rgba(255,122,89,.25); }
+  .subject-card.math    { border-color:#fdcb6e; }
+  .subject-card.math:hover    { border-color:#f9ca24; box-shadow:0 8px 28px rgba(253,203,110,.2); }
+  .subject-card.social  { border-color:#74b9ff; }
+  .subject-card.social:hover  { border-color:#0984e3; box-shadow:0 8px 28px rgba(116,185,255,.2); }
+  .subject-card.reading { border-color:#fd79a8; }
+  .subject-card.reading:hover { border-color:#e84393; box-shadow:0 8px 28px rgba(253,121,168,.2); }
 
-  /* color mixer */
-  .mixrow{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
-  .mixrow .ms{width:34px;height:34px;border-radius:50%;border:2px solid #0006;cursor:pointer}
-  .mixrow .ms.sel{outline:3px solid var(--accent2);outline-offset:1px}
-  .mixlbl{font-size:12px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:10px}
-  .mixresult{display:flex;align-items:center;gap:16px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
-  .mixresult .blob{width:74px;height:74px;border-radius:16px;border:2px solid #0005;flex:none;background:#fff}
-  .mixresult .txt{font-size:15px;line-height:1.4}
-  .mixresult .txt b{font-size:17px}
-  .mixresult .txt small{color:var(--muted);display:block;margin-top:3px;font-size:12.5px}
+  .card-emoji{font-size:36px;line-height:1;margin-bottom:2px}
+  .card-title{font-size:19px;font-weight:800;line-height:1.2}
+  .card-sub{font-size:12.5px;color:var(--muted);line-height:1.5;flex:1}
+  .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+  .lesson-count{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
+  .lesson-count.active{color:var(--good);border-color:var(--good);background:rgba(123,216,143,.1)}
+  .go-arrow{font-size:18px;opacity:.6}
+  .soon-tag{font-size:11px;background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
 
-  /* quiz */
-  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
-  .qopts{display:flex;flex-direction:column;gap:9px}
-  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);
-    border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
-  .qopt:hover:not(:disabled){border-color:var(--accent)}
-  .qopt:disabled{cursor:default;opacity:.92}
-  .qopt.chosen{border-color:var(--ink)}
-  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
-  .qopt.wrong{background:#43222a;border-color:#ff6b81;color:#ffd9df}
-  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
-  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
-  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;
-    padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
-  /* results + parent key */
-  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
-  .reviewlist{margin:10px 0 0;padding-left:18px}
-  .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
-  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);
-    border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
-  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
-  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
-  .answerkey .ak .qq{font-weight:700}
-  .answerkey .ak .correct{color:var(--good)}
-  .answerkey .ak .got{color:#ff8a9a}
-  .answerkey .ak .got.okgot{color:var(--good)}
+  /* ── SUBJECTS SUMMARY ── */
+  .summary-box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 26px}
+  .summary-box h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px}
+  .sum-row{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:12px 0;border-bottom:1px solid var(--line);
+  }
+  .sum-row:last-child{border-bottom:none;padding-bottom:0}
+  .sum-icon{font-size:22px;width:32px;text-align:center;flex:none;padding-top:1px}
+  .sum-body{}
+  .sum-title{font-size:14px;font-weight:700}
+  .sum-detail{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}
+  .sum-badge{
+    display:inline-block;font-size:11px;font-weight:700;border-radius:999px;
+    padding:2px 9px;margin-left:7px;vertical-align:middle;
+  }
+  .sum-badge.live{background:rgba(123,216,143,.15);color:var(--good);border:1px solid rgba(123,216,143,.4)}
+  .sum-badge.soon{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+
+  /* ── FOOTER ── */
+  .footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--muted);line-height:1.7}
+
+  @media(max-width:600px){
+    .hero h1{font-size:24px}
+    .grid{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:420px){
+    .grid{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
+<div class="page">
 
-<!-- ============ HOME ============ -->
-<main id="home">
+  <!-- HERO -->
   <div class="hero">
-    <h1>🎨 Art Refresher Studio</h1>
-    <p>14 interactive art lessons for a 4th-grader heading into 5th grade. Each lesson walks you through one step at a time with a built-in timer that fills a real 30 minutes — and you draw right here on the screen. Pick a lesson to begin.</p>
-  </div>
-  <div class="grid" id="cards"></div>
-</main>
-
-<!-- ============ LESSON ============ -->
-<section id="lesson" class="hidden">
-  <div class="topbar">
-    <button class="back" id="backBtn">← All lessons</button>
-    <div>
-      <div class="ltitle" id="lTitle">Lesson</div>
-      <div class="lsub" id="lSub"></div>
+    <div class="hero-top">
+      <div class="hero-icon">🏫</div>
+      <h1>Summer Refresher Course</h1>
     </div>
-    <div class="spacer"></div>
-    <button class="back" id="mixerBtn">🎨 Color Mixer</button>
-    <button class="back" id="quizBtn">📝 Quiz</button>
-    <button class="back" id="prevBtn">‹ Prev</button>
-    <button class="back" id="nextLessonBtn">Next ›</button>
+    <p>Interactive lessons for a 4th-grader heading into 5th grade. Pick a subject below to jump into lessons — each one has questions with instant feedback, live scoring, and a results report you can save or print.</p>
+    <div class="hero-chips">
+      <span class="chip">4th → 5th Grade</span>
+      <span class="chip">~30 min per lesson</span>
+      <span class="chip">Auto-saves progress</span>
+      <span class="chip">Printable results</span>
+    </div>
   </div>
 
-  <div class="stage">
-    <aside class="side">
-      <div class="timerwrap">
-        <div class="phasename" id="phaseName">Warm-Up</div>
-        <div class="clock" id="clock">05:00</div>
-        <div class="bar"><i id="barFill"></i></div>
-        <div class="tbtns">
-          <button class="primary" id="startBtn">▶ Start</button>
-          <button id="pauseBtn">⏸ Pause</button>
-          <button id="skipBtn">Next step ⏭</button>
+  <!-- SUBJECT GRID -->
+  <p class="section-label">Choose a Subject</p>
+  <div class="grid">
+
+    <!-- SCIENCE -->
+    <a class="subject-card science" href="science-lessons/index.html">
+      <div class="card-emoji">🔬</div>
+      <div class="card-title">Science</div>
+      <div class="card-sub">Scientific method, matter, living things, Earth &amp; space, forces, ecosystems, adaptations, and more.</div>
+      <div class="card-foot">
+        <span class="lesson-count active">2 lessons ready</span>
+        <span class="go-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- ART -->
+    <a class="subject-card art" href="art-lessons/index.html">
+      <div class="card-emoji">🎨</div>
+      <div class="card-title">Art</div>
+      <div class="card-sub">14 interactive lessons — draw on screen with a timer! Line, shape, color, shading, perspective, and more.</div>
+      <div class="card-foot">
+        <span class="lesson-count active">14 lessons ready</span>
+        <span class="go-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- MATH -->
+    <div class="subject-card math soon">
+      <div class="card-emoji">📐</div>
+      <div class="card-title">Math</div>
+      <div class="card-sub">Fractions, decimals, multiplication, division, geometry, and problem solving.</div>
+      <div class="card-foot">
+        <span class="soon-tag">Coming Soon</span>
+      </div>
+    </div>
+
+    <!-- SOCIAL STUDIES -->
+    <div class="subject-card social soon">
+      <div class="card-emoji">🌎</div>
+      <div class="card-title">Social Studies</div>
+      <div class="card-sub">U.S. history, geography, government, civics, and world cultures.</div>
+      <div class="card-foot">
+        <span class="soon-tag">Coming Soon</span>
+      </div>
+    </div>
+
+    <!-- READING / ELA -->
+    <div class="subject-card reading soon">
+      <div class="card-emoji">📖</div>
+      <div class="card-title">Reading &amp; ELA</div>
+      <div class="card-sub">Comprehension, vocabulary, grammar, writing skills, and literary analysis.</div>
+      <div class="card-foot">
+        <span class="soon-tag">Coming Soon</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUMMARY -->
+  <p class="section-label">All Subjects at a Glance</p>
+  <div class="summary-box">
+    <h2>Course Overview</h2>
+
+    <div class="sum-row">
+      <div class="sum-icon">🔬</div>
+      <div class="sum-body">
+        <div class="sum-title">Science <span class="sum-badge live">2 lessons live</span></div>
+        <div class="sum-detail">
+          <strong>Lesson 1:</strong> Scientific Method · Lab Safety &amp; Tools · States of Matter · Living Things · Earth &amp; Space<br>
+          <strong>Lesson 2:</strong> Water Cycle · Ecosystems &amp; Food Webs · Adaptations · Forces &amp; Motion · Our Solar System<br>
+          <em>Coming:</em> Human Body · Energy &amp; Machines · Earth's Systems
         </div>
       </div>
-      <div class="steps" id="steps"></div>
-    </aside>
+    </div>
 
-    <div class="studio">
-      <div class="tools">
-        <div class="swatches" id="swatches"></div>
-        <label>Custom <input type="color" id="picker" value="#ff7a59"></label>
-        <label>Size <input type="range" id="size" min="1" max="40" value="6"></label>
-        <button class="tbtn" id="penBtn">✏ Pen</button>
-        <button class="tbtn" id="eraserBtn">⌫ Eraser</button>
-        <button class="tbtn" id="undoBtn">↶ Undo</button>
-        <button class="tbtn" id="clearBtn">🗑 Clear</button>
-        <button class="tbtn" id="saveBtn">⬇ Save PNG</button>
-        <span class="wheelwrap"><button class="tbtn wheelbtn" id="wheelBtn">🎡 Color wheel</button></span>
-      </div>
-      <div class="canvas-host" id="host">
-        <div class="hint" id="hint">Draw here with your mouse or finger</div>
-        <canvas id="pad"></canvas>
+    <div class="sum-row">
+      <div class="sum-icon">🎨</div>
+      <div class="sum-body">
+        <div class="sum-title">Art <span class="sum-badge live">14 lessons live</span></div>
+        <div class="sum-detail">
+          Line · Shape &amp; Form · Color Wheel · Color Moods · Value &amp; Shading · Texture · Space · One-Point Perspective · Balance &amp; Symmetry · Pattern &amp; Rhythm · Emphasis · Proportion &amp; Portraits · Art History · Capstone Project
+        </div>
       </div>
     </div>
-  </div>
-</section>
 
-<div id="doneBanner" class="hidden">
-  <div class="box">
-    <h2 id="doneTitle">⏰ Time!</h2>
-    <p id="doneMsg"></p>
-    <button id="doneBtn">Go to next step</button>
-  </div>
-</div>
-
-<!-- ============ COLOR MIXER ============ -->
-<div id="mixerModal" class="modal hidden">
-  <div class="sheet">
-    <button class="x" id="mixClose">✕</button>
-    <h2>🎨 Color Mixer</h2>
-    <p class="lead">Pick a color on the top row, then a color on the bottom row, and see what they make. Try the primary colors — <b>red, yellow, blue</b> — and find out which secondary colors they create!</p>
-    <div class="mixlbl">Color A</div>
-    <div class="mixrow" id="mixA"></div>
-    <div class="mixlbl">Color B</div>
-    <div class="mixrow" id="mixB"></div>
-    <div class="mixresult">
-      <div class="blob" id="mixBlob"></div>
-      <div class="txt" id="mixTxt"><b>Pick two colors ↑</b><small>The mix shows up here.</small></div>
+    <div class="sum-row">
+      <div class="sum-icon">📐</div>
+      <div class="sum-body">
+        <div class="sum-title">Math <span class="sum-badge soon">coming soon</span></div>
+        <div class="sum-detail">Fractions &amp; Decimals · Multiplication &amp; Division · Geometry · Measurement · Data &amp; Graphing · Word Problems</div>
+      </div>
     </div>
+
+    <div class="sum-row">
+      <div class="sum-icon">🌎</div>
+      <div class="sum-body">
+        <div class="sum-title">Social Studies <span class="sum-badge soon">coming soon</span></div>
+        <div class="sum-detail">U.S. History · Geography &amp; Maps · Government &amp; Civics · Economics · World Cultures</div>
+      </div>
+    </div>
+
+    <div class="sum-row">
+      <div class="sum-icon">📖</div>
+      <div class="sum-body">
+        <div class="sum-title">Reading &amp; ELA <span class="sum-badge soon">coming soon</span></div>
+        <div class="sum-detail">Reading Comprehension · Vocabulary · Grammar · Writing Skills · Literary Elements &amp; Analysis</div>
+      </div>
+    </div>
+
   </div>
+
+  <div class="footer">
+    Summer Refresher Course &nbsp;·&nbsp; 4th Grade → 5th Grade &nbsp;·&nbsp; ~30 minutes per lesson
+  </div>
+
 </div>
-
-<!-- ============ QUIZ ============ -->
-<div id="quizModal" class="modal hidden">
-  <div class="sheet" id="quizSheet"></div>
-</div>
-
-<script>
-/* ============================================================
-   LESSON DATA — 14 interactive lessons.
-   Each phase has minutes + on-screen steps. Total = 30 min.
-   ============================================================ */
-const PHASE_BASE = [
-  {name:"Warm-Up", min:5},
-  {name:"Mini-Lesson", min:7},
-  {name:"Guided Practice", min:6},
-  {name:"Main Activity", min:10},
-  {name:"Reflection", min:2},
-];
-
-const LESSONS = [
-  {
-    title:"Line", element:"Element of Art: Line",
-    desc:"Types of lines and how they show feeling.",
-    materials:"Just the canvas (or pencil & paper). Try the Pen at different sizes.",
-    phases:[
-      ["Make 6 boxes on the canvas. Draw a different line in each: horizontal, vertical, diagonal, zigzag, curved, spiral.","Say each line's name out loud as you draw it."],
-      ["Lines show feelings: calm = horizontal, strong = vertical, exciting = zigzag, gentle = curved.","Question: what line would you use for something SCARY? For something PEACEFUL?"],
-      ["Draw a landscape using ONLY lines — no coloring.","Horizontal ground, curved hills, zigzag mountains, spiral clouds/wind."],
-      ["Split the canvas in half.","LEFT: a calm, peaceful picture using gentle lines.","RIGHT: a busy, exciting picture using sharp, active lines.","Tip: same scene both sides (calm sea vs. stormy sea)."],
-      ["Which side feels more exciting? Which lines did that?"],
-    ],
-    early:"Line-Only Animal: draw an animal using ONLY one line type (a cat from curves, a porcupine from zigzags). Then trace your favorite drawing thick and bold.",
-  },
-  {
-    title:"Shape & Form", element:"Elements of Art: Shape & Form",
-    desc:"Turn flat 2D shapes into solid 3D forms.",
-    materials:"Canvas + a real ball, box, and can to look at.",
-    phases:[
-      ["Draw 4 geometric shapes (circle, square, triangle, rectangle).","Draw 4 organic shapes (leaf, cloud, blob, flower). Label each group."],
-      ["A SHAPE is flat (circle). A FORM is solid (sphere) — it looks like you can pick it up.","Shading is the trick: light on one side, dark on the other.","Pairs: circle→sphere, square→cube, triangle→cone, rectangle→cylinder."],
-      ["Draw a circle. Pick a light direction (top-left).","Leave that side light, shade the bottom-right dark, add a shadow under it = a sphere!"],
-      ["Draw all four forms — sphere, cube, cylinder, cone — shaded so they look 3D.","Sit them on one horizontal 'table line' so they share a space."],
-      ["Which form was easiest to make look 3D? Which was hardest?"],
-    ],
-    early:"Build a robot from cubes & cylinders, OR an ice-cream sundae from spheres & a cone. Shade every part so the whole thing looks solid.",
-  },
-  {
-    title:"The Color Wheel", element:"Element of Art: Color",
-    desc:"Primary, secondary & complementary colors.",
-    materials:"Use the color swatches, the 🎡 Color wheel button, and the 🎨 Color Mixer (top right).",
-    phases:[
-      ["The 3 PRIMARY colors are red, yellow, and blue. Write them down or draw a dot of each.","Why 'primary'? Because you CAN'T make them by mixing other colors — every other color comes from these three.","Quick guess before we test it: red + yellow = ? · blue + yellow = ? · red + blue = ?","Now open the 🎨 Color Mixer (top right) and check your guesses!"],
-      ["Mix two PRIMARY colors and you get a SECONDARY color: red+yellow=ORANGE, yellow+blue=GREEN, blue+red=VIOLET (purple).","Think of it like a family: primaries are the 'parents', secondaries are the 'children'.","Mix a primary with the secondary next to it and you get a TERTIARY color (the 'grandchildren') — like red-orange or blue-green.","Use the Mixer to make all 3 secondary colors yourself."],
-      ["Now build your own color wheel. Draw a big circle on the canvas.","Mark 3 even spots like a triangle: RED at top, YELLOW at bottom-right, BLUE at bottom-left. Fill each one in.","Leave space BETWEEN each primary — that's where the secondary colors will go."],
-      ["Fill the SECONDARY colors between the primaries: orange between red & yellow, green between yellow & blue, violet between blue & red.","If you have time, squeeze the 6 tertiary colors into the gaps too.","Press the 🎡 Color wheel button any time to compare yours to a real one. Keep your wheel — it's a reference for every future lesson!"],
-      ["COMPLEMENTARY colors sit directly ACROSS from each other on the wheel: red↔green, blue↔orange, yellow↔violet.","Side by side, complements make each other look brighter and 'pop'.","Look at your wheel: point to each complementary pair. Then take the 📝 Quiz to lock it in!"],
-    ],
-    early:"Complementary Pop Art: pick one pair (blue & orange). Draw a fish or flower in one color, background in its complement. Watch it POP. Then try a SUNSET using only warm colors blending into each other.",
-  },
-  {
-    title:"Color Moods", element:"Element of Art: Color (warm/cool, tints/shades)",
-    desc:"Warm vs. cool colors and setting a mood.",
-    materials:"Color swatches + custom color. Press lighter/darker for tints & shades.",
-    phases:[
-      ["Make two columns: WARM and COOL. List colors in each.","Circle which feels like a campfire and which feels like a swimming pool."],
-      ["Warm (red/orange/yellow) come TOWARD you. Cool (blue/green/violet) back AWAY.","Tint = color + white (lighter). Shade = color + black (darker)."],
-      ["Pick one color. Make a strip: darkest shade → pure color → lightest tint (3–5 steps). This is a value scale."],
-      ["Draw the same simple scene TWICE (small).","Color one with ONLY warm colors, one with ONLY cool colors.","Notice: warm feels sunny, cool feels like night/winter."],
-      ["Which mood did each color family make? Which do you like better and why?"],
-    ],
-    early:"Monochromatic challenge: draw a picture using only ONE color's tints and shades — light to dark, nothing else.",
-  },
-  {
-    title:"Value & Shading", element:"Element of Art: Value",
-    desc:"Light to dark — make things look round.",
-    materials:"Canvas + a ball or round fruit + a lamp/flashlight.",
-    phases:[
-      ["Draw a long rectangle, split into 5 boxes.","Box 1 = white, box 5 = as dark as you can, grade the middle evenly and smoothly."],
-      ["Shine light on a ball. Find the HIGHLIGHT (brightest), the CORE SHADOW (darkest on the object), and the CAST SHADOW (on the table).","Our eyes read these as 'round' and 'solid'."],
-      ["Draw a circle. Light from top-left: highlight there, build gray toward bottom-right, add a cast shadow. Blend — no harsh jumps."],
-      ["Set up the real ball/fruit under the lamp and draw it from life, shading to match.","Add one more form (cup, box) using the SAME light source."],
-      ["Does it look like you could pick it up? Where is the light coming from?"],
-    ],
-    early:"Five-value object: pick any object and shade it using ONLY your 5 warm-up values. Squint to see where light, medium and dark really are.",
-  },
-  {
-    title:"Texture", element:"Element of Art: Texture",
-    desc:"Real texture vs. drawn (implied) texture.",
-    materials:"Canvas. (For rubbings: paper + peeled crayon + textured objects.)",
-    phases:[
-      ["If you have paper: make crayon rubbings of 4 textured surfaces and label them — that's REAL texture.","On the canvas, just describe what each felt like."],
-      ["A photo of a cactus LOOKS spiky but is smooth = IMPLIED texture.","Marks: fur = short curved strokes · scales = overlapping U's · bricks = stacked rectangles · shiny = sharp white highlights."],
-      ["Make a texture sampler: 4 boxes — draw fur, scales, bark, and something shiny. Drawn textures only."],
-      ["Invent a creature with at least 3 different drawn textures (furry body, scaly tail, shiny eyes).","Goal: make a viewer want to reach out and touch it."],
-      ["Which texture was most convincing? What marks made it work?"],
-    ],
-    early:"Rubbing collage: cut shapes from your rubbings and glue them into a brand-new picture (robot, landscape, face).",
-  },
-  {
-    title:"Space", element:"Element of Art: Space",
-    desc:"Positive/negative space + near and far.",
-    materials:"Canvas. (Scissors + paper for the bonus.)",
-    phases:[
-      ["Trace your hand on the canvas. Instead of coloring the hand, color EVERYTHING around it (the negative space)."],
-      ["3 depth tricks: SIZE (close = big), PLACEMENT (close = lower on page), OVERLAP (close covers far)."],
-      ["Draw 3 trees: one big & low, one medium, one small & high. Overlap them. Add a horizon line — instant depth."],
-      ["Make a landscape with clear foreground, middle ground and background using ALL three tricks.","Ideas: road into mountains, beach to horizon, a city street."],
-      ["Point to foreground and background. What made the far part look far?"],
-    ],
-    early:"Notan cut-out: fold a square, cut shapes from the fold, unfold and flip them outward onto contrasting paper. Positive & negative mirror each other.",
-  },
-  {
-    title:"One-Point Perspective", element:"Skill: Linear perspective",
-    desc:"Make flat paper look deep with a vanishing point.",
-    materials:"Canvas + a ruler is handy. Use the Pen at small size.",
-    phases:[
-      ["Look down a hallway or road. See how edges tilt toward ONE far point.","Sketch that effect fast (30 seconds)."],
-      ["Draw a horizon line. Put ONE dot on it = the VANISHING POINT.","Every edge running away from you aims at that dot."],
-      ["Draw a box in perspective: 1) a square, 2) lines from each corner to the dot, 3) a smaller square behind to 'stop' it, 4) trace visible edges, erase guides."],
-      ["Pick ROAD (narrows to the point, poles shrinking) OR ROOM (back wall around the point; floor, ceiling, walls to the point; add a door & window on the guides)."],
-      ["Where's your vanishing point? Does the scene go back into the distance?"],
-    ],
-    early:"Write your name in block letters, send every corner back to the vanishing point, close off the depth, and shade the sides — 3D name!",
-  },
-  {
-    title:"Balance & Symmetry", element:"Principle of Design: Balance",
-    desc:"Symmetrical, asymmetrical & radial balance.",
-    materials:"Canvas. (Fold paper for the warm-up if using paper.)",
-    phases:[
-      ["Draw HALF of a symmetrical thing (half a heart or butterfly) down a center line. Copy it exactly on the other side."],
-      ["SYMMETRICAL = mirror (butterfly, face). ASYMMETRICAL = different sides that still feel even. RADIAL = spreads from a center (flower, wheel).","Asymmetrical is NOT unbalanced — it just uses different sizes/colors."],
-      ["Draw a radial design: a center dot, then the same shape repeating around it like spokes on a wheel."],
-      ["Split the canvas in 3. Make one symmetrical design, one asymmetrical, one radial. Color so the balance reads clearly."],
-      ["Which was hardest to balance? Which kind is your favorite?"],
-    ],
-    early:"Design a symmetrical face mask OR build a detailed radial mandala from the center out, adding a new ring each time. Color with complements.",
-  },
-  {
-    title:"Pattern & Rhythm", element:"Principles of Design: Pattern & Rhythm",
-    desc:"Repeating elements that move your eye.",
-    materials:"Canvas + colors. (Grid/graph paper for the bonus.)",
-    phases:[
-      ["Draw a repeating border around the canvas edge with ONE motif (dots).","Then an alternating border (dot, star, dot, star)."],
-      ["PATTERN = a motif repeating. RHYTHM = the visual beat. Regular beat (same size, even spacing) = calm. Flowing beat (growing/curving) = lively."],
-      ["Pick a motif (leaf, fish, star). Draw it 5 times the same size (regular rhythm), then 5 times growing bigger (flowing rhythm)."],
-      ["Draw a big simple object (shoe, vase, fish, balloon) and fill it completely with different patterns in different sections (Zentangle style)."],
-      ["Which pattern has the strongest rhythm? Does your eye move around the art?"],
-    ],
-    early:"Tessellation: on grid paper repeat one shape so copies fit with NO gaps (squares, triangles, hexagons). Color them alternating — like M.C. Escher.",
-  },
-  {
-    title:"Emphasis & Focal Point", element:"Principle of Design: Emphasis",
-    desc:"Make one thing grab the eye first.",
-    materials:"Canvas + at least one bright color and some dull/gray colors.",
-    phases:[
-      ["Draw 9 circles in a grid. Make 8 the same and ONE different (color, size, or filled in). Your eye snaps to the odd one — that's emphasis."],
-      ["Emphasis tools: COLOR contrast, SIZE (biggest wins), ISOLATION (set apart), and LINES pointing at it.","Without a focal point the eye wanders and art feels flat."],
-      ["Draw a flock of gray birds, except ONE bright and slightly bigger. Watch it become the star."],
-      ["Make a picture with ONE obvious focal point (colorful balloon in a gray city; one lit window in a dark building). Use at least TWO emphasis tools."],
-      ["Where does your eye go first? Which trick made that happen?"],
-    ],
-    early:"Selective color: redraw a scene in only grays/black, then add a single spot of bright color exactly where you want the viewer to look.",
-  },
-  {
-    title:"Proportion & Portraits", element:"Principle of Design: Proportion",
-    desc:"Draw a face where the features sit right.",
-    materials:"Canvas + a mirror or a photo of a face.",
-    phases:[
-      ["Draw a face fast, the way you normally would. KEEP it — we'll compare later."],
-      ["Big secret: EYES sit about HALFWAY down the head (not near the top!).","Nose bottom ≈ halfway from eyes to chin · mouth ≈ a third down from nose to chin · eyes are one eye-width apart."],
-      ["Draw an egg-shape head. Add light guidelines: center line, eye line halfway down, then nose line and mouth line."],
-      ["On the guides, draw a full face: eyes on the eye line, nose & mouth on theirs, ears in place, then hair. Check with a mirror. Erase guides."],
-      ["Compare your warm-up face to this one. What looks more correct now? (Usually the eyes.)"],
-    ],
-    early:"Try a side-view profile, OR a full self-portrait in a mirror — add shading from the Value lesson to make the face look round.",
-  },
-  {
-    title:"Art History & Styles", element:"Topic: Famous artists & styles",
-    desc:"Borrow a style from a famous artist.",
-    materials:"Canvas + colors. (Ruler for the Mondrian option.)",
-    phases:[
-      ["Recall Van Gogh's 'The Starry Night'. Describe it in 3 words.","Try a patch of swirly sky — short curved strokes that move like wind."],
-      ["Van Gogh = swirling strokes · Picasso = shapes from many angles · Monet = soft dabs of light · Matisse = bold cut-paper shapes · Pollock = drips · Mondrian = grids with red/yellow/blue.","Styles are like handwriting — each artist sees differently."],
-      ["Pick ONE artist. Say the 'rules' of that style out loud (e.g., Mondrian: only straight black lines + some red/yellow/blue boxes, rest white)."],
-      ["Make your own artwork in that style: Van Gogh swirling sky · Mondrian grid · Matisse/Picasso bold-shape face · Pollock controlled splatter."],
-      ["What makes your art look like that artist? What did you learn about their choices?"],
-    ],
-    early:"Two-style mashup: a Mondrian grid with a tiny Van Gogh swirl in each box, or a Picasso face from Matisse cut-paper shapes. Why did you combine them?",
-  },
-  {
-    title:"Capstone Project", element:"Topic: Put it ALL together",
-    desc:"One finished artwork using everything.",
-    materials:"Canvas (or your best paper) + every tool. Keep your color wheel & value scale nearby.",
-    phases:[
-      ["PLAN IT: pick a subject you care about (a pet, a dream treehouse, an underwater world, a city at night). Make a tiny thumbnail sketch. Decide your focal point now."],
-      ["CHOOSE YOUR TOOLS: from everything you learned, pick at least FOUR to use on purpose (e.g., one-point perspective + warm colors + a focal point + texture). Write them down."],
-      ["MAKE IT (part 1): draw the final piece lightly in pencil first — placement, perspective, proportions. Check your 4 goals as you go."],
-      ["MAKE IT (part 2): add value, color, texture and details. Use your color wheel for colors and value scale for shading. This step is longer — take your time."],
-      ["ARTIST STATEMENT: 'My focal point is ___.' · 'Four art ideas I used: ___.' · 'I'm most proud of ___.'"],
-    ],
-    early:"Give it a title, sign it, make a paper frame. Then do a 'gallery walk' — line up your favorite piece from all 14 lessons and see how much you grew!",
-    // capstone gets a longer main activity
-    customMin:[5,5,9,9,2],
-  },
-];
-
-/* ============================================================
-   STATE
-   ============================================================ */
-let curLesson = 0, curPhase = 0, remaining = 0, timerId = null, running = false;
-
-const $ = s => document.querySelector(s);
-const home = $("#home"), lessonView = $("#lesson");
-
-/* ---------- build home cards ---------- */
-const cardsEl = $("#cards");
-LESSONS.forEach((L,i)=>{
-  const b = document.createElement("button");
-  b.className = "card";
-  b.innerHTML = `<div class="num">LESSON ${String(i+1).padStart(2,"0")}</div>
-    <div class="ct">${L.title}</div>
-    <div class="cd">${L.desc}</div>
-    <span class="chip">30 min · ${L.element.split(":")[0]}</span>`;
-  b.onclick = ()=>openLesson(i);
-  cardsEl.appendChild(b);
-});
-
-/* ---------- open / render a lesson ---------- */
-function phasesFor(L){
-  return PHASE_BASE.map((p,i)=>({
-    name:p.name,
-    min:(L.customMin? L.customMin[i] : p.min),
-    steps:L.phases[i],
-  }));
-}
-
-function openLesson(i){
-  curLesson = i; curPhase = 0;
-  const L = LESSONS[i];
-  $("#lTitle").textContent = `Lesson ${i+1}: ${L.title}`;
-  $("#lSub").textContent = L.element;
-  renderSteps();
-  selectPhase(0,false);
-  home.classList.add("hidden");
-  lessonView.classList.remove("hidden");
-  resizeCanvas(); clearCanvas(true);
-  window.scrollTo(0,0);
-}
-
-function renderSteps(){
-  const L = LESSONS[curLesson];
-  const ph = phasesFor(L);
-  const wrap = $("#steps");
-  wrap.innerHTML = "";
-  ph.forEach((p,idx)=>{
-    const row = document.createElement("div");
-    row.className = "phaserow" + (idx===curPhase?" active":"") + (idx<curPhase?" done":"");
-    row.innerHTML = `<div class="dot"></div>
-      <div class="meta">
-        <div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div>
-        <ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
-      </div>`;
-    row.onclick = ()=>selectPhase(idx,false);
-    wrap.appendChild(row);
-  });
-  const extra = document.createElement("div");
-  extra.className = "extra";
-  extra.innerHTML = `<div class="lab">⭐ If you finish early (+10–15 min)</div><p>${L.early}</p>`;
-  wrap.appendChild(extra);
-  const mat = document.createElement("div");
-  mat.className = "matbox";
-  mat.innerHTML = `<b>Materials:</b> ${L.materials}`;
-  wrap.appendChild(mat);
-}
-
-function selectPhase(idx, autostart){
-  stopTimer();
-  curPhase = idx;
-  const p = phasesFor(LESSONS[curLesson])[idx];
-  remaining = p.min*60;
-  $("#phaseName").textContent = p.name;
-  updateClock();
-  renderSteps();
-  // scroll active into view
-  const active = document.querySelector(".phaserow.active");
-  if(active) active.scrollIntoView({block:"nearest",behavior:"smooth"});
-  if(autostart) startTimer();
-}
-
-/* ---------- timer ---------- */
-function updateClock(){
-  const m = Math.floor(remaining/60), s = remaining%60;
-  const el = $("#clock");
-  el.textContent = `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-  el.classList.toggle("low", remaining<=30 && remaining>0);
-  const p = phasesFor(LESSONS[curLesson])[curPhase];
-  const pct = 100 - (remaining/(p.min*60))*100;
-  $("#barFill").style.width = pct+"%";
-}
-function tick(){
-  if(remaining>0){ remaining--; updateClock(); }
-  if(remaining<=0){ stopTimer(); phaseFinished(); }
-}
-function startTimer(){ if(running) return; running=true; timerId=setInterval(tick,1000); }
-function stopTimer(){ running=false; if(timerId) clearInterval(timerId); timerId=null; }
-
-function phaseFinished(){
-  const phases = phasesFor(LESSONS[curLesson]);
-  const last = curPhase >= phases.length-1;
-  $("#doneTitle").textContent = last ? "🎉 Lesson complete!" : "⏰ Step done!";
-  $("#doneMsg").textContent = last
-    ? "Great work — you filled the full 30 minutes. Try the ‘If you finish early’ bonus, save your art, or move to the next lesson."
-    : `Nice! Ready for: ${phases[curPhase+1].name} (${phases[curPhase+1].min} min).`;
-  $("#doneBtn").textContent = last ? "Back to lessons" : "Start next step ▶";
-  $("#doneBanner").classList.remove("hidden");
-  try{ beep(); }catch(e){}
-}
-$("#doneBtn").onclick = ()=>{
-  $("#doneBanner").classList.add("hidden");
-  const phases = phasesFor(LESSONS[curLesson]);
-  if(curPhase >= phases.length-1){ goHome(); }
-  else { selectPhase(curPhase+1, true); }
-};
-
-$("#startBtn").onclick = startTimer;
-$("#pauseBtn").onclick = stopTimer;
-$("#skipBtn").onclick = ()=>{
-  const phases = phasesFor(LESSONS[curLesson]);
-  if(curPhase < phases.length-1) selectPhase(curPhase+1,false);
-  else phaseFinished();
-};
-
-/* ---------- navigation ---------- */
-function goHome(){ stopTimer(); lessonView.classList.add("hidden"); home.classList.remove("hidden"); }
-$("#backBtn").onclick = goHome;
-$("#prevBtn").onclick = ()=>openLesson((curLesson+LESSONS.length-1)%LESSONS.length);
-$("#nextLessonBtn").onclick = ()=>openLesson((curLesson+1)%LESSONS.length);
-
-/* small chime */
-let actx;
-function beep(){
-  actx = actx || new (window.AudioContext||window.webkitAudioContext)();
-  const notes=[660,880,990];
-  notes.forEach((f,i)=>{
-    const o=actx.createOscillator(), g=actx.createGain();
-    o.frequency.value=f; o.type="sine"; o.connect(g); g.connect(actx.destination);
-    const t=actx.currentTime+i*0.12;
-    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
-    o.start(t); o.stop(t+0.2);
-  });
-}
-
-/* ============================================================
-   DRAWING CANVAS
-   ============================================================ */
-const pad = $("#pad"), ctx = pad.getContext("2d");
-let drawing=false, lastX=0, lastY=0, penColor="#ff7a59", penSize=6, erasing=false;
-let history=[];
-
-const PALETTE=["#000000","#ffffff","#e63946","#ff7a59","#ffd166","#7bd88f","#2a9d8f","#4d96ff","#9b5cff","#ff6fb5","#8d5524","#9aa0b4"];
-const swEl=$("#swatches");
-PALETTE.forEach((c,i)=>{
-  const d=document.createElement("div");
-  d.className="sw"+(i===3?" active":""); d.style.background=c; d.dataset.c=c;
-  d.onclick=()=>{ setColor(c); document.querySelectorAll(".sw").forEach(s=>s.classList.remove("active")); d.classList.add("active"); };
-  swEl.appendChild(d);
-});
-function setColor(c){ penColor=c; erasing=false; $("#eraserBtn").classList.remove("on"); $("#penBtn").classList.add("on"); $("#picker").value=toHex(c); }
-function toHex(c){ if(c[0]==="#") return c.length===7?c:"#ff7a59"; return "#ff7a59"; }
-
-$("#picker").oninput = e=>{ setColor(e.target.value); document.querySelectorAll(".sw").forEach(s=>s.classList.remove("active")); };
-$("#size").oninput = e=>{ penSize=+e.target.value; };
-$("#penBtn").onclick = ()=>{ erasing=false; $("#penBtn").classList.add("on"); $("#eraserBtn").classList.remove("on"); };
-$("#eraserBtn").onclick = ()=>{ erasing=true; $("#eraserBtn").classList.add("on"); $("#penBtn").classList.remove("on"); };
-$("#clearBtn").onclick = ()=>clearCanvas(false);
-$("#undoBtn").onclick = undo;
-$("#saveBtn").onclick = save;
-$("#wheelBtn").onclick = drawColorWheel;
-$("#penBtn").classList.add("on");
-
-function resizeCanvas(){
-  const host=$("#host");
-  const w=Math.min(host.clientWidth-28, 1100);
-  const h=Math.min(host.clientHeight-28, 760);
-  // preserve drawing
-  const prev = pad.width? ctx.getImageData(0,0,pad.width,pad.height):null;
-  pad.width=Math.max(320,w); pad.height=Math.max(260,h);
-  ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
-  ctx.lineCap="round"; ctx.lineJoin="round";
-  if(prev){ try{ctx.putImageData(prev,0,0);}catch(e){} }
-}
-window.addEventListener("resize", ()=>{ if(!lessonView.classList.contains("hidden")) resizeCanvas(); });
-
-function clearCanvas(silent){
-  ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
-  if(!silent){ history=[]; }
-  $("#hint").style.opacity = 1;
-  setTimeout(()=>{ $("#hint").style.transition="opacity .6s"; },10);
-}
-function pushHistory(){ try{ history.push(ctx.getImageData(0,0,pad.width,pad.height)); if(history.length>30) history.shift(); }catch(e){} }
-function undo(){ if(history.length){ const img=history.pop(); ctx.putImageData(img,0,0);} }
-function save(){
-  const a=document.createElement("a");
-  a.download=`art-lesson-${curLesson+1}-${LESSONS[curLesson].title.replace(/\W+/g,"-").toLowerCase()}.png`;
-  a.href=pad.toDataURL("image/png"); a.click();
-}
-
-function pos(e){
-  const r=pad.getBoundingClientRect();
-  const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-  const cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
-  return [cx*(pad.width/r.width), cy*(pad.height/r.height)];
-}
-function start(e){ e.preventDefault(); pushHistory(); drawing=true; [lastX,lastY]=pos(e); $("#hint").style.opacity=0; dot(lastX,lastY); }
-function move(e){ if(!drawing)return; e.preventDefault(); const [x,y]=pos(e); stroke(lastX,lastY,x,y); [lastX,lastY]=[x,y]; }
-function end(){ drawing=false; }
-function stroke(x0,y0,x1,y1){
-  ctx.strokeStyle = erasing?"#fff":penColor;
-  ctx.lineWidth = erasing?penSize*2.4:penSize;
-  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
-}
-function dot(x,y){ ctx.fillStyle=erasing?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(erasing?penSize*1.2:penSize/2),0,7); ctx.fill(); }
-
-pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move);
-window.addEventListener("mouseup",end);
-pad.addEventListener("touchstart",start,{passive:false});
-pad.addEventListener("touchmove",move,{passive:false});
-pad.addEventListener("touchend",end);
-
-/* draw a reference color wheel onto the canvas (helper for Lesson 3/4) */
-function drawColorWheel(){
-  pushHistory();
-  const cx=pad.width-130, cy=130, R=95;
-  for(let a=0;a<360;a+=2){
-    const a0=a*Math.PI/180, a1=(a+2.5)*Math.PI/180;
-    ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,R,a0,a1); ctx.closePath();
-    ctx.fillStyle=`hsl(${a},85%,55%)`; ctx.fill();
-  }
-  ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(cx,cy,R*0.45,0,7); ctx.fill();
-  ctx.fillStyle="#333"; ctx.font="bold 12px sans-serif"; ctx.textAlign="center";
-  ctx.fillText("color",cx,cy-2); ctx.fillText("wheel",cx,cy+12);
-  ctx.textAlign="start";
-}
-
-/* ============================================================
-   COLOR MIXER  (interactive: pick two colors → see the result)
-   ============================================================ */
-const MIX_SWATCHES=[
-  {n:"Red",c:"#e63946",k:"red"},   {n:"Yellow",c:"#ffd166",k:"yellow"},
-  {n:"Blue",c:"#4d96ff",k:"blue"}, {n:"Orange",c:"#ff8a3d",k:"orange"},
-  {n:"Green",c:"#54b06b",k:"green"},{n:"Violet",c:"#9b5cff",k:"violet"},
-  {n:"White",c:"#ffffff",k:"white"},{n:"Black",c:"#111111",k:"black"},
-];
-const MIX={
-  "red|yellow":["#ff8a3d","Orange","A SECONDARY color! Red + Yellow = Orange."],
-  "blue|yellow":["#54b06b","Green","A SECONDARY color! Yellow + Blue = Green."],
-  "blue|red":["#8a5cd0","Violet (purple)","A SECONDARY color! Red + Blue = Violet."],
-  "orange|red":["#ff6a2a","Red-Orange","A TERTIARY color (a primary + a secondary)."],
-  "orange|yellow":["#ffac3d","Yellow-Orange","A TERTIARY color (a primary + a secondary)."],
-  "green|yellow":["#9bc14e","Yellow-Green","A TERTIARY color (a primary + a secondary)."],
-  "blue|green":["#3fa39a","Blue-Green","A TERTIARY color (a primary + a secondary)."],
-  "blue|violet":["#6f5cd6","Blue-Violet","A TERTIARY color (a primary + a secondary)."],
-  "red|violet":["#c34fa0","Red-Violet","A TERTIARY color (a primary + a secondary)."],
-  "blue|orange":["#7c6f57","Muddy Brown","Blue & Orange are COMPLEMENTS — mixed they make brown, but SIDE BY SIDE they pop!"],
-  "green|red":["#7c6b45","Muddy Brown","Red & Green are COMPLEMENTS — mixed they make brown, but SIDE BY SIDE they pop!"],
-  "violet|yellow":["#857665","Muddy Brown","Yellow & Violet are COMPLEMENTS — mixed they make brown, but SIDE BY SIDE they pop!"],
-};
-let mixA=null, mixB=null;
-function hexToRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
-function rgbToHex(r){return "#"+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");}
-function buildMixRow(host,which){
-  host.innerHTML="";
-  MIX_SWATCHES.forEach(s=>{
-    const d=document.createElement("div");
-    d.className="ms"; d.style.background=s.c; d.title=s.n; d.dataset.k=s.k;
-    d.onclick=()=>{
-      if(which==="A") mixA=s; else mixB=s;
-      host.querySelectorAll(".ms").forEach(x=>x.classList.remove("sel"));
-      d.classList.add("sel"); doMix();
-    };
-    host.appendChild(d);
-  });
-}
-function doMix(){
-  const blob=$("#mixBlob"), txt=$("#mixTxt");
-  if(!mixA||!mixB){ return; }
-  if(mixA.k===mixB.k){
-    blob.style.background=mixA.c;
-    txt.innerHTML=`<b>${mixA.n}</b><small>Same color mixed with itself — it stays ${mixA.n.toLowerCase()}!</small>`;
-    return;
-  }
-  // tint / shade
-  if(mixA.k==="white"||mixB.k==="white"){
-    const other=mixA.k==="white"?mixB:mixA;
-    const r=hexToRgb(other.c).map(v=>v+(255-v)*0.55);
-    blob.style.background=rgbToHex(r);
-    txt.innerHTML=`<b>Light ${other.n} (a TINT)</b><small>Any color + white = a tint (a lighter version).</small>`;
-    return;
-  }
-  if(mixA.k==="black"||mixB.k==="black"){
-    const other=mixA.k==="black"?mixB:mixA;
-    const r=hexToRgb(other.c).map(v=>v*0.45);
-    blob.style.background=rgbToHex(r);
-    txt.innerHTML=`<b>Dark ${other.n} (a SHADE)</b><small>Any color + black = a shade (a darker version).</small>`;
-    return;
-  }
-  const key=[mixA.k,mixB.k].sort().join("|");
-  if(MIX[key]){
-    const [c,name,note]=MIX[key];
-    blob.style.background=c;
-    txt.innerHTML=`<b>${name}</b><small>${note}</small>`;
-  } else {
-    const a=hexToRgb(mixA.c), b=hexToRgb(mixB.c);
-    blob.style.background=rgbToHex(a.map((v,i)=>(v+b[i])/2));
-    txt.innerHTML=`<b>A new mixed color</b><small>${mixA.n} + ${mixB.n} blended together.</small>`;
-  }
-}
-function openMixer(){ buildMixRow($("#mixA"),"A"); buildMixRow($("#mixB"),"B"); mixA=mixB=null;
-  $("#mixTxt").innerHTML="<b>Pick two colors ↑</b><small>The mix shows up here.</small>";
-  $("#mixBlob").style.background="#fff"; $("#mixerModal").classList.remove("hidden"); }
-$("#mixerBtn").onclick=openMixer;
-$("#mixClose").onclick=()=>$("#mixerModal").classList.add("hidden");
-
-/* ============================================================
-   QUIZ — one attempt per question, wrong stays wrong, the
-   answer is NOT shown to the student. A parent answer key and
-   score are available at the end so you can grade & review.
-   ============================================================ */
-const QUIZZES = {
-  0:[ // Line
-    {q:"Which kind of line feels the most CALM and restful?",opts:["Zigzag","Horizontal","Diagonal"],a:1},
-    {q:"What kind of line would best show a bolt of lightning?",opts:["Curved","Horizontal","Zigzag"],a:2},
-    {q:"A line is best described as…",opts:["A moving point / the path between two points","A type of color","A flat shape"],a:0},
-    {q:"Which line would you use to draw gentle, rolling hills?",opts:["Vertical","Curved","Zigzag"],a:1},
-  ],
-  1:[ // Shape & Form
-    {q:"A SHAPE is flat (2D). A FORM is…",opts:["Also flat","Solid (3D) — it has depth","A kind of color"],a:1},
-    {q:"What turns a flat circle into a 3D sphere on paper?",opts:["Shading (light & dark)","Making it bigger","Using more colors"],a:0},
-    {q:"Which is an ORGANIC shape?",opts:["Square","Triangle","A leaf"],a:2},
-    {q:"A square becomes which 3D form?",opts:["Sphere","Cube","Cone"],a:1},
-  ],
-  2:[ // Color Wheel
-    {q:"Which three are the PRIMARY colors?",opts:["Red, Yellow, Blue","Orange, Green, Violet","Red, Green, Blue"],a:0},
-    {q:"Red + Yellow makes which color?",opts:["Green","Orange","Violet"],a:1},
-    {q:"Blue + Yellow makes which color?",opts:["Green","Orange","Brown"],a:0},
-    {q:"Why are red, yellow and blue called 'primary'?",opts:["They are the brightest","You can't make them by mixing other colors","They are everyone's favorite"],a:1},
-    {q:"Colors directly ACROSS from each other on the wheel are called…",opts:["Primary colors","Complementary colors","Warm colors"],a:1},
-    {q:"What is the complement of BLUE?",opts:["Orange","Green","Red"],a:0},
-  ],
-  3:[ // Color Moods
-    {q:"Which group are the WARM colors?",opts:["Blue, green, violet","Red, orange, yellow","Black, white, gray"],a:1},
-    {q:"A color mixed with WHITE makes a…",opts:["Shade (darker)","Tint (lighter)","Complement"],a:1},
-    {q:"A color mixed with BLACK makes a…",opts:["Tint (lighter)","Shade (darker)","Primary"],a:1},
-    {q:"Cool colors (blue, green, violet) usually feel…",opts:["Hot and close","Calm and far away","Loud and fast"],a:1},
-  ],
-  4:[ // Value & Shading
-    {q:"VALUE means…",opts:["How light or dark something is","What color something is","How big something is"],a:0},
-    {q:"The brightest spot where light hits directly is the…",opts:["Cast shadow","Highlight","Core shadow"],a:1},
-    {q:"The dark shape an object throws onto the table is the…",opts:["Cast shadow","Highlight","Tint"],a:0},
-    {q:"To make a ball look round you should…",opts:["Color it all one flat color","Shade smoothly from light to dark","Outline it in black"],a:1},
-  ],
-  5:[ // Texture
-    {q:"IMPLIED texture is…",opts:["Texture you can really feel","Texture an artist DRAWS so it looks rough/fuzzy","A type of paint"],a:1},
-    {q:"Which marks would best draw FUR?",opts:["Stacked rectangles","Short curved strokes","Straight ruler lines"],a:1},
-    {q:"A photo of a cactus looks spiky but feels smooth. That texture is…",opts:["Real","Implied","Rubbed"],a:1},
-  ],
-  6:[ // Space
-    {q:"The empty space AROUND an object is called…",opts:["Positive space","Negative space","Middle ground"],a:1},
-    {q:"To make something look CLOSER, you draw it…",opts:["Smaller and higher up","Bigger and lower down","In the corner"],a:1},
-    {q:"When one object covers part of another, that trick is called…",opts:["Overlap","Shading","Balance"],a:0},
-  ],
-  7:[ // One-Point Perspective
-    {q:"The single dot where parallel lines seem to meet is the…",opts:["Horizon line","Vanishing point","Focal point"],a:1},
-    {q:"The horizon line is the same as your…",opts:["Eye level","Favorite color","Paper edge"],a:0},
-    {q:"In perspective, objects get ___ as they move toward the vanishing point.",opts:["Bigger","Smaller","Brighter"],a:1},
-  ],
-  8:[ // Balance & Symmetry
-    {q:"SYMMETRICAL balance means…",opts:["Both sides match like a mirror","One big shape on one side","A design that spreads from the center"],a:0},
-    {q:"A design that spreads out from a center point (like a flower) has ___ balance.",opts:["Radial","Asymmetrical","Symmetrical"],a:0},
-    {q:"True or false: asymmetrical art is always 'unbalanced'.",opts:["True","False — it can still feel balanced"],a:1},
-  ],
-  9:[ // Pattern & Rhythm
-    {q:"A single unit that repeats in a pattern is called the…",opts:["Motif","Rhythm","Value"],a:0},
-    {q:"A pattern that goes dot, star, dot, star is a(n)…",opts:["Alternating pattern","Radial pattern","Random pattern"],a:0},
-    {q:"RHYTHM in art is most like…",opts:["A beat in music for your eyes","The color of the paper","The size of the page"],a:0},
-  ],
-  10:[ // Emphasis & Focal Point
-    {q:"The spot your eye goes to FIRST is the…",opts:["Background","Focal point","Negative space"],a:1},
-    {q:"One red flower in a field of green stands out because of…",opts:["Color contrast","Texture","Symmetry"],a:0},
-    {q:"Setting one object apart from a crowd to draw attention is called…",opts:["Isolation","Overlap","Shading"],a:0},
-  ],
-  11:[ // Proportion & Portraits
-    {q:"On a face, the eyes sit about…",opts:["Near the very top of the head","Halfway down the head","Right above the mouth"],a:1},
-    {q:"PROPORTION is about…",opts:["The size relationship between parts","How dark a color is","The kind of line used"],a:0},
-    {q:"About how far apart are the two eyes?",opts:["One eye-width apart","Touching","Three eye-widths apart"],a:0},
-  ],
-  12:[ // Art History & Styles
-    {q:"Swirling, thick brushstrokes in 'The Starry Night' are the style of…",opts:["Mondrian","Van Gogh","Picasso"],a:1},
-    {q:"Grids of straight black lines with red, yellow & blue boxes are by…",opts:["Mondrian","Monet","Pollock"],a:0},
-    {q:"Breaking objects into shapes shown from many angles at once is…",opts:["Impressionism","Cubism (Picasso)","Realism"],a:1},
-  ],
-  13:[ // Capstone
-    {q:"Name one ELEMENT of art.",opts:["Line","Balance","Emphasis"],a:0},
-    {q:"Name one PRINCIPLE of design.",opts:["Color","Texture","Balance"],a:2},
-    {q:"A good finished artwork should have…",opts:["No focal point","One clear focal point","Only one color"],a:1},
-  ],
-};
-
-let quiz=null, qi=0, qAnswers=[];
-function openQuiz(){
-  quiz=QUIZZES[curLesson]||[];
-  qi=0; qAnswers=[];
-  if(!quiz.length){ return; }
-  $("#quizModal").classList.remove("hidden");
-  renderQuestion();
-}
-function renderQuestion(){
-  const sheet=$("#quizSheet");
-  if(qi>=quiz.length){ renderResults(); return; }
-  const item=quiz[qi];
-  sheet.innerHTML=`
-    <button class="x" id="qClose">✕</button>
-    <div class="qprog">Question ${qi+1} of ${quiz.length}</div>
-    <div class="qtext">${item.q}</div>
-    <div class="qopts" id="qopts"></div>
-    <div class="qfb" id="qfb"></div>`;
-  $("#qClose").onclick=closeQuiz;
-  const opts=$("#qopts");
-  item.opts.forEach((o,idx)=>{
-    const b=document.createElement("button");
-    b.className="qopt"; b.textContent=o;
-    b.onclick=()=>answer(idx,b);
-    opts.appendChild(b);
-  });
-}
-function answer(idx,btn){
-  const item=quiz[qi];
-  const correct = idx===item.a;
-  qAnswers[qi]=idx;
-  // lock every option; mark the chosen one only — do NOT reveal the right answer
-  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
-  btn.classList.add("chosen", correct?"right":"wrong");
-  const fb=$("#qfb");
-  fb.className="qfb "+(correct?"ok":"no");
-  fb.textContent = correct ? "✓ Correct!" : "✗ Marked wrong. We'll add this to your review list.";
-  const next=document.createElement("button");
-  next.className="qnext";
-  next.textContent = qi<quiz.length-1 ? "Next question →" : "See results →";
-  next.onclick=()=>{ qi++; renderQuestion(); };
-  $("#quizSheet").appendChild(next);
-}
-function renderResults(){
-  const total=quiz.length;
-  let right=0; quiz.forEach((it,i)=>{ if(qAnswers[i]===it.a) right++; });
-  const missed=quiz.map((it,i)=>({it,i})).filter(x=>qAnswers[x.i]!==x.it.a);
-  // save for the parent to look back at
-  try{ localStorage.setItem("quiz-L"+(curLesson+1), JSON.stringify({right,total,date:Date.now()})); }catch(e){}
-  const pct=Math.round(right/total*100);
-  const sheet=$("#quizSheet");
-  sheet.innerHTML=`
-    <button class="x" id="qClose">✕</button>
-    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
-    <div class="scorebig">${right} / ${total}</div>
-    <p class="lead">${right===total?"A perfect score — every question correct!":
-      "Here are the topics to go over again (the answers are saved for the grown-up below):"}</p>
-    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
-    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
-    <div class="answerkey hidden" id="answerKey"></div>
-    <button class="qnext" id="qDone">Done</button>`;
-  $("#qClose").onclick=closeQuiz;
-  $("#qDone").onclick=closeQuiz;
-  $("#keyBtn").onclick=()=>{
-    const ak=$("#answerKey");
-    ak.classList.toggle("hidden");
-    if(!ak.dataset.built){
-      ak.innerHTML=quiz.map((it,i)=>{
-        const gotIdx=qAnswers[i];
-        const ok=gotIdx===it.a;
-        const got = gotIdx==null?"(no answer)":it.opts[gotIdx];
-        return `<div class="ak">
-          <div class="qq">${i+1}. ${it.q}</div>
-          <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
-          <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} He chose: ${got}</div>
-        </div>`;
-      }).join("");
-      ak.dataset.built="1";
-    }
-  };
-}
-function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
-$("#quizBtn").onclick=openQuiz;
-</script>
 </body>
 </html>
