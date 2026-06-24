@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ELA Refresher Hub — 4th → 5th Grade</title>
+<style>
+  :root{
+    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#3a4059; --warn:#ffd166; --bad:#ff6b81;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.55;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1040px; margin:0 auto; padding:28px 20px 60px;}
+
+  /* Hero */
+  .hero{background:linear-gradient(135deg,#2a2f44,#23283a); border:1px solid var(--line);
+    border-radius:20px; padding:30px 28px; text-align:center; position:relative; overflow:hidden;}
+  .hero::after{content:""; position:absolute; inset:0;
+    background:radial-gradient(600px 200px at 70% -10%, rgba(91,209,196,.18), transparent),
+               radial-gradient(500px 200px at 20% 120%, rgba(255,122,89,.18), transparent);}
+  .hero > *{position:relative;}
+  .hero .kicker{color:var(--accent2); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:13px;}
+  .hero h1{font-size:2.3em; margin:.15em 0 .1em;}
+  .hero p{color:var(--muted); max-width:62ch; margin:8px auto 0; font-size:15px;}
+  .pills{margin-top:16px;}
+  .pill{display:inline-block; background:var(--panel2); border:1px solid var(--line);
+    color:var(--ink); border-radius:999px; padding:6px 14px; margin:4px; font-size:13px; font-weight:700;}
+
+  /* Section heading */
+  .sec-head{display:flex; align-items:baseline; gap:12px; margin:38px 4px 14px;}
+  .sec-head h2{font-size:1.4em; margin:0;}
+  .sec-head .hint{color:var(--muted); font-size:13px;}
+
+  /* Subject cards */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:18px;}
+  .card{display:flex; flex-direction:column; background:var(--panel); border:1px solid var(--line);
+    border-radius:18px; padding:22px; transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;}
+  a.card:hover{transform:translateY(-4px); border-color:var(--accent2); box-shadow:0 14px 40px rgba(0,0,0,.45);}
+  .card .emoji{font-size:2.4em; line-height:1;}
+  .card .num{align-self:flex-start; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+    color:#211; background:var(--accent2); padding:3px 10px; border-radius:999px; margin-bottom:14px;}
+  .card h3{font-size:1.25em; margin:10px 0 4px;}
+  .card .subject{color:var(--accent2); font-weight:700; font-size:13.5px; margin-bottom:8px;}
+  .card p{color:var(--muted); font-size:14px; margin:0 0 14px;}
+  .card .tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:auto;}
+  .card .tags span{font-size:11.5px; background:var(--panel2); border:1px solid var(--line);
+    border-radius:999px; padding:3px 9px; color:#dfe2f1;}
+  .card .cta{margin-top:16px; font-weight:800; color:var(--accent); font-size:14px;}
+  .card.soon{opacity:.6;}
+  .card.soon .num{background:var(--warn);}
+  .card.soon .cta{color:var(--warn);}
+
+  /* Summary table at bottom */
+  .summary{margin-top:40px; background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden;}
+  .summary .cap{padding:16px 22px; background:var(--panel2); border-bottom:1px solid var(--line);
+    font-weight:800; font-size:1.1em;}
+  table{width:100%; border-collapse:collapse;}
+  th,td{text-align:left; padding:13px 18px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top;}
+  th{color:var(--accent2); text-transform:uppercase; letter-spacing:.06em; font-size:12px;}
+  tr:last-child td{border-bottom:none;}
+  td.s-num{font-weight:800; color:var(--accent); white-space:nowrap;}
+  td a{color:var(--accent2); font-weight:700;}
+  .status-ready{color:var(--good); font-weight:700;}
+  .status-soon{color:var(--warn); font-weight:700;}
+
+  footer{margin-top:34px; text-align:center; color:var(--muted); font-size:13px;}
+  .note{margin-top:22px; background:#2a2f44; border:1px solid var(--line); border-left:4px solid var(--accent);
+    border-radius:12px; padding:14px 18px; color:#e7e1f7; font-size:13.5px;}
+  @media (max-width:520px){.hero h1{font-size:1.7em;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="kicker">Summer Refresher · 4th → 5th Grade</div>
+    <h1>📚 ELA Lessons Hub</h1>
+    <p>Click any subject below to open its interactive, one-hour lesson. Each one has read-along stories or articles, click-to-answer games, fill-in boxes, a writing task, and a reward badge. A full subject list is at the bottom of the page.</p>
+    <div class="pills">
+      <span class="pill">⏱️ 60 min each</span>
+      <span class="pill">🎯 Interactive</span>
+      <span class="pill">🖨️ Print-friendly</span>
+      <span class="pill">🔑 Answer keys</span>
+    </div>
+  </div>
+
+  <!-- SUBJECT CARDS -->
+  <div class="sec-head">
+    <h2>Choose a Subject</h2>
+    <span class="hint">Tap a card to start →</span>
+  </div>
+  <div class="grid">
+
+    <a class="card" href="lesson-1-reading-detective.html">
+      <span class="num">Lesson 1</span>
+      <div class="emoji">🔍</div>
+      <h3>Reading Detective</h3>
+      <div class="subject">Reading Comprehension &amp; Vocabulary</div>
+      <p>Read a short mystery, hunt for clues, crack context-clue vocabulary, and spot similes.</p>
+      <div class="tags"><span>Comprehension</span><span>Context Clues</span><span>Similes</span></div>
+      <div class="cta">Start lesson →</div>
+    </a>
+
+    <a class="card" href="lesson-2-story-architect.html">
+      <span class="num">Lesson 2</span>
+      <div class="emoji">🏗️</div>
+      <h3>Story Architect</h3>
+      <div class="subject">Narrative Writing</div>
+      <p>Build a story from the blueprint up: story mountain, characters, setting, and "show, don't tell."</p>
+      <div class="tags"><span>Story Structure</span><span>Characters</span><span>Show Don't Tell</span></div>
+      <div class="cta">Start lesson →</div>
+    </a>
+
+    <a class="card" href="lesson-3-fact-finder.html">
+      <span class="num">Lesson 3</span>
+      <div class="emoji">🔬</div>
+      <h3>Fact Finder</h3>
+      <div class="subject">Nonfiction: Main Idea &amp; Summarizing</div>
+      <p>Read a real-world article, find the main idea and key details, then write a tight summary.</p>
+      <div class="tags"><span>Nonfiction</span><span>Main Idea</span><span>Summarizing</span></div>
+      <div class="cta">Start lesson →</div>
+    </a>
+
+    <div class="card soon">
+      <span class="num">Lesson 4</span>
+      <div class="emoji">🔧</div>
+      <h3>Grammar Garage</h3>
+      <div class="subject">Grammar &amp; Sentences</div>
+      <p>Tune up nouns, verbs, and adjectives, and build strong, complete sentences.</p>
+      <div class="tags"><span>Parts of Speech</span><span>Sentences</span><span>Editing</span></div>
+      <div class="cta">Coming soon ✦</div>
+    </div>
+
+    <div class="card soon">
+      <span class="num">Lesson 5</span>
+      <div class="emoji">🎤</div>
+      <h3>Word Music</h3>
+      <div class="subject">Poetry &amp; Figurative Language</div>
+      <p>Play with rhyme, rhythm, metaphors, and write a short poem of your own.</p>
+      <div class="tags"><span>Metaphors</span><span>Rhyme</span><span>Poetry</span></div>
+      <div class="cta">Coming soon ✦</div>
+    </div>
+
+  </div>
+
+  <!-- SUMMARY LIST AT BOTTOM -->
+  <div class="summary">
+    <div class="cap">📋 All Subjects at a Glance</div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Lesson</th><th>Subject Area</th><th>Skills</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="s-num">1</td>
+          <td><a href="lesson-1-reading-detective.html">🔍 Reading Detective</a></td>
+          <td>Reading Comprehension &amp; Vocabulary</td>
+          <td>Finding clues, context clues, similes, paragraph writing</td>
+          <td class="status-ready">● Ready</td>
+        </tr>
+        <tr>
+          <td class="s-num">2</td>
+          <td><a href="lesson-2-story-architect.html">🏗️ Story Architect</a></td>
+          <td>Narrative Writing</td>
+          <td>Story mountain, characters &amp; setting, show don't tell</td>
+          <td class="status-ready">● Ready</td>
+        </tr>
+        <tr>
+          <td class="s-num">3</td>
+          <td><a href="lesson-3-fact-finder.html">🔬 Fact Finder</a></td>
+          <td>Nonfiction Reading</td>
+          <td>Main idea, key details, summarizing</td>
+          <td class="status-ready">● Ready</td>
+        </tr>
+        <tr>
+          <td class="s-num">4</td>
+          <td>🔧 Grammar Garage</td>
+          <td>Grammar &amp; Sentences</td>
+          <td>Parts of speech, complete sentences, editing</td>
+          <td class="status-soon">○ Coming soon</td>
+        </tr>
+        <tr>
+          <td class="s-num">5</td>
+          <td>🎤 Word Music</td>
+          <td>Poetry &amp; Figurative Language</td>
+          <td>Rhyme, rhythm, metaphors, writing a poem</td>
+          <td class="status-soon">○ Coming soon</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    💡 <strong>How to use:</strong> Keep this <em>index.html</em> file in the SAME folder as the lesson files, then open <em>index.html</em> in any web browser. Clicking a subject opens its lesson; use your browser's Back button to return to this hub.
+  </div>
+
+  <footer>ELA Refresher · 4th → 5th Grade · 60-minute interactive lessons</footer>
+</div>
+</body>
+</html>

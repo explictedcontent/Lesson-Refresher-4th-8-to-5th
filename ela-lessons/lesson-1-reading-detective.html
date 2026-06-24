@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be a Reading Detective! — ELA Refresher (4th → 5th Grade)</title>
+<style>
+  :root{
+    --navy:#1f3a5f; --blue:#2e6fb7; --sky:#e8f1fb; --gold:#f6b93b;
+    --green:#27ae60; --red:#e74c3c; --paper:#fffdf7; --ink:#2b2b2b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:"Comic Sans MS","Trebuchet MS",Verdana,sans-serif;
+    margin:0; background:linear-gradient(135deg,#dbeafe,#f0f9ff); color:var(--ink);
+    line-height:1.6; padding:20px;
+  }
+  .back{display:inline-block; margin:0 auto 14px; background:#1f3a5f; color:#fff;
+    text-decoration:none; padding:8px 16px; border-radius:10px; font-weight:bold; font-size:.9em;}
+  .sheet{max-width:860px; margin:0 auto; background:var(--paper);
+    border:4px solid var(--navy); border-radius:18px; padding:28px 34px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);}
+  header{text-align:center; margin-bottom:18px;}
+  header h1{color:var(--navy); font-size:2.1em; margin:.2em 0;}
+  .badge-emoji{font-size:2.6em;}
+  .tag{display:inline-block; background:var(--gold); color:#5a3d00; font-weight:bold;
+    padding:4px 12px; border-radius:20px; margin:3px; font-size:.85em;}
+  .timing{background:var(--sky); border-radius:12px; padding:10px 16px; font-size:.9em;}
+  section{background:#fff; border:2px dashed var(--blue); border-radius:14px;
+    padding:18px 22px; margin:22px 0;}
+  section h2{color:var(--blue); margin-top:0; display:flex; align-items:center; gap:8px;}
+  .mins{margin-left:auto; font-size:.6em; background:var(--blue); color:#fff;
+    padding:3px 10px; border-radius:20px;}
+  .say{background:#fff7e6; border-left:6px solid var(--gold); padding:10px 14px;
+    border-radius:8px; font-style:italic; margin:12px 0;}
+  .say::before{content:"🗣️ SAY THIS: "; font-weight:bold; font-style:normal;}
+  .story{background:#f5f9f5; border:2px solid var(--green); border-radius:12px;
+    padding:16px 20px; font-family:Georgia,serif; line-height:1.7;}
+  .story h3{color:var(--green); text-align:center; margin-top:0;}
+  input[type=text], textarea{
+    width:100%; border:none; border-bottom:2px dotted var(--blue); background:#fbfdff;
+    font-family:inherit; font-size:1em; padding:6px 4px; margin:4px 0; border-radius:4px 4px 0 0;}
+  textarea{border:2px dotted var(--blue); border-radius:8px; min-height:90px; resize:vertical;}
+  ol li, ul li{margin:8px 0;}
+  .timer-box{text-align:center; background:var(--navy); color:#fff; border-radius:12px; padding:14px;}
+  .timer-box .clock{font-size:2.4em; font-weight:bold; letter-spacing:2px;}
+  button{font-family:inherit; cursor:pointer; border:none; border-radius:10px;
+    padding:8px 16px; font-weight:bold; font-size:.95em; margin:4px;}
+  .btn-go{background:var(--green); color:#fff;}
+  .btn-reset{background:#aaa; color:#fff;}
+  .choices button{display:block; width:100%; text-align:left; background:var(--sky);
+    color:var(--navy); margin:6px 0; border:2px solid transparent;}
+  .choices button.correct{background:#d4f5dd; border-color:var(--green);}
+  .choices button.wrong{background:#fde2e0; border-color:var(--red);}
+  .feedback{font-weight:bold; min-height:1.4em;}
+  .draw-box{border:3px solid var(--gold); border-radius:12px; height:160px;
+    background:repeating-linear-gradient(#fff,#fff 28px,#eef6ff 29px); margin:8px 0;
+    display:flex; align-items:center; justify-content:center; color:#bbb;}
+  .checklist label{display:block; background:#f3f8ff; border-radius:8px; padding:8px 12px; margin:6px 0; cursor:pointer;}
+  .checklist input{transform:scale(1.4); margin-right:10px;}
+  .reflect span{display:inline-block; margin:0 6px; cursor:pointer; font-size:1.4em;}
+  details{background:#eef; border-radius:10px; padding:8px 14px; margin-top:10px;}
+  summary{font-weight:bold; cursor:pointer; color:var(--navy);}
+  .badge-final{text-align:center; background:linear-gradient(135deg,var(--gold),#ffe08a);
+    border-radius:16px; padding:18px; font-size:1.2em; font-weight:bold; color:#5a3d00;}
+  .clue-tip{font-size:.9em; color:#666;}
+  @media print{body{background:#fff;} button,.timer-box,.back{display:none;} .sheet{box-shadow:none;}}
+</style>
+</head>
+<body>
+<div style="text-align:center;"><a class="back" href="index.html">← Back to Lessons Hub</a></div>
+<div class="sheet">
+  <header>
+    <div class="badge-emoji">🔍🕵️</div>
+    <h1>Be a Reading Detective!</h1>
+    <p><strong>ELA Refresher — Lesson 1 · 4th Grade going into 5th Grade</strong></p>
+    <div>
+      <span class="tag">⏱️ 60 Minutes</span>
+      <span class="tag">📖 Reading</span>
+      <span class="tag">🔤 Vocabulary</span>
+      <span class="tag">✍️ Writing</span>
+      <span class="tag">🎯 Interactive</span>
+    </div>
+  </header>
+
+  <div class="timing">
+    <strong>Today's Case File (60 min):</strong>
+    Warm-Up 5 · Reading 15 · Comprehension 10 · Vocab Game 10 · Figurative Language 5 · Writing 10 · Wrap-Up 5
+  </div>
+
+  <section>
+    <h2>👋 For the Grown-Up / Teacher</h2>
+    <p>This lesson is meant to be done <strong>with</strong> the learner. Read the orange "SAY THIS" lines out loud, give lots of high-fives, and let the learner talk through their thinking. Wrong answers are great — they show how a brain is working! Type right into the boxes on screen, or print it out (everything still works on paper). The answer key is at the very bottom.</p>
+    <p class="clue-tip">You'll need: pencil/scratch paper, 3 colors of pencils or crayons, a timer (one is built in below), and detective energy.</p>
+  </section>
+
+  <!-- PART 1 -->
+  <section>
+    <h2>🏃 Part 1 — Warm-Up: Word Sprint <span class="mins">5 min</span></h2>
+    <p class="say">"We're going to be Reading Detectives today. Detectives need sharp brains, so let's warm up!"</p>
+    <div class="timer-box">
+      <div class="clock" id="clock">01:00</div>
+      <button class="btn-go" onclick="startTimer()">▶ Start 60 sec</button>
+      <button class="btn-reset" onclick="resetTimer()">↺ Reset</button>
+    </div>
+    <p><strong>Beat the timer!</strong> Write as many words as you can that mean almost the same as <strong>HAPPY</strong> (glad, joyful…):</p>
+    <textarea placeholder="Type your HAPPY words here..."></textarea>
+    <p>Now go again for 60 seconds with the word <strong>BIG</strong>:</p>
+    <textarea placeholder="Type your BIG words here..."></textarea>
+    <p class="clue-tip">🔎 Detective Talk: Words that mean almost the same thing are called <strong>SYNONYMS</strong>. Good writers use them so writing never gets boring!</p>
+  </section>
+
+  <!-- PART 2 -->
+  <section>
+    <h2>📖 Part 2 — The Reading <span class="mins">15 min</span></h2>
+    <p class="say">"Read this like a detective. Watch for clues — you'll need them!"</p>
+    <div class="story">
+      <h3>The Mystery of the Missing Lunch</h3>
+      <p>Maya raced into the classroom, her stomach growling like a grumpy bear. All morning she had been thinking about the warm slice of pizza her dad had packed in her bright red lunchbox. But when she opened her cubby, her heart sank. The lunchbox was gone!</p>
+      <p>"Don't panic," Maya whispered to herself. "A good detective stays calm."</p>
+      <p>She looked around the room for clues. First, she noticed a small puddle of water near the cubbies. Then she spotted muddy paw prints leading toward the reading corner. Finally, she heard a soft crunching sound coming from behind the bookshelf.</p>
+      <p>Maya tiptoed over and peeked behind the shelf. There was Biscuit, the class guinea pig, happily nibbling on a piece of her pizza crust! His cage door hung wide open.</p>
+      <p>Maya laughed out loud. "Mystery solved!" she said. "Biscuit, you're the sneakiest little thief I've ever met."</p>
+      <p>She gently scooped up Biscuit and returned him to his cage, making sure to latch the door this time. Then she shared what was left of her lunch with her best friend, Leo, who had been saving her a seat all along.</p>
+    </div>
+    <p class="clue-tip">🖍️ Interactive step: Read it again and <strong>underline the 3 clues</strong> Maya found (hint: third paragraph!). On screen, jot them in Part 3.</p>
+  </section>
+
+  <!-- PART 3 -->
+  <section>
+    <h2>🕵️ Part 3 — Detective Questions <span class="mins">10 min</span></h2>
+    <p>Answer in complete sentences. Every answer needs <strong>PROOF</strong> from the story!</p>
+    <ol>
+      <li>What was Maya worried about at the beginning?<input type="text" placeholder="Type your answer..."></li>
+      <li>Name the THREE clues Maya found, in order:
+        <input type="text" placeholder="Clue 1...">
+        <input type="text" placeholder="Clue 2...">
+        <input type="text" placeholder="Clue 3..."></li>
+      <li>Who (or what) took the lunch? Was it really a "thief"? Why or why not?<input type="text" placeholder="Type your answer..."></li>
+      <li>PROVE IT: Write one sentence from the story that shows Maya stayed calm.<input type="text" placeholder="Type your answer..."></li>
+      <li>THINK DEEPER: Why do you think Maya shared her lunch with Leo? What does that show about her?<input type="text" placeholder="Type your answer..."></li>
+    </ol>
+  </section>
+
+  <!-- PART 4 -->
+  <section>
+    <h2>🔤 Part 4 — Vocabulary Game: Context Clue Detective <span class="mins">10 min</span></h2>
+    <p class="say">"Real detectives don't always run to a dictionary. They use CONTEXT CLUES — the words nearby — to figure out a meaning!"</p>
+    <p>Click the answer you think is correct. The game tells you right away!</p>
+
+    <p><strong>1.</strong> Maya <em>tiptoed</em> over so no one would hear her. TIPTOED means:</p>
+    <div class="choices">
+      <button onclick="pick(this,false)">(a) walked very loudly</button>
+      <button onclick="pick(this,true)">(b) walked quietly and carefully</button>
+      <button onclick="pick(this,false)">(c) ran fast</button>
+    </div>
+    <p class="feedback"></p>
+
+    <p><strong>2.</strong> Biscuit was the <em>sneakiest</em> thief, hiding behind the shelf. SNEAKIEST means:</p>
+    <div class="choices">
+      <button onclick="pick(this,false)">(a) most honest</button>
+      <button onclick="pick(this,false)">(b) most sleepy</button>
+      <button onclick="pick(this,true)">(c) most secretive and tricky</button>
+    </div>
+    <p class="feedback"></p>
+
+    <p><strong>3.</strong> Maya's stomach was <em>growling</em> because she was very hungry. GROWLING means:</p>
+    <div class="choices">
+      <button onclick="pick(this,true)">(a) making a rumbling noise</button>
+      <button onclick="pick(this,false)">(b) feeling happy</button>
+      <button onclick="pick(this,false)">(c) very full</button>
+    </div>
+    <p class="feedback"></p>
+
+    <p><strong>🌟 Bonus — Be the Author:</strong> Pick one word above and use it in a brand-new sentence:</p>
+    <input type="text" placeholder="Type your own sentence...">
+  </section>
+
+  <!-- PART 5 -->
+  <section>
+    <h2>🎨 Part 5 — Figurative Language: Picture This! <span class="mins">5 min</span></h2>
+    <p>The story said: <em>"her stomach growling <strong>like</strong> a grumpy bear."</em> That's a <strong>SIMILE</strong> — a comparison using <em>like</em> or <em>as</em>. It helps us picture exactly how hungry she was!</p>
+    <p><strong>Your turn — finish these similes with your own ideas:</strong></p>
+    <p>1. The classroom was as quiet as <input type="text" style="width:60%" placeholder="...a sleeping mouse?"></p>
+    <p>2. My backpack is as heavy as <input type="text" style="width:60%" placeholder="...?"></p>
+    <p>3. The puppy ran like <input type="text" style="width:60%" placeholder="...?"></p>
+    <p><strong>✏️ Draw it:</strong> Sketch your favorite simile (print the page, or draw on paper).</p>
+    <div class="draw-box">🖍️ Draw your simile here!</div>
+  </section>
+
+  <!-- PART 6 -->
+  <section>
+    <h2>✍️ Part 6 — Write Like a Detective <span class="mins">10 min</span></h2>
+    <p class="say">"Now YOU are the author! Let's write our own mini-mystery."</p>
+    <p><strong>Prompt:</strong> Write a short paragraph (4–6 sentences) about a mystery <em>you</em> could solve. It can be silly! (The Missing Sock, The Squeaky Door, Who Ate the Last Cookie?)</p>
+    <div class="checklist">
+      <strong>Detective Writing Checklist — check each one off:</strong>
+      <label><input type="checkbox"> A <strong>topic sentence</strong> that tells what the mystery is.</label>
+      <label><input type="checkbox"> At least <strong>TWO clues</strong>.</label>
+      <label><input type="checkbox"> At least <strong>ONE synonym</strong> for a boring word (said, big, happy).</label>
+      <label><input type="checkbox"> A <strong>simile</strong> ("like" or "as ___ as").</label>
+      <label><input type="checkbox"> An <strong>ending</strong> that solves the mystery.</label>
+    </div>
+    <textarea style="min-height:150px" placeholder="Write your mystery here..."></textarea>
+  </section>
+
+  <!-- WRAP UP -->
+  <section>
+    <h2>🏅 Wrap-Up: Detective Badge <span class="mins">5 min</span></h2>
+    <p class="say">"Great work, Detective! Let's check our case file."</p>
+    <p class="reflect">Reading &amp; finding clues: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p class="reflect">Using context clues: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p class="reflect">Writing my own paragraph: <span onclick="cheer(this)">😀</span><span onclick="cheer(this)">🙂</span><span onclick="cheer(this)">🤔</span></p>
+    <p>One thing I'm proud of today:<input type="text"></p>
+    <p>One thing I want to practice more:<input type="text"></p>
+    <div class="badge-final">🏅 CONGRATULATIONS! You earned your 5th Grade Reading Detective Badge! 🏅</div>
+  </section>
+
+  <!-- ANSWER KEY -->
+  <section>
+    <details>
+      <summary>🔑 Answer Key (for the grown-up — click to open)</summary>
+      <p><strong>Part 2 — Three clues:</strong> (1) a small puddle of water near the cubbies, (2) muddy paw prints toward the reading corner, (3) a soft crunching sound behind the bookshelf.</p>
+      <p><strong>Part 3:</strong><br>
+      1. Maya was worried her lunch / red lunchbox (the pizza her dad packed) was gone.<br>
+      2. (1) the puddle, (2) the paw prints, (3) the crunching sound. (Seeing Biscuit is the <em>solution</em>, not a clue.)<br>
+      3. Biscuit the guinea pig took it. Not really a "thief" — a thief steals on purpose, but Biscuit is an animal who got out and was hungry. (Accept reasoning either way if explained.)<br>
+      4. Accept: "Don't panic," Maya whispered to herself. / "A good detective stays calm." / "She looked around the room for clues."<br>
+      5. Open answer — look for: Maya is kind/generous/a good friend; Leo saved her a seat, so she's being nice back.</p>
+      <p><strong>Part 4:</strong> 1=(b), 2=(c), 3=(a). Bonus sentence will vary.</p>
+      <p><strong>Part 5:</strong> Answers vary — check each comparison uses "like" or "as."</p>
+      <p><strong>Part 6:</strong> Score with the checklist. Strong paragraph = clear topic sentence, 2+ clues, a synonym, a simile attempt, and a solving sentence. Celebrate effort and creativity!</p>
+    </details>
+  </section>
+</div>
+
+<script>
+  var t=60, ticker=null;
+  function show(){var m=String(Math.floor(t/60)).padStart(2,'0'),s=String(t%60).padStart(2,'0');document.getElementById('clock').textContent=m+":"+s;}
+  function startTimer(){clearInterval(ticker);ticker=setInterval(function(){if(t>0){t--;show();}else{clearInterval(ticker);document.getElementById('clock').textContent="TIME! ⏰";}},1000);}
+  function resetTimer(){clearInterval(ticker);t=60;show();}
+  function pick(btn,correct){
+    var box=btn.parentElement, fb=box.nextElementSibling;
+    Array.prototype.forEach.call(box.children,function(b){b.classList.remove('correct','wrong');});
+    if(correct){btn.classList.add('correct');fb.textContent="✅ Nice detective work! That's right.";fb.style.color="#27ae60";}
+    else{btn.classList.add('wrong');fb.textContent="🔍 Not quite — reread the sentence for clues and try again!";fb.style.color="#e74c3c";}
+  }
+  function cheer(span){
+    Array.prototype.forEach.call(span.parentElement.querySelectorAll('span'),function(s){s.style.background='';});
+    span.style.background='#ffe08a';span.style.borderRadius='8px';
+  }
+</script>
+</body>
+</html>
