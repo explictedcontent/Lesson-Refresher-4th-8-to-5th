@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lesson 4: Adding &amp; Subtracting Big Numbers — Interactive</title>
+<style>
+  :root{
+    --ink:#1f2933; --muted:#5b6770; --line:#e2e8f0; --bg:#eef2f7;
+    --blue:#2563eb; --blue-bg:#eff6ff; --green:#16a34a; --green-bg:#dcfce7;
+    --red:#dc2626; --red-bg:#fef2f2; --amber:#b45309; --amber-bg:#fffbeb;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --pink:#db2777;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.55; background:var(--bg); padding:14px; font-size:17px; -webkit-text-size-adjust:100%;}
+  .page{max-width:780px; margin:0 auto; background:#fff; padding:20px 18px 44px; border-radius:18px; box-shadow:0 2px 14px rgba(0,0,0,.08);}
+  h1{font-size:25px; margin:0 0 4px; line-height:1.2;}
+  h2{font-size:20px; margin:30px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line);}
+  h3{font-size:17px; margin:20px 0 6px;}
+  .sub{color:var(--muted); font-size:15px; margin:0 0 2px;}
+  .timechip{display:inline-block; background:var(--blue-bg); color:var(--blue); font-weight:700; font-size:13px;
+    padding:3px 11px; border-radius:999px; margin-right:8px;}
+  .hint{font-size:13px; color:var(--muted);}
+
+  .hud{position:sticky; top:0; z-index:9; background:#fff; border:2px solid var(--line); border-radius:16px;
+    padding:10px 12px; margin:0 0 16px; box-shadow:0 2px 10px rgba(0,0,0,.06);}
+  .hudtop{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .lvl{background:var(--purple); color:#fff; font-weight:800; font-size:13px; padding:5px 11px; border-radius:999px; white-space:nowrap;}
+  .xpwrap{flex:1; min-width:120px;}
+  .xpbar{height:14px; background:var(--line); border-radius:999px; overflow:hidden;}
+  .xpbar>span{display:block; height:100%; width:0; background:linear-gradient(90deg,#22c55e,#16a34a); transition:width .4s;}
+  .xptxt{font-size:11px; color:var(--muted); margin-top:2px;}
+  .streak{background:var(--amber-bg); color:var(--amber); font-weight:800; font-size:13px; padding:5px 10px; border-radius:999px; white-space:nowrap;}
+  .badges{display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;}
+  .badge{font-size:19px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:9px;
+    background:var(--line); filter:grayscale(1); opacity:.45; transition:.3s;}
+  .badge.on{filter:none; opacity:1; background:var(--green-bg); transform:scale(1.08);}
+
+  pre{background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:10px; overflow:auto; font-size:13px;
+    line-height:1.5; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .note{background:var(--amber-bg); border-left:4px solid var(--amber); color:#7c4a06; padding:9px 13px;
+    border-radius:0 8px 8px 0; margin:12px 0; font-size:14px;}
+  .note b{color:var(--amber);}
+
+  .q{border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:12px 0; background:#fff;}
+  .q.right{background:var(--green-bg); border-color:#86efac;}
+  .q.wrong{background:var(--red-bg); border-color:#fca5a5;}
+  .qtext{font-weight:600; display:block; margin-bottom:9px;}
+  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  input.ans{flex:1; min-width:120px; font-size:18px; padding:11px 13px; border:2px solid var(--line); border-radius:10px;
+    outline:none; background:#fff; color:var(--ink);}
+  input.ans:focus{border-color:var(--blue);}
+  input.ans:disabled{opacity:1; -webkit-text-fill-color:var(--ink); color:var(--ink);}
+  .q.wrong input.ans:disabled{border-color:#fca5a5; background:#fff;}
+  button{font-size:16px; font-weight:700; border:none; border-radius:10px; padding:11px 18px; cursor:pointer; touch-action:manipulation;}
+  button:active{transform:translateY(1px);}
+  button:disabled{opacity:.45; cursor:default; transform:none;}
+  .check{background:var(--blue); color:#fff;}
+  .result{font-weight:700; margin-top:8px; display:block; font-size:15px;}
+  .result.ok{color:var(--green);} .result.no{color:var(--red);}
+
+  .choices{display:flex; flex-wrap:wrap; gap:8px;}
+  .choice{background:#fff; border:2px solid var(--line); color:var(--ink); font-weight:700; padding:11px 16px; border-radius:10px; min-width:56px;}
+  .choice.sel{border-color:var(--blue); background:var(--blue-bg); color:var(--blue);}
+  .q.right .choice.sel{border-color:var(--green); background:var(--green-bg); color:var(--green);}
+  .q.wrong .choice.sel{border-color:var(--red); background:var(--red-bg); color:var(--red);}
+  .choices.lock .choice{opacity:.5;} .choices.lock .choice.sel{opacity:1;}
+
+  .pill{display:inline-block; background:var(--green); color:#fff; font-size:14px; font-weight:800; padding:6px 18px; border-radius:999px;}
+  .boss{background:linear-gradient(135deg,#fdf2f8,#f5f3ff); border:2px solid var(--pink); border-radius:14px; padding:14px 16px; margin:16px 0;}
+  .resetbtn{background:#fff; border:2px solid var(--line); color:var(--muted); font-size:13px; padding:8px 12px; border-radius:10px;}
+  ol{padding-left:22px;} ol li{margin:5px 0;}
+  hr{border:none; border-top:1px solid var(--line); margin:26px 0;}
+
+  .akeybox{border:2px dashed var(--muted); border-radius:14px; padding:14px 16px; margin:18px 0; background:#fafbfc;}
+  .akeybtn{background:var(--ink); color:#fff; font-size:15px; padding:12px 18px; border-radius:10px;}
+  .akeybtn:disabled{opacity:.4;}
+  #akeyMsg{font-size:13px; color:var(--muted); margin-top:8px;}
+  table.akey{border-collapse:collapse; width:100%; margin-top:12px; font-size:14px;}
+  table.akey th, table.akey td{border:1px solid var(--line); padding:7px 9px; text-align:left;}
+  table.akey th{background:#f1f5f9;}
+  table.akey tr.bad{background:var(--red-bg);} table.akey tr.good{background:var(--green-bg);}
+  .mark{font-weight:800;} .mark.ok{color:var(--green);} .mark.no{color:var(--red);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hud">
+    <div class="hudtop">
+      <span class="lvl">⚡ Lv <span id="lvl">1</span></span>
+      <div class="xpwrap">
+        <div class="xpbar"><span id="xpfill"></span></div>
+        <div class="xptxt"><span id="answered">0</span>/<span id="total">0</span> answered ·
+          <span id="solved">0</span> ✓ · <span id="xp">0</span> XP</div>
+      </div>
+      <span class="streak">🔥 <span id="streak">0</span></span>
+    </div>
+    <div class="badges" id="badges">
+      <div class="badge" data-badge="review" title="Spiral Review">🔁</div>
+      <div class="badge" data-badge="add" title="Addition Ace">➕</div>
+      <div class="badge" data-badge="sub" title="Subtraction Star">➖</div>
+      <div class="badge" data-badge="est" title="Estimator">🎯</div>
+      <div class="badge" data-badge="word" title="Word Problems">📖</div>
+      <div class="badge" data-badge="boss" title="Boss Beaten">👑</div>
+      <div class="badge" data-badge="champ" title="Champion">🏆</div>
+    </div>
+  </div>
+
+  <h1>Lesson 4 — Adding &amp; Subtracting Big Numbers ➕➖</h1>
+  <p class="sub"><b>Summer Math · Going into 5th Grade</b> · about 30 minutes</p>
+  <p class="hint"><b>How to play:</b> answer each problem to earn XP. <b>Your first answer is final</b> —
+    think it through and double-check! Green = correct, Red = we'll review it later. Everything saves automatically.</p>
+  <div class="note"><b>Grown-up note:</b> wrong answers stay marked so you can see what to review. The
+    <b>Answer Key</b> at the bottom stays locked until every problem is answered. Scratch paper is encouraged!</div>
+
+  <!-- ============ REVIEW ============ -->
+  <h2><span class="timechip">0–4 min</span> Warm-Up Review 🔁</h2>
+  <div class="q" data-type="num" data-answer="6000" data-sect="review" data-qnum="1"><span class="qtext">1. Round <b>6,481</b> to the nearest <b>1,000</b>.</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="choice" data-answer="&gt;" data-sect="review" data-qnum="2"><span class="qtext">2. Compare: 8,200 &nbsp;___&nbsp; 8,020</span>
+    <div class="choices"><button class="choice" data-val="&lt;">&lt;</button><button class="choice" data-val="&gt;">&gt;</button><button class="choice" data-val="=">=</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="200" data-sect="review" data-qnum="3"><span class="qtext">3. In <b>47,<u>2</u>05</b>, what is the underlined <b>2</b> worth?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="choice" data-answer="300" data-sect="review" data-qnum="4"><span class="qtext">4. <b>10 times</b> as much as <b>30</b> is…</span>
+    <div class="choices"><button class="choice" data-val="40">40</button><button class="choice" data-val="300">300</button><button class="choice" data-val="3">3</button><button class="choice" data-val="3000">3,000</button></div><span class="result"></span></div>
+
+  <!-- ============ TEACH ============ -->
+  <h2><span class="timechip">4–9 min</span> Teach: Line Up &amp; Regroup</h2>
+  <p>To add or subtract, <b>line the numbers up by place value</b> (ones under ones, tens under tens…)
+    and work <b>right to left</b>, one column at a time.</p>
+  <pre>
+ADD — carry when a column is 10 or more:
+   ¹ ¹
+   4 7 8        8+5 = 13 → write 3, carry 1
+ + 3 4 5        7+4+1 = 12 → write 2, carry 1
+ -------        4+3+1 = 8
+ 8 2 3</pre>
+  <pre>
+SUBTRACT — borrow when the top digit is too small:
+   4 ¹0 ¹2      can't do 2−8, borrow: 12−8 = 4
+   5̶ 1̶ 2        0−7 → borrow: 10−7 = 3 ... wait, line up &amp; go slow!
+ - 2 7 8
+ -------
+ 2 3 4</pre>
+  <div class="note"><b>Smart check:</b> before you compute, <b>estimate</b> by rounding each number.
+    512 − 278 ≈ 500 − 300 = 200, so an answer near 200 makes sense. If your real answer is wildly
+    different, you made a regrouping slip — go back and check.</div>
+
+  <!-- ============ ADD ============ -->
+  <h2><span class="timechip">9–15 min</span> Addition ➕</h2>
+  <h3>Warm up the carrying</h3>
+  <div class="q" data-type="num" data-answer="85" data-sect="add" data-qnum="5"><span class="qtext">5. 47 + 38 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="183" data-sect="add" data-qnum="6"><span class="qtext">6. 156 + 27 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="423" data-sect="add" data-qnum="7"><span class="qtext">7. 245 + 178 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="405" data-sect="add" data-qnum="8"><span class="qtext">8. 309 + 96 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="1023" data-sect="add" data-qnum="9"><span class="qtext">9. 678 + 345 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <h3>Now the big ones</h3>
+  <div class="q" data-type="num" data-answer="4650" data-sect="add" data-qnum="10"><span class="qtext">10. 1,250 + 3,400 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="7031" data-sect="add" data-qnum="11"><span class="qtext">11. 4,875 + 2,156 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="21150" data-sect="add" data-qnum="12"><span class="qtext">12. 12,400 + 8,750 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="41103" data-sect="add" data-qnum="13"><span class="qtext">13. 23,608 + 17,495 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="232100" data-sect="add" data-qnum="14"><span class="qtext">14. 145,200 + 86,900 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <!-- ============ SUBTRACT ============ -->
+  <h2><span class="timechip">15–21 min</span> Subtraction ➖</h2>
+  <h3>Warm up the borrowing</h3>
+  <div class="q" data-type="num" data-answer="36" data-sect="sub" data-qnum="15"><span class="qtext">15. 83 − 47 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="136" data-sect="sub" data-qnum="16"><span class="qtext">16. 200 − 64 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="234" data-sect="sub" data-qnum="17"><span class="qtext">17. 512 − 278 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="625" data-sect="sub" data-qnum="18"><span class="qtext">18. 1,000 − 375 = <span class="hint">(borrowing across zeros!)</span></span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="2528" data-sect="sub" data-qnum="19"><span class="qtext">19. 4,203 − 1,675 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <h3>Now the big ones</h3>
+  <div class="q" data-type="num" data-answer="3250" data-sect="sub" data-qnum="20"><span class="qtext">20. 5,600 − 2,350 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="7250" data-sect="sub" data-qnum="21"><span class="qtext">21. 12,000 − 4,750 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="15746" data-sect="sub" data-qnum="22"><span class="qtext">22. 34,512 − 18,766 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="53415" data-sect="sub" data-qnum="23"><span class="qtext">23. 80,400 − 26,985 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="112400" data-sect="sub" data-qnum="24"><span class="qtext">24. 250,000 − 137,600 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <!-- ============ ESTIMATE ============ -->
+  <h2><span class="timechip">21–25 min</span> Estimate First 🎯 <span class="hint">(rounding + adding)</span></h2>
+  <p class="hint">Round each number first, then add or subtract the rounded numbers.</p>
+  <div class="q" data-type="choice" data-answer="700" data-sect="est" data-qnum="25"><span class="qtext">25. Estimate <b>412 + 289</b> (round each to the nearest 100).</span>
+    <div class="choices"><button class="choice" data-val="600">600</button><button class="choice" data-val="700">700</button><button class="choice" data-val="800">800</button></div><span class="result"></span></div>
+  <div class="q" data-type="choice" data-answer="5000" data-sect="est" data-qnum="26"><span class="qtext">26. Estimate <b>6,800 − 2,100</b> (round each to the nearest 1,000).</span>
+    <div class="choices"><button class="choice" data-val="4000">4,000</button><button class="choice" data-val="5000">5,000</button><button class="choice" data-val="9000">9,000</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="900" data-sect="est" data-qnum="27"><span class="qtext">27. Round each to the nearest 100, then add: <b>540 + 380</b> ≈</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="6000" data-sect="est" data-qnum="28"><span class="qtext">28. Round each to the nearest 1,000, then subtract: <b>8,700 − 3,200</b> ≈</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <!-- ============ WORD ============ -->
+  <h2><span class="timechip">25–28 min</span> Word Problems 📖</h2>
+  <div class="q" data-type="num" data-answer="15725" data-sect="word" data-qnum="29"><span class="qtext">29. A library had <b>12,450</b> books and added <b>3,275</b> more. How many books now?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="16350" data-sect="word" data-qnum="30"><span class="qtext">30. A stadium seats <b>45,000</b>. <b>28,650</b> tickets were sold. How many seats are empty?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="4190" data-sect="word" data-qnum="31"><span class="qtext">31. Maya saved <b>$1,250</b> over summer and <b>$2,940</b> in the fall. How much total?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="76850" data-sect="word" data-qnum="32"><span class="qtext">32. A town had <b>86,300</b> people; <b>9,450</b> moved away. How many people remain?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <!-- ============ BOSS ============ -->
+  <h2><span class="timechip">28–30 min</span> 👑 Boss Round</h2>
+  <div class="boss">
+    <b>33.</b> 100,000 − 1 = <span class="hint">(borrow all the way across!)</span>
+    <div class="q" data-type="num" data-answer="99999" data-sect="boss" data-qnum="33" style="background:transparent;border:none;padding:8px 0 0;margin:0">
+      <div class="row"><input class="ans" inputmode="numeric" placeholder="answer"><button class="check">Unlock 👑</button></div><span class="result"></span></div>
+  </div>
+  <div class="boss">
+    <b>34.</b> 47,805 + 36,597 =
+    <div class="q" data-type="num" data-answer="84402" data-sect="boss" data-qnum="34" style="background:transparent;border:none;padding:8px 0 0;margin:0">
+      <div class="row"><input class="ans" inputmode="numeric" placeholder="answer"><button class="check">Unlock 👑</button></div><span class="result"></span></div>
+  </div>
+  <p><b>Then say it out loud:</b> "How does estimating first help me check my answer?"</p>
+
+  <!-- ============ STRETCH ============ -->
+  <h2>✨ Stretch &amp; Number Riddles <span style="font-weight:400;font-size:14px;color:var(--muted)">(extra XP)</span></h2>
+  <div class="q" data-type="num" data-answer="35" data-sect="stretch" data-qnum="S1"><span class="qtext">S1. Missing number: 25 + ___ = 60</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="500" data-sect="stretch" data-qnum="S2"><span class="qtext">S2. Missing number: ___ − 150 = 350</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="800" data-sect="stretch" data-qnum="S3"><span class="qtext">S3. I think of a number, add 400, and get 1,200. What was my number?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="10000" data-sect="stretch" data-qnum="S4"><span class="qtext">S4. A number minus 2,500 equals 7,500. What is the number?</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="750000" data-sect="stretch" data-qnum="S5"><span class="qtext">S5. 1,000,000 − 250,000 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="19998" data-sect="stretch" data-qnum="S6"><span class="qtext">S6. 9,999 + 9,999 =</span>
+    <div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <div style="text-align:center; margin:30px 0 6px;">
+    <span class="pill" id="finish" style="display:none"></span>
+  </div>
+
+  <div class="akeybox">
+    <b>🔑 Answer Key — for grown-ups</b>
+    <p class="hint" style="margin:6px 0 10px">Stays locked until every problem is answered, then shows the
+      correct answer next to what he put.</p>
+    <button class="akeybtn" id="akeyBtn" disabled>Reveal Answer Key</button>
+    <div id="akeyMsg"></div>
+    <div id="akeyOut"></div>
+  </div>
+
+  <div style="text-align:center; margin-top:14px;">
+    <button class="resetbtn" id="reset">↺ Start over (clear all answers)</button>
+  </div>
+
+  <hr>
+  <p class="hint">Next up → Lesson 5: Multiplication (1-digit × big numbers). Just ask a grown-up to make it interactive!</p>
+</div>
+
+<script>
+(function(){
+  var KEY = "mathL4_v1";
+  var qs = Array.prototype.slice.call(document.querySelectorAll(".q"));
+  document.getElementById("total").textContent = qs.length;
+
+  var store = {ans:{}, xp:0, streak:0, best:0};
+  try { var raw = JSON.parse(localStorage.getItem(KEY)||"null"); if(raw) store = raw; } catch(e){}
+  if(!store.ans) store.ans = {};
+
+  function norm(s){ return (s||"").toString().trim().toLowerCase(); }
+  function digits(s){ return norm(s).replace(/[^0-9]/g,""); }
+  function txt(s){ return norm(s).replace(/[^a-z0-9]/g,""); }
+  function isRight(val, ans, type){
+    if(type==="num")    return digits(val)!=="" && digits(val)===digits(ans);
+    if(type==="text")   return txt(val)!=="" && txt(val)===txt(ans);
+    if(type==="choice") return norm(val)!=="" && norm(val)===norm(ans);
+    return false;
+  }
+  function commas(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,","); }
+
+  function badgesEarned(){
+    var ok={}, tot={};
+    qs.forEach(function(q,i){ var s=q.getAttribute("data-sect"); if(!s) return;
+      tot[s]=(tot[s]||0)+1; if(store.ans[i] && store.ans[i].ok) ok[s]=(ok[s]||0)+1; });
+    var done={};
+    ["review","add","sub","est","word","boss"].forEach(function(s){ if(tot[s] && ok[s]===tot[s]) done[s]=true; });
+    return done;
+  }
+  function counts(){ var ans=0, ok=0; qs.forEach(function(q,i){ if(store.ans[i]!==undefined){ ans++; if(store.ans[i].ok) ok++; } }); return {ans:ans, ok:ok}; }
+  function updateHUD(){
+    var c=counts();
+    document.getElementById("answered").textContent=c.ans;
+    document.getElementById("solved").textContent=c.ok;
+    document.getElementById("xp").textContent=store.xp;
+    document.getElementById("streak").textContent=store.streak;
+    document.getElementById("lvl").textContent=Math.floor(store.xp/50)+1;
+    document.getElementById("xpfill").style.width=((store.xp%50)/50*100)+"%";
+    var earned=badgesEarned();
+    Array.prototype.forEach.call(document.querySelectorAll(".badge"),function(b){
+      var k=b.getAttribute("data-badge");
+      if(k==="champ"){ (c.ok===qs.length)?b.classList.add("on"):b.classList.remove("on"); }
+      else earned[k]?b.classList.add("on"):b.classList.remove("on");
+    });
+    var allDone=(c.ans===qs.length), fin=document.getElementById("finish");
+    if(allDone){ fin.style.display="inline-block"; fin.textContent=(c.ok===qs.length)?"🏆 CHAMPION! Perfect score!":("🎉 Lesson complete! Score "+c.ok+"/"+qs.length); }
+    else fin.style.display="none";
+    var btn=document.getElementById("akeyBtn"), msg=document.getElementById("akeyMsg");
+    if(allDone){ btn.disabled=false; msg.textContent="All done — tap to reveal the answers."; }
+    else { btn.disabled=true; msg.textContent=(qs.length-c.ans)+" problem(s) left before the key unlocks."; }
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+
+  qs.forEach(function(q,i){
+    var type=q.getAttribute("data-type"), ans=q.getAttribute("data-answer");
+    var result=q.querySelector(".result"), input=q.querySelector(".ans"), btn=q.querySelector(".check");
+    var choiceWrap=q.querySelector(".choices");
+    var choices=Array.prototype.slice.call(q.querySelectorAll(".choice"));
+
+    function lock(){ if(input) input.disabled=true; if(btn) btn.disabled=true; if(choiceWrap) choiceWrap.classList.add("lock"); }
+    function commit(hisDisp, ok){
+      if(store.ans[i]!==undefined) return;
+      store.ans[i]={a:hisDisp, ok:ok};
+      q.classList.add(ok?"right":"wrong");
+      result.className="result "+(ok?"ok":"no");
+      result.textContent=ok?"✓ Correct! +XP":"✗ Marked wrong — we'll review this one.";
+      if(ok){ store.xp+=12; store.streak+=1; if(store.streak>store.best) store.best=store.streak; } else store.streak=0;
+      lock(); save(); updateHUD();
+    }
+
+    var saved=store.ans[i];
+    if(saved!==undefined){
+      q.classList.add(saved.ok?"right":"wrong");
+      result.className="result "+(saved.ok?"ok":"no");
+      result.textContent=saved.ok?"✓ Correct!":"✗ Marked wrong — review this one.";
+      if(type==="choice"){ choices.forEach(function(c){ if(c.getAttribute("data-val")===saved.raw) c.classList.add("sel"); }); }
+      if(input && saved.raw!==undefined) input.value=saved.raw;
+      lock();
+    }
+
+    if(type==="choice"){
+      choices.forEach(function(c){ c.addEventListener("click",function(){
+        if(store.ans[i]!==undefined) return;
+        choices.forEach(function(x){ x.classList.remove("sel"); }); c.classList.add("sel");
+        var val=c.getAttribute("data-val");
+        commit(c.textContent.trim(), isRight(val,ans,type));
+        store.ans[i].raw=val; save();
+      }); });
+    } else {
+      btn.addEventListener("click",function(){ if(store.ans[i]!==undefined) return; var v=input.value; commit(v===""?"(blank)":v, isRight(v,ans,type)); store.ans[i].raw=v; save(); });
+      if(input) input.addEventListener("keydown",function(e){ if(e.key==="Enter"&&btn&&!btn.disabled) btn.click(); });
+    }
+  });
+
+  function correctDisp(q,type,ans){
+    if(type==="num") return commas(parseInt(ans,10));
+    if(type==="choice") return /^[0-9]+$/.test(ans)?commas(parseInt(ans,10)):ans;
+    return ans;
+  }
+  document.getElementById("akeyBtn").addEventListener("click",function(){
+    var c=counts(); if(c.ans!==qs.length) return;
+    var rows="";
+    qs.forEach(function(q,i){
+      var type=q.getAttribute("data-type"), ans=q.getAttribute("data-answer");
+      var num=q.getAttribute("data-qnum")||(i+1);
+      var s=store.ans[i]||{a:"(blank)",ok:false};
+      rows+='<tr class="'+(s.ok?"good":"bad")+'"><td><b>'+num+'</b></td><td>'+(s.a||"(blank)")+'</td><td>'+correctDisp(q,type,ans)+'</td><td class="mark '+(s.ok?"ok":"no")+'">'+(s.ok?"✓":"✗")+'</td></tr>';
+    });
+    document.getElementById("akeyOut").innerHTML='<p style="font-weight:800;margin:12px 0 4px">Score: '+c.ok+' / '+qs.length+'  ·  Best streak 🔥 '+store.best+'</p><table class="akey"><tr><th>#</th><th>His answer</th><th>Correct answer</th><th></th></tr>'+rows+'</table>';
+    this.style.display="none";
+  });
+
+  document.getElementById("reset").addEventListener("click",function(){
+    if(!confirm("Clear all answers, XP, and badges and start over?")) return;
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    location.reload();
+  });
+
+  updateHUD();
+})();
+</script>
+</body>
+</html>
