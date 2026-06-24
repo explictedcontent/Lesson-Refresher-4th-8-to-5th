@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lesson 1: Place Value — Interactive Math Lab</title>
+<style>
+  :root{
+    --ink:#1f2933; --muted:#5b6770; --line:#e2e8f0; --bg:#eef2f7;
+    --blue:#2563eb; --blue-bg:#eff6ff; --green:#16a34a; --green-bg:#dcfce7;
+    --red:#dc2626; --red-bg:#fef2f2; --amber:#b45309; --amber-bg:#fffbeb;
+    --purple:#7c3aed; --purple-bg:#f5f3ff; --pink:#db2777;
+    --th:#7c3aed; --tt:#2563eb; --t:#0891b2; --h:#16a34a; --te:#b45309; --o:#db2777;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.55; background:var(--bg); padding:14px;
+    font-size:17px; -webkit-text-size-adjust:100%;
+  }
+  .page{max-width:780px; margin:0 auto; background:#fff; padding:20px 18px 44px;
+    border-radius:18px; box-shadow:0 2px 14px rgba(0,0,0,.08);}
+  h1{font-size:25px; margin:0 0 4px; line-height:1.2;}
+  h2{font-size:20px; margin:30px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line);}
+  h3{font-size:17px; margin:20px 0 6px;}
+  .sub{color:var(--muted); font-size:15px; margin:0 0 2px;}
+  .timechip{display:inline-block; background:var(--blue-bg); color:var(--blue);
+    font-weight:700; font-size:13px; padding:3px 11px; border-radius:999px; margin-right:8px;}
+  .hint{font-size:13px; color:var(--muted);}
+
+  /* ===== game header ===== */
+  .hud{position:sticky; top:0; z-index:9; background:#fff; border:2px solid var(--line);
+    border-radius:16px; padding:10px 12px; margin:0 0 16px; box-shadow:0 2px 10px rgba(0,0,0,.06);}
+  .hudtop{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .lvl{background:var(--purple); color:#fff; font-weight:800; font-size:13px; padding:5px 11px;
+    border-radius:999px; white-space:nowrap;}
+  .xpwrap{flex:1; min-width:120px;}
+  .xpbar{height:14px; background:var(--line); border-radius:999px; overflow:hidden;}
+  .xpbar>span{display:block; height:100%; width:0;
+    background:linear-gradient(90deg,#22c55e,#16a34a); transition:width .4s;}
+  .xptxt{font-size:11px; color:var(--muted); margin-top:2px;}
+  .streak{background:var(--amber-bg); color:var(--amber); font-weight:800; font-size:13px;
+    padding:5px 10px; border-radius:999px; white-space:nowrap;}
+  .badges{display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;}
+  .badge{font-size:19px; width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+    border-radius:9px; background:var(--line); filter:grayscale(1); opacity:.45; transition:.3s;}
+  .badge.on{filter:none; opacity:1; background:var(--green-bg); transform:scale(1.08);}
+
+  pre{background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:10px;
+    overflow:auto; font-size:12.5px; line-height:1.5; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .note{background:var(--amber-bg); border-left:4px solid var(--amber); color:#7c4a06;
+    padding:9px 13px; border-radius:0 8px 8px 0; margin:12px 0; font-size:14px;}
+  .note b{color:var(--amber);}
+
+  /* ===== question card ===== */
+  .q{border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:12px 0; background:#fff;}
+  .q.right{background:var(--green-bg); border-color:#86efac;}
+  .q.wrong{background:var(--red-bg); border-color:#fca5a5;}
+  .qtext{font-weight:600; display:block; margin-bottom:9px;}
+  .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  input.ans{flex:1; min-width:120px; font-size:18px; padding:11px 13px; border:2px solid var(--line);
+    border-radius:10px; outline:none; background:#fff; color:var(--ink);}
+  input.ans:focus{border-color:var(--blue);}
+  input.ans:disabled{opacity:1; -webkit-text-fill-color:var(--ink); color:var(--ink);}
+  .q.wrong input.ans:disabled{border-color:#fca5a5; background:#fff;}
+  button{font-size:16px; font-weight:700; border:none; border-radius:10px; padding:11px 18px;
+    cursor:pointer; touch-action:manipulation;}
+  button:active{transform:translateY(1px);}
+  button:disabled{opacity:.45; cursor:default; transform:none;}
+  .check{background:var(--blue); color:#fff;}
+  .result{font-weight:700; margin-top:8px; display:block; font-size:15px;}
+  .result.ok{color:var(--green);} .result.no{color:var(--red);}
+
+  /* tap-choice */
+  .choices{display:flex; flex-wrap:wrap; gap:8px;}
+  .choice{background:#fff; border:2px solid var(--line); color:var(--ink); font-weight:700;
+    padding:11px 16px; border-radius:10px; min-width:56px;}
+  .choice.sel{border-color:var(--blue); background:var(--blue-bg); color:var(--blue);}
+  .q.right .choice.sel{border-color:var(--green); background:var(--green-bg); color:var(--green);}
+  .q.wrong .choice.sel{border-color:var(--red); background:var(--red-bg); color:var(--red);}
+  .choices.lock .choice{opacity:.5;} .choices.lock .choice.sel{opacity:1;}
+
+  /* tap-the-digit number */
+  .pvnum{display:flex; gap:4px; flex-wrap:wrap; margin:4px 0 2px; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .dg{font-size:30px; font-weight:800; width:42px; height:54px; display:flex; align-items:center;
+    justify-content:center; border:2px solid var(--line); border-radius:10px; background:#fff; line-height:1;}
+  .dg.comma{border:none; width:14px; background:transparent; color:var(--muted);}
+  .dg.pick{cursor:pointer;}
+  .dg.pick:active{transform:translateY(1px);}
+  .dg.sel{border-color:var(--blue); background:var(--blue-bg); color:var(--blue);}
+  .q.right .dg.sel{border-color:var(--green); background:var(--green-bg); color:var(--green);}
+  .q.wrong .dg.sel{border-color:var(--red); background:var(--red-bg); color:var(--red);}
+  .pvnum.lock .dg.pick{cursor:default; opacity:.55;} .pvnum.lock .dg.sel{opacity:1;}
+
+  /* place-value color key */
+  .pc-th{color:var(--th);} .pc-tt{color:var(--tt);} .pc-t{color:var(--t);}
+  .pc-h{color:var(--h);} .pc-te{color:var(--te);} .pc-o{color:var(--o);}
+
+  /* ===== build-a-number machine ===== */
+  .machine{border:2px solid var(--purple); background:var(--purple-bg); border-radius:14px;
+    padding:14px 12px; margin:14px 0; position:sticky; top:96px; z-index:4;}
+  .steppers{display:flex; gap:6px; justify-content:center; flex-wrap:wrap;}
+  .stp{display:flex; flex-direction:column; align-items:center; gap:5px; min-width:54px;}
+  .stp .plbl{font-size:10px; font-weight:800; text-align:center; line-height:1.1; height:24px;
+    display:flex; align-items:center;}
+  .stp .digit{font-size:30px; font-weight:800; width:46px; height:52px; display:flex;
+    align-items:center; justify-content:center; background:#fff; border:2px solid #ddd6fe; border-radius:10px;}
+  .stp button{font-size:18px; padding:4px 0; width:46px; background:#fff; border:2px solid #ddd6fe; color:var(--purple);}
+  .readout{margin-top:14px; text-align:center;}
+  .rStd{font-size:34px; font-weight:800; letter-spacing:1px; word-break:break-word;}
+  .rline{font-size:14px; margin-top:6px; color:var(--ink);}
+  .rline b{color:var(--purple);}
+  .chips{display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:8px;}
+  .chip{font-size:13px; font-weight:800; color:#fff; padding:4px 10px; border-radius:999px;}
+
+  /* x10 explorer */
+  .x10{border:2px solid var(--blue); background:var(--blue-bg); border-radius:14px; padding:14px;
+    margin:14px 0; text-align:center;}
+  .x10 .big{font-size:40px; font-weight:800; letter-spacing:1px; margin:6px 0; color:var(--blue);}
+  .x10 .ops{display:flex; gap:10px; justify-content:center;}
+  .x10 .ops button{font-size:17px; padding:11px 18px;}
+  .opx{background:var(--green); color:#fff;} .opd{background:var(--amber); color:#fff;}
+  .x10 .msg{font-size:13px; color:var(--muted); margin-top:8px; min-height:18px;}
+
+  .pill{display:inline-block; background:var(--green); color:#fff; font-size:14px;
+    font-weight:800; padding:6px 18px; border-radius:999px;}
+  .boss{background:linear-gradient(135deg,#fdf2f8,#f5f3ff); border:2px solid var(--pink);
+    border-radius:14px; padding:14px 16px; margin:16px 0;}
+  .resetbtn{background:#fff; border:2px solid var(--line); color:var(--muted); font-size:13px;
+    padding:8px 12px; border-radius:10px;}
+  ol{padding-left:22px;} ol li{margin:5px 0;}
+  hr{border:none; border-top:1px solid var(--line); margin:26px 0;}
+
+  /* ===== answer key (grown-ups) ===== */
+  .akeybox{border:2px dashed var(--muted); border-radius:14px; padding:14px 16px; margin:18px 0; background:#fafbfc;}
+  .akeybtn{background:var(--ink); color:#fff; font-size:15px; padding:12px 18px; border-radius:10px;}
+  .akeybtn:disabled{opacity:.4;}
+  #akeyMsg{font-size:13px; color:var(--muted); margin-top:8px;}
+  table.akey{border-collapse:collapse; width:100%; margin-top:12px; font-size:14px;}
+  table.akey th, table.akey td{border:1px solid var(--line); padding:7px 9px; text-align:left;}
+  table.akey th{background:#f1f5f9;}
+  table.akey tr.bad{background:var(--red-bg);}
+  table.akey tr.good{background:var(--green-bg);}
+  .mark{font-weight:800;} .mark.ok{color:var(--green);} .mark.no{color:var(--red);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hud">
+    <div class="hudtop">
+      <span class="lvl">⚡ Lv <span id="lvl">1</span></span>
+      <div class="xpwrap">
+        <div class="xpbar"><span id="xpfill"></span></div>
+        <div class="xptxt"><span id="answered">0</span>/<span id="total">0</span> answered ·
+          <span id="solved">0</span> ✓ · <span id="xp">0</span> XP</div>
+      </div>
+      <span class="streak">🔥 <span id="streak">0</span></span>
+    </div>
+    <div class="badges" id="badges">
+      <div class="badge" data-badge="warm" title="Warm-Up">🔥</div>
+      <div class="badge" data-badge="explore" title="Digit Detective">🔎</div>
+      <div class="badge" data-badge="build" title="Number Builder">🏗️</div>
+      <div class="badge" data-badge="power" title="×10 Power">⚡</div>
+      <div class="badge" data-badge="practice" title="Practice Pro">🎯</div>
+      <div class="badge" data-badge="boss" title="Boss Beaten">👑</div>
+      <div class="badge" data-badge="champ" title="Champion">🏆</div>
+    </div>
+  </div>
+
+  <h1>Lesson 1 — Place Value: Math Lab 🔢</h1>
+  <p class="sub"><b>Summer Math · Going into 5th Grade</b> · about 30 minutes</p>
+  <p class="hint"><b>How to play:</b> answer each problem to earn XP. <b>Your first answer is final</b> —
+    so think it through! Green = correct, Red = we'll review it later. Get a streak 🔥 by stacking
+    correct answers. Everything saves on this tablet automatically.</p>
+  <div class="note"><b>Grown-up note:</b> wrong answers stay marked so you can see exactly what to
+    review. The <b>Answer Key</b> stays locked at the bottom until every problem is answered.</div>
+
+  <!-- ================= WARM-UP ================= -->
+  <h2><span class="timechip">0–4 min</span> Warm-Up: Tap the Digit</h2>
+  <p class="hint">No typing here — just <b>tap the right box.</b> Each place is a different color.</p>
+
+  <div class="q" data-type="tapdigit" data-answer="tens" data-correct="4 — tens place" data-sect="warm" data-qnum="1">
+    <span class="qtext">1. In the number below, tap the digit in the <b class="pc-t">TENS</b> place.</span>
+    <div class="pvnum"><span class="dg pick" data-place="tens">4</span><span class="dg pick" data-place="ones">7</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="hundreds" data-correct="2 — hundreds place" data-sect="warm" data-qnum="2">
+    <span class="qtext">2. Tap the digit in the <b class="pc-h">HUNDREDS</b> place.</span>
+    <div class="pvnum"><span class="dg pick" data-place="hundreds">2</span><span class="dg pick" data-place="tens">8</span><span class="dg pick" data-place="ones">3</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="thousands" data-correct="6 — thousands place" data-sect="warm" data-qnum="3">
+    <span class="qtext">3. Tap the digit that is worth <b>6,000</b> (the <b class="pc-th">THOUSANDS</b> place).</span>
+    <div class="pvnum"><span class="dg pick" data-place="thousands">6</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">1</span><span class="dg pick" data-place="tens">5</span><span class="dg pick" data-place="ones">0</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="ones" data-correct="2 — ones place" data-sect="warm" data-qnum="4">
+    <span class="qtext">4. Tap the digit in the <b class="pc-o">ONES</b> place (worth 2).</span>
+    <div class="pvnum"><span class="dg pick" data-place="thousands">5</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">3</span><span class="dg pick" data-place="tens">8</span><span class="dg pick" data-place="ones">2</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="tens" data-correct="4 — tens place" data-sect="warm" data-qnum="5">
+    <span class="qtext">5. In <b>9,640</b>, tap the digit worth <b>40</b>.</span>
+    <div class="pvnum"><span class="dg pick" data-place="thousands">9</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">6</span><span class="dg pick" data-place="tens">4</span><span class="dg pick" data-place="ones">0</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="hundreds" data-correct="2 — hundreds place" data-sect="warm" data-qnum="6">
+    <span class="qtext">6. In <b>7,209</b>, tap the digit worth <b>200</b>.</span>
+    <div class="pvnum"><span class="dg pick" data-place="thousands">7</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">2</span><span class="dg pick" data-place="tens">0</span><span class="dg pick" data-place="ones">9</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="note"><b>Say it out loud too:</b> read <b>309</b> ("three hundred nine") and
+    <b>1,250</b> ("one thousand, two hundred fifty"). No typing — just say them to your grown-up.</div>
+
+  <!-- ================= TEACH ================= -->
+  <h2><span class="timechip">4–9 min</span> Teach: How Place Value Works</h2>
+  <p>Every digit has <b>two things</b>: the digit itself, and the <b>place</b> it sits in. The place
+    tells you what it's <i>worth</i>. Each place to the <b>left</b> is <b>10× bigger</b> than the one to its right.</p>
+<pre>
+Millions | Hund-Thous | Ten-Thous | Thousands | Hundreds | Tens | Ones
+1,000,000   100,000     10,000      1,000        100      10      1
+</pre>
+  <p>We split big numbers into <b>periods</b> of three, separated by commas:
+    <b>3,205,070</b> reads <b>"three million, two hundred five thousand, seventy."</b>
+    Read to a comma, say "million," read to the next comma, say "thousand," then the rest.</p>
+
+  <h3>🔎 Digit Detective — tap the right digit</h3>
+  <p class="hint">Color key: <b class="pc-th">thousands</b> · <b class="pc-h">hundreds</b> ·
+    <b class="pc-t">tens</b> · <b class="pc-o">ones</b>.</p>
+
+  <div class="q" data-type="tapdigit" data-answer="hundreds" data-correct="4 — hundreds place" data-sect="explore" data-qnum="7">
+    <span class="qtext">7. In <b>6,482</b>, tap the digit worth <b>400</b>.</span>
+    <div class="pvnum"><span class="dg pick" data-place="thousands">6</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">4</span><span class="dg pick" data-place="tens">8</span><span class="dg pick" data-place="ones">2</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="tenthous" data-correct="5 — ten-thousands place" data-sect="explore" data-qnum="8">
+    <span class="qtext">8. In <b>53,209</b>, tap the digit in the <b>ten-thousands</b> place (worth 50,000).</span>
+    <div class="pvnum"><span class="dg pick" data-place="tenthous">5</span><span class="dg pick" data-place="thousands">3</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">2</span><span class="dg pick" data-place="tens">0</span><span class="dg pick" data-place="ones">9</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="tenthous" data-correct="7 — ten-thousands place" data-sect="explore" data-qnum="9">
+    <span class="qtext">9. In <b>470,061</b>, tap the digit worth <b>70,000</b>.</span>
+    <div class="pvnum"><span class="dg pick" data-place="hundthous">4</span><span class="dg pick" data-place="tenthous">7</span><span class="dg pick" data-place="thousands">0</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">0</span><span class="dg pick" data-place="tens">6</span><span class="dg pick" data-place="ones">1</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="thousands" data-correct="8 — thousands place" data-sect="explore" data-qnum="10">
+    <span class="qtext">10. In <b>8,305</b>, tap the digit worth <b>8,000</b>.</span>
+    <div class="pvnum"><span class="dg pick" data-place="thousands">8</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">3</span><span class="dg pick" data-place="tens">0</span><span class="dg pick" data-place="ones">5</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="hundthous" data-correct="1 — hundred-thousands place" data-sect="explore" data-qnum="11">
+    <span class="qtext">11. In <b>124,560</b>, tap the digit in the <b>hundred-thousands</b> place (worth 100,000).</span>
+    <div class="pvnum"><span class="dg pick" data-place="hundthous">1</span><span class="dg pick" data-place="tenthous">2</span><span class="dg pick" data-place="thousands">4</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">5</span><span class="dg pick" data-place="tens">6</span><span class="dg pick" data-place="ones">0</span></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="tapdigit" data-answer="hundreds" data-correct="7 — hundreds place" data-sect="explore" data-qnum="12">
+    <span class="qtext">12. In <b>60,738</b>, tap the digit worth <b>700</b>.</span>
+    <div class="pvnum"><span class="dg pick" data-place="tenthous">6</span><span class="dg pick" data-place="thousands">0</span><span class="dg comma">,</span><span class="dg pick" data-place="hundreds">7</span><span class="dg pick" data-place="tens">3</span><span class="dg pick" data-place="ones">8</span></div>
+    <span class="result"></span>
+  </div>
+
+  <!-- ================= BUILD MACHINE ================= -->
+  <h2><span class="timechip">9–16 min</span> Build-a-Number Machine 🏗️</h2>
+  <p>Tap <b>+</b> and <b>−</b> to change each place. Watch the number, the <b>expanded form</b>,
+    and the <b>words</b> change live. Build each target, then tap Check (your Check is final!).</p>
+
+  <div class="machine">
+    <div class="steppers" id="steppers"></div>
+    <div class="readout">
+      <div class="rStd" id="mStd">0</div>
+      <div class="rline">Expanded: <b id="mExp">0</b></div>
+      <div class="rline">In words: <b id="mWords">zero</b></div>
+      <div class="chips" id="mChips"></div>
+    </div>
+  </div>
+
+  <div class="q" data-type="build" data-answer="24053" data-sect="build" data-qnum="13">
+    <span class="qtext">13. Build <b>24,053</b>, then tap Check.</span>
+    <div class="row"><button class="check">Check the machine</button></div><span class="result"></span>
+  </div>
+  <div class="q" data-type="build" data-answer="30609" data-sect="build" data-qnum="14">
+    <span class="qtext">14. Build the number with <b>3 ten-thousands, 6 hundreds, and 9 ones</b>
+      (every other place is 0).</span>
+    <div class="row"><button class="check">Check the machine</button></div><span class="result"></span>
+  </div>
+  <div class="q" data-type="build" data-answer="305040" data-sect="build" data-qnum="15">
+    <span class="qtext">15. Build <b>"three hundred five thousand, forty."</b> Watch those zeros!</span>
+    <div class="row"><button class="check">Check the machine</button></div><span class="result"></span>
+  </div>
+  <div class="q" data-type="build" data-answer="8002" data-sect="build" data-qnum="16">
+    <span class="qtext">16. Build <b>"eight thousand two."</b> (Mind the empty places!)</span>
+    <div class="row"><button class="check">Check the machine</button></div><span class="result"></span>
+  </div>
+  <div class="q" data-type="build" data-answer="70400" data-sect="build" data-qnum="17">
+    <span class="qtext">17. Build <b>"seventy thousand, four hundred."</b></span>
+    <div class="row"><button class="check">Check the machine</button></div><span class="result"></span>
+  </div>
+  <div class="q" data-type="build" data-answer="600050" data-sect="build" data-qnum="18">
+    <span class="qtext">18. Build <b>"six hundred thousand, fifty."</b></span>
+    <div class="row"><button class="check">Check the machine</button></div><span class="result"></span>
+  </div>
+  <div class="q" data-type="build" data-answer="19000" data-sect="build" data-qnum="19">
+    <span class="qtext">19. Build <b>19,000</b> ("nineteen thousand").</span>
+    <div class="row"><button class="check">Check the machine</button></div><span class="result"></span>
+  </div>
+
+  <!-- ================= x10 POWER ================= -->
+  <h2><span class="timechip">16–22 min</span> ×10 / ÷10 Power ⚡ <span class="hint">(big 5th-grade idea)</span></h2>
+  <p>Moving one place to the <b>left</b> makes a digit worth <b>10 times</b> as much. Moving one place
+    to the <b>right</b> makes it <b>one-tenth</b> (÷10) as much. Try it, then answer:</p>
+
+  <div class="x10">
+    <div class="big" id="x10val">7</div>
+    <div class="ops">
+      <button class="opx" id="x10mul">× 10</button>
+      <button class="opd" id="x10div">÷ 10</button>
+    </div>
+    <div class="msg" id="x10msg">Watch the digit slide into a bigger place!</div>
+  </div>
+
+  <div class="q" data-type="choice" data-answer="800" data-sect="power" data-qnum="20">
+    <span class="qtext">20. <b>10 times</b> as much as <b>80</b> is…</span>
+    <div class="choices"><button class="choice" data-val="90">90</button><button class="choice" data-val="800">800</button><button class="choice" data-val="8">8</button><button class="choice" data-val="8000">8,000</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="choice" data-answer="60" data-sect="power" data-qnum="21">
+    <span class="qtext">21. <b>One-tenth</b> (÷10) of <b>600</b> is…</span>
+    <div class="choices"><button class="choice" data-val="6">6</button><button class="choice" data-val="60">60</button><button class="choice" data-val="6000">6,000</button><button class="choice" data-val="590">590</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="choice" data-answer="10" data-sect="power" data-qnum="22">
+    <span class="qtext">22. In <b>4,400</b>, the <b>first 4</b> is worth how many <b>times</b> as much as the <b>second 4</b>?</span>
+    <div class="choices"><button class="choice" data-val="2">2</button><button class="choice" data-val="10">10</button><button class="choice" data-val="100">100</button><button class="choice" data-val="1000">1,000</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="choice" data-answer="7000" data-sect="power" data-qnum="23">
+    <span class="qtext">23. <b>10 times</b> as much as <b>700</b> is…</span>
+    <div class="choices"><button class="choice" data-val="70">70</button><button class="choice" data-val="710">710</button><button class="choice" data-val="7000">7,000</button><button class="choice" data-val="70000">70,000</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="choice" data-answer="3" data-sect="power" data-qnum="24">
+    <span class="qtext">24. <b>One-tenth</b> (÷10) of <b>30</b> is…</span>
+    <div class="choices"><button class="choice" data-val="3">3</button><button class="choice" data-val="300">300</button><button class="choice" data-val="20">20</button><button class="choice" data-val="33">33</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="choice" data-answer="50" data-sect="power" data-qnum="25">
+    <span class="qtext">25. <b>10 times</b> as much as <b>5</b> is…</span>
+    <div class="choices"><button class="choice" data-val="15">15</button><button class="choice" data-val="50">50</button><button class="choice" data-val="500">500</button><button class="choice" data-val="55">55</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="choice" data-answer="10" data-sect="power" data-qnum="26">
+    <span class="qtext">26. In <b>8,800</b>, the 8 in the <b>thousands</b> place is worth how many <b>times</b> the 8 in the <b>hundreds</b> place?</span>
+    <div class="choices"><button class="choice" data-val="2">2</button><button class="choice" data-val="10">10</button><button class="choice" data-val="100">100</button><button class="choice" data-val="8">8</button></div>
+    <span class="result"></span>
+  </div>
+  <div class="q" data-type="choice" data-answer="900" data-sect="power" data-qnum="27">
+    <span class="qtext">27. <b>One-tenth</b> (÷10) of <b>9,000</b> is…</span>
+    <div class="choices"><button class="choice" data-val="90">90</button><button class="choice" data-val="900">900</button><button class="choice" data-val="9000">9,000</button><button class="choice" data-val="9">9</button></div>
+    <span class="result"></span>
+  </div>
+
+  <!-- ================= PRACTICE ================= -->
+  <h2><span class="timechip">22–28 min</span> Practice 🎯</h2>
+
+  <h3>A) What is the <b>bold</b> digit worth?</h3>
+  <div class="q" data-type="num" data-answer="8" data-sect="practice" data-qnum="28"><span class="qtext">28. 5<b>8</b></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="300" data-sect="practice" data-qnum="29"><span class="qtext">29. <b>3</b>46</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="200" data-sect="practice" data-qnum="30"><span class="qtext">30. 7,<b>2</b>05</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="90000" data-sect="practice" data-qnum="31"><span class="qtext">31. <b>9</b>1,400</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="60000" data-sect="practice" data-qnum="32"><span class="qtext">32. 4<b>6</b>8,003</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="700000" data-sect="practice" data-qnum="33"><span class="qtext">33. 3,<b>7</b>50,000 <span class="hint">(millions!)</span></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="2000" data-sect="practice" data-qnum="34"><span class="qtext">34. 6<b>2</b>,005</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="50000" data-sect="practice" data-qnum="35"><span class="qtext">35. <b>5</b>3,720</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="90000" data-sect="practice" data-qnum="36"><span class="qtext">36. 1<b>9</b>4,206</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="8000000" data-sect="practice" data-qnum="37"><span class="qtext">37. <b>8</b>,000,000 <span class="hint">(eight million!)</span></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <h3>B) Write each number in <b>expanded form</b></h3>
+  <p class="hint">Type it with plus signs, like <b>400+70+2</b> (spaces are fine).</p>
+  <div class="q" data-type="expanded" data-answer="80+5" data-sect="practice" data-qnum="38"><span class="qtext">38. 85</span><div class="row"><input class="ans" placeholder="e.g. 80+5"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="expanded" data-answer="600+30" data-sect="practice" data-qnum="39"><span class="qtext">39. 630</span><div class="row"><input class="ans" placeholder="e.g. 600+30"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="expanded" data-answer="2000+900+10+4" data-sect="practice" data-qnum="40"><span class="qtext">40. 2,914</span><div class="row"><input class="ans"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="expanded" data-answer="50000+200+6" data-sect="practice" data-qnum="41"><span class="qtext">41. 50,206</span><div class="row"><input class="ans"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="expanded" data-answer="400000+8000+70" data-sect="practice" data-qnum="42"><span class="qtext">42. 408,070</span><div class="row"><input class="ans"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="expanded" data-answer="7000+80+3" data-sect="practice" data-qnum="43"><span class="qtext">43. 7,083</span><div class="row"><input class="ans"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="expanded" data-answer="200000+60000+500" data-sect="practice" data-qnum="44"><span class="qtext">44. 260,500</span><div class="row"><input class="ans"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <h3>C) Write the number from its parts</h3>
+  <div class="q" data-type="num" data-answer="3521" data-sect="practice" data-qnum="45"><span class="qtext">45. 3,000 + 500 + 20 + 1 =</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="64709" data-sect="practice" data-qnum="46"><span class="qtext">46. 60,000 + 4,000 + 700 + 9 =</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="208030" data-sect="practice" data-qnum="47"><span class="qtext">47. 200,000 + 8,000 + 30 = <span class="hint">(empty places get a 0!)</span></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="40605" data-sect="practice" data-qnum="48"><span class="qtext">48. 40,000 + 600 + 5 =</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="590200" data-sect="practice" data-qnum="49"><span class="qtext">49. 500,000 + 90,000 + 200 =</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <h3>D) Read &amp; write</h3>
+  <div class="q" data-type="words" data-answer="one thousand four hundred eight" data-sect="practice" data-qnum="50"><span class="qtext">50. Write <b>1,408</b> in words</span><div class="row"><input class="ans" placeholder="type the words"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="words" data-answer="twenty seven thousand five hundred" data-sect="practice" data-qnum="51"><span class="qtext">51. Write <b>27,500</b> in words</span><div class="row"><input class="ans"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="words" data-answer="six thousand seventy" data-sect="practice" data-qnum="52"><span class="qtext">52. Write <b>6,070</b> in words</span><div class="row"><input class="ans"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="60090" data-sect="practice" data-qnum="53"><span class="qtext">53. Write the number for <b>"sixty thousand, ninety"</b></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="305040" data-sect="practice" data-qnum="54"><span class="qtext">54. Write the number for <b>"three hundred five thousand, forty"</b></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="200015" data-sect="practice" data-qnum="55"><span class="qtext">55. Write the number for <b>"two hundred thousand, fifteen"</b></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <!-- ================= BOSS ================= -->
+  <h2><span class="timechip">28–30 min</span> 👑 Boss: Mystery Numbers</h2>
+  <div class="boss">
+    <b>56. Crack the code.</b> A <b>5-digit number</b> where the <b>ten-thousands</b> digit is <b>8</b>,
+    <b>thousands</b> is <b>0</b>, <b>hundreds</b> is <b>4</b>, <b>tens</b> is <b>0</b>, <b>ones</b> is <b>7</b>.
+    <div class="q" data-type="num" data-answer="80407" data-sect="boss" data-qnum="56" style="background:transparent;border:none;padding:8px 0 0;margin:0">
+      <div class="row"><input class="ans" inputmode="numeric" placeholder="the mystery number"><button class="check">Unlock 👑</button></div><span class="result"></span>
+    </div>
+  </div>
+  <div class="boss">
+    <b>57. Tougher code.</b> A <b>6-digit number</b>: <b>hundred-thousands</b> is <b>3</b>,
+    <b>ten-thousands</b> is <b>0</b>, <b>thousands</b> is <b>9</b>, and <b>hundreds, tens, ones</b> are
+    <b>0, 0, 4</b>.
+    <div class="q" data-type="num" data-answer="309004" data-sect="boss" data-qnum="57" style="background:transparent;border:none;padding:8px 0 0;margin:0">
+      <div class="row"><input class="ans" inputmode="numeric" placeholder="the mystery number"><button class="check">Unlock 👑</button></div><span class="result"></span>
+    </div>
+  </div>
+  <p><b>Then say it out loud:</b> "Tell me one thing you learned about place value today."</p>
+
+  <!-- ================= STRETCH / RIDDLES ================= -->
+  <h2>✨ Stretch &amp; Number Riddles <span style="font-weight:400;font-size:14px;color:var(--muted)">(extra XP)</span></h2>
+  <div class="q" data-type="num" data-answer="999999" data-sect="stretch" data-qnum="S1"><span class="qtext">S1. What is the <b>largest</b> 6-digit number you can make?</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="158" data-sect="stretch" data-qnum="S2"><span class="qtext">S2. Between 100 and 200: tens digit is 5, ones digit is 3 more than the tens. What number?</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="487" data-sect="stretch" data-qnum="S3"><span class="qtext">S3. A 3-digit number: hundreds digit is 4, tens digit is <b>double</b> the hundreds, ones digit is 1 less than the tens. What number?</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="75" data-sect="stretch" data-qnum="S4"><span class="qtext">S4. A 2-digit number: tens digit is 7, ones digit is 2 less than the tens. What number?</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="5050" data-sect="stretch" data-qnum="S5"><span class="qtext">S5. A 4-digit number: thousands digit is 5, hundreds is 0, tens digit equals the thousands digit, ones is 0. What number?</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="975310" data-sect="stretch" data-qnum="S6"><span class="qtext">S6. Use the digits <b>7, 0, 5, 3, 9, 1</b> exactly once each to make the <b>largest</b> 6-digit number.</span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="10479" data-sect="stretch" data-qnum="S7"><span class="qtext">S7. Use the digits <b>4, 0, 7, 1, 9</b> exactly once each to make the <b>smallest</b> 5-digit number. <span class="hint">(can't start with 0!)</span></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+  <div class="q" data-type="num" data-answer="3040002" data-sect="stretch" data-qnum="S8"><span class="qtext">S8. Write the number for <b>"three million, forty thousand, two."</b> <span class="hint">(7 digits!)</span></span><div class="row"><input class="ans" inputmode="numeric"><button class="check">Check</button></div><span class="result"></span></div>
+
+  <div style="text-align:center; margin:30px 0 6px;">
+    <span class="pill" id="finish" style="display:none"></span>
+  </div>
+
+  <!-- ================= ANSWER KEY ================= -->
+  <div class="akeybox">
+    <b>🔑 Answer Key — for grown-ups</b>
+    <p class="hint" style="margin:6px 0 10px">Stays locked until every problem is answered. Then it
+      shows the correct answer next to what he put, so you can review the misses together.</p>
+    <button class="akeybtn" id="akeyBtn" disabled>Reveal Answer Key</button>
+    <div id="akeyMsg"></div>
+    <div id="akeyOut"></div>
+  </div>
+
+  <div style="text-align:center; margin-top:14px;">
+    <button class="resetbtn" id="reset">↺ Start over (clear all answers)</button>
+  </div>
+
+  <hr>
+  <p class="hint">Next up → Lesson 2: Comparing &amp; Ordering Big Numbers. Just ask a grown-up to make it interactive!</p>
+</div>
+
+<script>
+(function(){
+  var KEY = "mathL1_v3";
+  var qs = Array.prototype.slice.call(document.querySelectorAll(".q"));
+  document.getElementById("total").textContent = qs.length;
+
+  var store = {ans:{}, xp:0, streak:0, best:0};
+  try { var raw = JSON.parse(localStorage.getItem(KEY)||"null"); if(raw) store = raw; } catch(e){}
+  if(!store.ans) store.ans = {};
+
+  /* ---------- helpers ---------- */
+  function norm(s){ return (s||"").toString().trim().toLowerCase(); }
+  function digits(s){ return norm(s).replace(/[^0-9]/g,""); }
+  function words(s){ return norm(s).replace(/-/g," ").replace(/[,\.]/g,"").replace(/\band\b/g," ").replace(/\s+/g," ").trim(); }
+  function expandedTerms(s){
+    return norm(s).replace(/\s+/g,"").split("+")
+      .map(function(t){ return parseInt(t.replace(/[^0-9]/g,""),10); })
+      .filter(function(n){ return n && n!==0; })
+      .sort(function(a,b){ return a-b; }).join(",");
+  }
+  function isRight(val, ans, type){
+    if(type==="num")      return digits(val)!=="" && digits(val)===digits(ans);
+    if(type==="words")    return words(val)!=="" && words(val)===words(ans);
+    if(type==="expanded") return expandedTerms(val)!=="" && expandedTerms(val)===expandedTerms(ans);
+    if(type==="choice")   return norm(val)!=="" && norm(val)===norm(ans);
+    if(type==="tapdigit") return norm(val)===norm(ans);
+    return false;
+  }
+  function commas(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,","); }
+  var PLBL={ones:"ones",tens:"tens",hundreds:"hundreds",thousands:"thousands",tenthous:"ten-thousands",hundthous:"hundred-thousands"};
+
+  /* number -> words (0 .. 9,999,999) */
+  var ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+  var TENS=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+  function twoW(n){ if(n<20) return ONES[n]; var t=Math.floor(n/10), o=n%10; return TENS[t]+(o?" "+ONES[o]:""); }
+  function threeW(n){ var h=Math.floor(n/100), r=n%100; var s=""; if(h) s+=ONES[h]+" hundred"; if(r) s+=(s?" ":"")+twoW(r); return s; }
+  function toWords(n){
+    if(n===0) return "zero";
+    var mil=Math.floor(n/1000000), th=Math.floor((n%1000000)/1000), r=n%1000, s="";
+    if(mil) s+=threeW(mil)+" million";
+    if(th)  s+=(s?" ":"")+threeW(th)+" thousand";
+    if(r)   s+=(s?" ":"")+threeW(r);
+    return s;
+  }
+
+  /* ---------- HUD ---------- */
+  function badgesEarned(){
+    var ok={}, tot={};
+    qs.forEach(function(q,i){ var s=q.getAttribute("data-sect"); if(!s) return;
+      tot[s]=(tot[s]||0)+1; if(store.ans[i] && store.ans[i].ok) ok[s]=(ok[s]||0)+1; });
+    var done={};
+    ["warm","explore","build","power","practice","boss"].forEach(function(s){
+      if(tot[s] && ok[s]===tot[s]) done[s]=true; });
+    return done;
+  }
+  function counts(){
+    var ans=0, ok=0;
+    qs.forEach(function(q,i){ if(store.ans[i]!==undefined){ ans++; if(store.ans[i].ok) ok++; } });
+    return {ans:ans, ok:ok};
+  }
+  function updateHUD(){
+    var c=counts();
+    document.getElementById("answered").textContent=c.ans;
+    document.getElementById("solved").textContent=c.ok;
+    document.getElementById("xp").textContent=store.xp;
+    document.getElementById("streak").textContent=store.streak;
+    var lvl=Math.floor(store.xp/50)+1;
+    document.getElementById("lvl").textContent=lvl;
+    document.getElementById("xpfill").style.width=((store.xp%50)/50*100)+"%";
+
+    var earned=badgesEarned();
+    Array.prototype.forEach.call(document.querySelectorAll(".badge"),function(b){
+      var k=b.getAttribute("data-badge");
+      if(k==="champ"){ (c.ok===qs.length)?b.classList.add("on"):b.classList.remove("on"); }
+      else earned[k]?b.classList.add("on"):b.classList.remove("on");
+    });
+
+    var allDone=(c.ans===qs.length);
+    var fin=document.getElementById("finish");
+    if(allDone){ fin.style.display="inline-block";
+      fin.textContent=(c.ok===qs.length)?"🏆 CHAMPION! Perfect score!":("🎉 Lesson complete! Score "+c.ok+"/"+qs.length); }
+    else fin.style.display="none";
+
+    var btn=document.getElementById("akeyBtn"), msg=document.getElementById("akeyMsg");
+    if(allDone){ btn.disabled=false; msg.textContent="All done — tap to reveal the answers."; }
+    else { btn.disabled=true; msg.textContent=(qs.length-c.ans)+" problem(s) left before the key unlocks."; }
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+
+  /* ---------- machine ---------- */
+  var PLACES=[
+    {key:"hundthous", lbl:"Hund-<br>Thous", val:100000, color:"#7c3aed"},
+    {key:"tenthous",  lbl:"Ten-<br>Thous",  val:10000,  color:"#2563eb"},
+    {key:"thousands", lbl:"Thou-<br>sands", val:1000,   color:"#0891b2"},
+    {key:"hundreds",  lbl:"Hund-<br>reds",  val:100,    color:"#16a34a"},
+    {key:"tens",      lbl:"Tens",           val:10,     color:"#b45309"},
+    {key:"ones",      lbl:"Ones",           val:1,      color:"#db2777"}
+  ];
+  var mDigits=[0,0,0,0,0,0];
+  function machineValue(){ var n=0; for(var i=0;i<6;i++) n+=mDigits[i]*PLACES[i].val; return n; }
+  function renderMachine(){
+    var n=machineValue();
+    document.getElementById("mStd").textContent=commas(n);
+    var exp=[]; for(var i=0;i<6;i++){ if(mDigits[i]) exp.push(commas(mDigits[i]*PLACES[i].val)); }
+    document.getElementById("mExp").textContent=exp.length?exp.join(" + "):"0";
+    document.getElementById("mWords").textContent=toWords(n);
+    var chips=""; for(var j=0;j<6;j++){ if(mDigits[j]) chips+='<span class="chip" style="background:'+PLACES[j].color+'">'+commas(mDigits[j]*PLACES[j].val)+'</span>'; }
+    document.getElementById("mChips").innerHTML=chips||'<span class="hint">all zeros</span>';
+    var st=document.querySelectorAll(".stp .digit");
+    for(var k=0;k<st.length;k++) st[k].textContent=mDigits[k];
+  }
+  (function(){
+    var wrap=document.getElementById("steppers");
+    PLACES.forEach(function(p,i){
+      var d=document.createElement("div"); d.className="stp";
+      d.innerHTML='<div class="plbl" style="color:'+p.color+'">'+p.lbl+'</div>'+
+        '<button data-i="'+i+'" data-d="1">+</button><div class="digit">0</div>'+
+        '<button data-i="'+i+'" data-d="-1">−</button>';
+      wrap.appendChild(d);
+    });
+    wrap.addEventListener("click",function(e){
+      var b=e.target.closest("button"); if(!b) return;
+      var i=+b.getAttribute("data-i"), dir=+b.getAttribute("data-d");
+      mDigits[i]=(mDigits[i]+dir+10)%10; renderMachine();
+    });
+    renderMachine();
+  })();
+
+  /* ---------- x10 explorer ---------- */
+  (function(){
+    var v=7, el=document.getElementById("x10val"), msg=document.getElementById("x10msg");
+    function show(){ el.textContent=commas(v); }
+    document.getElementById("x10mul").addEventListener("click",function(){
+      if(v<=1000000){ v*=10; show(); msg.textContent="× 10 → the digit moved one place LEFT. Worth 10 times as much!"; }
+      else msg.textContent="That's plenty big! Try ÷ 10.";
+    });
+    document.getElementById("x10div").addEventListener("click",function(){
+      if(v>=10 && v%10===0){ v/=10; show(); msg.textContent="÷ 10 → the digit moved one place RIGHT. Worth one-tenth as much."; }
+      else msg.textContent="Can't split evenly past here. Try × 10.";
+    });
+    show();
+  })();
+
+  /* ---------- wire questions ---------- */
+  qs.forEach(function(q,i){
+    var type=q.getAttribute("data-type");
+    var ans=q.getAttribute("data-answer");
+    var result=q.querySelector(".result");
+    var input=q.querySelector(".ans");
+    var btn=q.querySelector(".check");
+    var choiceWrap=q.querySelector(".choices");
+    var choices=Array.prototype.slice.call(q.querySelectorAll(".choice"));
+    var pvnum=q.querySelector(".pvnum");
+    var digbtns=Array.prototype.slice.call(q.querySelectorAll(".dg.pick"));
+
+    function lock(){
+      if(input) input.disabled=true;
+      if(btn) btn.disabled=true;
+      if(choiceWrap) choiceWrap.classList.add("lock");
+      if(pvnum) pvnum.classList.add("lock");
+    }
+    function commit(hisDisp, ok){
+      if(store.ans[i]!==undefined) return;        /* already final */
+      store.ans[i]={a:hisDisp, ok:ok};
+      q.classList.add(ok?"right":"wrong");
+      result.className="result "+(ok?"ok":"no");
+      result.textContent=ok?"✓ Correct! +XP":"✗ Marked wrong — we'll review this one.";
+      if(ok){ store.xp+=12; store.streak+=1; if(store.streak>store.best) store.best=store.streak; }
+      else store.streak=0;
+      lock(); save(); updateHUD();
+    }
+
+    /* restore a finalized question */
+    var saved=store.ans[i];
+    if(saved!==undefined){
+      q.classList.add(saved.ok?"right":"wrong");
+      result.className="result "+(saved.ok?"ok":"no");
+      result.textContent=saved.ok?"✓ Correct!":"✗ Marked wrong — review this one.";
+      if(type==="choice"){ choices.forEach(function(c){ if(c.getAttribute("data-val")===saved.raw) c.classList.add("sel"); }); }
+      if(type==="tapdigit"){ digbtns.forEach(function(c){ if(c.getAttribute("data-place")===saved.raw) c.classList.add("sel"); }); }
+      if(input && saved.raw!==undefined) input.value=saved.raw;
+      lock();
+    }
+
+    if(type==="choice"){
+      choices.forEach(function(c){ c.addEventListener("click",function(){
+        if(store.ans[i]!==undefined) return;
+        choices.forEach(function(x){ x.classList.remove("sel"); }); c.classList.add("sel");
+        var val=c.getAttribute("data-val");
+        store.ans[i]={raw:val}; /* temp, replaced by commit */
+        commit(c.textContent.trim(), isRight(val,ans,type));
+        store.ans[i].raw=val; save();
+      }); });
+    } else if(type==="tapdigit"){
+      digbtns.forEach(function(c){ c.addEventListener("click",function(){
+        if(store.ans[i]!==undefined) return;
+        digbtns.forEach(function(x){ x.classList.remove("sel"); }); c.classList.add("sel");
+        var place=c.getAttribute("data-place");
+        commit(c.textContent.trim()+" ("+(PLBL[place]||place)+")", isRight(place,ans,type));
+        store.ans[i].raw=place; save();
+      }); });
+    } else if(type==="build"){
+      btn.addEventListener("click",function(){
+        if(store.ans[i]!==undefined) return;
+        var v=machineValue();
+        commit(commas(v), v===parseInt(ans,10));
+      });
+    } else {
+      btn.addEventListener("click",function(){
+        if(store.ans[i]!==undefined) return;
+        var v=input.value;
+        store.ans[i]={raw:v};
+        commit(v===""?"(blank)":v, isRight(v,ans,type));
+        store.ans[i].raw=v; save();
+      });
+      if(input) input.addEventListener("keydown",function(e){ if(e.key==="Enter"&&btn&&!btn.disabled) btn.click(); });
+    }
+  });
+
+  /* ---------- answer key ---------- */
+  function correctDisp(q,type,ans){
+    if(type==="tapdigit") return q.getAttribute("data-correct")||ans;
+    if(type==="num"||type==="build") return commas(parseInt(ans,10));
+    if(type==="choice") return /^[0-9]+$/.test(ans)?commas(parseInt(ans,10)):ans;
+    return ans;
+  }
+  document.getElementById("akeyBtn").addEventListener("click",function(){
+    var c=counts();
+    if(c.ans!==qs.length) return;
+    var rows="";
+    qs.forEach(function(q,i){
+      var type=q.getAttribute("data-type"), ans=q.getAttribute("data-answer");
+      var num=q.getAttribute("data-qnum")||(i+1);
+      var s=store.ans[i]||{a:"(blank)",ok:false};
+      rows+='<tr class="'+(s.ok?"good":"bad")+'"><td><b>'+num+'</b></td><td>'+
+        (s.a||"(blank)")+'</td><td>'+correctDisp(q,type,ans)+'</td>'+
+        '<td class="mark '+(s.ok?"ok":"no")+'">'+(s.ok?"✓":"✗")+'</td></tr>';
+    });
+    document.getElementById("akeyOut").innerHTML=
+      '<p style="font-weight:800;margin:12px 0 4px">Score: '+c.ok+' / '+qs.length+
+      '  ·  Best streak 🔥 '+store.best+'</p>'+
+      '<table class="akey"><tr><th>#</th><th>His answer</th><th>Correct answer</th><th></th></tr>'+rows+'</table>';
+    this.style.display="none";
+  });
+
+  document.getElementById("reset").addEventListener("click",function(){
+    if(!confirm("Clear all answers, XP, and badges and start over?")) return;
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    location.reload();
+  });
+
+  updateHUD();
+})();
+</script>
+</body>
+</html>
