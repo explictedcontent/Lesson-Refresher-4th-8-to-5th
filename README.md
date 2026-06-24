@@ -1,30 +1,51 @@
-# Lesson-Refresher-4th-8-to-5th
+# ☀️ Summer Refresher Course · 4th → 5th Grade
 
-Different lessons for summer to keep a refreshed outlook for next school year.
-A combination of multiple subjects learned throughout 4th grade, plus some more
-advanced material to get ready for 5th grade.
+A self-paced summer course to keep skills sharp for next school year — a mix of
+subjects from 4th grade plus a head start on 5th. Every lesson is an interactive
+page that runs right in the browser: tap to answer/draw, and progress saves
+automatically.
 
-## 🎨 Art Refresher Course (14 lessons)
+**👉 Open [`index.html`](index.html) — the front page lists every subject; click any lesson to start.**
 
-A complete 14-lesson art refresher for a 4th-grader heading into 5th grade. Each lesson is
-designed to fill a **full 30 minutes** (with an "If You Finish Early" extension so it never
-runs short the way the first attempt did) and reviews the elements of art and principles of
-design before building up to perspective, portraits, art history, and a capstone project.
+---
 
-Start with the overview, then work through the lessons in order:
+## 🎨 Art (14 lessons)
 
-- [Course Overview & Materials](art-lessons/00-overview.md)
-- [Lesson 1 — Line](art-lessons/01-line.md)
-- [Lesson 2 — Shape & Form](art-lessons/02-shape-and-form.md)
-- [Lesson 3 — The Color Wheel](art-lessons/03-color-wheel.md)
-- [Lesson 4 — Color Moods (Warm/Cool, Tints/Shades)](art-lessons/04-color-moods.md)
-- [Lesson 5 — Value & Shading](art-lessons/05-value-and-shading.md)
-- [Lesson 6 — Texture](art-lessons/06-texture.md)
-- [Lesson 7 — Space](art-lessons/07-space.md)
-- [Lesson 8 — One-Point Perspective](art-lessons/08-one-point-perspective.md)
-- [Lesson 9 — Balance & Symmetry](art-lessons/09-balance-and-symmetry.md)
-- [Lesson 10 — Pattern & Rhythm](art-lessons/10-pattern-and-rhythm.md)
-- [Lesson 11 — Emphasis & Focal Point](art-lessons/11-emphasis-and-focal-point.md)
-- [Lesson 12 — Proportion & Portraits](art-lessons/12-proportion-and-portraits.md)
-- [Lesson 13 — Art History & Styles](art-lessons/13-art-history-and-styles.md)
-- [Lesson 14 — Capstone Project](art-lessons/14-capstone-project.md)
+Open the full course app: [`art.html`](art.html) · or jump into an interactive lesson:
+
+| Topic | File |
+| ----- | ---- |
+| Line | [art-lesson-04-line.html](art-lesson-04-line.html) |
+| Shape & Form | [art-lesson-05-shape-form.html](art-lesson-05-shape-form.html) |
+| Color Mixing | [art-lesson-01-color-mixing.html](art-lesson-01-color-mixing.html) |
+| Warm & Cool Colors | [art-lesson-02-warm-cool-colors.html](art-lesson-02-warm-cool-colors.html) |
+| Value — Light & Shadow | [art-lesson-03-value-light-shadow.html](art-lesson-03-value-light-shadow.html) |
+| Texture | [art-lesson-06-texture.html](art-lesson-06-texture.html) |
+| Space | [art-lesson-07-space.html](art-lesson-07-space.html) |
+| Balance | [art-lesson-08-balance.html](art-lesson-08-balance.html) |
+
+Lessons 9–14 (Perspective, Pattern, Emphasis, Proportion, Art History, Capstone) live in the
+[Art Course app](art.html) and the [course notes](art-lessons/00-overview.md).
+
+## 🔢 Math (4 lessons)
+
+| Lesson | Topic | File |
+| :----: | ----- | ---- |
+| 1 | Place Value | [math-lesson-01-place-value.html](math-lesson-01-place-value.html) |
+| 2 | Comparing & Ordering | [math-lesson-02-comparing-ordering.html](math-lesson-02-comparing-ordering.html) |
+| 3 | Rounding | [math-lesson-03-rounding.html](math-lesson-03-rounding.html) |
+| 4 | Adding & Subtracting | [math-lesson-04-add-subtract.html](math-lesson-04-add-subtract.html) |
+| 5 | Multiplication *(coming soon)* | — |
+
+Each math lesson is ~30 minutes: warm-up review, teaching, practice, a boss round, and stretch
+riddles. Wrong answers lock and stay marked so a grown-up can review them; the **Answer Key** at
+the bottom unlocks once every problem is answered.
+
+## 📖 Reading & Writing — *coming soon*
+## 🔬 Science — *coming soon*
+
+---
+
+> **To make every lesson clickable on any phone/tablet:** turn on **GitHub Pages**
+> (Settings → Pages → Deploy from a branch → `Main` → `/root`). That publishes the front
+> page at a web address you can bookmark and share — no downloads, no folders.

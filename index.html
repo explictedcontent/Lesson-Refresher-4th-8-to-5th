@@ -3,150 +3,240 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Art Refresher — Interactive Lessons (4th → 5th Grade)</title>
-<!--
-  ============================================================================
-  LANDING-PAGE TEMPLATE  ·  reuse this exact layout for any subject.
-  To make a Math / Science / Social Studies page:
-    1) Copy this file into that subject's folder and rename it index.html
-    2) Change SUBJECT below (emoji, title, blurb, gradient if you like)
-    3) Replace the LESSONS array with that subject's lessons + file names
-  Everything else (styling, grid, hover, responsive layout) stays the same.
-  ============================================================================
--->
+<title>Summer Refresher Course — 4th to 5th Grade</title>
 <style>
   :root{
     --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
-    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
-    --line:#3a4059; --warn:#ffd166;
+    --muted:#a7adc4; --line:#3a4059; --warn:#ffd166; --good:#7bd88f;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%}
+  *{box-sizing:border-box;margin:0;padding:0}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased;
+    background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;
   }
-  a{text-decoration:none}
-  h1,h2,h3{margin:0 0 .35em}
+  a{text-decoration:none;color:inherit}
 
-  #home{max-width:1000px;margin:0 auto;padding:28px 20px 64px}
+  /* ── PAGE ── */
+  .page{max-width:1060px;margin:0 auto;padding:32px 20px 70px}
+
+  /* ── HERO ── */
   .hero{
-    background:linear-gradient(135deg,#ff7a59,#ff5e93 55%,#9b5cff);
-    border-radius:20px;padding:28px 30px;margin-bottom:24px;color:#fff;
+    background:linear-gradient(135deg,#6c5ce7 0%,#a855f7 40%,#ec4899 75%,#f97316 100%);
+    border-radius:22px;padding:32px 34px;margin-bottom:30px;color:#fff;
+    box-shadow:0 8px 40px rgba(108,92,231,.35);
   }
-  .hero h1{font-size:32px;line-height:1.1}
-  .hero p{margin:.5em 0 0;font-size:15px;opacity:.96;max-width:64ch;line-height:1.5}
-  .herostats{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
-  .herostats .st{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);
-    border-radius:12px;padding:8px 14px;font-size:13px;font-weight:700}
+  .hero-top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+  .hero-icon{font-size:42px;line-height:1}
+  .hero h1{font-size:32px;font-weight:800;line-height:1.1}
+  .hero p{font-size:15px;opacity:.93;max-width:68ch;line-height:1.65;margin-top:4px}
+  .hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+    color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
 
-  .sectionlbl{display:flex;align-items:center;gap:10px;margin:26px 4px 12px}
-  .sectionlbl h2{font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent2)}
-  .sectionlbl .rule{flex:1;height:1px;background:var(--line)}
-  .sectionlbl .count{font-size:12px;color:var(--muted);font-weight:700}
-
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:14px}
-  .card{
-    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;
-    text-align:left;color:var(--ink);transition:transform .08s ease,border-color .15s ease,box-shadow .15s ease;
-    display:flex;flex-direction:column;gap:8px;min-height:140px;
+  /* ── SECTION LABEL ── */
+  .section-label{
+    font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;
   }
-  .card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 10px 28px #0006}
-  .card .num{font-size:12px;color:var(--accent2);font-weight:800;letter-spacing:.08em}
-  .card .ct{font-size:18px;font-weight:800;line-height:1.18}
-  .card .ct .emo{margin-right:6px}
-  .card .cd{font-size:13px;color:var(--muted);line-height:1.4;flex:1}
-  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
-  .chip{font-size:11px;background:var(--panel2);color:var(--muted);padding:3px 9px;
-    border-radius:999px;border:1px solid var(--line);font-weight:700}
-  .chip.go{background:#23311f;border-color:var(--good);color:#bdeccb}
 
-  footer{max-width:1000px;margin:0 auto;padding:0 20px 50px;color:var(--muted);font-size:12.5px;line-height:1.6}
-  footer code{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:#d8dcea}
+  /* ── SUBJECT GRID ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:40px}
 
-  @media (max-width:560px){ .hero h1{font-size:26px} }
+  .subject-card{
+    background:var(--panel);border:2px solid var(--line);border-radius:18px;
+    padding:22px 20px;display:flex;flex-direction:column;gap:10px;
+    transition:transform .1s ease,border-color .15s ease,box-shadow .15s ease;
+    cursor:pointer;position:relative;overflow:hidden;
+  }
+  .subject-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,.3)}
+  .subject-card.soon{opacity:.48;cursor:default}
+  .subject-card.soon:hover{transform:none;box-shadow:none}
+
+  /* per-subject accent colours */
+  .subject-card.science { border-color:#00b894; }
+  .subject-card.science:hover { border-color:#00cec9; box-shadow:0 8px 28px rgba(0,184,148,.25); }
+  .subject-card.art     { border-color:#ff7a59; }
+  .subject-card.art:hover     { border-color:#ff5e93; box-shadow:0 8px 28px rgba(255,122,89,.25); }
+  .subject-card.math    { border-color:#fdcb6e; }
+  .subject-card.math:hover    { border-color:#f9ca24; box-shadow:0 8px 28px rgba(253,203,110,.2); }
+  .subject-card.social  { border-color:#74b9ff; }
+  .subject-card.social:hover  { border-color:#0984e3; box-shadow:0 8px 28px rgba(116,185,255,.2); }
+  .subject-card.reading { border-color:#fd79a8; }
+  .subject-card.reading:hover { border-color:#e84393; box-shadow:0 8px 28px rgba(253,121,168,.2); }
+
+  .card-emoji{font-size:36px;line-height:1;margin-bottom:2px}
+  .card-title{font-size:19px;font-weight:800;line-height:1.2}
+  .card-sub{font-size:12.5px;color:var(--muted);line-height:1.5;flex:1}
+  .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+  .lesson-count{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
+  .lesson-count.active{color:var(--good);border-color:var(--good);background:rgba(123,216,143,.1)}
+  .go-arrow{font-size:18px;opacity:.6}
+  .soon-tag{font-size:11px;background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+
+  /* ── SUBJECTS SUMMARY ── */
+  .summary-box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 26px}
+  .summary-box h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px}
+  .sum-row{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:12px 0;border-bottom:1px solid var(--line);
+  }
+  .sum-row:last-child{border-bottom:none;padding-bottom:0}
+  .sum-icon{font-size:22px;width:32px;text-align:center;flex:none;padding-top:1px}
+  .sum-body{}
+  .sum-title{font-size:14px;font-weight:700}
+  .sum-detail{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}
+  .sum-badge{
+    display:inline-block;font-size:11px;font-weight:700;border-radius:999px;
+    padding:2px 9px;margin-left:7px;vertical-align:middle;
+  }
+  .sum-badge.live{background:rgba(123,216,143,.15);color:var(--good);border:1px solid rgba(123,216,143,.4)}
+  .sum-badge.soon{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+
+  /* ── FOOTER ── */
+  .footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--muted);line-height:1.7}
+
+  @media(max-width:600px){
+    .hero h1{font-size:24px}
+    .grid{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:420px){
+    .grid{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
-<main id="home">
+<div class="page">
+
+  <!-- HERO -->
   <div class="hero">
-    <h1 id="heroTitle">🎨 Art Refresher Studio</h1>
-    <p id="heroBlurb"></p>
-    <div class="herostats" id="heroStats"></div>
+    <div class="hero-top">
+      <div class="hero-icon">🏫</div>
+      <h1>Summer Refresher Course</h1>
+    </div>
+    <p>Interactive lessons for a 4th-grader heading into 5th grade. Pick a subject below to jump into lessons — each one has questions with instant feedback, live scoring, and a results report you can save or print.</p>
+    <div class="hero-chips">
+      <span class="chip">4th → 5th Grade</span>
+      <span class="chip">~30 min per lesson</span>
+      <span class="chip">Auto-saves progress</span>
+      <span class="chip">Printable results</span>
+    </div>
   </div>
 
-  <div id="sections"></div>
-</main>
+  <!-- SUBJECT GRID -->
+  <p class="section-label">Choose a Subject</p>
+  <div class="grid">
 
-<footer>
-  Tip: tap any lesson card to open it. Each lesson has a built-in 30–38&nbsp;minute timer, hands-on activities,
-  a drawing pad that <b>auto-saves</b> (and saves again if the app closes), and a graded quiz with a parent answer key.
-</footer>
+    <!-- SCIENCE -->
+    <a class="subject-card science" href="science-lessons/index.html">
+      <div class="card-emoji">🔬</div>
+      <div class="card-title">Science</div>
+      <div class="card-sub">Scientific method, matter, living things, Earth &amp; space, forces, ecosystems, adaptations, and more.</div>
+      <div class="card-foot">
+        <span class="lesson-count active">2 lessons ready</span>
+        <span class="go-arrow">→</span>
+      </div>
+    </a>
 
-<script>
-/* ====== SUBJECT (change these 3 things to reuse for another subject) ====== */
-const SUBJECT = {
-  emoji: "🎨",
-  title: "Art Refresher Studio",
-  blurb: "Interactive art lessons for a 4th-grader heading into 5th grade. Each lesson walks through one step at a time with a built-in timer that fills a real 30–38 minutes — with games, a drawing pad you can actually draw on, and a quick quiz at the end. Pick a lesson to begin."
-};
+    <!-- ART -->
+    <a class="subject-card art" href="art-lessons/index.html">
+      <div class="card-emoji">🎨</div>
+      <div class="card-title">Art</div>
+      <div class="card-sub">14 interactive lessons — draw on screen with a timer! Line, shape, color, shading, perspective, and more.</div>
+      <div class="card-foot">
+        <span class="lesson-count active">14 lessons ready</span>
+        <span class="go-arrow">→</span>
+      </div>
+    </a>
 
-/* ====== LESSONS (swap this list for another subject) ====== */
-const LESSONS = [
-  {n:1, emoji:"🌈", title:"Color Mixing",        topic:"Color",   time:"30 min", group:"elements",
-   file:"art-lesson-01-color-mixing.html",      desc:"Primary, secondary & complementary colors. Mix colors, play Mix-Match, and build a color wheel."},
-  {n:2, emoji:"🔥", title:"Warm & Cool Colors",  topic:"Color",   time:"30 min", group:"elements",
-   file:"art-lesson-02-warm-cool-colors.html",  desc:"Sort warm vs. cool colors, learn tints & shades, and paint a warm/cool scene."},
-  {n:3, emoji:"🌗", title:"Value: Light & Shadow",topic:"Value",  time:"30 min", group:"elements",
-   file:"art-lesson-03-value-light-shadow.html",desc:"Build a value scale, light a sphere, and shade a flat circle into a 3D ball."},
-  {n:4, emoji:"✏️", title:"Line",                topic:"Line",    time:"38 min", group:"elements",
-   file:"art-lesson-04-line.html",              desc:"Types of lines, expressive 'line moods', one-line contour drawing, and line textures."},
-  {n:5, emoji:"🔷", title:"Shape & Form",         topic:"Form",    time:"38 min", group:"elements",
-   file:"art-lesson-05-shape-form.html",        desc:"2D shapes vs. 3D forms. Sort geometric/organic and shade spheres, cubes & cones."},
-  {n:6, emoji:"🪵", title:"Texture",              topic:"Texture", time:"38 min", group:"elements",
-   file:"art-lesson-06-texture.html",           desc:"Real vs. visual texture. Match texture patterns and give creatures fur, scales & spikes."},
-  {n:7, emoji:"🏞️", title:"Space",               topic:"Space",   time:"38 min", group:"elements",
-   file:"art-lesson-07-space.html",             desc:"Near & far, foreground/background, overlapping, and positive vs. negative space."},
-  {n:8, emoji:"⚖️", title:"Balance",             topic:"Balance", time:"38 min", group:"principles",
-   file:"art-lesson-08-balance.html",           desc:"Symmetrical, asymmetrical & radial balance — with a live mirror & kaleidoscope drawing pad."},
-];
+    <!-- MATH -->
+    <div class="subject-card math soon">
+      <div class="card-emoji">📐</div>
+      <div class="card-title">Math</div>
+      <div class="card-sub">Fractions, decimals, multiplication, division, geometry, and problem solving.</div>
+      <div class="card-foot">
+        <span class="soon-tag">Coming Soon</span>
+      </div>
+    </div>
 
-const GROUPS = [
-  {key:"elements",   label:"Elements of Art",   blurb:"the building blocks"},
-  {key:"principles", label:"Principles of Art", blurb:"how to arrange them"},
-];
+    <!-- SOCIAL STUDIES -->
+    <div class="subject-card social soon">
+      <div class="card-emoji">🌎</div>
+      <div class="card-title">Social Studies</div>
+      <div class="card-sub">U.S. history, geography, government, civics, and world cultures.</div>
+      <div class="card-foot">
+        <span class="soon-tag">Coming Soon</span>
+      </div>
+    </div>
 
-/* ====== render ====== */
-document.getElementById("heroTitle").textContent = SUBJECT.emoji + " " + SUBJECT.title;
-document.getElementById("heroBlurb").textContent = SUBJECT.blurb;
-const stats = document.getElementById("heroStats");
-stats.innerHTML =
-  `<div class="st">📚 ${LESSONS.length} lessons</div>`+
-  `<div class="st">⏱ 30–38 min each</div>`+
-  `<div class="st">🎯 Games + drawing + quiz</div>`;
+    <!-- READING / ELA -->
+    <div class="subject-card reading soon">
+      <div class="card-emoji">📖</div>
+      <div class="card-title">Reading &amp; ELA</div>
+      <div class="card-sub">Comprehension, vocabulary, grammar, writing skills, and literary analysis.</div>
+      <div class="card-foot">
+        <span class="soon-tag">Coming Soon</span>
+      </div>
+    </div>
 
-const sections = document.getElementById("sections");
-GROUPS.forEach(g=>{
-  const items = LESSONS.filter(l=>l.group===g.key);
-  if(!items.length) return;
-  const head = document.createElement("div");
-  head.className="sectionlbl";
-  head.innerHTML = `<h2>✦ ${g.label}</h2><span class="rule"></span><span class="count">${items.length} · ${g.blurb}</span>`;
-  sections.appendChild(head);
-  const grid = document.createElement("div");
-  grid.className="grid";
-  items.forEach(l=>{
-    const a = document.createElement("a");
-    a.className="card"; a.href=l.file;
-    a.innerHTML =
-      `<div class="num">LESSON ${l.n}</div>
-       <div class="ct"><span class="emo">${l.emoji}</span>${l.title}</div>
-       <div class="cd">${l.desc}</div>
-       <div class="chips"><span class="chip">${l.topic}</span><span class="chip">${l.time}</span><span class="chip go">Open →</span></div>`;
-    grid.appendChild(a);
-  });
-  sections.appendChild(grid);
-});
-</script>
+  </div>
+
+  <!-- SUMMARY -->
+  <p class="section-label">All Subjects at a Glance</p>
+  <div class="summary-box">
+    <h2>Course Overview</h2>
+
+    <div class="sum-row">
+      <div class="sum-icon">🔬</div>
+      <div class="sum-body">
+        <div class="sum-title">Science <span class="sum-badge live">2 lessons live</span></div>
+        <div class="sum-detail">
+          <strong>Lesson 1:</strong> Scientific Method · Lab Safety &amp; Tools · States of Matter · Living Things · Earth &amp; Space<br>
+          <strong>Lesson 2:</strong> Water Cycle · Ecosystems &amp; Food Webs · Adaptations · Forces &amp; Motion · Our Solar System<br>
+          <em>Coming:</em> Human Body · Energy &amp; Machines · Earth's Systems
+        </div>
+      </div>
+    </div>
+
+    <div class="sum-row">
+      <div class="sum-icon">🎨</div>
+      <div class="sum-body">
+        <div class="sum-title">Art <span class="sum-badge live">14 lessons live</span></div>
+        <div class="sum-detail">
+          Line · Shape &amp; Form · Color Wheel · Color Moods · Value &amp; Shading · Texture · Space · One-Point Perspective · Balance &amp; Symmetry · Pattern &amp; Rhythm · Emphasis · Proportion &amp; Portraits · Art History · Capstone Project
+        </div>
+      </div>
+    </div>
+
+    <div class="sum-row">
+      <div class="sum-icon">📐</div>
+      <div class="sum-body">
+        <div class="sum-title">Math <span class="sum-badge soon">coming soon</span></div>
+        <div class="sum-detail">Fractions &amp; Decimals · Multiplication &amp; Division · Geometry · Measurement · Data &amp; Graphing · Word Problems</div>
+      </div>
+    </div>
+
+    <div class="sum-row">
+      <div class="sum-icon">🌎</div>
+      <div class="sum-body">
+        <div class="sum-title">Social Studies <span class="sum-badge soon">coming soon</span></div>
+        <div class="sum-detail">U.S. History · Geography &amp; Maps · Government &amp; Civics · Economics · World Cultures</div>
+      </div>
+    </div>
+
+    <div class="sum-row">
+      <div class="sum-icon">📖</div>
+      <div class="sum-body">
+        <div class="sum-title">Reading &amp; ELA <span class="sum-badge soon">coming soon</span></div>
+        <div class="sum-detail">Reading Comprehension · Vocabulary · Grammar · Writing Skills · Literary Elements &amp; Analysis</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Summer Refresher Course &nbsp;·&nbsp; 4th Grade → 5th Grade &nbsp;·&nbsp; ~30 minutes per lesson
+  </div>
+
+</div>
 </body>
 </html>

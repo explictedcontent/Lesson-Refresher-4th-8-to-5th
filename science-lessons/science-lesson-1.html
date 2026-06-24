@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science Refresher – Lesson 1: The World of Science</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      color: white;
+      margin-bottom: 25px;
+      box-shadow: 0 8px 32px rgba(233,69,96,0.4);
+    }
+    .header h1 { font-size: 2.2em; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .header .subtitle { font-size: 1.1em; opacity: 0.9; }
+    .header .stars { font-size: 1.8em; margin-bottom: 10px; }
+
+    /* ── SCOREBOARD ── */
+    .scoreboard {
+      background: white;
+      border-radius: 15px;
+      padding: 18px 25px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+      border: 3px solid #e94560;
+    }
+    .score-item { text-align: center; }
+    .score-num {
+      font-size: 2.2em;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .score-num.correct { color: #27ae60; }
+    .score-num.wrong   { color: #e74c3c; }
+    .score-num.total   { color: #2980b9; }
+    .score-num.pct     { color: #8e44ad; }
+    .score-label { font-size: 0.8em; color: #666; margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── SECTIONS ── */
+    .section {
+      background: white;
+      border-radius: 18px;
+      margin-bottom: 30px;
+      overflow: hidden;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+    }
+    .section-header {
+      padding: 18px 25px;
+      color: white;
+      font-size: 1.25em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-header .icon { font-size: 1.5em; }
+    .s1 .section-header { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .s2 .section-header { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .s3 .section-header { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #0f3460; }
+    .s4 .section-header { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #0f3460; }
+    .s5 .section-header { background: linear-gradient(135deg, #fa709a, #fee140); color: #0f3460; }
+
+    .section-body { padding: 20px 25px; }
+
+    /* ── QUESTION CARDS ── */
+    .q-card {
+      background: #f8f9ff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 18px;
+      border-left: 5px solid #667eea;
+      transition: box-shadow 0.2s;
+    }
+    .q-card.answered { border-left-color: #bbb; }
+    .q-card:last-child { margin-bottom: 0; }
+
+    .q-num {
+      font-size: 0.8em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #667eea;
+      margin-bottom: 6px;
+    }
+    .q-text {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── OPTIONS ── */
+    .options { display: flex; flex-direction: column; gap: 9px; }
+    .opt-btn {
+      padding: 12px 18px;
+      border: 2px solid #dde1f0;
+      border-radius: 9px;
+      background: white;
+      cursor: pointer;
+      font-size: 1em;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      color: #333;
+      font-family: inherit;
+    }
+    .opt-btn:hover:not(:disabled) {
+      background: #eef0ff;
+      border-color: #667eea;
+      transform: translateX(3px);
+    }
+    .opt-btn:disabled { cursor: not-allowed; }
+
+    /* outcome states – PERMANENT once set */
+    .opt-btn.state-correct   { background: #d4f5e2; border-color: #27ae60; color: #145a32; font-weight: 700; }
+    .opt-btn.state-wrong     { background: #fde8e8; border-color: #e74c3c; color: #7b241c; font-weight: 700; text-decoration: line-through; }
+    .opt-btn.state-revealed  { background: #fef9e7; border-color: #f39c12; color: #784212; font-weight: 700; }
+
+    /* TF row */
+    .tf-row { display: flex; gap: 12px; }
+    .tf-btn {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid #dde1f0;
+      border-radius: 9px;
+      background: white;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: 700;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: inherit;
+      color: #333;
+    }
+    .tf-btn:hover:not(:disabled) { transform: scale(1.04); }
+    .tf-btn:disabled { cursor: not-allowed; }
+
+    /* ── FEEDBACK ── */
+    .q-feedback {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95em;
+      display: none;
+    }
+    .q-feedback.show-correct { display: block; background: #d4f5e2; color: #145a32; border: 1px solid #27ae60; }
+    .q-feedback.show-wrong   { display: block; background: #fde8e8; color: #7b241c; border: 1px solid #e74c3c; }
+
+    /* ── FINAL RESULT BANNER ── */
+    #final-banner {
+      display: none;
+      background: linear-gradient(135deg, #e94560, #764ba2);
+      border-radius: 20px;
+      padding: 35px;
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(233,69,96,0.5);
+    }
+    #final-banner.show { display: block; }
+    #final-banner h2 { font-size: 2em; margin-bottom: 12px; }
+    #final-banner .final-score { font-size: 3.5em; font-weight: 900; margin: 10px 0; }
+    #final-banner p { font-size: 1.2em; opacity: 0.9; }
+    .grade-msg { font-size: 1.5em; margin-top: 15px; }
+
+    /* ── ANSWER KEY ── */
+    #answer-key {
+      background: white;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    .ak-header {
+      background: linear-gradient(135deg, #0f3460, #16213e);
+      color: white;
+      padding: 20px 25px;
+      font-size: 1.4em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ak-body { padding: 20px 25px; }
+    .ak-section-title {
+      font-size: 1em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #667eea;
+      margin: 18px 0 8px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #eef0ff;
+    }
+    .ak-row {
+      display: flex;
+      gap: 14px;
+      padding: 9px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.97em;
+      align-items: flex-start;
+    }
+    .ak-row:last-child { border-bottom: none; }
+    .ak-num { font-weight: 700; color: #667eea; min-width: 30px; }
+    .ak-ans { font-weight: 600; color: #145a32; flex: 1; }
+    .ak-exp { color: #666; font-style: italic; flex: 2; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { background: #eee; border-radius: 10px; height: 10px; margin-bottom: 25px; overflow: hidden; }
+    #progress-bar { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #27ae60, #2ecc71); width: 0%; transition: width 0.4s ease; }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 1.5em; }
+      .scoreboard { flex-wrap: wrap; gap: 10px; }
+      .score-num { font-size: 1.6em; }
+      .ak-row { flex-direction: column; gap: 4px; }
+    }
+
+    /* ── SAVE / PRINT BUTTONS ── */
+    .action-btns { display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+    .btn-save  { background: #27ae60; color: white; }
+    .btn-print { background: #2980b9; color: white; }
+    .btn-reset { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.5); }
+    .btn-save, .btn-print, .btn-reset {
+      padding: 14px 26px;
+      border-width: 0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-save:hover, .btn-print:hover, .btn-reset:hover { transform: scale(1.05); opacity: 0.9; }
+
+    /* floating save bar – appears once any question is answered */
+    #save-bar { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 200; gap: 10px; }
+    #save-bar.show { display: flex; }
+    #save-bar button {
+      padding: 11px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.88em;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    }
+    #save-bar .sb-save  { background: #27ae60; color: white; }
+    #save-bar .sb-print { background: #2980b9; color: white; }
+
+    /* restored-notice banner */
+    #restored-notice {
+      display: none;
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      color: #856404;
+      text-align: center;
+    }
+    #restored-notice.show { display: block; }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      body { background: white !important; padding: 0; }
+      .scoreboard { position: static !important; box-shadow: none; border: 2px solid #333; }
+      #save-bar, .progress-wrap, .action-btns, #restored-notice { display: none !important; }
+      .opt-btn:not(.state-correct):not(.state-wrong):not(.state-revealed),
+      .tf-btn:not(.state-correct):not(.state-wrong):not(.state-revealed) { display: none; }
+      .section { box-shadow: none !important; border: 1px solid #ccc; break-inside: avoid; }
+      #final-banner { box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #answer-key { box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="stars">🔬 🧪 🌍 🚀 🌱</div>
+    <h1>Summer Science Refresher</h1>
+    <div class="subtitle">Lesson 1: The World of Science &nbsp;|&nbsp; 4th Grade &rarr; 5th Grade</div>
+  </div>
+
+  <!-- RESTORED NOTICE -->
+  <div id="restored-notice">
+    📂 Previous session restored! Your answers are saved. Scroll down to see where you left off.
+    &nbsp; <button onclick="resetLesson()" style="background:#dc3545;color:white;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:700;">Start Fresh</button>
+  </div>
+
+  <!-- SCOREBOARD -->
+  <div class="scoreboard">
+    <div class="score-item">
+      <div class="score-num correct" id="sc-correct">0</div>
+      <div class="score-label">✅ Correct</div>
+    </div>
+    <div class="score-item">
+      <div class="score-num wrong" id="sc-wrong">0</div>
+      <div class="score-label">❌ Wrong</div>
+    </div>
+    <div class="score-item">
+      <div class="score-num total" id="sc-answered">0</div>
+      <div class="score-label">📝 Answered</div>
+    </div>
+    <div class="score-item">
+      <div class="score-num pct" id="sc-pct">—</div>
+      <div class="score-label">⭐ Score</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap"><div id="progress-bar"></div></div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 1: THE SCIENTIFIC METHOD              -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section s1">
+    <div class="section-header">
+      <span class="icon">🔬</span>
+      Section 1: The Scientific Method (Questions 1–8)
+    </div>
+    <div class="section-body" id="s1-body"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 2: LAB SAFETY & TOOLS                 -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section s2">
+    <div class="section-header">
+      <span class="icon">🥽</span>
+      Section 2: Lab Safety &amp; Science Tools (Questions 9–15)
+    </div>
+    <div class="section-body" id="s2-body"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 3: STATES OF MATTER                   -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section s3">
+    <div class="section-header">
+      <span class="icon">🧊</span>
+      Section 3: States of Matter (Questions 16–23)
+    </div>
+    <div class="section-body" id="s3-body"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 4: LIVING THINGS                      -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section s4">
+    <div class="section-header">
+      <span class="icon">🌱</span>
+      Section 4: Living Things (Questions 24–30)
+    </div>
+    <div class="section-body" id="s4-body"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 5: EARTH &amp; SPACE                  -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section s5">
+    <div class="section-header">
+      <span class="icon">🚀</span>
+      Section 5: Earth &amp; Space Science (Questions 31–37)
+    </div>
+    <div class="section-body" id="s5-body"></div>
+  </div>
+
+  <!-- FINAL BANNER -->
+  <div id="final-banner">
+    <h2>🎉 Lesson Complete! 🎉</h2>
+    <div class="final-score" id="final-score-txt">—</div>
+    <p id="final-msg"></p>
+    <div class="grade-msg" id="grade-msg"></div>
+    <div class="action-btns">
+      <button class="btn-save"  onclick="downloadResults()">💾 Download Results Report</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Print Results</button>
+      <button class="btn-reset" onclick="resetLesson()">🔄 Start Over</button>
+    </div>
+  </div>
+
+  <!-- ANSWER KEY -->
+  <div id="answer-key">
+    <div class="ak-header">📋 Answer Key</div>
+    <div class="ak-body" id="ak-body"></div>
+  </div>
+
+  <!-- FLOATING SAVE BAR -->
+  <div id="save-bar">
+    <button class="sb-save"  onclick="downloadResults()">💾 Save Results</button>
+    <button class="sb-print" onclick="window.print()">🖨️ Print</button>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ════════════════════════════════════════════════════════
+   QUESTION DATA
+   type: 'mc' = multiple choice, 'tf' = true/false
+   correct: index into options[] for mc; 0=True 1=False for tf
+   ════════════════════════════════════════════════════════ */
+const QUESTIONS = [
+  /* ── SECTION 1: Scientific Method ── */
+  {
+    id: 1, section: 1,
+    type: 'mc',
+    text: 'What is the FIRST step of the scientific method?',
+    options: ['Form a hypothesis', 'Ask a question', 'Do an experiment', 'Draw a conclusion'],
+    correct: 1,
+    answerLabel: 'Ask a question',
+    explanation: 'Scientists always begin by asking a question about something they want to find out!'
+  },
+  {
+    id: 2, section: 1,
+    type: 'mc',
+    text: 'What is a hypothesis?',
+    options: ['The final answer to an experiment', 'A proven scientific law', 'An educated guess that can be tested', 'A piece of science equipment'],
+    correct: 2,
+    answerLabel: 'An educated guess that can be tested',
+    explanation: 'A hypothesis is your best guess about what will happen — and it must be something you can actually test.'
+  },
+  {
+    id: 3, section: 1,
+    type: 'mc',
+    text: 'After forming a hypothesis, what is the NEXT step in the scientific method?',
+    options: ['Share your results with the class', 'Conduct an experiment to test it', 'Write your conclusion', 'Ask a brand new question'],
+    correct: 1,
+    answerLabel: 'Conduct an experiment to test it',
+    explanation: 'Once you have your hypothesis, you design and run an experiment to see if you were right!'
+  },
+  {
+    id: 4, section: 1,
+    type: 'mc',
+    text: 'What do scientists call the information they collect during an experiment?',
+    options: ['Hypothesis', 'Data', 'Conclusion', 'Theory'],
+    correct: 1,
+    answerLabel: 'Data',
+    explanation: 'Data is all the information (measurements, observations, numbers) gathered during an experiment.'
+  },
+  {
+    id: 5, section: 1,
+    type: 'mc',
+    text: 'What step comes AFTER collecting data in the scientific method?',
+    options: ['Ask a question', 'Form a hypothesis', 'Analyze the data and draw a conclusion', 'Buy more supplies'],
+    correct: 2,
+    answerLabel: 'Analyze the data and draw a conclusion',
+    explanation: 'After collecting data, scientists study it to see what it means and decide if their hypothesis was correct.'
+  },
+  {
+    id: 6, section: 1,
+    type: 'tf',
+    text: 'TRUE or FALSE: A hypothesis must always be correct for the experiment to be useful.',
+    options: ['True', 'False'],
+    correct: 1,
+    answerLabel: 'False',
+    explanation: 'A hypothesis is just an educated guess. Even if it\'s wrong, you learned something valuable!'
+  },
+  {
+    id: 7, section: 1,
+    type: 'mc',
+    text: 'What is a "variable" in a science experiment?',
+    options: ['The conclusion of the experiment', 'A safety rule in the lab', 'Something that can change or be changed in the experiment', 'The type of equipment used'],
+    correct: 2,
+    answerLabel: 'Something that can change or be changed in the experiment',
+    explanation: 'A variable is anything that can vary (change). In an experiment, you change one variable at a time to see what happens.'
+  },
+  {
+    id: 8, section: 1,
+    type: 'tf',
+    text: 'TRUE or FALSE: Scientists repeat experiments multiple times to make sure their results are reliable.',
+    options: ['True', 'False'],
+    correct: 0,
+    answerLabel: 'True',
+    explanation: 'Repeating experiments helps scientists make sure they get the same results each time, which makes the data more trustworthy.'
+  },
+
+  /* ── SECTION 2: Lab Safety & Tools ── */
+  {
+    id: 9, section: 2,
+    type: 'mc',
+    text: 'Which tool would a scientist use to measure the temperature of water?',
+    options: ['Ruler', 'Thermometer', 'Scale', 'Graduated cylinder'],
+    correct: 1,
+    answerLabel: 'Thermometer',
+    explanation: 'A thermometer measures how hot or cold something is (temperature), usually in degrees Celsius or Fahrenheit.'
+  },
+  {
+    id: 10, section: 2,
+    type: 'mc',
+    text: 'What tool is used to measure the volume (amount) of a liquid?',
+    options: ['Thermometer', 'Balance scale', 'Graduated cylinder', 'Meter stick'],
+    correct: 2,
+    answerLabel: 'Graduated cylinder',
+    explanation: 'A graduated cylinder is a tall, marked tube used to measure exactly how much liquid you have.'
+  },
+  {
+    id: 11, section: 2,
+    type: 'mc',
+    text: 'What tool makes very small objects appear much larger so scientists can study them closely?',
+    options: ['Telescope', 'Microscope', 'Binoculars', 'Periscope'],
+    correct: 1,
+    answerLabel: 'Microscope',
+    explanation: 'A microscope uses lenses to magnify tiny things — like cells — that are too small to see with just your eyes.'
+  },
+  {
+    id: 12, section: 2,
+    type: 'mc',
+    text: 'What tool is used to measure the mass of an object in a science lab?',
+    options: ['Ruler', 'Thermometer', 'Balance scale', 'Graduated cylinder'],
+    correct: 2,
+    answerLabel: 'Balance scale',
+    explanation: 'A balance scale compares the mass of an object to known weights to find out how much mass it has.'
+  },
+  {
+    id: 13, section: 2,
+    type: 'tf',
+    text: 'TRUE or FALSE: You should always wear safety goggles when working with chemicals or heat in a science lab.',
+    options: ['True', 'False'],
+    correct: 0,
+    answerLabel: 'True',
+    explanation: 'Safety goggles protect your eyes from splashes, sparks, and fumes. Eye safety is always the top priority!'
+  },
+  {
+    id: 14, section: 2,
+    type: 'mc',
+    text: 'What should you do FIRST if you accidentally spill a chemical in the science lab?',
+    options: ['Ignore it and keep working', 'Tell your teacher immediately', 'Try to clean it up by yourself', 'Put a paper towel over it and hope no one notices'],
+    correct: 1,
+    answerLabel: 'Tell your teacher immediately',
+    explanation: 'Always tell an adult right away! Some chemicals can be harmful, and your teacher knows the safest way to clean them up.'
+  },
+  {
+    id: 15, section: 2,
+    type: 'tf',
+    text: 'TRUE or FALSE: It is safe to taste or smell unknown chemicals in a science lab.',
+    options: ['True', 'False'],
+    correct: 1,
+    answerLabel: 'False',
+    explanation: 'NEVER taste or directly smell unknown chemicals — they could be dangerous. Always wait for your teacher\'s instructions!'
+  },
+
+  /* ── SECTION 3: States of Matter ── */
+  {
+    id: 16, section: 3,
+    type: 'mc',
+    text: 'What are the THREE main states of matter?',
+    options: ['Hot, warm, and cold', 'Solid, liquid, and gas', 'Heavy, light, and medium', 'Air, water, and fire'],
+    correct: 1,
+    answerLabel: 'Solid, liquid, and gas',
+    explanation: 'All matter exists in one of three common states: solid (like ice), liquid (like water), or gas (like steam).'
+  },
+  {
+    id: 17, section: 3,
+    type: 'mc',
+    text: 'Which state of matter has BOTH a definite shape AND a definite volume (takes up a fixed amount of space)?',
+    options: ['Gas', 'Liquid', 'Solid', 'Vapor'],
+    correct: 2,
+    answerLabel: 'Solid',
+    explanation: 'Solids keep their shape and size no matter what container you put them in. Think of an ice cube — it always looks like an ice cube!'
+  },
+  {
+    id: 18, section: 3,
+    type: 'mc',
+    text: 'Which state of matter takes the SHAPE of its container but has a definite volume?',
+    options: ['Solid', 'Liquid', 'Gas', 'Plasma'],
+    correct: 1,
+    answerLabel: 'Liquid',
+    explanation: 'Liquids flow and take the shape of whatever container holds them, but the amount (volume) stays the same.'
+  },
+  {
+    id: 19, section: 3,
+    type: 'mc',
+    text: 'Which state of matter spreads out to fill its ENTIRE container?',
+    options: ['Solid', 'Liquid', 'Gas', 'Ice'],
+    correct: 2,
+    answerLabel: 'Gas',
+    explanation: 'Gas particles move very fast and spread out to fill whatever space is available — that\'s why you can smell food from across the room!'
+  },
+  {
+    id: 20, section: 3,
+    type: 'mc',
+    text: 'What is it called when liquid water changes into solid ice?',
+    options: ['Melting', 'Evaporation', 'Condensation', 'Freezing'],
+    correct: 3,
+    answerLabel: 'Freezing',
+    explanation: 'Freezing happens when a liquid loses enough heat energy to become a solid. Water freezes at 32°F (0°C).'
+  },
+  {
+    id: 21, section: 3,
+    type: 'mc',
+    text: 'What is it called when solid ice changes into liquid water?',
+    options: ['Freezing', 'Melting', 'Boiling', 'Condensation'],
+    correct: 1,
+    answerLabel: 'Melting',
+    explanation: 'Melting happens when a solid gains heat energy and becomes a liquid. Ice melts when it warms up above 32°F (0°C).'
+  },
+  {
+    id: 22, section: 3,
+    type: 'mc',
+    text: 'What is it called when liquid water changes into water vapor (a gas)?',
+    options: ['Freezing', 'Melting', 'Evaporation', 'Condensation'],
+    correct: 2,
+    answerLabel: 'Evaporation',
+    explanation: 'Evaporation is when liquid water absorbs enough energy to become a gas. Puddles disappear because of evaporation!'
+  },
+  {
+    id: 23, section: 3,
+    type: 'tf',
+    text: 'TRUE or FALSE: Matter is anything that takes up space and has mass.',
+    options: ['True', 'False'],
+    correct: 0,
+    answerLabel: 'True',
+    explanation: 'Matter is the "stuff" everything is made of. If it takes up space and has mass (weight), it\'s matter!'
+  },
+
+  /* ── SECTION 4: Living Things ── */
+  {
+    id: 24, section: 4,
+    type: 'mc',
+    text: 'Which of the following is a characteristic of ALL living things?',
+    options: ['They are all green', 'They all live in water', 'They all grow and reproduce', 'They all move on their own'],
+    correct: 2,
+    answerLabel: 'They all grow and reproduce',
+    explanation: 'All living things grow (get bigger) and reproduce (make more of their own kind). Not all living things are green or can move on their own!'
+  },
+  {
+    id: 25, section: 4,
+    type: 'mc',
+    text: 'What THREE things do plants need to make their own food?',
+    options: ['Sugar, soil, and fertilizer', 'Sunlight, water, and carbon dioxide', 'Oxygen, nitrogen, and minerals', 'Protein, fat, and carbohydrates'],
+    correct: 1,
+    answerLabel: 'Sunlight, water, and carbon dioxide',
+    explanation: 'Plants are amazing — they make their own food (sugar) using sunlight for energy, water from the soil, and carbon dioxide from the air!'
+  },
+  {
+    id: 26, section: 4,
+    type: 'mc',
+    text: 'What is the name of the process plants use to make their own food using sunlight?',
+    options: ['Respiration', 'Digestion', 'Photosynthesis', 'Transpiration'],
+    correct: 2,
+    answerLabel: 'Photosynthesis',
+    explanation: '"Photo" means light and "synthesis" means putting together. Plants use sunlight to put together (make) their food!'
+  },
+  {
+    id: 27, section: 4,
+    type: 'tf',
+    text: 'TRUE or FALSE: A rock is a living thing because it can be found in nature.',
+    options: ['True', 'False'],
+    correct: 1,
+    answerLabel: 'False',
+    explanation: 'Rocks are NOT living things. Living things must grow, reproduce, respond to the environment, and need energy. Rocks don\'t do any of those things!'
+  },
+  {
+    id: 28, section: 4,
+    type: 'mc',
+    text: 'In a food chain, what is an organism called if it makes its OWN food (like a plant)?',
+    options: ['Consumer', 'Predator', 'Producer', 'Decomposer'],
+    correct: 2,
+    answerLabel: 'Producer',
+    explanation: 'Producers (like plants and algae) make their own food through photosynthesis. They "produce" the energy that feeds the whole food chain!'
+  },
+  {
+    id: 29, section: 4,
+    type: 'mc',
+    text: 'In a food chain, what is an organism called if it eats OTHER organisms to get energy?',
+    options: ['Producer', 'Consumer', 'Photosynthesizer', 'Evaporator'],
+    correct: 1,
+    answerLabel: 'Consumer',
+    explanation: 'Consumers eat other living things for energy. Animals are consumers — they "consume" (eat) producers or other animals.'
+  },
+  {
+    id: 30, section: 4,
+    type: 'mc',
+    text: 'What are the four basic needs that most living things require to survive?',
+    options: ['Food, water, sunlight, and music', 'Food, water, shelter, and air', 'Sunlight, soil, water, and sugar', 'Food, fire, water, and space'],
+    correct: 1,
+    answerLabel: 'Food, water, shelter, and air',
+    explanation: 'Almost all living things need food (energy), water, shelter (protection), and air (oxygen) to stay alive.'
+  },
+
+  /* ── SECTION 5: Earth & Space ── */
+  {
+    id: 31, section: 5,
+    type: 'mc',
+    text: 'What is the closest star to planet Earth?',
+    options: ['The North Star (Polaris)', 'Sirius', 'The Sun', 'Proxima Centauri'],
+    correct: 2,
+    answerLabel: 'The Sun',
+    explanation: 'The Sun is our nearest star — it\'s about 93 million miles away! It provides Earth with light and heat energy.'
+  },
+  {
+    id: 32, section: 5,
+    type: 'mc',
+    text: 'What causes day and night on Earth?',
+    options: ['The Moon blocking the Sun', 'Earth\'s rotation (spinning) on its axis', 'Earth moving closer to and farther from the Sun', 'Clouds blocking sunlight'],
+    correct: 1,
+    answerLabel: 'Earth\'s rotation on its axis',
+    explanation: 'Earth spins (rotates) once every 24 hours. When your side of Earth faces the Sun = daytime. When it faces away = night!'
+  },
+  {
+    id: 33, section: 5,
+    type: 'tf',
+    text: 'TRUE or FALSE: The Moon produces its own light, just like the Sun does.',
+    options: ['True', 'False'],
+    correct: 1,
+    answerLabel: 'False',
+    explanation: 'The Moon doesn\'t make its own light — it REFLECTS light from the Sun! That\'s why we can only see certain parts of the Moon lit up at different times.'
+  },
+  {
+    id: 34, section: 5,
+    type: 'mc',
+    text: 'What are the three main layers of Earth, listed from the OUTSIDE to the INSIDE?',
+    options: ['Crust, core, mantle', 'Crust, mantle, core', 'Mantle, crust, magma', 'Rock, dirt, lava'],
+    correct: 1,
+    answerLabel: 'Crust, mantle, core',
+    explanation: 'The outermost layer is the crust (where we live), below that is the mantle (thick, hot rock), and at the center is the core (super hot metal).'
+  },
+  {
+    id: 35, section: 5,
+    type: 'mc',
+    text: 'Which planet in our solar system is CLOSEST to the Sun?',
+    options: ['Earth', 'Venus', 'Mercury', 'Mars'],
+    correct: 2,
+    answerLabel: 'Mercury',
+    explanation: 'Mercury is the smallest planet and the one closest to the Sun. It\'s extremely hot on the side facing the Sun!'
+  },
+  {
+    id: 36, section: 5,
+    type: 'mc',
+    text: 'What natural force keeps the planets in orbit around the Sun?',
+    options: ['Magnetism', 'Wind', 'Gravity', 'Electricity'],
+    correct: 2,
+    answerLabel: 'Gravity',
+    explanation: 'Gravity is the force that pulls objects toward each other. The Sun\'s massive gravity keeps all the planets orbiting around it.'
+  },
+  {
+    id: 37, section: 5,
+    type: 'tf',
+    text: 'TRUE or FALSE: Earth travels all the way around the Sun once every 365 days (about one year).',
+    options: ['True', 'False'],
+    correct: 0,
+    answerLabel: 'True',
+    explanation: 'One trip around the Sun takes about 365 days — that\'s why a year is 365 days long (and every 4 years we add a leap day)!'
+  }
+];
+
+/* ════════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════════ */
+const TOTAL = QUESTIONS.length;
+const STORAGE_KEY = 'science-lesson-1-v1';
+let answered = 0;
+let correctCount = 0;
+let wrongCount = 0;
+const answersRecord = {}; // { qId: { selectedIdx, selectedText, isCorrect, correctText, questionText, section, explanation } }
+
+/* ════════════════════════════════════════════════
+   BUILD UI
+   ════════════════════════════════════════════════ */
+function buildQuestions() {
+  const sectionBodies = {
+    1: document.getElementById('s1-body'),
+    2: document.getElementById('s2-body'),
+    3: document.getElementById('s3-body'),
+    4: document.getElementById('s4-body'),
+    5: document.getElementById('s5-body')
+  };
+
+  QUESTIONS.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `card-${q.id}`;
+
+    const numEl = document.createElement('div');
+    numEl.className = 'q-num';
+    numEl.textContent = `Question ${q.id}`;
+
+    const textEl = document.createElement('div');
+    textEl.className = 'q-text';
+    textEl.textContent = q.text;
+
+    const optWrap = document.createElement('div');
+    optWrap.className = q.type === 'tf' ? 'tf-row' : 'options';
+
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = q.type === 'tf' ? 'tf-btn' : 'opt-btn';
+      btn.textContent = (q.type === 'mc' ? String.fromCharCode(65 + idx) + ')  ' : '') + opt;
+      btn.dataset.q = q.id;
+      btn.dataset.idx = idx;
+      btn.addEventListener('click', () => handleAnswer(q, btn, idx));
+      optWrap.appendChild(btn);
+    });
+
+    const feedback = document.createElement('div');
+    feedback.className = 'q-feedback';
+    feedback.id = `fb-${q.id}`;
+
+    card.appendChild(numEl);
+    card.appendChild(textEl);
+    card.appendChild(optWrap);
+    card.appendChild(feedback);
+
+    sectionBodies[q.section].appendChild(card);
+  });
+}
+
+/* ════════════════════════════════════════════════
+   APPLY ANSWER STATE (shared by live answer + restore)
+   ════════════════════════════════════════════════ */
+function applyAnswerState(q, selectedIdx, isCorrect) {
+  const allBtns = document.querySelectorAll(`[data-q="${q.id}"]`);
+  allBtns.forEach(b => b.disabled = true);
+
+  const card = document.getElementById(`card-${q.id}`);
+  const fb   = document.getElementById(`fb-${q.id}`);
+  card.classList.add('answered');
+
+  if (isCorrect) {
+    allBtns[selectedIdx].classList.add('state-correct');
+    fb.classList.add('show-correct');
+    fb.innerHTML = '✅ <strong>Correct!</strong> ' + q.explanation;
+  } else {
+    allBtns[selectedIdx].classList.add('state-wrong');
+    allBtns[q.correct].classList.add('state-revealed');
+    fb.classList.add('show-wrong');
+    fb.innerHTML = '❌ <strong>Not quite!</strong> ' + q.explanation;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   HANDLE ANSWER (live click)
+   ════════════════════════════════════════════════ */
+function handleAnswer(q, clickedBtn, clickedIdx) {
+  const isCorrect = clickedIdx === q.correct;
+
+  applyAnswerState(q, clickedIdx, isCorrect);
+
+  if (isCorrect) { correctCount++; } else { wrongCount++; }
+
+  answersRecord[q.id] = {
+    selectedIdx:  clickedIdx,
+    selectedText: q.options[clickedIdx],
+    isCorrect,
+    correctText:  q.answerLabel,
+    questionText: q.text,
+    section:      q.section,
+    explanation:  q.explanation
+  };
+
+  answered++;
+  updateScore();
+  saveToStorage();
+  document.getElementById('save-bar').classList.add('show');
+
+  if (answered === TOTAL) {
+    setTimeout(showFinalBanner, 600);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   UPDATE SCOREBOARD
+   ════════════════════════════════════════════════ */
+function updateScore() {
+  document.getElementById('sc-correct').textContent  = correctCount;
+  document.getElementById('sc-wrong').textContent    = wrongCount;
+  document.getElementById('sc-answered').textContent = answered;
+  const pct = Math.round((correctCount / answered) * 100);
+  document.getElementById('sc-pct').textContent = answered > 0 ? pct + '%' : '—';
+  document.getElementById('progress-bar').style.width = (answered / TOTAL * 100) + '%';
+}
+
+/* ════════════════════════════════════════════════
+   FINAL BANNER
+   ════════════════════════════════════════════════ */
+function showFinalBanner() {
+  saveToStorage(); // ensure completedAt is stored
+  const pct = Math.round((correctCount / TOTAL) * 100);
+  let emoji, msg;
+  if (pct >= 90)      { emoji = '🏆'; msg = 'Outstanding work! You are a science superstar!'; }
+  else if (pct >= 80) { emoji = '🌟'; msg = 'Great job! You really know your science!'; }
+  else if (pct >= 70) { emoji = '👍'; msg = 'Good effort! Review the ones you missed and try again!'; }
+  else if (pct >= 60) { emoji = '📚'; msg = "Keep studying — you'll get there! Science takes practice."; }
+  else                { emoji = '💪'; msg = "Don't give up! Read through the answer key and you'll improve!"; }
+
+  document.getElementById('final-score-txt').textContent = `${correctCount} / ${TOTAL} — ${pct}%`;
+  document.getElementById('final-msg').textContent = `You answered ${correctCount} questions correctly out of ${TOTAL}.`;
+  document.getElementById('grade-msg').textContent = emoji + ' ' + msg;
+
+  const banner = document.getElementById('final-banner');
+  banner.classList.add('show');
+  banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ════════════════════════════════════════════════
+   LOCAL STORAGE — SAVE
+   ════════════════════════════════════════════════ */
+function saveToStorage() {
+  const data = {
+    lessonId:    'science-lesson-1',
+    lessonTitle: 'Summer Science Refresher — Lesson 1: The World of Science',
+    savedAt:     new Date().toISOString(),
+    completed:   answered === TOTAL,
+    score:       { correct: correctCount, wrong: wrongCount, answered, total: TOTAL },
+    answers:     answersRecord
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+
+/* ════════════════════════════════════════════════
+   LOCAL STORAGE — RESTORE
+   ════════════════════════════════════════════════ */
+function restoreFromStorage() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) {}
+  if (!data || !data.answers || Object.keys(data.answers).length === 0) return;
+
+  let restoredCount = 0;
+  QUESTIONS.forEach(q => {
+    const rec = data.answers[q.id];
+    if (!rec) return;
+
+    applyAnswerState(q, rec.selectedIdx, rec.isCorrect);
+    answersRecord[q.id] = rec;
+    if (rec.isCorrect) { correctCount++; } else { wrongCount++; }
+    answered++;
+    restoredCount++;
+  });
+
+  if (restoredCount > 0) {
+    updateScore();
+    document.getElementById('save-bar').classList.add('show');
+    document.getElementById('restored-notice').classList.add('show');
+  }
+  if (answered === TOTAL) {
+    setTimeout(showFinalBanner, 400);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   RESET
+   ════════════════════════════════════════════════ */
+function resetLesson() {
+  if (confirm('Start over? This will erase the saved results for this lesson.')) {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    location.reload();
+  }
+}
+
+/* ════════════════════════════════════════════════
+   DOWNLOAD RESULTS REPORT
+   ════════════════════════════════════════════════ */
+function downloadResults() {
+  const pct  = TOTAL > 0 ? Math.round(correctCount / TOTAL * 100) : 0;
+  const date = new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' });
+
+  const sectionNames = {
+    1: 'The Scientific Method',
+    2: 'Lab Safety & Science Tools',
+    3: 'States of Matter',
+    4: 'Living Things',
+    5: 'Earth & Space Science'
+  };
+
+  const wrongQs   = QUESTIONS.filter(q => answersRecord[q.id] && !answersRecord[q.id].isCorrect);
+  const correctQs = QUESTIONS.filter(q => answersRecord[q.id] &&  answersRecord[q.id].isCorrect);
+  const unanswered = QUESTIONS.filter(q => !answersRecord[q.id]);
+
+  function wrongRows() {
+    if (wrongQs.length === 0) return '<p style="color:#27ae60;font-weight:700;">🎉 No wrong answers!</p>';
+    return wrongQs.map(q => {
+      const rec = answersRecord[q.id];
+      return `
+        <div style="border:2px solid #e74c3c;border-radius:10px;padding:14px 18px;margin-bottom:12px;background:#fff8f8;">
+          <div style="font-size:0.8em;color:#e74c3c;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">
+            Question ${q.id} — Section ${q.section}: ${sectionNames[q.section]}
+          </div>
+          <div style="font-weight:600;color:#222;margin-bottom:10px;">${q.text}</div>
+          <div style="background:#fde8e8;border-radius:6px;padding:8px 12px;margin-bottom:6px;color:#7b241c;">
+            ❌ <strong>Answer given:</strong> ${rec.selectedText}
+          </div>
+          <div style="background:#d4f5e2;border-radius:6px;padding:8px 12px;margin-bottom:6px;color:#145a32;">
+            ✅ <strong>Correct answer:</strong> ${q.answerLabel}
+          </div>
+          <div style="background:#f0f4ff;border-radius:6px;padding:8px 12px;color:#444;font-style:italic;">
+            💡 ${q.explanation}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function correctRows() {
+    return correctQs.map(q => `
+      <div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #eee;font-size:0.93em;">
+        <span style="font-weight:700;color:#27ae60;min-width:28px;">${q.id}.</span>
+        <span style="color:#145a32;font-weight:600;">${q.answerLabel}</span>
+        <span style="color:#666;font-style:italic;flex:1;">${q.text.substring(0,60)}${q.text.length>60?'…':''}</span>
+      </div>`).join('');
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Science Lesson 1 — Results Report</title>
+  <style>
+    body { font-family: 'Segoe UI', Verdana, sans-serif; max-width: 820px; margin: 0 auto; padding: 30px 24px; color: #222; }
+    h1 { color: #0f3460; margin-bottom: 4px; }
+    .meta { color: #666; font-size: 0.9em; margin-bottom: 24px; }
+    .score-box { display:flex; gap:20px; background:#f0f4ff; border-radius:12px; padding:20px; margin-bottom:28px; flex-wrap:wrap; }
+    .sc { text-align:center; flex:1; min-width:80px; }
+    .sc-num { font-size:2.4em; font-weight:900; }
+    .sc-num.c { color:#27ae60; } .sc-num.w { color:#e74c3c; } .sc-num.p { color:#8e44ad; }
+    .sc-lbl { font-size:0.75em; text-transform:uppercase; letter-spacing:0.5px; color:#666; margin-top:3px; }
+    h2 { color:#0f3460; border-bottom:2px solid #e0e6ff; padding-bottom:6px; margin:28px 0 14px; }
+    @media print { body { padding:10px; } }
+  </style>
+</head>
+<body>
+  <h1>🔬 Summer Science Refresher</h1>
+  <h2 style="border:none;margin-top:0;color:#444;font-size:1.1em;">Lesson 1: The World of Science</h2>
+  <div class="meta">Report generated: ${date}</div>
+
+  <div class="score-box">
+    <div class="sc"><div class="sc-num c">${correctCount}</div><div class="sc-lbl">✅ Correct</div></div>
+    <div class="sc"><div class="sc-num w">${wrongCount}</div><div class="sc-lbl">❌ Wrong</div></div>
+    <div class="sc"><div class="sc-num" style="color:#2980b9;">${answered}</div><div class="sc-lbl">📝 Answered</div></div>
+    <div class="sc"><div class="sc-num p">${pct}%</div><div class="sc-lbl">⭐ Score</div></div>
+  </div>
+
+  <h2>❌ Questions Answered Incorrectly (${wrongQs.length})</h2>
+  ${wrongRows()}
+
+  ${unanswered.length > 0 ? `<h2>⏭️ Not Yet Answered (${unanswered.length})</h2>
+  <p style="color:#666;">${unanswered.map(q => 'Q' + q.id).join(', ')}</p>` : ''}
+
+  <h2>✅ Questions Answered Correctly (${correctQs.length})</h2>
+  <div style="background:#f0fff6;border-radius:10px;padding:14px 18px;">
+    ${correctRows() || '<p style="color:#666;">None yet.</p>'}
+  </div>
+
+  <p style="margin-top:30px;color:#999;font-size:0.8em;text-align:center;">
+    Summer Science Refresher — 4th Grade into 5th Grade
+  </p>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `science-lesson-1-results-${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ════════════════════════════════════════════════
+   BUILD ANSWER KEY
+   ════════════════════════════════════════════════ */
+function buildAnswerKey() {
+  const body = document.getElementById('ak-body');
+  const sectionNames = {
+    1: '🔬 Section 1: The Scientific Method',
+    2: '🥽 Section 2: Lab Safety & Science Tools',
+    3: '🧊 Section 3: States of Matter',
+    4: '🌱 Section 4: Living Things',
+    5: '🚀 Section 5: Earth & Space Science'
+  };
+  let lastSection = 0;
+
+  QUESTIONS.forEach(q => {
+    if (q.section !== lastSection) {
+      const title = document.createElement('div');
+      title.className = 'ak-section-title';
+      title.textContent = sectionNames[q.section];
+      body.appendChild(title);
+      lastSection = q.section;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'ak-row';
+    row.innerHTML = `
+      <span class="ak-num">${q.id}.</span>
+      <span class="ak-ans">${q.answerLabel}</span>
+      <span class="ak-exp">${q.explanation}</span>
+    `;
+    body.appendChild(row);
+  });
+}
+
+/* ════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════ */
+buildQuestions();
+buildAnswerKey();
+restoreFromStorage();
+</script>
+</body>
+</html>
