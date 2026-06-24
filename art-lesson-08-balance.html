@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Art Lesson 8 — Balance (Interactive)</title>
+<style>
+  :root{
+    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#3a4059; --warn:#ffd166; --bad:#ff6b81;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .35em}
+  .hidden{display:none !important}
+
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px}
+  .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+  .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#211}
+
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)}
+  .phaserow.done .dot{background:var(--good);border-color:var(--good)}
+  .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px}
+  .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px}
+  .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#33304a;border:1px solid #4b3f6b}
+  .extra .lab{font-size:12px;font-weight:700;color:#caa9ff;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#e7e1f7}
+  .matbox{margin-top:12px;font-size:13px;color:var(--muted)} .matbox b{color:var(--ink)}
+
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:16px;display:none}
+  .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:62ch}
+
+  .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .swatches{display:flex;gap:6px}
+  .sw{width:26px;height:26px;border-radius:50%;border:2px solid #0006;cursor:pointer}
+  .sw.active{outline:3px solid var(--ink);outline-offset:1px}
+  .tbtn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700}
+  .tbtn.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .guidebar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .guidebar .glab{font-size:12px;color:var(--muted);align-self:center;margin-right:2px}
+  canvas#pad{background:#fff;border-radius:10px;box-shadow:0 10px 40px #0007;touch-action:none;max-width:100%;display:block}
+
+  /* game */
+  .scene{display:flex;justify-content:center;margin:8px 0}
+  .scene svg{width:100%;max-width:300px;height:auto;background:#fff;border-radius:14px;border:2px solid #0003;padding:6px}
+  .pickrow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .pickrow .big{flex:1;min-width:120px;font-size:14px;font-weight:800;padding:13px 8px;border-radius:14px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);line-height:1.3}
+  .gamemsg{margin-top:8px;font-weight:700;font-size:14px;min-height:1.2em}
+  .gamemsg.ok{color:var(--good)} .gamemsg.no{color:var(--bad)}
+  .scorepill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;color:var(--accent2)}
+
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+  .sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)}
+  .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
+  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px} .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700} .answerkey .ak .correct{color:var(--good)}
+  .answerkey .ak .got{color:#ff8a9a} .answerkey .ak .got.okgot{color:var(--good)}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+  #doneBanner h2{font-size:24px} #doneBanner p{color:var(--muted);line-height:1.5}
+  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+
+  @media (max-width:820px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;max-height:48%;border-right:none;border-bottom:1px solid var(--line)}
+    .clock{font-size:38px}
+  }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div>
+      <div class="ltitle">⚖️ Art Lesson 8: Balance</div>
+      <div class="lsub">Symmetrical · asymmetrical · radial · the first Principle of Art · ~38 minutes · 4th→5th</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="types">⚖️ Balance Types</button>
+        <button class="tab" data-z="studio">🦋 Mirror Studio</button>
+      </div>
+
+      <!-- BALANCE TYPES GAME -->
+      <div class="zone on" id="z-types">
+        <h3>What kind of Balance? <span class="scorepill" id="balScore">0 / 0</span></h3>
+        <p class="lead"><b>Balance</b> is how the "visual weight" is spread out so an artwork feels steady. Three kinds: <b>Symmetrical</b> (both sides match like a mirror), <b>Asymmetrical</b> (sides look different but still feel balanced), <b>Radial</b> (everything spreads out from a center point). Look and choose!</p>
+        <div class="scene" id="balScene"></div>
+        <div class="pickrow">
+          <button class="big" id="btnSym">🪞 Symmetrical</button>
+          <button class="big" id="btnAsym">⚖️ Asymmetrical</button>
+          <button class="big" id="btnRad">🌸 Radial</button>
+        </div>
+        <div class="gamemsg" id="balMsg">Round 1</div>
+      </div>
+
+      <!-- MIRROR STUDIO -->
+      <div class="zone" id="z-studio">
+        <h3>Mirror Studio 🦋</h3>
+        <p class="lead">Magic mirror drawing! In <b>Symmetry</b> mode, whatever you draw on one side appears on the other — perfect for a balanced butterfly or face. In <b>Radial</b> mode it repeats all the way around the center to make a mandala or snowflake. Your work <b>auto-saves</b>.</p>
+        <div class="guidebar">
+          <span class="glab">Mode:</span>
+          <button class="tbtn on" id="g-sym">🪞 Symmetry</button>
+          <button class="tbtn" id="g-rad">🌸 Radial</button>
+          <button class="tbtn" id="g-free">✋ Free draw</button>
+        </div>
+        <div class="tools">
+          <div class="swatches" id="swatches"></div>
+          <label style="font-size:12px;color:var(--muted)">Size <input type="range" id="size" min="1" max="40" value="5"></label>
+          <button class="tbtn on" id="penBtn">✏ Pen</button>
+          <button class="tbtn" id="eraserBtn">⌫ Eraser</button>
+          <button class="tbtn" id="clearBtn">🗑 Clear</button>
+          <button class="tbtn" id="saveBtn">⬇ Save PNG</button>
+        </div>
+        <canvas id="pad" width="900" height="560"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="doneBanner" class="modal hidden"><div class="box">
+  <h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p>
+  <button id="doneBtn">Next step ▶</button>
+</div></div>
+
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* ---------------- PHASES (total = 38 min) ---------------- */
+const PHASES=[
+  {name:"Warm-Up", min:5, tab:"types",
+   steps:["BALANCE is the first PRINCIPLE of art — how you arrange things so the picture feels steady, not tippy.","Three kinds: SYMMETRICAL (mirror match), ASYMMETRICAL (different but balanced), RADIAL (spreads from a center).","Open ⚖️ Balance Types and name the balance in each picture."],
+   doline:"DO NOW: name the balance type in each picture →"},
+  {name:"Mini-Lesson", min:7, tab:"studio", guide:"sym",
+   steps:["SYMMETRICAL balance = both halves match across a 'line of symmetry' (like a butterfly or your face).","Open 🦋 Mirror Studio — it starts in Symmetry mode.","Draw on ONE side and watch it mirror to the other side automatically!","Try making a symmetrical butterfly or a funny face."],
+   doline:"DO NOW: draw something symmetrical in Mirror Studio →"},
+  {name:"Guided Practice", min:6, tab:"types",
+   steps:["Go back to ⚖️ Balance Types and finish all the rounds.","Look around the room: a window is often symmetrical, a flower is radial.","Asymmetrical is trickier — a big thing on one side can balance several small things on the other."],
+   doline:"DO NOW: finish the balance rounds + spot real balance →"},
+  {name:"Main Activity — Symmetry Design", min:9, tab:"studio", guide:"sym",
+   steps:["Back in 🦋 Mirror Studio (Symmetry mode).","Design a symmetrical creature, mask, or robot — both sides will always match.","Add details and switch colors so it's bold and balanced.","Save it with ⬇ Save PNG."],
+   doline:"DO NOW: finish a symmetrical design →"},
+  {name:"Main Activity — Radial Mandala", min:8, tab:"studio", guide:"rad",
+   steps:["Press “🌸 Radial”. Now your marks repeat all the way around the center.","Start with small marks NEAR the center, then work outward in rings.","Watch a snowflake / mandala appear! Change colors for each ring.","Save your mandala with ⬇ Save PNG."],
+   doline:"DO NOW: make a radial mandala →"},
+  {name:"Reflection + Quiz", min:3, tab:"studio",
+   steps:["Compare your two designs — symmetry feels calm & even; radial feels like it's spinning out from the middle.","Press 📝 Quiz (top right) to check what you learned about balance.","Grown-up: the quiz shows a score and an answer key so you can grade it."],
+   doline:"DO NOW: take the 📝 Quiz →"},
+];
+
+/* ---------------- TIMER ---------------- */
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){
+  const wrap=$("#steps"); wrap.innerHTML="";
+  PHASES.forEach((p,idx)=>{
+    const row=document.createElement("div");
+    row.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    row.innerHTML=`<div class="dot"></div><div class="meta">
+      <div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div>
+      <ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
+      ${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    row.onclick=()=>selectPhase(idx,false);
+    wrap.appendChild(row);
+  });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">⭐ If you finish early</div><p>Asymmetry challenge: in Free-draw mode, put ONE big shape on the left, then balance it with a few SMALL shapes on the right so the picture still feels even. That's asymmetrical balance — the hardest and coolest kind!</p>`;
+  wrap.appendChild(ex);
+  const mat=document.createElement("div"); mat.className="matbox";
+  mat.innerHTML=`<b>Materials:</b> Just this screen! (Folding paper in half and cutting a shape makes a perfect symmetrical print too.)`;
+  wrap.appendChild(mat);
+}
+function selectPhase(idx,autostart){
+  stopTimer(); curPhase=idx; const p=PHASES[idx];
+  remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps();
+  if(p.tab) showZone(p.tab);
+  if(p.guide){ setGuide(p.guide); }
+  const a=document.querySelector(".phaserow.active"); if(a) a.scrollIntoView({block:"nearest",behavior:"smooth"});
+  if(autostart) startTimer();
+}
+function updateClock(){
+  const m=Math.floor(remaining/60), s=remaining%60;
+  const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  el.classList.toggle("low",remaining<=30&&remaining>0);
+  $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";
+}
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stopTimer();phaseFinished();} }
+function startTimer(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stopTimer(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+function phaseFinished(){
+  const last=curPhase>=PHASES.length-1;
+  $("#doneTitle").textContent=last?"🎉 Lesson complete!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great work — you balanced art three different ways! Take the quiz if you haven't, save your designs, or try the asymmetry challenge.":`Nice! Ready for: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  try{beep();}catch(e){}
+}
+$("#doneBtn").onclick=()=>{ $("#doneBanner").classList.add("hidden");
+  if(curPhase<PHASES.length-1) selectPhase(curPhase+1,true); };
+$("#startBtn").onclick=startTimer; $("#pauseBtn").onclick=stopTimer;
+$("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); else phaseFinished(); };
+let actx; function beep(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  [660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";
+    o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);}); }
+
+/* ---------------- TABS ---------------- */
+function showZone(z){
+  document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));
+  if(z==="studio") resizeCanvas();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ---------------- BALANCE TYPES GAME ---------------- */
+const BAL_SVG={
+  butterfly:`<g fill="#9b5cff" stroke="#5a2ea6" stroke-width="2"><ellipse cx="62" cy="48" rx="28" ry="22"/><ellipse cx="138" cy="48" rx="28" ry="22"/><ellipse cx="66" cy="98" rx="22" ry="24"/><ellipse cx="134" cy="98" rx="22" ry="24"/></g><rect x="97" y="40" width="6" height="74" rx="3" fill="#333"/>`,
+  face:`<circle cx="100" cy="74" r="56" fill="#ffd166" stroke="#d9a400" stroke-width="2"/><circle cx="78" cy="62" r="8" fill="#333"/><circle cx="122" cy="62" r="8" fill="#333"/><path d="M72 96 Q100 120 128 96" fill="none" stroke="#333" stroke-width="4"/>`,
+  heart:`<path d="M100 124 C30 80 44 30 78 30 C92 30 100 44 100 50 C100 44 108 30 122 30 C156 30 170 80 100 124 Z" fill="#ff6b81" stroke="#c0394f" stroke-width="2"/>`,
+  flower:`<g fill="#ff7a59" stroke="#c64a2e" stroke-width="2">${Array.from({length:8},(_,i)=>{const a=i*45*Math.PI/180;return `<ellipse cx="${100+Math.cos(a)*34}" cy="${74+Math.sin(a)*34}" rx="16" ry="9" transform="rotate(${i*45} ${100+Math.cos(a)*34} ${74+Math.sin(a)*34})"/>`;}).join("")}</g><circle cx="100" cy="74" r="16" fill="#ffd166" stroke="#d9a400" stroke-width="2"/>`,
+  sun:`<g stroke="#f0a500" stroke-width="4">${Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;return `<line x1="${100+Math.cos(a)*38}" y1="${74+Math.sin(a)*38}" x2="${100+Math.cos(a)*54}" y2="${74+Math.sin(a)*54}"/>`;}).join("")}</g><circle cx="100" cy="74" r="34" fill="#ffd166" stroke="#d9a400" stroke-width="2"/>`,
+  wheel:`<circle cx="100" cy="74" r="52" fill="none" stroke="#5bd1c4" stroke-width="5"/><circle cx="100" cy="74" r="10" fill="#5bd1c4"/><g stroke="#5bd1c4" stroke-width="4">${Array.from({length:8},(_,i)=>{const a=i*45*Math.PI/180;return `<line x1="100" y1="74" x2="${100+Math.cos(a)*50}" y2="${74+Math.sin(a)*50}"/>`;}).join("")}</g>`,
+  asym1:`<circle cx="58" cy="80" r="42" fill="#4d96ff" stroke="#2b6fd1" stroke-width="2"/><circle cx="138" cy="44" r="14" fill="#ff7a59"/><circle cx="150" cy="80" r="11" fill="#ffd166"/><circle cx="136" cy="108" r="9" fill="#7bd88f"/>`,
+  asym2:`<rect x="24" y="40" width="64" height="80" rx="6" fill="#9b5cff" stroke="#5a2ea6" stroke-width="2"/><circle cx="140" cy="60" r="16" fill="#ff6b81"/><circle cx="158" cy="92" r="10" fill="#ffd166"/><rect x="120" y="104" width="22" height="18" rx="3" fill="#7bd88f"/>`
+};
+const BAL_ROUNDS=[
+  {k:"butterfly",type:"sym"},{k:"flower",type:"rad"},{k:"asym1",type:"asym"},
+  {k:"face",type:"sym"},{k:"sun",type:"rad"},{k:"asym2",type:"asym"},
+  {k:"heart",type:"sym"},{k:"wheel",type:"rad"}
+];
+const TYPE_NAME={sym:"SYMMETRICAL",asym:"ASYMMETRICAL",rad:"RADIAL"};
+let balQueue=[], balIdx=0, balRight=0, balDone=0;
+function buildBal(){ balQueue=shuffle(BAL_ROUNDS); balIdx=0; balRight=0; balDone=0; renderBal(); }
+function renderBal(){
+  if(balIdx>=balQueue.length){
+    $("#balScene").innerHTML="";
+    $("#balMsg").className="gamemsg ok"; $("#balMsg").textContent=`🎉 Done! ${balRight} of ${balQueue.length} correct.`;
+    $("#balScore").textContent=`${balRight} / ${balQueue.length}`; return;
+  }
+  $("#balScene").innerHTML=`<svg viewBox="0 0 200 148">${BAL_SVG[balQueue[balIdx].k]}</svg>`;
+  $("#balMsg").className="gamemsg"; $("#balMsg").textContent=`Picture ${balIdx+1} of ${balQueue.length} — what balance is it?`;
+  $("#balScore").textContent=`${balRight} / ${balDone}`;
+}
+function answerBal(guess){
+  if(balIdx>=balQueue.length) return;
+  const it=balQueue[balIdx], correct=(guess===it.type); balDone++;
+  if(correct){ balRight++; $("#balMsg").className="gamemsg ok"; $("#balMsg").textContent="✓ Correct!"; }
+  else { $("#balMsg").className="gamemsg no"; $("#balMsg").textContent=`✗ That one is ${TYPE_NAME[it.type]}.`; }
+  $("#balScore").textContent=`${balRight} / ${balDone}`;
+  balIdx++; setTimeout(renderBal,850);
+}
+$("#btnSym").onclick=()=>answerBal("sym");
+$("#btnAsym").onclick=()=>answerBal("asym");
+$("#btnRad").onclick=()=>answerBal("rad");
+
+/* ---------------- MIRROR STUDIO CANVAS ---------------- */
+const pad=$("#pad"), ctx=pad.getContext("2d");
+let drawing=false,lastX=0,lastY=0,penColor="#9b5cff",penSize=5,erasing=false,curGuide="sym",mirrorMode="sym",radialN=8;
+const PALETTE=["#9b5cff","#ff7a59","#ffd166","#4d96ff","#54b06b","#ff6b81","#1a1a1a","#ffffff"];
+const swEl=$("#swatches");
+PALETTE.forEach((c,i)=>{ const d=document.createElement("div"); d.className="sw"+(i===0?" active":""); d.style.background=c;
+  d.onclick=()=>{ penColor=c; erasing=false; $("#penBtn").classList.add("on"); $("#eraserBtn").classList.remove("on");
+    document.querySelectorAll("#swatches .sw").forEach(s=>s.classList.remove("active")); d.classList.add("active"); };
+  swEl.appendChild(d); });
+$("#size").oninput=e=>penSize=+e.target.value;
+$("#penBtn").onclick=()=>{erasing=false;$("#penBtn").classList.add("on");$("#eraserBtn").classList.remove("on");};
+$("#eraserBtn").onclick=()=>{erasing=true;$("#eraserBtn").classList.add("on");$("#penBtn").classList.remove("on");};
+$("#clearBtn").onclick=()=>{ setGuide(curGuide); saveCanvas(); };
+$("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="art-lesson-8-balance.png";a.href=pad.toDataURL("image/png");a.click();};
+$("#g-sym").onclick=()=>{setGuide("sym");saveCanvas();};
+$("#g-rad").onclick=()=>{setGuide("rad");saveCanvas();};
+$("#g-free").onclick=()=>{setGuide("free");saveCanvas();};
+function highlightGuideBtn(){ ["sym","rad","free"].forEach(g=>$("#g-"+g).classList.toggle("on",g===curGuide)); }
+
+/* ---------------- AUTO-SAVE (survives screen rotation & reloads) ---------------- */
+const CANVAS_KEY="art-l8-canvas";
+let _saveTimer=null,_toast=null;
+function _showToast(){ if(!_toast){_toast=document.createElement("div");
+    _toast.style.cssText="position:fixed;bottom:14px;right:14px;background:#1f3d2b;color:#d6f5df;border:1px solid #7bd88f;padding:7px 12px;border-radius:10px;font:600 12px sans-serif;z-index:80;opacity:0;transition:opacity .25s;pointer-events:none";
+    _toast.textContent="✓ Auto-saved"; document.body.appendChild(_toast);}
+  _toast.style.opacity="1"; clearTimeout(_toast._t); _toast._t=setTimeout(()=>{_toast.style.opacity="0";},900); }
+function saveCanvas(){ try{ localStorage.setItem(CANVAS_KEY,pad.toDataURL("image/png")); _showToast(); }catch(e){} }
+function autosave(){ clearTimeout(_saveTimer); _saveTimer=setTimeout(saveCanvas,400); }
+function restoreCanvas(){ try{ const d=localStorage.getItem(CANVAS_KEY); if(!d) return false;
+    const img=new Image(); img.onload=()=>{ ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height); ctx.drawImage(img,0,0,pad.width,pad.height); }; img.src=d; return true; }catch(e){ return false; } }
+function resizeCanvas(){ const host=pad.parentElement; const w=Math.min(host.clientWidth-32,1000);
+  if(w>320 && Math.abs(w-pad.width)>4){
+    const off=document.createElement("canvas"); off.width=pad.width; off.height=pad.height; off.getContext("2d").drawImage(pad,0,0);
+    const ow=pad.width, oh=pad.height;
+    pad.width=w; pad.height=Math.round(w*0.62); ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+    ctx.drawImage(off,0,0,ow,oh,0,0,pad.width,pad.height); saveCanvas(); }
+  ctx.lineCap="round"; ctx.lineJoin="round"; }
+
+function setGuide(kind){
+  curGuide=kind; highlightGuideBtn();
+  mirrorMode = (kind==="rad")?"radial" : (kind==="free")?"none" : "sym";
+  ctx.setLineDash([]); ctx.globalAlpha=1;
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+  ctx.save();
+  if(kind==="sym") guideSym();
+  else if(kind==="rad") guideRad();
+  else guideFree();
+  ctx.restore();
+  ctx.lineCap="round"; ctx.lineJoin="round";
+}
+function guideSym(){
+  const W=pad.width,H=pad.height;
+  ctx.strokeStyle="#d6c2ff"; ctx.lineWidth=2; ctx.setLineDash([8,7]);
+  ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle="#9c84c8"; ctx.font="bold 14px sans-serif"; ctx.textAlign="center";
+  ctx.fillText("line of symmetry — draw on EITHER side, it mirrors!",W/2,24); ctx.textAlign="start";
+}
+function guideRad(){
+  const W=pad.width,H=pad.height,cx=W/2,cy=H/2;
+  ctx.strokeStyle="#e9def8"; ctx.lineWidth=1.5; ctx.setLineDash([6,6]);
+  for(let i=0;i<radialN;i++){ const a=i*2*Math.PI/radialN; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*Math.max(W,H),cy+Math.sin(a)*Math.max(W,H)); ctx.stroke(); }
+  [0.18,0.34,0.5].forEach(f=>{ ctx.beginPath(); ctx.arc(cx,cy,Math.min(W,H)*f,0,Math.PI*2); ctx.stroke(); });
+  ctx.setLineDash([]);
+  ctx.fillStyle="#c8b3eb"; ctx.beginPath(); ctx.arc(cx,cy,4,0,7); ctx.fill();
+  ctx.fillStyle="#9c84c8"; ctx.font="bold 14px sans-serif"; ctx.textAlign="center";
+  ctx.fillText("draw near the center — it repeats around to make a mandala!",cx,24); ctx.textAlign="start";
+}
+function guideFree(){
+  ctx.fillStyle="#b9bed0"; ctx.font="bold 14px sans-serif";
+  ctx.fillText("Free draw (no mirror) — try asymmetrical balance: one big shape vs. a few small ones.",16,24);
+}
+
+/* mirror transforms */
+function transforms(){
+  const cx=pad.width/2, cy=pad.height/2, list=[];
+  if(mirrorMode==="sym"){ list.push(p=>p); list.push(p=>[pad.width-p[0],p[1]]); }
+  else if(mirrorMode==="radial"){
+    for(let k=0;k<radialN;k++){ const a=k*2*Math.PI/radialN, ca=Math.cos(a), sa=Math.sin(a);
+      list.push(p=>{const dx=p[0]-cx,dy=p[1]-cy; return [cx+dx*ca-dy*sa, cy+dx*sa+dy*ca];});
+      list.push(p=>{const dx=-(p[0]-cx),dy=p[1]-cy; return [cx+dx*ca-dy*sa, cy+dx*sa+dy*ca];}); }
+  } else { list.push(p=>p); }
+  return list;
+}
+function rawSeg(x0,y0,x1,y1){ ctx.strokeStyle=erasing?"#fff":penColor; ctx.lineWidth=erasing?penSize*2.4:penSize;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); }
+function rawDot(x,y){ ctx.fillStyle=erasing?"#fff":penColor; ctx.beginPath(); ctx.arc(x,y,(erasing?penSize*1.2:penSize/2),0,7); ctx.fill(); }
+function pos(e){ const r=pad.getBoundingClientRect();
+  const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left, cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  return [cx*(pad.width/r.width), cy*(pad.height/r.height)]; }
+function start(e){ e.preventDefault(); drawing=true; [lastX,lastY]=pos(e);
+  transforms().forEach(t=>{const a=t([lastX,lastY]); rawDot(a[0],a[1]);}); }
+function move(e){ if(!drawing)return; e.preventDefault(); const[x,y]=pos(e);
+  transforms().forEach(t=>{const a=t([lastX,lastY]),b=t([x,y]); rawSeg(a[0],a[1],b[0],b[1]);}); [lastX,lastY]=[x,y]; }
+pad.addEventListener("mousedown",start); pad.addEventListener("mousemove",move); window.addEventListener("mouseup",()=>{ if(drawing){ drawing=false; autosave(); } });
+pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("touchmove",move,{passive:false}); pad.addEventListener("touchend",()=>{ if(drawing){ drawing=false; autosave(); } });
+
+/* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
+const QUIZ=[
+  {q:"BALANCE in art means…",opts:["Using only one color","How visual weight is spread so the art feels steady","Drawing very fast"],a:1},
+  {q:"SYMMETRICAL balance is when…",opts:["Both sides match like a mirror","Everything spreads from a center","The sides are totally different"],a:0},
+  {q:"A butterfly or a person's face is an example of…",opts:["Radial balance","Symmetrical balance","No balance"],a:1},
+  {q:"ASYMMETRICAL balance is when…",opts:["The two sides look different but still feel balanced","Both halves are identical","There is a center point"],a:0},
+  {q:"RADIAL balance is when parts…",opts:["Spread out from a center point","Match left and right","Are all in one corner"],a:0},
+  {q:"A flower, a wheel, or a snowflake shows…",opts:["Radial balance","Asymmetrical balance","No balance"],a:0},
+  {q:"The imaginary line that splits a symmetrical design into matching halves is the…",opts:["Horizon line","Line of symmetry","Color line"],a:1},
+  {q:"A big shape on one side balanced by several small shapes on the other is…",opts:["Symmetrical","Asymmetrical","Radial"],a:1},
+];
+let qi=0, qAns=[];
+$("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };
+function renderQ(){ const sheet=$("#quizSheet");
+  if(qi>=QUIZ.length){ return renderResults(); }
+  const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <div class="qprog">Question ${qi+1} of ${QUIZ.length}</div>
+    <div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;
+  const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t;
+    b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
+}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx;
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
+  btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no");
+  fb.textContent=correct?"✓ Correct!":"✗ Marked wrong. We'll add this to your review list.";
+  const n=document.createElement("button"); n.className="qnext";
+  n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";
+  n.onclick=()=>{ qi++; renderQ(); }; $("#quizSheet").appendChild(n);
+}
+function renderResults(){
+  let right=0; QUIZ.forEach((it,i)=>{ if(qAns[i]===it.a) right++; });
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);
+  try{ localStorage.setItem("art-l8-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/QUIZ.length*100);
+  const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
+    <div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"A perfect score — every answer correct!":"Topics to go over again (answers are saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
+    <div class="answerkey hidden" id="answerKey"></div>
+    <button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz; $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{ const ak=$("#answerKey"); ak.classList.toggle("hidden");
+    if(!ak.dataset.built){ ak.innerHTML=QUIZ.map((it,i)=>{ const g=qAns[i], ok=g===it.a;
+      const got=g==null?"(no answer)":it.opts[g];
+      return `<div class="ak"><div class="qq">${i+1}. ${it.q}</div>
+        <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
+        <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} He chose: ${got}</div></div>`; }).join("");
+      ak.dataset.built="1"; } };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+
+/* ---------------- INIT ---------------- */
+buildBal();
+ctx.fillStyle="#fff"; ctx.fillRect(0,0,pad.width,pad.height);
+renderSteps(); selectPhase(0,false);
+restoreCanvas();
+window.addEventListener("resize",()=>{ if($("#z-studio").classList.contains("on")) resizeCanvas(); });
+/* ---------------- SAFETY SAVE (app closes / backgrounds / loses focus) ---------------- */
+function flushSave(){ try{ clearTimeout(_saveTimer); saveCanvas(); }catch(e){} }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") flushSave(); });
+window.addEventListener("pagehide",flushSave);
+window.addEventListener("beforeunload",flushSave);
+window.addEventListener("blur",flushSave);
+</script>
+</body>
+</html>
