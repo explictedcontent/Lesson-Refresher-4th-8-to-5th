@@ -1,51 +1,67 @@
 # ☀️ Summer Refresher Course · 4th → 5th Grade
 
 A self-paced summer course to keep skills sharp for next school year — a mix of
-subjects from 4th grade plus a head start on 5th. Every lesson is an interactive
-page that runs right in the browser: tap to answer/draw, and progress saves
-automatically.
+4th-grade review plus a head start on 5th. Every lesson is an interactive page
+that runs right in the browser: tap to answer or draw, a timer paces the lesson,
+and **everything saves automatically on the device** (drawings, your place, and
+any quiz questions answered wrong).
 
-**👉 Open [`index.html`](index.html) — the front page lists every subject; click any lesson to start.**
+**👉 Open [`index.html`](index.html) — one app with a tab for each subject. Pick a
+subject, tap a lesson, and go. Wrong quiz answers collect on the _Review_ tab and
+clear themselves once they're answered correctly.**
 
 ---
 
-## 🎨 Art (14 lessons)
+## 🎨 Art — 8 interactive lessons
 
-Open the full course app: [`art.html`](art.html) · or jump into an interactive lesson:
+**Elements of Art**
 
-| Topic | File |
-| ----- | ---- |
-| Line | [art-lesson-04-line.html](art-lesson-04-line.html) |
-| Shape & Form | [art-lesson-05-shape-form.html](art-lesson-05-shape-form.html) |
-| Color Mixing | [art-lesson-01-color-mixing.html](art-lesson-01-color-mixing.html) |
-| Warm & Cool Colors | [art-lesson-02-warm-cool-colors.html](art-lesson-02-warm-cool-colors.html) |
-| Value — Light & Shadow | [art-lesson-03-value-light-shadow.html](art-lesson-03-value-light-shadow.html) |
-| Texture | [art-lesson-06-texture.html](art-lesson-06-texture.html) |
-| Space | [art-lesson-07-space.html](art-lesson-07-space.html) |
-| Balance | [art-lesson-08-balance.html](art-lesson-08-balance.html) |
+| # | Lesson | File |
+| :-: | ----- | ---- |
+| 1 | Color Mixing | [art-lesson-01-color-mixing.html](art-lesson-01-color-mixing.html) |
+| 2 | Warm & Cool Colors | [art-lesson-02-warm-cool-colors.html](art-lesson-02-warm-cool-colors.html) |
+| 3 | Value — Light & Shadow | [art-lesson-03-value-light-shadow.html](art-lesson-03-value-light-shadow.html) |
+| 4 | Line | [art-lesson-04-line.html](art-lesson-04-line.html) |
+| 5 | Shape & Form | [art-lesson-05-shape-form.html](art-lesson-05-shape-form.html) |
+| 6 | Texture | [art-lesson-06-texture.html](art-lesson-06-texture.html) |
+| 7 | Space | [art-lesson-07-space.html](art-lesson-07-space.html) |
 
-Lessons 9–14 (Perspective, Pattern, Emphasis, Proportion, Art History, Capstone) live in the
-[Art Course app](art.html) and the [course notes](art-lessons/00-overview.md).
+**Principles of Art**
 
-## 🔢 Math (4 lessons)
+| # | Lesson | File |
+| :-: | ----- | ---- |
+| 8 | Balance | [art-lesson-08-balance.html](art-lesson-08-balance.html) |
 
-| Lesson | Topic | File |
-| :----: | ----- | ---- |
+*More principles (Pattern, Contrast, Emphasis, Proportion, Rhythm, Unity) are on the way.
+Written lesson-plan notes for the full sequence live in [`art-lessons/`](art-lessons/).*
+
+## 🔢 Math — 4 interactive lessons
+
+| # | Lesson | File |
+| :-: | ----- | ---- |
 | 1 | Place Value | [math-lesson-01-place-value.html](math-lesson-01-place-value.html) |
 | 2 | Comparing & Ordering | [math-lesson-02-comparing-ordering.html](math-lesson-02-comparing-ordering.html) |
 | 3 | Rounding | [math-lesson-03-rounding.html](math-lesson-03-rounding.html) |
 | 4 | Adding & Subtracting | [math-lesson-04-add-subtract.html](math-lesson-04-add-subtract.html) |
-| 5 | Multiplication *(coming soon)* | — |
 
-Each math lesson is ~30 minutes: warm-up review, teaching, practice, a boss round, and stretch
-riddles. Wrong answers lock and stay marked so a grown-up can review them; the **Answer Key** at
-the bottom unlocks once every problem is answered.
+## 🔬 Science — 2 interactive lessons
 
-## 📖 Reading & Writing — *coming soon*
-## 🔬 Science — *coming soon*
+| # | Lesson | File |
+| :-: | ----- | ---- |
+| 1 | The World of Science | [science-lessons/science-lesson-1.html](science-lessons/science-lesson-1.html) |
+| 2 | Earth, Life & Forces | [science-lessons/science-lesson-2.html](science-lessons/science-lesson-2.html) |
+
+## 🌎 Social Studies — *coming soon*
 
 ---
 
-> **To make every lesson clickable on any phone/tablet:** turn on **GitHub Pages**
-> (Settings → Pages → Deploy from a branch → `Main` → `/root`). That publishes the front
-> page at a web address you can bookmark and share — no downloads, no folders.
+### ➕ Adding a subject or lesson
+Drop the lesson's `.html` file into the repo (or a subject folder), then register it in the
+`SUBJECTS` array near the top of [`index.html`](index.html) — copy an existing entry, change the
+title/emoji/description and the `file:` path. The card, tab, and Review wiring all follow
+automatically.
+
+### 📱 Make it clickable on any phone/tablet
+Turn on **GitHub Pages** (Settings → Pages → Deploy from a branch → `Main` → `/root`). That
+publishes [`index.html`](index.html) at a web address you can bookmark and share — no downloads,
+no folders, and the in-app lesson view + saved progress work fully.
