@@ -445,7 +445,9 @@ function renderQ(){ const sheet=$("#quizSheet");
   it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t;
     b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
 }
-function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx;
+const MKEY="refresher-mistakes";
+function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="Art|Lesson 1: Color Mixing|"+qx;if(c)delete s[id];else s[id]={subject:"Art",lesson:"Lesson 1: Color Mixing",q:qt,file:"art-lesson-01-color-mixing.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx; logMistake(correct,qi,it.q);
   document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
   btn.classList.add(correct?"right":"wrong");
   const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no");

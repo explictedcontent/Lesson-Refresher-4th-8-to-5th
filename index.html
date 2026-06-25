@@ -3,240 +3,297 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Summer Refresher Course — 4th to 5th Grade</title>
+<title>Summer Refresher Course — 4th → 5th Grade</title>
 <style>
   :root{
-    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
-    --muted:#a7adc4; --line:#3a4059; --warn:#ffd166; --good:#7bd88f;
+    --bg:#171922; --panel:#222634; --panel2:#2c3142; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#363c52; --warn:#ffd166; --bad:#ff6b81;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;
-  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -200px,#27203a,transparent),var(--bg);
+    color:var(--ink);-webkit-font-smoothing:antialiased}
   a{text-decoration:none;color:inherit}
+  h1,h2,h3{margin:0 0 .35em}
+  button{font-family:inherit;cursor:pointer}
 
-  /* ── PAGE ── */
-  .page{max-width:1060px;margin:0 auto;padding:32px 20px 70px}
+  .wrap{max-width:1060px;margin:0 auto;padding:26px 20px 70px}
+  .hero{background:linear-gradient(135deg,#ff7a59,#ff5e93 50%,#9b5cff);border-radius:22px;
+    padding:30px 32px;color:#fff;box-shadow:0 18px 50px #0007}
+  .hero .htop{display:flex;align-items:center;gap:14px}
+  .hero .hicon{font-size:42px;line-height:1}
+  .hero h1{font-size:32px;font-weight:800;line-height:1.05}
+  .hero p{margin:.55em 0 0;font-size:15px;opacity:.96;max-width:66ch;line-height:1.55}
+  .hstats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .hstats .st{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+    border-radius:12px;padding:8px 14px;font-size:13px;font-weight:700}
 
-  /* ── HERO ── */
-  .hero{
-    background:linear-gradient(135deg,#6c5ce7 0%,#a855f7 40%,#ec4899 75%,#f97316 100%);
-    border-radius:22px;padding:32px 34px;margin-bottom:30px;color:#fff;
-    box-shadow:0 8px 40px rgba(108,92,231,.35);
-  }
-  .hero-top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
-  .hero-icon{font-size:42px;line-height:1}
-  .hero h1{font-size:32px;font-weight:800;line-height:1.1}
-  .hero p{font-size:15px;opacity:.93;max-width:68ch;line-height:1.65;margin-top:4px}
-  .hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-  .chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
-    color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
+  .tabbar{position:sticky;top:0;z-index:20;margin:18px 0 4px;padding:8px 0;
+    background:linear-gradient(var(--bg),var(--bg) 70%,transparent);}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+  .tab{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;
+    transition:transform .07s,border-color .15s,background .15s}
+  .tab:hover{transform:translateY(-1px);border-color:var(--accent)}
+  .tab.on{background:linear-gradient(135deg,#ff7a59,#9b5cff);border-color:transparent;color:#fff}
+  .tab .badge{background:var(--bad);color:#fff;border-radius:999px;font-size:11px;font-weight:800;
+    padding:1px 7px;min-width:18px;text-align:center}
+  .tab.on .badge{background:#fff;color:#c0394f}
 
-  /* ── SECTION LABEL ── */
-  .section-label{
-    font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-    color:var(--muted);margin:0 0 14px;
-  }
+  .panel{display:none;animation:fade .25s ease}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-  /* ── SUBJECT GRID ── */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:40px}
+  .sectionlbl{display:flex;align-items:center;gap:10px;margin:22px 4px 12px}
+  .sectionlbl h2{font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent2)}
+  .sectionlbl .rule{flex:1;height:1px;background:var(--line)}
+  .sectionlbl .count{font-size:12px;color:var(--muted);font-weight:700}
 
-  .subject-card{
-    background:var(--panel);border:2px solid var(--line);border-radius:18px;
-    padding:22px 20px;display:flex;flex-direction:column;gap:10px;
-    transition:transform .1s ease,border-color .15s ease,box-shadow .15s ease;
-    cursor:pointer;position:relative;overflow:hidden;
-  }
-  .subject-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,.3)}
-  .subject-card.soon{opacity:.48;cursor:default}
-  .subject-card.soon:hover{transform:none;box-shadow:none}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;
+    display:flex;flex-direction:column;gap:8px;min-height:148px;text-align:left;width:100%;color:var(--ink);
+    transition:transform .08s,border-color .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 12px 30px #0007}
+  .card .num{font-size:12px;color:var(--accent2);font-weight:800;letter-spacing:.07em}
+  .card .ct{font-size:18px;font-weight:800;line-height:1.16}
+  .card .ct .emo{margin-right:6px}
+  .card .cd{font-size:13px;color:var(--muted);line-height:1.4;flex:1}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+  .chip{font-size:11px;background:var(--panel2);color:var(--muted);padding:3px 9px;border-radius:999px;
+    border:1px solid var(--line);font-weight:700}
+  .chip.go{background:#23311f;border-color:var(--good);color:#bdeccb}
+  .chip.done{background:#1f2d3d;border-color:var(--accent2);color:#bfeee8}
 
-  /* per-subject accent colours */
-  .subject-card.science { border-color:#00b894; }
-  .subject-card.science:hover { border-color:#00cec9; box-shadow:0 8px 28px rgba(0,184,148,.25); }
-  .subject-card.art     { border-color:#ff7a59; }
-  .subject-card.art:hover     { border-color:#ff5e93; box-shadow:0 8px 28px rgba(255,122,89,.25); }
-  .subject-card.math    { border-color:#fdcb6e; }
-  .subject-card.math:hover    { border-color:#f9ca24; box-shadow:0 8px 28px rgba(253,203,110,.2); }
-  .subject-card.social  { border-color:#74b9ff; }
-  .subject-card.social:hover  { border-color:#0984e3; box-shadow:0 8px 28px rgba(116,185,255,.2); }
-  .subject-card.reading { border-color:#fd79a8; }
-  .subject-card.reading:hover { border-color:#e84393; box-shadow:0 8px 28px rgba(253,121,168,.2); }
+  .soon{background:var(--panel);border:1px dashed var(--line);border-radius:16px;padding:40px 20px;
+    text-align:center;color:var(--muted)}
+  .soon .big{font-size:38px} .soon h3{color:var(--ink);margin-top:8px}
 
-  .card-emoji{font-size:36px;line-height:1;margin-bottom:2px}
-  .card-title{font-size:19px;font-weight:800;line-height:1.2}
-  .card-sub{font-size:12.5px;color:var(--muted);line-height:1.5;flex:1}
-  .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
-  .lesson-count{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
-  .lesson-count.active{color:var(--good);border-color:var(--good);background:rgba(123,216,143,.1)}
-  .go-arrow{font-size:18px;opacity:.6}
-  .soon-tag{font-size:11px;background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+  /* review */
+  .review-intro{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+  .review-intro b{color:var(--ink)}
+  .mlesson{margin:14px 0}
+  .mlesson .mh{font-weight:800;font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .mlesson .mh .pill{font-size:11px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--accent2);font-weight:700}
+  .miss{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:10px;
+    padding:11px 13px;margin:7px 0;font-size:14px;line-height:1.45}
+  .miss .openlink{display:inline-block;margin-top:6px;font-size:12.5px;color:var(--accent2);font-weight:700}
+  .emptygood{background:var(--panel);border:1px solid var(--good);border-radius:16px;padding:34px 22px;text-align:center}
+  .emptygood .big{font-size:42px} .emptygood h3{color:var(--good);margin-top:8px}
+  .clearbtn{margin-top:10px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);
+    border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700}
 
-  /* ── SUBJECTS SUMMARY ── */
-  .summary-box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 26px}
-  .summary-box h2{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px}
-  .sum-row{
-    display:flex;gap:14px;align-items:flex-start;
-    padding:12px 0;border-bottom:1px solid var(--line);
-  }
-  .sum-row:last-child{border-bottom:none;padding-bottom:0}
-  .sum-icon{font-size:22px;width:32px;text-align:center;flex:none;padding-top:1px}
-  .sum-body{}
-  .sum-title{font-size:14px;font-weight:700}
-  .sum-detail{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}
-  .sum-badge{
-    display:inline-block;font-size:11px;font-weight:700;border-radius:999px;
-    padding:2px 9px;margin-left:7px;vertical-align:middle;
-  }
-  .sum-badge.live{background:rgba(123,216,143,.15);color:var(--good);border:1px solid rgba(123,216,143,.4)}
-  .sum-badge.soon{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+  footer{color:var(--muted);font-size:12.5px;line-height:1.6;margin-top:30px;text-align:center}
 
-  /* ── FOOTER ── */
-  .footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--muted);line-height:1.7}
+  /* lesson overlay */
+  #overlay{position:fixed;inset:0;z-index:60;background:var(--bg);display:none;flex-direction:column}
+  #overlay.on{display:flex}
+  .obar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .obar button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;
+    padding:9px 14px;font-size:14px;font-weight:700}
+  .obar .otitle{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .obar .ospace{flex:1}
+  #frame{flex:1;border:0;width:100%;background:#14151d}
 
-  @media(max-width:600px){
-    .hero h1{font-size:24px}
-    .grid{grid-template-columns:1fr 1fr}
-  }
-  @media(max-width:420px){
-    .grid{grid-template-columns:1fr}
-  }
+  @media(max-width:560px){ .hero h1{font-size:25px} .wrap{padding:18px 14px 60px} }
 </style>
 </head>
 <body>
-<div class="page">
-
-  <!-- HERO -->
+<div class="wrap">
   <div class="hero">
-    <div class="hero-top">
-      <div class="hero-icon">🏫</div>
-      <h1>Summer Refresher Course</h1>
+    <div class="htop"><div class="hicon">🏫</div>
+      <div><h1>Summer Refresher Course</h1></div>
     </div>
-    <p>Interactive lessons for a 4th-grader heading into 5th grade. Pick a subject below to jump into lessons — each one has questions with instant feedback, live scoring, and a results report you can save or print.</p>
-    <div class="hero-chips">
-      <span class="chip">4th → 5th Grade</span>
-      <span class="chip">~30 min per lesson</span>
-      <span class="chip">Auto-saves progress</span>
-      <span class="chip">Printable results</span>
-    </div>
+    <p>A fun, hands-on review for a 4th-grader heading into 5th grade. Every lesson is interactive — games, a drawing pad, and a timed lesson plan — with a quiz at the end. Pick a subject tab, then a lesson. Wrong quiz answers are saved to the <b>Review</b> tab until they're answered correctly.</p>
+    <div class="hstats" id="hstats"></div>
   </div>
 
-  <!-- SUBJECT GRID -->
-  <p class="section-label">Choose a Subject</p>
-  <div class="grid">
+  <div class="tabbar"><div class="tabs" id="tabs"></div></div>
 
-    <!-- SCIENCE -->
-    <a class="subject-card science" href="science-lessons/index.html">
-      <div class="card-emoji">🔬</div>
-      <div class="card-title">Science</div>
-      <div class="card-sub">Scientific method, matter, living things, Earth &amp; space, forces, ecosystems, adaptations, and more.</div>
-      <div class="card-foot">
-        <span class="lesson-count active">2 lessons ready</span>
-        <span class="go-arrow">→</span>
-      </div>
-    </a>
+  <div id="panels"></div>
 
-    <!-- ART -->
-    <a class="subject-card art" href="art-lessons/index.html">
-      <div class="card-emoji">🎨</div>
-      <div class="card-title">Art</div>
-      <div class="card-sub">14 interactive lessons — draw on screen with a timer! Line, shape, color, shading, perspective, and more.</div>
-      <div class="card-foot">
-        <span class="lesson-count active">14 lessons ready</span>
-        <span class="go-arrow">→</span>
-      </div>
-    </a>
-
-    <!-- MATH -->
-    <div class="subject-card math soon">
-      <div class="card-emoji">📐</div>
-      <div class="card-title">Math</div>
-      <div class="card-sub">Fractions, decimals, multiplication, division, geometry, and problem solving.</div>
-      <div class="card-foot">
-        <span class="soon-tag">Coming Soon</span>
-      </div>
-    </div>
-
-    <!-- SOCIAL STUDIES -->
-    <div class="subject-card social soon">
-      <div class="card-emoji">🌎</div>
-      <div class="card-title">Social Studies</div>
-      <div class="card-sub">U.S. history, geography, government, civics, and world cultures.</div>
-      <div class="card-foot">
-        <span class="soon-tag">Coming Soon</span>
-      </div>
-    </div>
-
-    <!-- READING / ELA -->
-    <div class="subject-card reading soon">
-      <div class="card-emoji">📖</div>
-      <div class="card-title">Reading &amp; ELA</div>
-      <div class="card-sub">Comprehension, vocabulary, grammar, writing skills, and literary analysis.</div>
-      <div class="card-foot">
-        <span class="soon-tag">Coming Soon</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- SUMMARY -->
-  <p class="section-label">All Subjects at a Glance</p>
-  <div class="summary-box">
-    <h2>Course Overview</h2>
-
-    <div class="sum-row">
-      <div class="sum-icon">🔬</div>
-      <div class="sum-body">
-        <div class="sum-title">Science <span class="sum-badge live">2 lessons live</span></div>
-        <div class="sum-detail">
-          <strong>Lesson 1:</strong> Scientific Method · Lab Safety &amp; Tools · States of Matter · Living Things · Earth &amp; Space<br>
-          <strong>Lesson 2:</strong> Water Cycle · Ecosystems &amp; Food Webs · Adaptations · Forces &amp; Motion · Our Solar System<br>
-          <em>Coming:</em> Human Body · Energy &amp; Machines · Earth's Systems
-        </div>
-      </div>
-    </div>
-
-    <div class="sum-row">
-      <div class="sum-icon">🎨</div>
-      <div class="sum-body">
-        <div class="sum-title">Art <span class="sum-badge live">14 lessons live</span></div>
-        <div class="sum-detail">
-          Line · Shape &amp; Form · Color Wheel · Color Moods · Value &amp; Shading · Texture · Space · One-Point Perspective · Balance &amp; Symmetry · Pattern &amp; Rhythm · Emphasis · Proportion &amp; Portraits · Art History · Capstone Project
-        </div>
-      </div>
-    </div>
-
-    <div class="sum-row">
-      <div class="sum-icon">📐</div>
-      <div class="sum-body">
-        <div class="sum-title">Math <span class="sum-badge soon">coming soon</span></div>
-        <div class="sum-detail">Fractions &amp; Decimals · Multiplication &amp; Division · Geometry · Measurement · Data &amp; Graphing · Word Problems</div>
-      </div>
-    </div>
-
-    <div class="sum-row">
-      <div class="sum-icon">🌎</div>
-      <div class="sum-body">
-        <div class="sum-title">Social Studies <span class="sum-badge soon">coming soon</span></div>
-        <div class="sum-detail">U.S. History · Geography &amp; Maps · Government &amp; Civics · Economics · World Cultures</div>
-      </div>
-    </div>
-
-    <div class="sum-row">
-      <div class="sum-icon">📖</div>
-      <div class="sum-body">
-        <div class="sum-title">Reading &amp; ELA <span class="sum-badge soon">coming soon</span></div>
-        <div class="sum-detail">Reading Comprehension · Vocabulary · Grammar · Writing Skills · Literary Elements &amp; Analysis</div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="footer">
-    Summer Refresher Course &nbsp;·&nbsp; 4th Grade → 5th Grade &nbsp;·&nbsp; ~30 minutes per lesson
-  </div>
-
+  <footer>
+    Everything saves automatically on this device — your drawings, your place, and your missed questions.<br/>
+    Made for one curious kid. 🎨📐🔬🌎
+  </footer>
 </div>
+
+<div id="overlay">
+  <div class="obar">
+    <button id="backBtn">← All lessons</button>
+    <div class="otitle" id="oTitle">Lesson</div>
+    <div class="ospace"></div>
+    <button id="openNew" title="Open in its own tab">⤢ Full screen</button>
+  </div>
+  <iframe id="frame" title="Lesson"></iframe>
+</div>
+
+<script>
+const MKEY="refresher-mistakes";
+const TABKEY="refresher-active-tab";
+
+/* ---------------- SUBJECT + LESSON DATA ---------------- */
+const SUBJECTS=[
+  {key:"art", emoji:"🎨", name:"Art",
+   groups:[
+     {label:"Elements of Art", items:[
+       {n:1,emoji:"🌈",title:"Color Mixing",topic:"Color",time:"30 min",file:"art-lesson-01-color-mixing.html",desc:"Primary, secondary & complementary colors. Mix colors, play Mix-Match, build a color wheel."},
+       {n:2,emoji:"🔥",title:"Warm & Cool Colors",topic:"Color",time:"30 min",file:"art-lesson-02-warm-cool-colors.html",desc:"Sort warm vs. cool colors, learn tints & shades, paint a warm/cool scene."},
+       {n:3,emoji:"🌗",title:"Value: Light & Shadow",topic:"Value",time:"30 min",file:"art-lesson-03-value-light-shadow.html",desc:"Build a value scale, light a sphere, shade a flat circle into a 3D ball."},
+       {n:4,emoji:"✏️",title:"Line",topic:"Line",time:"38 min",file:"art-lesson-04-line.html",desc:"Types of lines, expressive 'line moods', one-line contour drawing, and line textures."},
+       {n:5,emoji:"🔷",title:"Shape & Form",topic:"Form",time:"38 min",file:"art-lesson-05-shape-form.html",desc:"2D shapes vs. 3D forms. Sort geometric/organic and shade spheres, cubes & cones."},
+       {n:6,emoji:"🪵",title:"Texture",topic:"Texture",time:"38 min",file:"art-lesson-06-texture.html",desc:"Real vs. visual texture. Match patterns and give creatures fur, scales & spikes."},
+       {n:7,emoji:"🏞️",title:"Space",topic:"Space",time:"38 min",file:"art-lesson-07-space.html",desc:"Near & far, foreground/background, overlapping, positive vs. negative space."},
+     ]},
+     {label:"Principles of Art", items:[
+       {n:8,emoji:"⚖️",title:"Balance",topic:"Balance",time:"38 min",file:"art-lesson-08-balance.html",desc:"Symmetrical, asymmetrical & radial balance — with a live mirror & kaleidoscope pad."},
+     ]},
+   ]},
+  {key:"math", emoji:"📐", name:"Math",
+   groups:[
+     {label:"Numbers & Operations", items:[
+       {n:1,emoji:"🔢",title:"Place Value",topic:"Number",time:"Interactive",file:"math-lesson-01-place-value.html",desc:"Read, write & build big numbers and understand what each digit is worth."},
+       {n:2,emoji:"⚖️",title:"Comparing & Ordering",topic:"Number",time:"Interactive",file:"math-lesson-02-comparing-ordering.html",desc:"Compare and order big numbers using place value and number lines."},
+       {n:3,emoji:"🎯",title:"Rounding Big Numbers",topic:"Number",time:"Interactive",file:"math-lesson-03-rounding.html",desc:"Round big numbers to the nearest ten, hundred, thousand and beyond."},
+       {n:4,emoji:"➕",title:"Adding & Subtracting",topic:"Number",time:"Interactive",file:"math-lesson-04-add-subtract.html",desc:"Add & subtract big numbers with regrouping, step by step."},
+     ]},
+   ]},
+  {key:"science", emoji:"🔬", name:"Science",
+   groups:[
+     {label:"Lessons", items:[
+       {n:1,emoji:"🧪",title:"The World of Science",topic:"Science",time:"Interactive",file:"science-lessons/science-lesson-1.html",desc:"What science is, the scientific method, and how to observe like a scientist."},
+       {n:2,emoji:"🌍",title:"Earth, Life & Forces",topic:"Science",time:"Interactive",file:"science-lessons/science-lesson-2.html",desc:"Earth & space, living things, and forces — a tour of the big science ideas."},
+     ]},
+   ]},
+  {key:"social", emoji:"🌎", name:"Social Studies", comingSoon:true,
+   blurb:"U.S. history, geography, government & world cultures — lessons coming soon."},
+];
+
+/* ---------------- helpers ---------------- */
+function getMistakes(){ try{ return JSON.parse(localStorage.getItem(MKEY)||"{}"); }catch(e){ return {}; } }
+function lessonDoneKey(file){ return "done:"+file; }
+function isLessonStarted(file){
+  // a lesson counts as "started" if its quiz or canvas left anything in storage
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i);
+    if(k && (k.indexOf("quiz")>-1||k.indexOf("canvas")>-1)) {/*coarse*/} } }catch(e){}
+  return false;
+}
+function totalLessons(){ let t=0; SUBJECTS.forEach(s=>{ if(s.groups) s.groups.forEach(g=>t+=g.items.length); }); return t; }
+
+/* ---------------- build tabs + panels ---------------- */
+const tabsEl=document.getElementById("tabs");
+const panelsEl=document.getElementById("panels");
+let activeTab=localStorage.getItem(TABKEY)||"art";
+
+function buildHeroStats(){
+  const subjCount=SUBJECTS.filter(s=>!s.comingSoon).length;
+  document.getElementById("hstats").innerHTML=
+    `<div class="st">📚 ${subjCount} subjects</div>`+
+    `<div class="st">🧩 ${totalLessons()} interactive lessons</div>`+
+    `<div class="st">💾 auto-saves on this device</div>`;
+}
+
+function makeCard(subjectKey,it){
+  const b=document.createElement("button"); b.className="card";
+  b.onclick=()=>openLesson(it.file, it.title);
+  b.innerHTML=`<div class="num">LESSON ${it.n}</div>
+    <div class="ct"><span class="emo">${it.emoji}</span>${it.title}</div>
+    <div class="cd">${it.desc}</div>
+    <div class="chips"><span class="chip">${it.topic}</span><span class="chip">${it.time}</span><span class="chip go">Open →</span></div>`;
+  return b;
+}
+
+function buildTabsAndPanels(){
+  tabsEl.innerHTML=""; panelsEl.innerHTML="";
+  SUBJECTS.forEach(s=>{
+    const tab=document.createElement("button"); tab.className="tab"; tab.dataset.k=s.key;
+    tab.innerHTML=`<span>${s.emoji}</span><span>${s.name}</span>`;
+    tab.onclick=()=>setTab(s.key); tabsEl.appendChild(tab);
+
+    const panel=document.createElement("div"); panel.className="panel"; panel.id="panel-"+s.key;
+    if(s.comingSoon){
+      panel.innerHTML=`<div class="soon"><div class="big">${s.emoji}</div><h3>${s.name}</h3><p>${s.blurb}</p></div>`;
+    } else {
+      s.groups.forEach(g=>{
+        const lbl=document.createElement("div"); lbl.className="sectionlbl";
+        lbl.innerHTML=`<h2>✦ ${g.label}</h2><span class="rule"></span><span class="count">${g.items.length} ${g.items.length>1?"lessons":"lesson"}</span>`;
+        panel.appendChild(lbl);
+        const grid=document.createElement("div"); grid.className="grid";
+        g.items.forEach(it=>grid.appendChild(makeCard(s.key,it)));
+        panel.appendChild(grid);
+      });
+    }
+    panelsEl.appendChild(panel);
+  });
+  // review tab
+  const rtab=document.createElement("button"); rtab.className="tab"; rtab.dataset.k="review";
+  rtab.innerHTML=`<span>📝</span><span>Review</span><span class="badge" id="revBadge" style="display:none">0</span>`;
+  rtab.onclick=()=>setTab("review"); tabsEl.appendChild(rtab);
+  const rpanel=document.createElement("div"); rpanel.className="panel"; rpanel.id="panel-review";
+  panelsEl.appendChild(rpanel);
+}
+
+function renderReview(){
+  const m=getMistakes(); const ids=Object.keys(m);
+  const badge=document.getElementById("revBadge");
+  if(badge){ if(ids.length){ badge.style.display=""; badge.textContent=ids.length; } else { badge.style.display="none"; } }
+  const p=document.getElementById("panel-review"); if(!p) return;
+  if(!ids.length){
+    p.innerHTML=`<div class="emptygood"><div class="big">🎉</div><h3>No missed questions!</h3>
+      <p>When a quiz answer is wrong, it shows up here — and disappears as soon as it's answered correctly in the lesson.</p></div>`;
+    return;
+  }
+  // group by lesson
+  const byLesson={};
+  ids.forEach(id=>{ const e=m[id]; const key=e.subject+" · "+e.lesson; (byLesson[key]=byLesson[key]||[]).push(e); });
+  let html=`<div class="review-intro">📝 <b>${ids.length} question${ids.length>1?"s":""} to review.</b> These stay here until they're answered correctly in the lesson. Open the lesson, press 📝 Quiz, and get them right to clear them.</div>`;
+  Object.keys(byLesson).sort().forEach(k=>{
+    const list=byLesson[k]; const fileGuess=list[0].file;
+    html+=`<div class="mlesson"><div class="mh">${k} <span class="pill">${list.length} to fix</span></div>`;
+    list.forEach(e=>{ html+=`<div class="miss">❓ ${e.q}${e.file?`<br><span class="openlink" data-file="${e.file}" data-title="${(e.lesson||'').replace(/"/g,'')}">Open lesson →</span>`:""}</div>`; });
+    html+=`</div>`;
+  });
+  html+=`<button class="clearbtn" id="clearMiss">Clear all review items</button>`;
+  p.innerHTML=html;
+  p.querySelectorAll(".openlink").forEach(el=>el.onclick=()=>openLesson(el.dataset.file, el.dataset.title));
+  const cb=document.getElementById("clearMiss");
+  if(cb) cb.onclick=()=>{ if(confirm("Clear all saved review questions?")){ localStorage.removeItem(MKEY); renderReview(); } };
+}
+
+function setTab(k){
+  activeTab=k; localStorage.setItem(TABKEY,k);
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.k===k));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="panel-"+k));
+  if(k==="review") renderReview();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---------------- lesson overlay ---------------- */
+const overlay=document.getElementById("overlay");
+const frame=document.getElementById("frame");
+let currentFile=null;
+function openLesson(file,title){
+  currentFile=file;
+  document.getElementById("oTitle").textContent=title||"Lesson";
+  frame.src=file; overlay.classList.add("on"); document.body.style.overflow="hidden";
+}
+function closeLesson(){
+  overlay.classList.remove("on"); frame.src="about:blank"; document.body.style.overflow="";
+  renderReview(); // refresh in case a quiz was taken
+}
+document.getElementById("backBtn").onclick=closeLesson;
+document.getElementById("openNew").onclick=()=>{ if(currentFile) window.open(currentFile,"_blank"); };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && overlay.classList.contains("on")) closeLesson(); });
+// refresh review when returning focus (mistakes may have changed in the iframe)
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") renderReview(); });
+window.addEventListener("focus",renderReview);
+
+/* ---------------- init ---------------- */
+buildHeroStats(); buildTabsAndPanels();
+if(!SUBJECTS.some(s=>s.key===activeTab) && activeTab!=="review") activeTab="art";
+setTab(activeTab);
+renderReview();
+</script>
 </body>
 </html>
