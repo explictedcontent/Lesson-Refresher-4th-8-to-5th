@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Studies Lesson 2 — Native American Cultures (Interactive)</title>
+<style>
+  :root{
+    --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb;
+    --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+    --line:#3a4059; --warn:#ffd166; --bad:#ff6b81;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3{margin:0 0 .35em}
+  .hidden{display:none !important}
+
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px}
+  .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+  .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+    border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#211}
+
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)}
+  .phaserow.done .dot{background:var(--good);border-color:var(--good)}
+  .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px}
+  .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px}
+  .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#33304a;border:1px solid #4b3f6b}
+  .extra .lab{font-size:12px;font-weight:700;color:#caa9ff;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#e7e1f7}
+  .matbox{margin-top:12px;font-size:13px;color:var(--muted)} .matbox b{color:var(--ink)}
+
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:16px;display:none}
+  .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:62ch}
+
+  /* explore */
+  .expnav{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
+  .expdetail{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .expdetail h3{font-size:19px}
+  .frow{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:14px;margin:8px 0;line-height:1.45}
+  .frow .fk{color:var(--accent2);font-weight:700}
+  .tbtn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700}
+  .tbtn.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+
+  /* game */
+  .playq{font-size:17px;font-weight:700;line-height:1.35;margin:6px 0 12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .playopts{display:flex;gap:10px;flex-wrap:wrap}
+  .playopts .big{flex:1;min-width:130px;font-size:14.5px;font-weight:800;padding:14px 10px;border-radius:14px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);line-height:1.3}
+  .playopts .big:hover:not(:disabled){border-color:var(--accent)}
+  .playopts .big:disabled{cursor:default}
+  .playopts .big.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .playopts .big.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .gamemsg{margin-top:10px;font-weight:700;font-size:14px;min-height:1.2em}
+  .gamemsg.ok{color:var(--good)} .gamemsg.no{color:var(--bad)}
+  .scorepill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;color:var(--accent2)}
+  .playagain{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:800;padding:11px 16px;border-radius:11px;font-size:14px}
+
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+  .sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)}
+  .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}
+  .qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}
+  .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#211;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px} .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700} .answerkey .ak .correct{color:var(--good)}
+  .answerkey .ak .got{color:#ff8a9a} .answerkey .ak .got.okgot{color:var(--good)}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+  #doneBanner h2{font-size:24px} #doneBanner p{color:var(--muted);line-height:1.5}
+  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#211;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+
+  @media (max-width:820px){
+    .stage{flex-direction:column}
+    .side{width:100%;max-width:none;max-height:48%;border-right:none;border-bottom:1px solid var(--line)}
+    .clock{font-size:38px}
+  }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div>
+      <div class="ltitle">🪶 Social Studies Lesson 2: Native American Cultures</div>
+      <div class="lsub">5 culture regions · how the land shaped homes, food &amp; travel · ~31 minutes · 4th→5th</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+  </div>
+
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">05:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns">
+          <button class="primary" id="startBtn">▶ Start</button>
+          <button id="pauseBtn">⏸ Pause</button>
+          <button id="skipBtn">Next step ⏭</button>
+        </div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="explore">🪶 Explore Cultures</button>
+        <button class="tab" data-z="play">🎮 Quick Play</button>
+      </div>
+
+      <!-- EXPLORE -->
+      <div class="zone on" id="z-explore">
+        <h3>5 Native American Culture Regions</h3>
+        <p class="lead">Long before the U.S. existed, hundreds of Native nations lived across North America. Tap each region to see how the <b>land and weather</b> shaped their homes, food, and travel.</p>
+        <div class="expnav" id="expNav"></div>
+        <div class="expdetail" id="expDetail"></div>
+      </div>
+
+      <!-- QUICK PLAY -->
+      <div class="zone" id="z-play">
+        <h3>Quick Play <span class="scorepill" id="playScore">0 / 0</span></h3>
+        <p class="lead">Practice round! Read the question and tap your answer. You'll get instant feedback and a score — try to beat it. (This is just for practice; the graded test is the 📝 Quiz button.)</p>
+        <div id="playScene"></div>
+        <div class="gamemsg" id="playMsg"></div>
+        <button class="playagain hidden" id="playAgain">↻ Play again</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="doneBanner" class="modal hidden"><div class="box">
+  <h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p>
+  <button id="doneBtn">Next step ▶</button>
+</div></div>
+
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ---------------- PHASES (total = 31 min) ---------------- */
+const PHASES=[
+  {name:"Warm-Up", min:5, tab:"explore",
+   steps:["There were many different Native nations — not one single group.","Where people lived shaped HOW they lived: their homes, food, and travel.","Open 🪶 Explore Cultures and tap ALL 5 regions to read about them."],
+   doline:"DO NOW: open all 5 culture regions in Explore →"},
+  {name:"Mini-Lesson", min:6, tab:"explore",
+   steps:["BIG IDEA: the environment shaped each group's way of life.","Forests → wood for longhouses. Grasslands + buffalo → tipis. Desert → adobe. Cold Arctic → igloos.","Re-read each region and notice how the LAND explains the HOMES and FOOD."],
+   doline:"DO NOW: connect each region's land to its homes →"},
+  {name:"Guided Practice", min:6, tab:"play",
+   steps:["Open 🎮 Quick Play and answer the practice rounds.","They cover homes, food, travel, and famous traditions.","Wrong answers show you the right one — keep going to learn them."],
+   doline:"DO NOW: finish a full round in Quick Play →"},
+  {name:"Main Activity", min:8, tab:"play",
+   steps:["Play Quick Play again and try to beat your score.","Say your answer OUT LOUD before you tap it.","Challenge: get every question in a round correct!"],
+   doline:"DO NOW: score as high as you can →"},
+  {name:"Reflection", min:3, tab:"explore",
+   steps:["Pick two regions and name ONE way they were different.","Why is it wrong to say all Native Americans lived the same way?","Re-open any region you want to remember better."],
+   doline:"DO NOW: tell someone 3 things you learned →"},
+  {name:"Quiz", min:3, tab:"play",
+   steps:["Press 📝 Quiz (top right) to check what you learned.","Wrong answers are saved to the Review tab until you fix them.","Grown-up: the quiz shows a score and an answer key."],
+   doline:"DO NOW: take the 📝 Quiz →"},
+];
+
+/* ---------------- TIMER ---------------- */
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){
+  const wrap=$("#steps"); wrap.innerHTML="";
+  PHASES.forEach((p,idx)=>{
+    const row=document.createElement("div");
+    row.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    row.innerHTML=`<div class="dot"></div><div class="meta">
+      <div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div>
+      <ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
+      ${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    row.onclick=()=>selectPhase(idx,false);
+    wrap.appendChild(row);
+  });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">⭐ If you finish early</div><p>Be a tour guide: pick one region and tell a grown-up what you'd see, what you'd eat, and where you'd sleep if you lived there long ago.</p>`;
+  wrap.appendChild(ex);
+  const mat=document.createElement("div"); mat.className="matbox";
+  mat.innerHTML=`<b>Materials:</b> Just this screen! (A U.S. map helps you picture where each region is.)`;
+  wrap.appendChild(mat);
+}
+function selectPhase(idx,autostart){
+  stopTimer(); curPhase=idx; const p=PHASES[idx];
+  remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps();
+  if(p.tab) showZone(p.tab);
+  const a=document.querySelector(".phaserow.active"); if(a) a.scrollIntoView({block:"nearest",behavior:"smooth"});
+  if(autostart) startTimer();
+}
+function updateClock(){
+  const m=Math.floor(remaining/60), s=remaining%60;
+  const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  el.classList.toggle("low",remaining<=30&&remaining>0);
+  $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";
+}
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stopTimer();phaseFinished();} }
+function startTimer(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stopTimer(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+function phaseFinished(){
+  const last=curPhase>=PHASES.length-1;
+  $("#doneTitle").textContent=last?"🎉 Lesson complete!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great work — you explored all 5 Native culture regions! Take the quiz if you haven't, or beat your Quick Play score.":`Nice! Ready for: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next step ▶";
+  $("#doneBanner").classList.remove("hidden");
+  try{beep();}catch(e){}
+}
+$("#doneBtn").onclick=()=>{ $("#doneBanner").classList.add("hidden");
+  if(curPhase<PHASES.length-1) selectPhase(curPhase+1,true); };
+$("#startBtn").onclick=startTimer; $("#pauseBtn").onclick=stopTimer;
+$("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); else phaseFinished(); };
+let actx; function beep(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  [660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";
+    o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);}); }
+
+/* ---------------- TABS ---------------- */
+function showZone(z){
+  document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+/* ---------------- EXPLORE ---------------- */
+const EXPLORE=[
+  {key:"wood", emoji:"🌳", name:"Eastern Woodlands", sub:"Thick forests, rivers, and lots of rain in the east.",
+   rows:[["Nations","Haudenosaunee (Iroquois), Cherokee, Algonquin"],
+     ["Homes","Longhouses and dome-shaped wigwams made of wood and bark"],
+     ["Food","Farmed the Three Sisters (corn, beans, squash); hunted deer; fished"],
+     ["Travel","Birchbark canoes on the rivers and lakes"]]},
+  {key:"plains", emoji:"🦬", name:"Great Plains", sub:"Flat grasslands with few trees, in the middle of the country.",
+   rows:[["Nations","Lakota (Sioux), Cheyenne, Comanche, Blackfoot"],
+     ["Homes","Tipis — cone-shaped buffalo-hide tents that fold up to move"],
+     ["Food","The buffalo gave meat, hides for shelter & clothes, and bones for tools"],
+     ["Travel","Walked at first; later rode horses brought by the Spanish"]]},
+  {key:"sw", emoji:"🏜️", name:"Southwest", sub:"Hot, dry desert and canyons with little rain.",
+   rows:[["Nations","Pueblo, Hopi, Navajo (Diné), Apache"],
+     ["Homes","Adobe (sun-dried mud-brick) pueblos and round Navajo hogans"],
+     ["Food","Farmed corn, beans & squash using irrigation to bring water"],
+     ["Famous for","Pottery, woven rugs and blankets, and turquoise jewelry"]]},
+  {key:"nw", emoji:"🐟", name:"Pacific Northwest", sub:"Rainy ocean coast with giant cedar forests.",
+   rows:[["Nations","Tlingit, Haida, Chinook, Kwakiutl"],
+     ["Homes","Large cedar plank houses that held several families"],
+     ["Food","Salmon was the main food, plus whales, shellfish and berries"],
+     ["Famous for","Carved totem poles and potlatch gift-giving ceremonies"]]},
+  {key:"arctic", emoji:"❄️", name:"Arctic", sub:"Frozen, snowy tundra in the far north — very cold.",
+   rows:[["Nations","Inuit (including Inupiat and Yupik)"],
+     ["Homes","Igloos made of snow in winter; sod houses in summer"],
+     ["Food","Hunted seals, whales, walrus and caribou — too cold to farm"],
+     ["Travel","Kayaks on the water and dog sleds across the snow"]]},
+];
+function buildExplore(){
+  const nav=$("#expNav");
+  nav.innerHTML=EXPLORE.map((e,i)=>`<button class="tbtn${i===0?" on":""}" data-k="${e.key}">${e.emoji} ${e.name}</button>`).join("");
+  nav.querySelectorAll(".tbtn").forEach(b=>b.onclick=()=>showExplore(b.dataset.k));
+  showExplore(EXPLORE[0].key);
+}
+function showExplore(k){
+  document.querySelectorAll("#expNav .tbtn").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
+  const e=EXPLORE.find(x=>x.key===k);
+  $("#expDetail").innerHTML=`<h3>${e.emoji} ${e.name}</h3><p class="lead">${e.sub}</p>`+
+    e.rows.map(r=>`<div class="frow"><div class="fk">${r[0]}</div><div class="fv">${r[1]}</div></div>`).join("");
+}
+
+/* ---------------- QUICK PLAY (practice game) ---------------- */
+const PLAY=[
+  {q:"Which home was made of buffalo hide and could fold up to move?",opts:["Tipi","Igloo","Adobe pueblo"],a:0},
+  {q:"The Inuit of the Arctic built winter homes from blocks of…",opts:["Snow","Mud brick","Cedar wood"],a:0},
+  {q:"Adobe (mud-brick) pueblos belonged to which region?",opts:["Southwest","Arctic","Great Plains"],a:0},
+  {q:"Totem poles and cedar canoes come from which region?",opts:["Pacific Northwest","Southwest","Great Plains"],a:0},
+  {q:"The 'Three Sisters' crops are corn, beans, and…",opts:["Squash","Rice","Apples"],a:0},
+  {q:"The buffalo was the main resource for which region?",opts:["Great Plains","Arctic","Pacific Northwest"],a:0},
+  {q:"Salmon was the main food in which region?",opts:["Pacific Northwest","Southwest","Great Plains"],a:0},
+  {q:"Who first brought horses to the Americas?",opts:["The Spanish","The Inuit","The Cherokee"],a:0},
+  {q:"Longhouses and birchbark canoes are from the…",opts:["Eastern Woodlands","Arctic","Southwest"],a:0},
+  {q:"Why didn't Arctic peoples grow crops?",opts:["It was too cold","They didn't like food","There was no land"],a:0},
+  {q:"A totem pole is a tall carved post that…",opts:["Tells family stories","Holds up a house","Is used to cook"],a:0},
+  {q:"BIG IDEA: what shaped how each group lived?",opts:["Their environment","Their favorite color","Random luck"],a:0},
+];
+let playQ=[], playIdx=0, playRight=0, playDone=0;
+function buildPlay(){ playQ=shuffle(PLAY); playIdx=0; playRight=0; playDone=0; $("#playAgain").classList.add("hidden"); renderPlay(); }
+function renderPlay(){
+  const scene=$("#playScene");
+  if(playIdx>=playQ.length){
+    scene.innerHTML="";
+    $("#playMsg").className="gamemsg ok"; $("#playMsg").textContent=`🎉 Round done! You got ${playRight} of ${playQ.length} correct.`;
+    $("#playScore").textContent=`${playRight} / ${playQ.length}`;
+    $("#playAgain").classList.remove("hidden");
+    return;
+  }
+  const it=playQ[playIdx];
+  it._order=shuffle(it.opts.map((t,i)=>({t,i})));
+  scene.innerHTML=`<div class="playq">${it.q}</div>
+    <div class="playopts">${it._order.map((o,k)=>`<button class="big" data-k="${k}">${o.t}</button>`).join("")}</div>`;
+  $("#playMsg").className="gamemsg"; $("#playMsg").textContent=`Question ${playIdx+1} of ${playQ.length}`;
+  $("#playScore").textContent=`${playRight} / ${playDone}`;
+  scene.querySelectorAll(".big").forEach(b=>b.onclick=()=>answerPlay(+b.dataset.k,b));
+}
+function answerPlay(k,btn){
+  const it=playQ[playIdx]; const chosen=it._order[k]; const correct=(chosen.i===it.a); playDone++;
+  const btns=$("#playScene").querySelectorAll(".big");
+  btns.forEach((b,i)=>{ b.disabled=true; if(it._order[i].i===it.a) b.classList.add("right"); });
+  if(correct){ playRight++; $("#playMsg").className="gamemsg ok"; $("#playMsg").textContent="✓ Correct!"; }
+  else { btn.classList.add("wrong"); $("#playMsg").className="gamemsg no"; $("#playMsg").textContent=`✗ The answer is ${it.opts[it.a]}.`; }
+  $("#playScore").textContent=`${playRight} / ${playDone}`;
+  playIdx++; setTimeout(renderPlay,950);
+}
+$("#playAgain").onclick=buildPlay;
+
+/* ---------------- QUIZ (graded; logs to shared Review) ---------------- */
+const QUIZ=[
+  {q:"Native nations in different places lived differently mainly because of their…",opts:["Environment (land, weather, animals)","Favorite sports","Phone numbers"],a:0},
+  {q:"Tipis that fold up to follow the buffalo belonged to the…",opts:["Great Plains","Arctic","Pacific Northwest"],a:0},
+  {q:"Igloos and kayaks were used by people of the…",opts:["Arctic","Southwest","Eastern Woodlands"],a:0},
+  {q:"The 'Three Sisters' are corn, beans, and squash.",opts:["True","False"],a:0},
+  {q:"Carved totem poles are famous in which region?",opts:["Pacific Northwest","Great Plains","Southwest"],a:0},
+  {q:"Adobe pueblos in the hot desert belong to the…",opts:["Southwest","Arctic","Pacific Northwest"],a:0},
+  {q:"Plains nations got horses from…",opts:["Spanish explorers","They were always here","The Arctic"],a:0},
+  {q:"Saying all Native Americans lived the same way is…",opts:["Wrong — there were many different nations","Exactly right","Impossible to know"],a:0},
+];
+let qi=0, qAns=[];
+$("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };
+function renderQ(){ const sheet=$("#quizSheet");
+  if(qi>=QUIZ.length){ return renderResults(); }
+  const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <div class="qprog">Question ${qi+1} of ${QUIZ.length}</div>
+    <div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;
+  const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t;
+    b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
+}
+const MKEY="refresher-mistakes";
+function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="Social Studies|Lesson 2: Native American Cultures|"+qx;if(c)delete s[id];else s[id]={subject:"Social Studies",lesson:"Lesson 2: Native American Cultures",q:qt,file:"social-lesson-02-native-americans.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx; logMistake(correct,qi,it.q);
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);
+  btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no");
+  fb.textContent=correct?"✓ Correct!":"✗ Marked wrong. We'll add this to your review list.";
+  const n=document.createElement("button"); n.className="qnext";
+  n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";
+  n.onclick=()=>{ qi++; renderQ(); }; $("#quizSheet").appendChild(n);
+}
+function renderResults(){
+  let right=0; QUIZ.forEach((it,i)=>{ if(qAns[i]===it.a) right++; });
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);
+  try{ localStorage.setItem("social-l2-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/QUIZ.length*100);
+  const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button>
+    <h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2>
+    <div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"A perfect score — every answer correct!":"Topics to go over again (answers are saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: show answer key &amp; what was chosen</button>
+    <div class="answerkey hidden" id="answerKey"></div>
+    <button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz; $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{ const ak=$("#answerKey"); ak.classList.toggle("hidden");
+    if(!ak.dataset.built){ ak.innerHTML=QUIZ.map((it,i)=>{ const g=qAns[i], ok=g===it.a;
+      const got=g==null?"(no answer)":it.opts[g];
+      return `<div class="ak"><div class="qq">${i+1}. ${it.q}</div>
+        <div class="correct">✓ Correct answer: ${it.opts[it.a]}</div>
+        <div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} Chosen: ${got}</div></div>`; }).join("");
+      ak.dataset.built="1"; } };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+
+/* ---------------- INIT ---------------- */
+buildExplore();
+buildPlay();
+renderSteps(); selectPhase(0,false);
+</script>
+</body>
+</html>
