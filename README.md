@@ -51,7 +51,13 @@ Written lesson-plan notes for the full sequence live in [`art-lessons/`](art-les
 | 1 | The World of Science | [science-lessons/science-lesson-1.html](science-lessons/science-lesson-1.html) |
 | 2 | Earth, Life & Forces | [science-lessons/science-lesson-2.html](science-lessons/science-lesson-2.html) |
 
-## 🌎 Social Studies — *coming soon*
+## 🌎 Social Studies — 3 interactive lessons
+
+| # | Lesson | File |
+| :-: | ----- | ---- |
+| 1 | U.S. Geography | [social-lesson-01-us-geography.html](social-lesson-01-us-geography.html) |
+| 2 | Native American Cultures | [social-lesson-02-native-americans.html](social-lesson-02-native-americans.html) |
+| 3 | The 3 Branches of Government | [social-lesson-03-government.html](social-lesson-03-government.html) |
 
 ---
 
