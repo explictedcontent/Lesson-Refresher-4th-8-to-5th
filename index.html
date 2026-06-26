@@ -135,6 +135,15 @@ const TABKEY="refresher-active-tab";
 
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
+  {key:"today", emoji:"🐾", name:"Today", groups:[
+    {label:"Day 2 · Red Panda — today's plan, in order (2 hours + 30 min Puzzle Time)", items:[
+      {n:1,emoji:"📜",title:"Social Studies — Himalayas",topic:"Geography",time:"23 min",file:"social-studies-lesson-02-red-panda.html",desc:"Where red pandas live: continents, countries & the world's tallest mountains."},
+      {n:2,emoji:"🔬",title:"Science — Adaptations",topic:"Science",time:"22 min",file:"science-lesson-02-red-panda.html",desc:"The red panda's survival superpowers: false thumb, bushy tail, thick fur & more."},
+      {n:3,emoji:"📖",title:"ELA — Read, Vocab & Write",topic:"Reading",time:"22 min",file:"ela-lesson-02-red-panda.html",desc:"Read a passage, learn 5 vocabulary words, and write a description (auto-saves)."},
+      {n:4,emoji:"🔢",title:"Math — Word Problems",topic:"Number",time:"23 min",file:"math-lesson-02-red-panda.html",desc:"Use real red panda data to multiply, add, subtract & compare."},
+      {n:5,emoji:"🧩",title:"Puzzle Time",topic:"Brain break",time:"30 min",file:"puzzle-time-02-red-panda.html",desc:"Riddles, word scrambles, number patterns & brain teasers — a fun brain break!"},
+    ]},
+  ]},
   {key:"art", emoji:"🎨", name:"Art",
    groups:[
      {label:"Elements of Art", items:[
@@ -153,6 +162,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 2 · Red Panda 🐾", items:[
+       {n:2,emoji:"🐾",title:"Red Panda Word Problems",topic:"Number",time:"23 min",file:"math-lesson-02-red-panda.html",desc:"Multiply, add, subtract & compare using real red panda data."},
+     ]},
      {label:"Numbers & Operations", items:[
        {n:1,emoji:"🔢",title:"Place Value",topic:"Number",time:"Interactive",file:"math-lesson-01-place-value.html",desc:"Read, write & build big numbers and understand what each digit is worth."},
        {n:2,emoji:"⚖️",title:"Comparing & Ordering",topic:"Number",time:"Interactive",file:"math-lesson-02-comparing-ordering.html",desc:"Compare and order big numbers using place value and number lines."},
@@ -162,17 +174,35 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 2 · Red Panda 🐾", items:[
+       {n:2,emoji:"🐾",title:"Red Panda Adaptations",topic:"Science",time:"22 min",file:"science-lesson-02-red-panda.html",desc:"How a red panda's body & habits help it survive in cold bamboo forests."},
+     ]},
      {label:"Lessons", items:[
        {n:1,emoji:"🧪",title:"The World of Science",topic:"Science",time:"Interactive",file:"science-lessons/science-lesson-1.html",desc:"What science is, the scientific method, and how to observe like a scientist."},
        {n:2,emoji:"🌍",title:"Earth, Life & Forces",topic:"Science",time:"Interactive",file:"science-lessons/science-lesson-2.html",desc:"Earth & space, living things, and forces — a tour of the big science ideas."},
      ]},
    ]},
+  {key:"ela", emoji:"📖", name:"ELA",
+   groups:[
+     {label:"Day 2 · Red Panda 🐾", items:[
+       {n:2,emoji:"🐾",title:"Red Panda: Read, Vocab & Write",topic:"Reading",time:"22 min",file:"ela-lesson-02-red-panda.html",desc:"Reading passage, 5 vocabulary words, and a descriptive writing pad that auto-saves."},
+     ]},
+   ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
-     {label:"Geography, History & Civics", items:[
+     {label:"Day 2 · Red Panda 🐾", items:[
+       {n:2,emoji:"🐾",title:"Red Panda's World (Himalayas)",topic:"Geography",time:"23 min",file:"social-studies-lesson-02-red-panda.html",desc:"Continents, countries & the Himalayan mountains where red pandas live."},
+     ]},
+     {label:"Social Studies Lessons", items:[
        {n:1,emoji:"🗺️",title:"U.S. Geography",topic:"Geography",time:"30 min",file:"social-lesson-01-us-geography.html",desc:"The 5 U.S. regions, states, capitals, landmarks, and map & compass skills."},
        {n:2,emoji:"🪶",title:"Native American Cultures",topic:"History",time:"30 min",file:"social-lesson-02-native-americans.html",desc:"The 5 culture regions and how the land shaped homes, food, and travel."},
        {n:3,emoji:"🏛️",title:"The 3 Branches of Government",topic:"Civics",time:"30 min",file:"social-lesson-03-government.html",desc:"Legislative, executive & judicial branches, the Constitution, and checks & balances."},
+     ]},
+   ]},
+  {key:"puzzles", emoji:"🧩", name:"Puzzles",
+   groups:[
+     {label:"Day 2 · Red Panda 🐾", items:[
+       {n:2,emoji:"🧩",title:"Red Panda Puzzle Pack",topic:"Brain break",time:"30 min",file:"puzzle-time-02-red-panda.html",desc:"Riddles, word scrambles, number patterns & brain teasers. Saves what you solve!"},
      ]},
    ]},
 ];
@@ -191,7 +221,7 @@ function totalLessons(){ let t=0; SUBJECTS.forEach(s=>{ if(s.groups) s.groups.fo
 /* ---------------- build tabs + panels ---------------- */
 const tabsEl=document.getElementById("tabs");
 const panelsEl=document.getElementById("panels");
-let activeTab=localStorage.getItem(TABKEY)||"art";
+let activeTab=localStorage.getItem(TABKEY)||"today";
 
 function buildHeroStats(){
   const subjCount=SUBJECTS.filter(s=>!s.comingSoon).length;
@@ -298,7 +328,7 @@ window.addEventListener("focus",renderReview);
 
 /* ---------------- init ---------------- */
 buildHeroStats(); buildTabsAndPanels();
-if(!SUBJECTS.some(s=>s.key===activeTab) && activeTab!=="review") activeTab="art";
+if(!SUBJECTS.some(s=>s.key===activeTab) && activeTab!=="review") activeTab="today";
 setTab(activeTab);
 renderReview();
 </script>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Math · Day 2: Red Panda (Interactive)</title>
+<style>
+  :root{ --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb; --muted:#a7adc4;
+    --accent:#4d96ff; --accent2:#5bd1c4; --good:#7bd88f; --line:#3a4059; --warn:#ffd166; --bad:#ff6b81; --panda:#c75c3a; }
+  *{box-sizing:border-box} html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer} h1,h2,h3{margin:0 0 .35em} .hidden{display:none !important}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px} .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums} .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden} .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)} .phaserow.done .dot{background:var(--good);border-color:var(--good)} .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px} .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px} .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#3a2820;border:1px solid #6b4636}
+  .extra .lab{font-size:12px;font-weight:700;color:#ffb38f;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#f3ddd2}
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:18px;display:none} .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:64ch}
+  table.data{width:100%;max-width:520px;border-collapse:collapse;margin-top:12px;font-size:14.5px}
+  table.data td{border:1px solid var(--line);padding:10px 12px} table.data tr:nth-child(odd){background:var(--panel)}
+  table.data td:first-child{color:var(--muted)} table.data td:last-child{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:10px 0}
+  .qask{font-size:17px;font-weight:700;margin-bottom:10px;line-height:1.4}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;font-weight:700}
+  .opt:hover:not(:disabled){border-color:var(--accent)} .opt:disabled{cursor:default;opacity:.92}
+  .opt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df} .opt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .gamemsg{margin-top:10px;font-weight:700;font-size:14px;min-height:1.2em} .gamemsg.ok{color:var(--good)} .gamemsg.no{color:var(--bad)}
+  .scorepill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;color:var(--accent2)}
+  .gnext{margin-top:12px;background:var(--accent);border:none;color:#fff;font-weight:800;padding:10px 16px;border-radius:11px;font-size:14px}
+  .modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+  .sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+  .qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+  .qopts{display:flex;flex-direction:column;gap:9px}
+  .qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+  .qopt:hover:not(:disabled){border-color:var(--accent)} .qopt:disabled{cursor:default;opacity:.92}
+  .qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df} .qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+  .qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em} .qfb.ok{color:var(--good)} .qfb.no{color:#ff8a9a}
+  .qnext{margin-top:16px;background:var(--accent);border:none;color:#fff;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+  .scorebig{font-size:40px;font-weight:800;margin:6px 0}
+  .reviewlist{margin:10px 0 0;padding-left:18px} .reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+  .keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+  .answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+  .answerkey .ak .qq{font-weight:700} .answerkey .ak .correct{color:var(--good)} .answerkey .ak .got{color:#ff8a9a} .answerkey .ak .got.okgot{color:var(--good)}
+  #doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+  #doneBanner h2{font-size:24px} #doneBanner p{color:var(--muted);line-height:1.5}
+  #doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#fff;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+  @media (max-width:820px){ .stage{flex-direction:column} .side{width:100%;max-width:none;max-height:46%;border-right:none;border-bottom:1px solid var(--line)} .clock{font-size:38px} }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div><div class="ltitle">🔢 Math · Day 2: Red Panda</div>
+      <div class="lsub">Word problems with real red panda data · ~23 min · 4th→5th · 🐾 Animal of the Day</div></div>
+    <div class="spacer"></div>
+    <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+  </div>
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Warm-Up</div>
+        <div class="clock" id="clock">04:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns"><button class="primary" id="startBtn">▶ Start</button><button id="pauseBtn">⏸ Pause</button><button id="skipBtn">Next ⏭</button></div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="data">📊 Red Panda Data</button>
+        <button class="tab" data-z="game">🧮 Math Challenge</button>
+      </div>
+      <div class="zone on" id="z-data">
+        <h3>Red Panda Data Sheet</h3>
+        <p class="lead">Real (rounded) red panda numbers. You'll use these to solve word problems — adding, subtracting, multiplying and comparing.</p>
+        <table class="data">
+          <tr><td>Weight</td><td>5 kg</td></tr>
+          <tr><td>Body length</td><td>60 cm</td></tr>
+          <tr><td>Tail length</td><td>40 cm</td></tr>
+          <tr><td>Bamboo eaten each day</td><td>2 kg</td></tr>
+          <tr><td>Bamboo leaves each day</td><td>20,000</td></tr>
+          <tr><td>Hours asleep each day</td><td>12</td></tr>
+          <tr><td>Lifespan in the wild</td><td>8 years</td></tr>
+          <tr><td>Lifespan in a zoo</td><td>14 years</td></tr>
+        </table>
+      </div>
+      <div class="zone" id="z-game">
+        <h3>Math Challenge 🧮 <span class="scorepill" id="gScore">0 / 0</span></h3>
+        <p class="lead">Solve each red panda word problem. Peek at the 📊 Data Sheet whenever you need a number.</p>
+        <div class="qcard">
+          <div class="qask" id="gAsk">—</div>
+          <div class="opts" id="gOpts"></div>
+          <div class="gamemsg" id="gMsg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div id="doneBanner" class="modal hidden"><div class="box"><h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p><button id="doneBtn">Next ▶</button></div></div>
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+<script>
+const $=s=>document.querySelector(s);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+const PHASES=[
+  {name:"Warm-Up", min:4, tab:"data", steps:["Open 📊 Red Panda Data and read the numbers.","Quick mental math: if a red panda eats 2 kg of bamboo a day, how much in 2 days?","Which is longer — its body (60 cm) or its tail (40 cm)? By how much?"], doline:"DO NOW: read the data & warm up your brain →"},
+  {name:"Mini-Lesson", min:6, tab:"data", steps:["Word problems hide a number sentence. Find the QUESTION, then the numbers, then the operation.","Key words: 'in all / total' → add or multiply · 'how many more / left' → subtract · 'each day for X days' → multiply.","Body + tail = total length (add). Bamboo per day × days = total bamboo (multiply)."], doline:"DO NOW: name the operation for each key word →"},
+  {name:"Play — Math Challenge", min:9, tab:"game", steps:["Open 🧮 Math Challenge.","Read each problem, decide add / subtract / multiply / compare, then choose the answer.","Show your thinking out loud — it helps you catch mistakes!"], doline:"DO NOW: solve every challenge problem →"},
+  {name:"Reflection + Quiz", min:4, tab:"data", steps:["Which problem was trickiest? Why?","Press 📝 Quiz to check what you learned.","Misses go to the Review tab to fix later."], doline:"DO NOW: take the 📝 Quiz →"},
+];
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){ const w=$("#steps"); w.innerHTML="";
+  PHASES.forEach((p,idx)=>{ const r=document.createElement("div"); r.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    r.innerHTML=`<div class="dot"></div><div><div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div><ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    r.onclick=()=>selectPhase(idx,false); w.appendChild(r); });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">🐾 Animal of the Day</div><p>Bamboo budget: a zoo has 6 red pandas. If each eats 2 kg of bamboo a day, how much bamboo does the zoo need for ONE WEEK? (Hint: 6 × 2 × 7.) Work it out!</p>`;
+  w.appendChild(ex);
+}
+function selectPhase(idx,auto){ stop(); curPhase=idx; const p=PHASES[idx]; remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps(); if(p.tab) showZone(p.tab); const a=document.querySelector(".phaserow.active"); if(a)a.scrollIntoView({block:"nearest",behavior:"smooth"}); if(auto) startT(); }
+function updateClock(){ const m=Math.floor(remaining/60),s=remaining%60; const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`; el.classList.toggle("low",remaining<=30&&remaining>0); $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%"; }
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stop();finishPhase();} }
+function startT(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stop(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+function finishPhase(){ const last=curPhase>=PHASES.length-1; $("#doneTitle").textContent=last?"🎉 Math done!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Nice number work! Take the quiz if you haven't — then on to your next subject.":`Nice! Next: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next ▶"; $("#doneBanner").classList.remove("hidden"); try{beep();}catch(e){} }
+$("#doneBtn").onclick=()=>{ $("#doneBanner").classList.add("hidden"); if(curPhase<PHASES.length-1) selectPhase(curPhase+1,true); };
+$("#startBtn").onclick=startT; $("#pauseBtn").onclick=stop; $("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); else finishPhase(); };
+let actx; function beep(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); [660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);}); }
+function showZone(z){ document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z)); document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z)); }
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+const GAME=[
+  {q:"A red panda eats 2 kg of bamboo each day. How much bamboo in one WEEK (7 days)?", a:"14 kg", opts:["14 kg","9 kg","27 kg"], why:"2 × 7 = 14 kg."},
+  {q:"Its body is 60 cm and its tail is 40 cm. What is its TOTAL length?", a:"100 cm", opts:["100 cm","20 cm","2,400 cm"], why:"60 + 40 = 100 cm."},
+  {q:"A red panda sleeps 12 hours a day. How many hours is it AWAKE? (A day = 24 hours.)", a:"12 hours", opts:["12 hours","36 hours","2 hours"], why:"24 − 12 = 12 hours."},
+  {q:"A red panda weighs 5 kg. A house cat weighs 4 kg. How much HEAVIER is the red panda?", a:"1 kg", opts:["1 kg","9 kg","20 kg"], why:"5 − 4 = 1 kg."},
+  {q:"A reserve has 8 red pandas. Each eats 2 kg of bamboo a day. How much bamboo PER DAY in all?", a:"16 kg", opts:["16 kg","10 kg","4 kg"], why:"8 × 2 = 16 kg."},
+  {q:"Red pandas live about 8 years in the wild and 14 years in a zoo. How many MORE years in a zoo?", a:"6 years", opts:["6 years","22 years","2 years"], why:"14 − 8 = 6 years."},
+];
+let gi=0, gRight=0, gDone=0, gLock=false;
+function buildGame(){ gi=0; gRight=0; gDone=0; renderG(); }
+function renderG(){ gLock=false;
+  if(gi>=GAME.length){ $("#gAsk").textContent="🏁 All solved!"; $("#gOpts").innerHTML=""; $("#gMsg").className="gamemsg ok"; $("#gMsg").textContent=`You got ${gRight} of ${GAME.length}.`; $("#gScore").textContent=`${gRight} / ${GAME.length}`; return; }
+  const it=GAME[gi]; $("#gAsk").textContent=it.q; const opts=shuffle(it.opts); const host=$("#gOpts"); host.innerHTML="";
+  opts.forEach(o=>{ const b=document.createElement("button"); b.className="opt"; b.textContent=o; b.onclick=()=>pickG(o,it,b); host.appendChild(b); });
+  $("#gMsg").className="gamemsg"; $("#gMsg").textContent=`Problem ${gi+1} of ${GAME.length}`; $("#gScore").textContent=`${gRight} / ${gDone}`;
+}
+function pickG(o,it,btn){ if(gLock)return; gLock=true; gDone++; document.querySelectorAll("#gOpts .opt").forEach(b=>b.disabled=true);
+  const m=$("#gMsg"); if(o===it.a){ gRight++; btn.classList.add("right"); m.className="gamemsg ok"; m.textContent="✓ Correct! "+it.why; }
+  else { btn.classList.add("wrong"); m.className="gamemsg no"; m.textContent="✗ "+it.why; document.querySelectorAll("#gOpts .opt").forEach(b=>{ if(b.textContent===it.a) b.classList.add("right"); }); }
+  $("#gScore").textContent=`${gRight} / ${gDone}`;
+  const n=document.createElement("button"); n.className="gnext"; n.textContent=gi<GAME.length-1?"Next →":"See score →"; n.onclick=()=>{ gi++; renderG(); }; $("#gOpts").appendChild(n);
+}
+
+const QUIZ=[
+  {q:"A red panda eats 2 kg of bamboo a day. How much in 5 days?",opts:["10 kg","7 kg","25 kg"],a:0},
+  {q:"Body 60 cm + tail 40 cm = total length of…",opts:["100 cm","20 cm","64 cm"],a:0},
+  {q:"It sleeps 12 hours a day. Hours awake (out of 24)?",opts:["12","6","24"],a:0},
+  {q:"Red panda 5 kg vs. house cat 4 kg — how much heavier?",opts:["1 kg","9 kg","2 kg"],a:0},
+  {q:"6 red pandas, each eats 2 kg of bamboo a day. Total per day?",opts:["12 kg","8 kg","3 kg"],a:0},
+  {q:"Lives 8 years wild, 14 years in a zoo. How many more in a zoo?",opts:["6 years","22 years","2 years"],a:0},
+  {q:"If a red panda eats 20,000 bamboo leaves a day, about how many in 2 days?",opts:["40,000","22,000","10,000"],a:0},
+  {q:"Which key words usually mean you should MULTIPLY?",opts:["'each day for 7 days'","'how many are left'","'how much taller'"],a:0},
+];
+let qi=0, qAns=[]; const MKEY="refresher-mistakes";
+function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="Math|Day 2: Red Panda|"+qx;if(c)delete s[id];else s[id]={subject:"Math",lesson:"Day 2: Red Panda",q:qt,file:"math-lesson-02-red-panda.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}
+$("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };
+function renderQ(){ const sheet=$("#quizSheet"); if(qi>=QUIZ.length){ return renderResults(); } const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button><div class="qprog">Question ${qi+1} of ${QUIZ.length}</div><div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz; const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{ const b=document.createElement("button"); b.className="qopt"; b.textContent=t; b.onclick=()=>ansQ(idx,b); o.appendChild(b); });
+}
+function ansQ(idx,btn){ const it=QUIZ[qi], correct=idx===it.a; qAns[qi]=idx; logMistake(correct,qi,it.q);
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true); btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb"); fb.className="qfb "+(correct?"ok":"no"); fb.textContent=correct?"✓ Correct!":"✗ Marked wrong — added to your review list.";
+  const n=document.createElement("button"); n.className="qnext"; n.textContent=qi<QUIZ.length-1?"Next question →":"See results →"; n.onclick=()=>{ qi++; renderQ(); }; $("#quizSheet").appendChild(n);
+}
+function renderResults(){ let right=0; QUIZ.forEach((it,i)=>{ if(qAns[i]===it.a) right++; }); const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);
+  try{ localStorage.setItem("math-l2-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()})); }catch(e){}
+  const pct=Math.round(right/QUIZ.length*100); const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button><h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2><div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"Perfect — every answer correct!":"Topics to review (saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: answer key &amp; what was chosen</button><div class="answerkey hidden" id="answerKey"></div><button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz; $("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{ const ak=$("#answerKey"); ak.classList.toggle("hidden"); if(!ak.dataset.built){ ak.innerHTML=QUIZ.map((it,i)=>{ const g=qAns[i],ok=g===it.a; const got=g==null?"(no answer)":it.opts[g];
+    return `<div class="ak"><div class="qq">${i+1}. ${it.q}</div><div class="correct">✓ ${it.opts[it.a]}</div><div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} Chose: ${got}</div></div>`; }).join(""); ak.dataset.built="1"; } };
+}
+function closeQuiz(){ $("#quizModal").classList.add("hidden"); }
+buildGame(); renderSteps(); selectPhase(0,false);
+</script>
+</body>
+</html>
