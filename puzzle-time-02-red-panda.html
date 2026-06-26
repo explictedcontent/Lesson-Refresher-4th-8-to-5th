@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Puzzle Time · Day 2: Red Panda</title>
+<style>
+  :root{ --bg:#1d1f2b; --panel:#262a3b; --panel2:#2f3447; --ink:#f4f5fb; --muted:#a7adc4;
+    --accent:#ff6b9d; --accent2:#5bd1c4; --good:#7bd88f; --line:#3a4059; --warn:#ffd166; --bad:#ff6b81; --panda:#c75c3a; }
+  *{box-sizing:border-box} html,body{margin:0;height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer} h1,h2,h3{margin:0 0 .35em} .hidden{display:none !important}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .topbar .ltitle{font-weight:800;font-size:17px} .topbar .lsub{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .solvedpill{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:800;color:var(--accent2)}
+  .stage{flex:1;display:flex;min-height:0}
+  .side{width:360px;max-width:42vw;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+  .timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums} .clock.low{color:var(--warn)}
+  .bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden} .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+  .tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+  .tbtns .primary{background:var(--accent);border-color:var(--accent);color:#2a0a16}
+  .steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+  .phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+  .phaserow.active{background:var(--panel2);border-color:var(--line)} .phaserow.done .dot{background:var(--good);border-color:var(--good)} .phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+  .phaserow .pn{font-weight:700;font-size:14px} .phaserow .pm{font-size:12px;color:var(--muted)}
+  .phaserow ul{margin:6px 0 0;padding-left:18px} .phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+  .doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+  .extra{margin-top:10px;padding:12px;border-radius:12px;background:#3a2820;border:1px solid #6b4636}
+  .extra .lab{font-size:12px;font-weight:700;color:#ffb38f;text-transform:uppercase;letter-spacing:.05em}
+  .extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#f3ddd2}
+  .studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+  .tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+  .tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+  .zone{flex:1;min-height:0;overflow:auto;padding:18px;display:none} .zone.on{display:block}
+  .zone h3{font-size:18px} .zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:64ch}
+  .puz{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+  .puz.solved{border-color:var(--good)}
+  .puz .q{font-size:16px;font-weight:700;line-height:1.5}
+  .puz .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .puz input{background:#fff;color:#1a1a1a;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;font-weight:700;letter-spacing:1px;width:180px}
+  .pbtn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;padding:9px 13px;font-size:13px;font-weight:700}
+  .pbtn.go{background:var(--accent);border-color:var(--accent);color:#2a0a16}
+  .ans{margin-top:8px;font-weight:700;font-size:14px;min-height:1.1em} .ans.ok{color:var(--good)} .ans.no{color:var(--bad)}
+  .scram{font-size:30px;font-weight:800;letter-spacing:6px;color:var(--accent2)}
+  .opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .opt{background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:11px 16px;font-size:16px;font-weight:800}
+  .opt:hover:not(:disabled){border-color:var(--accent)} .opt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df} .opt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df} .opt:disabled{opacity:.92;cursor:default}
+  .seq{font-size:26px;font-weight:800;letter-spacing:3px}
+  @media (max-width:820px){ .stage{flex-direction:column} .side{width:100%;max-width:none;max-height:44%;border-right:none;border-bottom:1px solid var(--line)} .clock{font-size:38px} }
+</style>
+</head>
+<body>
+<section id="app">
+  <div class="topbar">
+    <div><div class="ltitle">🧩 Puzzle Time · Day 2: Red Panda</div>
+      <div class="lsub">Riddles, scrambles, patterns &amp; brain teasers · 30 min · 🐾 take a brain break!</div></div>
+    <div class="spacer"></div>
+    <div class="solvedpill" id="solvedPill">Solved: 0</div>
+  </div>
+  <div class="stage">
+    <aside class="side">
+      <div class="timerwrap">
+        <div class="phasename" id="phaseName">Riddles</div>
+        <div class="clock" id="clock">07:00</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="tbtns"><button class="primary" id="startBtn">▶ Start</button><button id="pauseBtn">⏸ Pause</button><button id="skipBtn">Next ⏭</button></div>
+      </div>
+      <div class="steps" id="steps"></div>
+    </aside>
+    <div class="studio">
+      <div class="tabs">
+        <button class="tab on" data-z="riddles">🧠 Riddles</button>
+        <button class="tab" data-z="scramble">🔤 Word Scramble</button>
+        <button class="tab" data-z="patterns">🔢 Number Patterns</button>
+        <button class="tab" data-z="teasers">🤔 Brain Teasers</button>
+      </div>
+      <div class="zone on" id="z-riddles"><h3>Riddles 🧠</h3><p class="lead">Think it through, then press <b>Reveal</b> to check.</p><div id="riddleList"></div></div>
+      <div class="zone" id="z-scramble"><h3>Word Scramble 🔤</h3><p class="lead">Unscramble each red-panda word. Type your answer and press <b>Check</b> (or use <b>Hint</b>).</p><div id="scrambleList"></div></div>
+      <div class="zone" id="z-patterns"><h3>Number Patterns 🔢</h3><p class="lead">Find the rule, then pick what comes next.</p><div id="patternList"></div></div>
+      <div class="zone" id="z-teasers"><h3>Brain Teasers 🤔</h3><p class="lead">Little logic puzzles — read carefully!</p><div id="teaserList"></div></div>
+    </div>
+  </div>
+</section>
+<script>
+const $=s=>document.querySelector(s);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ---------- saved progress ---------- */
+const PKEY="puzzle-l2-solved";
+let solved; try{ solved=new Set(JSON.parse(localStorage.getItem(PKEY)||"[]")); }catch(e){ solved=new Set(); }
+let TOTAL=0;
+function save(){ try{ localStorage.setItem(PKEY,JSON.stringify([...solved])); }catch(e){} }
+function markSolved(id){ if(!solved.has(id)){ solved.add(id); save(); } updatePill(); }
+function updatePill(){ $("#solvedPill").textContent=`Solved: ${[...solved].filter(id=>id.indexOf("l2:")===0).length} / ${TOTAL}`; }
+function sid(x){ return "l2:"+x; }
+
+/* ---------- timer / phases (30 min) ---------- */
+const PHASES=[
+  {name:"Riddles", min:7, tab:"riddles", steps:["Open 🧠 Riddles and try each one in your head first.","Press Reveal to check — no peeking too early!","Say each answer out loud."], doline:"DO NOW: solve the riddles →"},
+  {name:"Word Scramble", min:8, tab:"scramble", steps:["Open 🔤 Word Scramble.","Unscramble each red-panda word; type it and press Check.","Stuck? Use the Hint button."], doline:"DO NOW: unscramble all the words →"},
+  {name:"Number Patterns", min:7, tab:"patterns", steps:["Open 🔢 Number Patterns.","Find the rule (counting by 2s, 5s, doubling…), then pick the next number."], doline:"DO NOW: finish the number patterns →"},
+  {name:"Brain Teasers", min:8, tab:"teasers", steps:["Open 🤔 Brain Teasers.","Read each one twice, then choose your answer.","Great job today — you earned this brain break!"], doline:"DO NOW: crack the brain teasers →"},
+];
+let curPhase=0, remaining=0, timerId=null, running=false;
+function renderSteps(){ const w=$("#steps"); w.innerHTML="";
+  PHASES.forEach((p,idx)=>{ const r=document.createElement("div"); r.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    r.innerHTML=`<div class="dot"></div><div><div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div><ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    r.onclick=()=>selectPhase(idx,false); w.appendChild(r); });
+  const ex=document.createElement("div"); ex.className="extra";
+  ex.innerHTML=`<div class="lab">🐾 Make your own</div><p>Invent a red-panda riddle and try it on a grown-up. A good riddle gives clues without saying the answer!</p>`;
+  w.appendChild(ex);
+}
+function selectPhase(idx,auto){ stop(); curPhase=idx; const p=PHASES[idx]; remaining=p.min*60; $("#phaseName").textContent=p.name; updateClock(); renderSteps(); showZone(p.tab); const a=document.querySelector(".phaserow.active"); if(a)a.scrollIntoView({block:"nearest",behavior:"smooth"}); if(auto) startT(); }
+function updateClock(){ const m=Math.floor(remaining/60),s=remaining%60; const el=$("#clock"); el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`; el.classList.toggle("low",remaining<=30&&remaining>0); $("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%"; }
+function tick(){ if(remaining>0){remaining--;updateClock();} if(remaining<=0){stop();} }
+function startT(){ if(running)return; running=true; timerId=setInterval(tick,1000); }
+function stop(){ running=false; if(timerId)clearInterval(timerId); timerId=null; }
+$("#startBtn").onclick=startT; $("#pauseBtn").onclick=stop; $("#skipBtn").onclick=()=>{ if(curPhase<PHASES.length-1) selectPhase(curPhase+1,false); };
+function showZone(z){ document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z)); document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z)); }
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+/* ---------- RIDDLES ---------- */
+const RIDDLES=[
+  {q:"I have a ringed tail and I love to climb, I nap in the trees most of the time. I munch on bamboo in cold mountain air — what fuzzy red creature is hiding up there?", a:"A red panda"},
+  {q:"I'm tall and green and I grow in a grove. Red pandas munch me as their favorite trove. I look like a tree but I'm really a grass — what am I?", a:"Bamboo"},
+  {q:"The more you take, the more you leave behind. What am I?", a:"Footsteps"},
+  {q:"I get wetter and wetter the more I dry. What am I?", a:"A towel"},
+  {q:"What has hands and a face, but cannot clap or smile?", a:"A clock"},
+];
+function buildRiddles(){ const host=$("#riddleList"); host.innerHTML="";
+  RIDDLES.forEach((r,i)=>{ const id=sid("rid"+i); const solvedNow=solved.has(id);
+    const d=document.createElement("div"); d.className="puz"+(solvedNow?" solved":"");
+    d.innerHTML=`<div class="q">🧠 ${r.q}</div><div class="row"><button class="pbtn go">${solvedNow?"Show answer":"Reveal"}</button></div><div class="ans ${solvedNow?"ok":""}">${solvedNow?"Answer: "+r.a:""}</div>`;
+    d.querySelector("button").onclick=()=>{ d.querySelector(".ans").className="ans ok"; d.querySelector(".ans").textContent="Answer: "+r.a; d.classList.add("solved"); markSolved(id); };
+    host.appendChild(d);
+  });
+}
+
+/* ---------- WORD SCRAMBLE ---------- */
+const SCRAM=[
+  {w:"BAMBOO",s:"OMBOAB",hint:"A red panda's favorite food"},
+  {w:"TAIL",s:"LIAT",hint:"It's bushy and ringed"},
+  {w:"CLIMB",s:"MBLIC",hint:"What red pandas do in trees"},
+  {w:"FOREST",s:"TSEROF",hint:"A place full of trees"},
+  {w:"MOUNTAIN",s:"TANUMINO",hint:"The Himalayas are full of these"},
+];
+function buildScramble(){ const host=$("#scrambleList"); host.innerHTML="";
+  SCRAM.forEach((it,i)=>{ const id=sid("scr"+i); const solvedNow=solved.has(id);
+    const d=document.createElement("div"); d.className="puz"+(solvedNow?" solved":"");
+    d.innerHTML=`<div class="scram">${it.s}</div>
+      <div class="row"><input type="text" placeholder="your answer" ${solvedNow?`value="${it.w}" disabled`:""}/>
+      <button class="pbtn go check">Check</button><button class="pbtn hint">Hint</button><button class="pbtn reveal">Reveal</button></div>
+      <div class="ans ${solvedNow?"ok":""}">${solvedNow?"✓ "+it.w:""}</div>`;
+    const inp=d.querySelector("input"), ans=d.querySelector(".ans");
+    d.querySelector(".check").onclick=()=>{ const v=(inp.value||"").trim().toUpperCase();
+      if(v===it.w){ ans.className="ans ok"; ans.textContent="✓ Correct!"; inp.disabled=true; d.classList.add("solved"); markSolved(id); }
+      else { ans.className="ans no"; ans.textContent="✗ Try again!"; } };
+    d.querySelector(".hint").onclick=()=>{ ans.className="ans"; ans.textContent="💡 "+it.hint+" (starts with "+it.w[0]+")"; };
+    d.querySelector(".reveal").onclick=()=>{ ans.className="ans ok"; ans.textContent="Answer: "+it.w; inp.value=it.w; inp.disabled=true; d.classList.add("solved"); markSolved(id); };
+    host.appendChild(d);
+  });
+}
+
+/* ---------- NUMBER PATTERNS ---------- */
+const PATS=[
+  {seq:[2,4,6,8],ans:10,opts:[10,9,12],rule:"counting by 2s"},
+  {seq:[5,10,15,20],ans:25,opts:[25,30,22],rule:"counting by 5s"},
+  {seq:[1,2,4,8],ans:16,opts:[16,12,10],rule:"doubling"},
+  {seq:[3,6,9,12],ans:15,opts:[15,14,18],rule:"counting by 3s"},
+];
+function buildPatterns(){ const host=$("#patternList"); host.innerHTML="";
+  PATS.forEach((it,i)=>{ const id=sid("pat"+i); const solvedNow=solved.has(id);
+    const d=document.createElement("div"); d.className="puz"+(solvedNow?" solved":"");
+    d.innerHTML=`<div class="seq">${it.seq.join(" , ")} , <span style="color:var(--accent)">?</span></div><div class="opts"></div><div class="ans ${solvedNow?"ok":""}">${solvedNow?"✓ "+it.ans+" ("+it.rule+")":""}</div>`;
+    const opts=d.querySelector(".opts"), ans=d.querySelector(".ans");
+    shuffle(it.opts).forEach(v=>{ const b=document.createElement("button"); b.className="opt"; b.textContent=v; if(solvedNow)b.disabled=true;
+      b.onclick=()=>{ opts.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(v===it.ans){ b.classList.add("right"); ans.className="ans ok"; ans.textContent="✓ Yes — "+it.rule+"!"; d.classList.add("solved"); markSolved(id); }
+        else { b.classList.add("wrong"); ans.className="ans no"; ans.textContent="✗ The rule is "+it.rule+"."; opts.querySelectorAll(".opt").forEach(x=>{ if(+x.textContent===it.ans) x.classList.add("right"); }); } };
+      opts.appendChild(b); });
+    host.appendChild(d);
+  });
+}
+
+/* ---------- BRAIN TEASERS ---------- */
+const TEASE=[
+  {q:"A red panda climbs UP 3 branches, then DOWN 1, then UP 2 more. How many branches up from where it started?",ans:"4",opts:["4","6","1"]},
+  {q:"There are 4 red pandas. Each has 1 bushy tail. How many tails in all?",ans:"4",opts:["4","8","1"]},
+  {q:"2 red pandas eat 4 kg of bamboo together. How much does 1 red panda eat (same rate)?",ans:"2 kg",opts:["2 kg","4 kg","8 kg"]},
+  {q:"Today is Day 2. If you do one lesson day each day, what day number is 3 days from today?",ans:"Day 5",opts:["Day 5","Day 3","Day 6"]},
+  {q:"A red panda naps 12 hours and spends half the nap in the morning. How many hours is that?",ans:"6 hours",opts:["6 hours","12 hours","3 hours"]},
+];
+function buildTease(){ const host=$("#teaserList"); host.innerHTML="";
+  TEASE.forEach((it,i)=>{ const id=sid("tea"+i); const solvedNow=solved.has(id);
+    const d=document.createElement("div"); d.className="puz"+(solvedNow?" solved":"");
+    d.innerHTML=`<div class="q">🤔 ${it.q}</div><div class="opts"></div><div class="ans ${solvedNow?"ok":""}">${solvedNow?"✓ "+it.ans:""}</div>`;
+    const opts=d.querySelector(".opts"), ans=d.querySelector(".ans");
+    shuffle(it.opts).forEach(v=>{ const b=document.createElement("button"); b.className="opt"; b.textContent=v; if(solvedNow)b.disabled=true;
+      b.onclick=()=>{ opts.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(v===it.ans){ b.classList.add("right"); ans.className="ans ok"; ans.textContent="✓ Correct!"; d.classList.add("solved"); markSolved(id); }
+        else { b.classList.add("wrong"); ans.className="ans no"; ans.textContent="✗ The answer is "+it.ans+"."; opts.querySelectorAll(".opt").forEach(x=>{ if(x.textContent===it.ans) x.classList.add("right"); }); } };
+      opts.appendChild(b); });
+    host.appendChild(d);
+  });
+}
+
+TOTAL=RIDDLES.length+SCRAM.length+PATS.length+TEASE.length;
+buildRiddles(); buildScramble(); buildPatterns(); buildTease(); updatePill();
+renderSteps(); selectPhase(0,false);
+</script>
+</body>
+</html>
