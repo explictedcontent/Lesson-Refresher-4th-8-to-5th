@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Social Studies · Day 3: Snow Leopard (Interactive)</title>
+<style>
+:root{--bg:#1d1f2b;--panel:#262a3b;--panel2:#2f3447;--ink:#f4f5fb;--muted:#a7adc4;
+  --accent:#e0a32e;--accent2:#5bd1c4;--good:#7bd88f;--line:#3a4059;--warn:#ffd166;--bad:#ff6b81;--sl:#7ec8e3;}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}h1,h2,h3{margin:0 0 .35em}.hidden{display:none !important}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar .ltitle{font-weight:800;font-size:17px}.topbar .lsub{color:var(--muted);font-size:13px}
+.spacer{flex:1}.tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+.stage{flex:1;display:flex;min-height:0}
+.side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+.phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}.clock.low{color:var(--warn)}
+.bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+.tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+.tbtns .primary{background:var(--accent);border-color:var(--accent);color:#2a1e02}
+.steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+.phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+.phaserow.active{background:var(--panel2);border-color:var(--line)}.phaserow.done .dot{background:var(--good);border-color:var(--good)}.phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+.phaserow .pn{font-weight:700;font-size:14px}.phaserow .pm{font-size:12px;color:var(--muted)}
+.phaserow ul{margin:6px 0 0;padding-left:18px}.phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+.doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+.extra{margin-top:10px;padding:12px;border-radius:12px;background:#3a2d10;border:1px solid #6b5020}
+.extra .lab{font-size:12px;font-weight:700;color:#f5c660;text-transform:uppercase;letter-spacing:.05em}
+.extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#f5e4b8}
+.studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+.tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+.tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+.zone{flex:1;min-height:0;overflow:auto;padding:18px;display:none}.zone.on{display:block}
+.zone h3{font-size:18px}.zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:64ch}
+.factgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
+.fact{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sl);border-radius:12px;padding:13px 14px}
+.fact .fe{font-size:24px}.fact .ft{font-weight:800;margin:4px 0 2px;font-size:14.5px}.fact .fd{font-size:13px;color:var(--muted);line-height:1.45}
+.flagrow{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.flag{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:10px 0}
+.qask{font-size:17px;font-weight:700;margin-bottom:10px;line-height:1.4}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+.opt:hover:not(:disabled){border-color:var(--accent)}.opt:disabled{cursor:default;opacity:.92}
+.opt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}.opt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+.gamemsg{margin-top:10px;font-weight:700;font-size:14px;min-height:1.2em}.gamemsg.ok{color:var(--good)}.gamemsg.no{color:var(--bad)}
+.scorepill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;color:var(--accent2)}
+.gnext{margin-top:12px;background:var(--accent);border:none;color:#2a1e02;font-weight:800;padding:10px 16px;border-radius:11px;font-size:14px}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.pairA{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;font-size:14px;font-weight:700}
+.pairA.sel{outline:3px solid var(--accent2);outline-offset:2px}
+.pairA.matched{background:#1f3d2b;border-color:var(--good);color:#d6f5df;cursor:default}
+.pairA.wrong-flash{background:#43222a;border-color:var(--bad)}
+.modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+.sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+.qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+.qopts{display:flex;flex-direction:column;gap:9px}
+.qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+.qopt:hover:not(:disabled){border-color:var(--accent)}.qopt:disabled{cursor:default;opacity:.92}
+.qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}.qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+.qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}.qfb.ok{color:var(--good)}.qfb.no{color:#ff8a9a}
+.qnext{margin-top:16px;background:var(--accent);border:none;color:#2a1e02;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+.scorebig{font-size:40px;font-weight:800;margin:6px 0}
+.reviewlist{margin:10px 0 0;padding-left:18px}.reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+.keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+.answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+.answerkey .ak .qq{font-weight:700}.answerkey .ak .correct{color:var(--good)}.answerkey .ak .got{color:#ff8a9a}.answerkey .ak .got.okgot{color:var(--good)}
+#doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+#doneBanner h2{font-size:24px}#doneBanner p{color:var(--muted);line-height:1.5}
+#doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#2a1e02;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+@media(max-width:820px){.stage{flex-direction:column}.side{width:100%;max-width:none;max-height:46%;border-right:none;border-bottom:1px solid var(--line)}.clock{font-size:38px}}
+</style>
+</head>
+<body>
+<section id="app">
+<div class="topbar">
+  <div><div class="ltitle">📜 Social Studies · Day 3: Snow Leopard</div>
+  <div class="lsub">Central &amp; South Asian geography · 45 min · 🐆 Animal of the Day</div></div>
+  <div class="spacer"></div>
+  <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+</div>
+<div class="stage">
+  <aside class="side">
+    <div class="timerwrap">
+      <div class="phasename" id="phaseName">Warm-Up</div>
+      <div class="clock" id="clock">05:00</div>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="tbtns"><button class="primary" id="startBtn">▶ Start</button><button id="pauseBtn">⏸ Pause</button><button id="skipBtn">Next ⏭</button></div>
+    </div>
+    <div class="steps" id="steps"></div>
+  </aside>
+  <div class="studio">
+    <div class="tabs">
+      <button class="tab on" data-z="world">🗺️ Snow Leopard's World</button>
+      <button class="tab" data-z="game">🎯 Country &amp; Geography Quiz</button>
+      <button class="tab" data-z="climate">🌡️ Climate Zone Match</button>
+    </div>
+    <div class="zone on" id="z-world">
+      <h3>The Snow Leopard's World</h3>
+      <p class="lead">Snow leopards roam across <b>12 countries</b> on the continent of <b>Asia</b> — more than any other big cat. Their range stretches from Afghanistan all the way to Russia and Mongolia.</p>
+      <div style="background:linear-gradient(120deg,#1e2a3a,#2a2010);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;text-align:center">
+        <div style="font-size:36px">🌏 ⛰️ 🐆</div>
+        <div style="font-weight:800;margin:6px 0">Continent: Asia · 12 Countries</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px">All 12 countries where snow leopards live:</div>
+        <div class="flagrow" style="justify-content:center">
+          <span class="flag">🇦🇫 Afghanistan</span><span class="flag">🇧🇹 Bhutan</span><span class="flag">🇨🇳 China</span><span class="flag">🇮🇳 India</span>
+          <span class="flag">🇰🇿 Kazakhstan</span><span class="flag">🇰🇬 Kyrgyzstan</span><span class="flag">🇲🇳 Mongolia</span><span class="flag">🇲🇲 Myanmar</span>
+          <span class="flag">🇳🇵 Nepal</span><span class="flag">🇵🇰 Pakistan</span><span class="flag">🇷🇺 Russia</span><span class="flag">🇹🇯 Tajikistan</span>
+        </div>
+      </div>
+      <div class="factgrid" id="facts"></div>
+    </div>
+    <div class="zone" id="z-game">
+      <h3>Country &amp; Geography Quiz 🎯 <span class="scorepill" id="gScore">0 / 0</span></h3>
+      <p class="lead">Use what you know about Asia, its countries, and mountain geography.</p>
+      <div class="qcard">
+        <div class="qask" id="gAsk">—</div>
+        <div class="opts" id="gOpts"></div>
+        <div class="gamemsg" id="gMsg"></div>
+      </div>
+    </div>
+    <div class="zone" id="z-climate">
+      <h3>Climate Zone Match 🌡️ <span class="scorepill" id="climScore">0 / 0</span></h3>
+      <p class="lead">Match each <b>climate zone</b> to its description. Climate = the typical weather pattern of a region over many years.</p>
+      <div class="qcard">
+        <div class="qask" id="climAsk">—</div>
+        <div class="opts" id="climOpts"></div>
+        <div class="gamemsg" id="climMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<div id="doneBanner" class="modal hidden"><div class="box"><h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p><button id="doneBtn">Next ▶</button></div></div>
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+<script>
+const $=s=>document.querySelector(s);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const FACTS=[
+  {e:"🌍",t:"12 countries — a record",d:"Snow leopards live in more countries than any other big cat. They roam across Central, South, and East Asia."},
+  {e:"⛰️",t:"Five mountain ranges",d:"Himalayas, Karakoram, Hindu Kush, Pamir, and Altai — all in Asia. The highest peaks on Earth."},
+  {e:"🧭",t:"Northern Hemisphere",d:"All 12 snow leopard countries sit north of the equator, mostly in the middle latitudes of Asia."},
+  {e:"🌡️",t:"Alpine climate zone",d:"Cold, thin air, heavy snowfall, strong winds, very short summers. Only the toughest animals survive here."},
+  {e:"🗺️",t:"Landlocked countries",d:"Many snow leopard countries — Kazakhstan, Mongolia, Tajikistan — have no ocean coast. Mountains, not coasts, define them."},
+  {e:"🌿",t:"The treeline",d:"Above ~3,500 m, trees can't survive. Below is forest; above is rocky meadow, then bare rock and permanent snow."},
+  {e:"🏔️",t:"Mount Everest connection",d:"The Himalayas — shared by snow leopards AND red pandas — include Everest (8,849 m), the world's tallest peak."},
+  {e:"🌐",t:"Same mountains, different animals",d:"Red pandas and snow leopards share the Himalayan mountains but live at different elevations and eat totally different things."},
+];
+function renderFacts(){$("#facts").innerHTML=FACTS.map(f=>`<div class="fact"><div class="fe">${f.e}</div><div class="ft">${f.t}</div><div class="fd">${f.d}</div></div>`).join("");}
+
+const PHASES=[
+  {name:"Warm-Up",min:5,tab:"world",steps:["Open 🗺️ Snow Leopard's World.","Read all 12 country names out loud.","Both red pandas AND snow leopards live in the Himalayas — yesterday's animal and today's share a mountain range!"],doline:"DO NOW: find and name all 12 countries →"},
+  {name:"Mini-Lesson",min:10,tab:"world",steps:["CONTINENT (Asia) vs. COUNTRY (Nepal) — same idea as Day 2.","Snow leopards live in 12 countries across CENTRAL and SOUTH Asia — much more spread out than red pandas.","CLIMATE ZONE = the typical weather of a region. Alpine = cold, high, thin air.","TREELINE = the elevation (~3,500 m) where trees stop. Above it: rock, snow, snow leopards.","LANDLOCKED = no ocean coast (Mongolia, Kazakhstan have only land borders)."],doline:"DO NOW: explain alpine climate + landlocked in your own words →"},
+  {name:"Geography Challenge",min:12,tab:"game",steps:["Open 🎯 Country & Geography Quiz.","Answer each question using what you know about Asia, mountains, and climate.","Think about the globe: Asia is east of Europe, west of the Pacific Ocean."],doline:"DO NOW: ace the geography challenge →"},
+  {name:"Climate Zone Match",min:10,tab:"climate",steps:["Open 🌡️ Climate Zone Match.","Match each climate zone name to its description.","Think: what kind of weather does a snow leopard need to survive?"],doline:"DO NOW: match all climate zones →"},
+  {name:"Guided Practice",min:5,tab:"world",steps:["If you were a snow leopard, which of the 12 countries would you call home? Why?","Mongolia is landlocked. Name a country you know that IS on an ocean — which ocean?","Yesterday: red pandas in Nepal. Today: snow leopards also in Nepal. What does that tell you about Nepal?"],doline:"DO NOW: answer the guided practice questions →"},
+  {name:"Reflection + Quiz",min:3,tab:"world",steps:["What's the difference between the climate of the Himalayas and where you live?","Press 📝 Quiz to check what you learned.","Misses go to the Review tab."],doline:"DO NOW: take the 📝 Quiz →"},
+];
+let curPhase=0,remaining=0,timerId=null,running=false;
+function renderSteps(){const w=$("#steps");w.innerHTML="";
+  PHASES.forEach((p,idx)=>{const r=document.createElement("div");r.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    r.innerHTML=`<div class="dot"></div><div><div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div><ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    r.onclick=()=>selectPhase(idx,false);w.appendChild(r);});
+  const ex=document.createElement("div");ex.className="extra";
+  ex.innerHTML=`<div class="lab">🐆 Animal of the Day — Map Challenge</div><p>On a world map, find the 12 snow leopard countries. Draw a line connecting them — it's like a giant crescent across Asia! Then find where YOU live and figure out which direction to travel to reach each one.</p>`;
+  w.appendChild(ex);}
+function selectPhase(idx,auto){stop();curPhase=idx;const p=PHASES[idx];remaining=p.min*60;$("#phaseName").textContent=p.name;updateClock();renderSteps();if(p.tab)showZone(p.tab);const a=document.querySelector(".phaserow.active");if(a)a.scrollIntoView({block:"nearest",behavior:"smooth"});if(auto)startT();}
+function updateClock(){const m=Math.floor(remaining/60),s=remaining%60;const el=$("#clock");el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;el.classList.toggle("low",remaining<=30&&remaining>0);$("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";}
+function tick(){if(remaining>0){remaining--;updateClock();}if(remaining<=0){stop();finishPhase();}}
+function startT(){if(running)return;running=true;timerId=setInterval(tick,1000);}
+function stop(){running=false;if(timerId)clearInterval(timerId);timerId=null;}
+function finishPhase(){const last=curPhase>=PHASES.length-1;$("#doneTitle").textContent=last?"🎉 Social Studies done!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great geography work! Take the quiz, then move on to ELA.":`Nice! Next: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next ▶";$("#doneBanner").classList.remove("hidden");try{beep();}catch(e){}}
+$("#doneBtn").onclick=()=>{$("#doneBanner").classList.add("hidden");if(curPhase<PHASES.length-1)selectPhase(curPhase+1,true);};
+$("#startBtn").onclick=startT;$("#pauseBtn").onclick=stop;
+$("#skipBtn").onclick=()=>{if(curPhase<PHASES.length-1)selectPhase(curPhase+1,false);else finishPhase();};
+let actx;function beep(){actx=actx||new(window.AudioContext||window.webkitAudioContext)();[660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);});}
+function showZone(z){document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+const GAME=[
+  {q:"Snow leopards live on which continent?",right:"Asia",wrong:["Africa","Europe"]},
+  {q:"How many countries have wild snow leopards?",right:"12",wrong:["3","50"]},
+  {q:"Which mountain range do snow leopards AND red pandas both call home?",right:"The Himalayas",wrong:["The Alps","The Rockies"]},
+  {q:"'Alpine climate' means…",right:"Cold, high-altitude, thin air, heavy snow",wrong:["Hot and dry desert","Warm and rainy rainforest"]},
+  {q:"A country with NO ocean coast is called…",right:"Landlocked",wrong:["Island","Peninsula"]},
+  {q:"The world's tallest mountain is in the Himalayas. Its name is…",right:"Mount Everest",wrong:["Mont Blanc","Kilimanjaro"]},
+  {q:"Above the treeline (~3,500 m), what mostly covers the ground?",right:"Rocky meadow, bare rock, and snow",wrong:["Dense rainforest","Sandy desert"]},
+  {q:"Which of these is NOT a snow leopard country?",right:"Brazil",wrong:["Nepal","Mongolia"]},
+];
+let gi=0,gRight=0,gDone=0,gLock=false;
+function buildGame(){gi=0;gRight=0;gDone=0;renderG();}
+function renderG(){gLock=false;
+  if(gi>=GAME.length){$("#gAsk").textContent="🏁 All done!";$("#gOpts").innerHTML="";$("#gMsg").className="gamemsg ok";$("#gMsg").textContent=`You got ${gRight} of ${GAME.length}.`;$("#gScore").textContent=`${gRight} / ${GAME.length}`;return;}
+  const it=GAME[gi];$("#gAsk").textContent=it.q;const opts=shuffle([it.right,...it.wrong]);const host=$("#gOpts");host.innerHTML="";
+  opts.forEach(o=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>pickG(o,it.right,b);host.appendChild(b);});
+  $("#gMsg").className="gamemsg";$("#gMsg").textContent=`Question ${gi+1} of ${GAME.length}`;$("#gScore").textContent=`${gRight} / ${gDone}`;}
+function pickG(o,right,btn){if(gLock)return;gLock=true;gDone++;document.querySelectorAll("#gOpts .opt").forEach(b=>b.disabled=true);
+  const m=$("#gMsg");if(o===right){gRight++;btn.classList.add("right");m.className="gamemsg ok";m.textContent="✓ Correct!";}
+  else{btn.classList.add("wrong");m.className="gamemsg no";m.textContent="✗ The answer is "+right+".";document.querySelectorAll("#gOpts .opt").forEach(b=>{if(b.textContent===right)b.classList.add("right");});}
+  $("#gScore").textContent=`${gRight} / ${gDone}`;
+  const n=document.createElement("button");n.className="gnext";n.textContent=gi<GAME.length-1?"Next →":"See score →";n.onclick=()=>{gi++;renderG();};$("#gOpts").appendChild(n);}
+
+const CLIM=[
+  {z:"Alpine",right:"Cold, high-altitude, thin air, heavy snowfall, short summers",wrong:["Hot days, cold nights, no rain","Always warm, heavy year-round rain"]},
+  {z:"Desert",right:"Very hot and dry, very little rainfall, extreme temperature swings",wrong:["Freezing cold all year","Mild temperatures, moderate rain"]},
+  {z:"Tropical",right:"Warm year-round, very heavy rainfall, thick jungle",wrong:["Cold, icy, and dark in winter","Hot and completely dry"]},
+  {z:"Arctic",right:"Freezing temperatures, ice and snow year-round, no summer heat",wrong:["Mild and rainy","Hot with occasional frost"]},
+  {z:"Temperate",right:"Mild seasons — warm summers, cool winters, moderate rain",wrong:["Permanently frozen ground","Hot every single day"]},
+  {z:"Rainforest",right:"Warm, extremely wet, enormous biodiversity, rain almost every day",wrong:["Cold and snowy","Dry with sand dunes"]},
+];
+let ci=0,cRight=0,cDone=0,cLock=false;
+function buildClim(){ci=0;cRight=0;cDone=0;renderClim();}
+function renderClim(){cLock=false;
+  if(ci>=CLIM.length){$("#climAsk").textContent="🏁 All matched!";$("#climOpts").innerHTML="";$("#climMsg").className="gamemsg ok";$("#climMsg").textContent=`You got ${cRight} of ${CLIM.length}.`;$("#climScore").textContent=`${cRight} / ${CLIM.length}`;return;}
+  const it=CLIM[ci];$("#climAsk").textContent=`What is the "${it.z}" climate zone?`;
+  const opts=shuffle([it.right,...it.wrong]);const host=$("#climOpts");host.innerHTML="";
+  opts.forEach(o=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>pickClim(o,it.right,b);host.appendChild(b);});
+  $("#climMsg").className="gamemsg";$("#climMsg").textContent=`Zone ${ci+1} of ${CLIM.length}`;$("#climScore").textContent=`${cRight} / ${cDone}`;}
+function pickClim(o,right,btn){if(cLock)return;cLock=true;cDone++;document.querySelectorAll("#climOpts .opt").forEach(b=>b.disabled=true);
+  const m=$("#climMsg");if(o===right){cRight++;btn.classList.add("right");m.className="gamemsg ok";m.textContent="✓ Correct!";}
+  else{btn.classList.add("wrong");m.className="gamemsg no";m.textContent="✗ That's "+right+".";document.querySelectorAll("#climOpts .opt").forEach(b=>{if(b.textContent===right)b.classList.add("right");});}
+  $("#climScore").textContent=`${cRight} / ${cDone}`;
+  const n=document.createElement("button");n.className="gnext";n.textContent=ci<CLIM.length-1?"Next →":"See score →";n.onclick=()=>{ci++;renderClim();};$("#climOpts").appendChild(n);}
+
+const QUIZ=[
+  {q:"Snow leopards live on which continent?",opts:["Asia","Africa","Europe"],a:0},
+  {q:"How many countries have wild snow leopards?",opts:["12","3","50"],a:0},
+  {q:"Which mountain range do both red pandas AND snow leopards call home?",opts:["The Himalayas","The Alps","The Andes"],a:0},
+  {q:"'Alpine climate' is best described as…",opts:["Cold, high-altitude, thin air","Hot and dry","Warm and rainy"],a:0},
+  {q:"A country with no ocean coast is called…",opts:["Landlocked","Coastal","Island"],a:0},
+  {q:"The world's tallest mountain, in the Himalayas, is…",opts:["Mount Everest","Mont Blanc","Denali"],a:0},
+  {q:"Above the treeline (~3,500 m), you mostly find…",opts:["Rocky meadow, bare rock, and snow","Dense jungle","Sandy beach"],a:0},
+  {q:"Which is NOT a snow leopard country?",opts:["Brazil","Nepal","China"],a:0},
+  {q:"A 'temperate' climate has…",opts:["Mild seasons — warm summers, cool winters","Freezing ice year-round","Rain every single day"],a:0},
+  {q:"All 12 snow leopard countries are in which hemisphere?",opts:["Northern Hemisphere","Southern Hemisphere","Western Hemisphere only"],a:0},
+];
+let qi=0,qAns=[];const MKEY="refresher-mistakes";
+function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="Social Studies|Day 3: Snow Leopard|"+qx;if(c)delete s[id];else s[id]={subject:"Social Studies",lesson:"Day 3: Snow Leopard",q:qt,file:"social-studies-lesson-03-snow-leopard.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}
+function saveQuizResult(right){try{localStorage.setItem("ss-l3-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}}
+$("#quizBtn").onclick=()=>{qi=0;qAns=[];$("#quizModal").classList.remove("hidden");renderQ();};
+function renderQ(){const sheet=$("#quizSheet");if(qi>=QUIZ.length)return renderResults();const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button><div class="qprog">Question ${qi+1} of ${QUIZ.length}</div><div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{const b=document.createElement("button");b.className="qopt";b.textContent=t;b.onclick=()=>ansQ(idx,b);o.appendChild(b);});}
+function ansQ(idx,btn){const it=QUIZ[qi],correct=idx===it.a;qAns[qi]=idx;logMistake(correct,qi,it.q);
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb");fb.className="qfb "+(correct?"ok":"no");fb.textContent=correct?"✓ Correct!":"✗ Marked wrong — added to your review list.";
+  const n=document.createElement("button");n.className="qnext";n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";n.onclick=()=>{qi++;renderQ();};$("#quizSheet").appendChild(n);}
+function renderResults(){let right=0;QUIZ.forEach((it,i)=>{if(qAns[i]===it.a)right++;});saveQuizResult(right);
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);const pct=Math.round(right/QUIZ.length*100);const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button><h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2><div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"Perfect!":"Topics to review:"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: answer key</button><div class="answerkey hidden" id="answerKey"></div><button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz;$("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{const ak=$("#answerKey");ak.classList.toggle("hidden");if(!ak.dataset.built){ak.innerHTML=QUIZ.map((it,i)=>{const g=qAns[i],ok=g===it.a;const got=g==null?"(no answer)":it.opts[g];return`<div class="ak"><div class="qq">${i+1}. ${it.q}</div><div class="correct">✓ ${it.opts[it.a]}</div><div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} Chose: ${got}</div></div>`;}).join("");ak.dataset.built="1";}};}
+function closeQuiz(){$("#quizModal").classList.add("hidden");}
+renderFacts();buildGame();buildClim();renderSteps();selectPhase(0,false);
+function flushSave(){try{saveQuizResult(qAns.filter((v,i)=>v===QUIZ[i].a).length);}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSave();});
+window.addEventListener("pagehide",flushSave);window.addEventListener("beforeunload",flushSave);
+</script>
+</body>
+</html>

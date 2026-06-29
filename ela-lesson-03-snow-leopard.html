@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ELA · Day 3 · Snow Leopard</title>
+<style>
+:root{--accent:#9b59b6;--accent2:#e8b86d;--bg:#f8f4ff;--card:#fff;--text:#222}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+#sidebar{width:220px;min-width:220px;background:#2d1b6e;color:#fff;display:flex;flex-direction:column;padding:16px 12px;gap:8px}
+#sidebar h2{font-size:1rem;text-align:center;margin-bottom:4px}
+.ph{border-radius:8px;padding:8px 10px;font-size:.82rem;cursor:pointer;transition:background .2s}
+.ph.done{background:#4caf50;opacity:.8}
+.ph.active{background:var(--accent);font-weight:700}
+.ph.todo{background:#ffffff20}
+#timer-box{background:#ffffff15;border-radius:8px;padding:10px;text-align:center;margin-top:auto}
+#timer-display{font-size:2rem;font-weight:700;letter-spacing:2px}
+#timer-label{font-size:.78rem;opacity:.8;margin-bottom:6px}
+.tbtn{background:var(--accent);border:none;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.78rem;margin:2px}
+#main{flex:1;display:flex;flex-direction:column;padding:20px;gap:16px;overflow-y:auto}
+h1{font-size:1.4rem;color:var(--accent)}
+.subtitle{font-size:.9rem;color:#666}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:8px 16px;border:2px solid var(--accent);border-radius:20px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--accent);background:transparent;transition:all .2s}
+.tab.active{background:var(--accent);color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+/* PASSAGE */
+.passage-box{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 8px #0001;line-height:1.9;font-size:1rem;max-width:720px}
+.passage-box h3{color:var(--accent);margin-bottom:14px;font-size:1.15rem}
+.vw{font-weight:700;color:var(--accent);border-bottom:2px dotted var(--accent);cursor:pointer}
+.passage-box p{margin-bottom:12px}
+#vpop{display:none;background:var(--accent);color:#fff;border-radius:10px;padding:12px 16px;margin-top:10px;max-width:480px;font-size:.9rem;font-weight:600}
+/* VOCAB */
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:8px}
+.vc{background:#fff;border-radius:10px;padding:14px;box-shadow:0 2px 6px #0001;border-left:4px solid var(--accent)}
+.vc .wrd{font-weight:700;font-size:1rem;color:var(--accent);margin-bottom:4px}
+.vc .def{font-size:.88rem;color:#444;line-height:1.5}
+/* MATCH GAME */
+.game-box{max-width:600px}
+.mq{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 6px #0001;margin-bottom:12px}
+.mq-def{font-size:.95rem;font-weight:600;margin-bottom:12px;color:#333;font-style:italic}
+.mopts{display:flex;flex-wrap:wrap;gap:8px}
+.mopt{padding:8px 16px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-size:.88rem;transition:all .2s}
+.mopt:hover{border-color:var(--accent);color:var(--accent)}
+.mopt.cor{background:#e8f5e9;border-color:#4caf50;color:#2e7d32;font-weight:700}
+.mopt.wrg{background:#ffebee;border-color:#f44336;color:#c62828}
+.game-info{font-size:.85rem;color:#888;margin-bottom:8px}
+/* COMPARE */
+.cc-box{max-width:620px}
+.cc-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 6px #0001;margin-bottom:14px}
+.cc-stmt{font-size:1rem;font-weight:600;text-align:center;margin-bottom:14px;color:#333}
+.cc-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cbn{padding:10px 20px;border:2px solid #ddd;border-radius:22px;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .2s;background:#fff}
+.cbn[data-w="rp"]{border-color:#d4793a;color:#d4793a}
+.cbn[data-w="both"]{border-color:#4a8f61;color:#4a8f61}
+.cbn[data-w="sl"]{border-color:#4a7fc1;color:#4a7fc1}
+.cbn.sel-cor[data-w="rp"]{background:#fff3e0}
+.cbn.sel-cor[data-w="both"]{background:#e8f5e9}
+.cbn.sel-cor[data-w="sl"]{background:#e3f2fd}
+.cbn.sel-wrg{background:#ffebee;border-color:#f44336;color:#c62828}
+/* WRITING */
+.write-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px #0001;max-width:700px}
+.prompt-box{background:linear-gradient(135deg,#9b59b620,#e8b86d20);border-radius:8px;padding:14px;margin-bottom:14px;font-size:.95rem;font-style:italic;border-left:4px solid var(--accent);line-height:1.6}
+textarea{width:100%;min-height:220px;border:2px solid #ddd;border-radius:8px;padding:12px;font-size:.95rem;font-family:inherit;resize:vertical;line-height:1.7}
+textarea:focus{outline:none;border-color:var(--accent)}
+.wc{font-size:.8rem;color:#888;text-align:right;margin-top:4px}
+/* QUIZ */
+.quiz-box{max-width:620px}
+.qq{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 6px #0001;margin-bottom:12px}
+.qq-txt{font-size:.95rem;font-weight:600;margin-bottom:12px;color:#333}
+.qopts{display:flex;flex-direction:column;gap:8px}
+.qopt{padding:10px 14px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;background:#fff}
+.qopt:hover:not(:disabled){border-color:var(--accent)}
+.qopt.cor{background:#e8f5e9;border-color:#4caf50;color:#2e7d32;font-weight:700}
+.qopt.wrg{background:#ffebee;border-color:#f44336;color:#c62828}
+#done-banner{display:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;padding:28px;text-align:center;font-size:1.2rem;font-weight:700;margin-top:16px}
+.btn{padding:10px 22px;border:none;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:600;margin:4px}
+.btn-p{background:var(--accent);color:#fff}
+.btn-s{background:#eee;color:#555}
+.score-line{font-weight:700;color:var(--accent);margin-top:6px;font-size:.9rem}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <h2>📖 ELA · Day 3</h2>
+  <div style="text-align:center;font-size:.75rem;opacity:.7;margin-bottom:6px">🐆 Snow Leopard</div>
+  <div class="ph todo" id="ph0" onclick="jumpPhase(0)">1 · Warm-Up <span style="float:right">5 min</span></div>
+  <div class="ph todo" id="ph1" onclick="jumpPhase(1)">2 · Reading <span style="float:right">10 min</span></div>
+  <div class="ph todo" id="ph2" onclick="jumpPhase(2)">3 · Vocab Match <span style="float:right">10 min</span></div>
+  <div class="ph todo" id="ph3" onclick="jumpPhase(3)">4 · Compare &amp; Contrast <span style="float:right">12 min</span></div>
+  <div class="ph todo" id="ph4" onclick="jumpPhase(4)">5 · Writing Pad <span style="float:right">5 min</span></div>
+  <div class="ph todo" id="ph5" onclick="jumpPhase(5)">6 · Quiz <span style="float:right">3 min</span></div>
+  <div id="timer-box">
+    <div id="timer-label">Warm-Up</div>
+    <div id="timer-display">5:00</div>
+    <div style="margin-top:6px">
+      <button class="tbtn" onclick="toggleTimer()">⏯ Start</button>
+      <button class="tbtn" onclick="skipPhase()">⏭ Skip</button>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div>
+    <h1>📖 ELA — Day 3: Snow Leopard</h1>
+    <div class="subtitle">Reading · Vocabulary · Compare &amp; Contrast · Writing · Quiz &nbsp;|&nbsp; 45 minutes</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('read')">📄 Passage</button>
+    <button class="tab" onclick="showTab('vocab')">📚 Vocabulary</button>
+    <button class="tab" onclick="showTab('match')">🔤 Vocab Match</button>
+    <button class="tab" onclick="showTab('compare')">⚖️ Compare</button>
+    <button class="tab" onclick="showTab('write')">✏️ Writing</button>
+    <button class="tab" onclick="showTab('quiz')">🧪 Quiz</button>
+  </div>
+
+  <!-- PASSAGE -->
+  <div class="panel active" id="tab-read">
+    <div class="passage-box">
+      <h3>🐆 The Ghost of the Mountains</h3>
+      <p>The snow leopard is one of the most <span class="vw" onclick="vpop('elusive')">elusive</span> big cats on Earth. Known as the "Ghost of the Mountains," this magnificent creature is <span class="vw" onclick="vpop('adorned')">adorned</span> with a coat of pale gray fur covered in dark rosette spots — perfect <span class="vw" onclick="vpop('camouflage')">camouflage</span> among rocky mountain slopes.</p>
+      <p>Snow leopards are <span class="vw" onclick="vpop('solitary')">solitary</span> animals, preferring to roam alone across the high peaks of Central Asia. They live in 12 countries, from Russia to India, often at elevations above 10,000 feet — higher than most other large predators ever go.</p>
+      <p>As an <span class="vw" onclick="vpop('apex')">apex predator</span>, the snow leopard sits at the top of its food chain. It hunts blue sheep, ibex, and hares, sometimes leaping more than 30 feet across cliff gaps in a single bound. Its thick, long tail — used as a <span class="vw" onclick="vpop('rudder')">rudder</span> for balance when making sharp turns at speed — can be nearly as long as its entire body!</p>
+      <p>Despite being such a powerful hunter, the snow leopard is <span class="vw" onclick="vpop('vulnerable')">vulnerable</span> to extinction. Fewer than 4,000 remain in the wild today. Habitat loss, poaching, and climate change are all shrinking its mountain home. Conservation teams across Asia and beyond are working hard to protect this ghostly, spotted mountain king.</p>
+    </div>
+    <div id="vpop"></div>
+    <div style="margin-top:10px;font-size:.85rem;color:#888">💡 Tap any <span style="color:var(--accent);font-weight:700;border-bottom:2px dotted var(--accent)">bold purple word</span> to see its definition!</div>
+  </div>
+
+  <!-- VOCABULARY -->
+  <div class="panel" id="tab-vocab">
+    <p style="color:#666;font-size:.9rem;margin-bottom:12px">Seven key words from today's passage. Study these before the Vocab Match game!</p>
+    <div class="vocab-grid">
+      <div class="vc"><div class="wrd">elusive</div><div class="def">Hard to find or catch; always seeming to escape or disappear</div></div>
+      <div class="vc"><div class="wrd">adorned</div><div class="def">Decorated with; made more beautiful or striking by adding something</div></div>
+      <div class="vc"><div class="wrd">camouflage</div><div class="def">Colors or patterns that help an animal blend into its surroundings so it can't be seen easily</div></div>
+      <div class="vc"><div class="wrd">solitary</div><div class="def">Preferring to live or spend time alone, without others of the same species</div></div>
+      <div class="vc"><div class="wrd">apex predator</div><div class="def">An animal at the very top of the food chain that is not hunted by any other predator</div></div>
+      <div class="vc"><div class="wrd">rudder</div><div class="def">Something used for steering and keeping balance — like the rudder on a boat or airplane</div></div>
+      <div class="vc"><div class="wrd">vulnerable</div><div class="def">In danger; at risk of being seriously harmed, lost, or driven to extinction</div></div>
+    </div>
+  </div>
+
+  <!-- VOCAB MATCH GAME -->
+  <div class="panel" id="tab-match">
+    <div class="game-box">
+      <div class="game-info" id="match-info">Question 1 of 7 — Tap the word that matches the definition.</div>
+      <div id="match-area"></div>
+      <div class="score-line" id="match-score"></div>
+      <div id="match-done" style="display:none">
+        <button class="btn btn-p" onclick="restartMatch()">🔄 Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE & CONTRAST -->
+  <div class="panel" id="tab-compare">
+    <p style="color:#666;font-size:.9rem;margin-bottom:12px">Does this statement describe the <span style="color:#d4793a;font-weight:700">🦊 Red Panda</span>, the <span style="color:#4a7fc1;font-weight:700">🐆 Snow Leopard</span>, or <span style="color:#4a8f61;font-weight:700">🤝 Both</span>?</p>
+    <div class="cc-box">
+      <div class="game-info" id="cc-info">Statement 1 of 10</div>
+      <div id="cc-area"></div>
+      <div class="score-line" id="cc-score"></div>
+      <div id="cc-done" style="display:none">
+        <button class="btn btn-p" onclick="restartCC()">🔄 Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WRITING PAD -->
+  <div class="panel" id="tab-write">
+    <div class="write-box">
+      <div class="prompt-box">✏️ <strong>Writing Prompt:</strong> Imagine you are a snow leopard living high in the mountains of Central Asia. Describe a day in your life — what you see, hear, feel, and hunt. Use at least <strong>3 vocabulary words</strong> from today's lesson in your writing.</div>
+      <textarea id="writing" placeholder="Start writing here… your work saves automatically as you type!"></textarea>
+      <div class="wc" id="wc">0 words · auto-saved 💾</div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="panel" id="tab-quiz">
+    <div class="quiz-box" id="quiz-area"></div>
+    <div id="done-banner"></div>
+  </div>
+</div>
+
+<script>
+const MKEY="refresher-mistakes";
+const WKEY="ela-l3-writing";
+const QKEY="ela-l3-quiz";
+
+// vocab popup
+const VPOP_DATA={
+  elusive:"elusive — hard to find or catch; always seeming to escape",
+  adorned:"adorned — decorated with; made more striking by adding something",
+  camouflage:"camouflage — colors or patterns that help an animal blend into its surroundings",
+  solitary:"solitary — preferring to live or spend time alone",
+  apex:"apex predator — animal at the very top of the food chain with no natural predators",
+  rudder:"rudder — something used for steering and balance",
+  vulnerable:"vulnerable — in danger; at risk of going extinct"
+};
+const vpopEl=document.getElementById("vpop");
+let vpopTimer=null;
+function vpop(k){
+  clearTimeout(vpopTimer);
+  vpopEl.textContent=VPOP_DATA[k]||"";
+  vpopEl.style.cssText="display:block;background:var(--accent);color:#fff;border-radius:10px;padding:12px 16px;margin-top:10px;max-width:480px;font-size:.9rem;font-weight:600";
+  vpopTimer=setTimeout(()=>{vpopEl.style.display="none";},3500);
+}
+
+// tabs
+function showTab(id){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
+  const map={read:"Passage",vocab:"Vocabulary",match:"Vocab Match",compare:"Compare",write:"Writing",quiz:"Quiz"};
+  document.querySelectorAll(".tab").forEach(t=>{
+    if(t.textContent.includes(map[id]))t.classList.add("active");
+  });
+}
+
+// writing pad
+const ta=document.getElementById("writing");
+let wTimer=null;
+try{ta.value=localStorage.getItem(WKEY)||"";}catch(e){}
+updWC();
+ta.addEventListener("input",()=>{
+  updWC();
+  clearTimeout(wTimer);
+  wTimer=setTimeout(()=>{try{localStorage.setItem(WKEY,ta.value);}catch(e){}},300);
+});
+function updWC(){
+  const n=ta.value.trim().split(/\s+/).filter(w=>w).length;
+  document.getElementById("wc").textContent=n+" word"+(n!==1?"s":"")+" · auto-saved 💾";
+}
+function flushWrite(){try{if(ta.value)localStorage.setItem(WKEY,ta.value);}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushWrite();});
+window.addEventListener("pagehide",flushWrite);
+window.addEventListener("beforeunload",flushWrite);
+window.addEventListener("blur",flushWrite);
+
+// ── VOCAB MATCH ──────────────────────────────────────────
+const VM=[
+  {def:"Hard to find or catch; always seeming to escape",ans:"elusive",opts:["elusive","solitary","vulnerable","adorned"]},
+  {def:"Decorated with; made more beautiful by adding something",ans:"adorned",opts:["camouflage","adorned","rudder","elusive"]},
+  {def:"Colors or patterns that help an animal blend into its surroundings",ans:"camouflage",opts:["camouflage","solitary","apex predator","rudder"]},
+  {def:"Preferring to live or spend time alone",ans:"solitary",opts:["vulnerable","apex predator","solitary","adorned"]},
+  {def:"An animal at the very top of the food chain with no natural predators",ans:"apex predator",opts:["elusive","apex predator","camouflage","rudder"]},
+  {def:"Something used for steering and keeping balance",ans:"rudder",opts:["solitary","adorned","rudder","vulnerable"]},
+  {def:"In danger; at risk of being harmed or going extinct",ans:"vulnerable",opts:["apex predator","vulnerable","elusive","camouflage"]}
+];
+let vmIdx=0,vmRight=0;
+function buildMatch(){
+  const area=document.getElementById("match-area");
+  area.innerHTML="";
+  document.getElementById("match-score").textContent="";
+  if(vmIdx>=VM.length){
+    area.innerHTML=`<div style="text-align:center;padding:28px;font-size:1.15rem;font-weight:700;color:var(--accent)">🎉 ${vmRight}/${VM.length} correct!</div>`;
+    document.getElementById("match-done").style.display="block";
+    document.getElementById("match-info").textContent="Game complete!";
+    return;
+  }
+  document.getElementById("match-info").textContent=`Question ${vmIdx+1} of ${VM.length} — Tap the word that matches the definition.`;
+  const r=VM[vmIdx];
+  const d=document.createElement("div");d.className="mq";
+  d.innerHTML=`<div class="mq-def">"${r.def}"</div><div class="mopts">${r.opts.map(o=>`<button class="mopt" onclick="ansMatch('${o}')">${o}</button>`).join("")}</div>`;
+  area.appendChild(d);
+}
+function ansMatch(word){
+  const r=VM[vmIdx];
+  const cor=word===r.ans;
+  if(cor)vmRight++;
+  document.querySelectorAll(".mopt").forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===r.ans)b.classList.add("cor");
+    else if(b.textContent===word&&!cor)b.classList.add("wrg");
+  });
+  document.getElementById("match-score").textContent=cor?"✅ Correct!":"❌ The answer was: "+r.ans;
+  setTimeout(()=>{vmIdx++;buildMatch();},1400);
+}
+function restartMatch(){vmIdx=0;vmRight=0;document.getElementById("match-done").style.display="none";buildMatch();}
+
+// ── COMPARE & CONTRAST ───────────────────────────────────
+const CC=[
+  {s:"Lives somewhere in Asia",a:"both"},
+  {s:"Is classified as Vulnerable or Endangered on the IUCN Red List",a:"both"},
+  {s:"Is an apex predator that hunts large prey like blue sheep and ibex",a:"sl"},
+  {s:"Primarily eats bamboo and fruits",a:"rp"},
+  {s:"Uses its long, bushy tail for balance when climbing",a:"both"},
+  {s:"Can weigh more than 100 pounds",a:"sl"},
+  {s:"Is roughly the size of a house cat",a:"rp"},
+  {s:"Is a solitary animal that lives and hunts alone",a:"both"},
+  {s:"Has spotted fur that helps it camouflage in rocky mountain terrain",a:"sl"},
+  {s:"Was once thought to be related to raccoons",a:"rp"}
+];
+let ccIdx=0,ccRight=0;
+function buildCC(){
+  const area=document.getElementById("cc-area");
+  area.innerHTML="";
+  document.getElementById("cc-score").textContent="";
+  if(ccIdx>=CC.length){
+    area.innerHTML=`<div style="text-align:center;padding:28px;font-size:1.15rem;font-weight:700;color:var(--accent)">🎉 ${ccRight}/${CC.length} correct!</div>`;
+    document.getElementById("cc-done").style.display="block";
+    document.getElementById("cc-info").textContent="Game complete!";
+    return;
+  }
+  document.getElementById("cc-info").textContent=`Statement ${ccIdx+1} of ${CC.length}`;
+  const r=CC[ccIdx];
+  const d=document.createElement("div");d.className="cc-card";
+  d.innerHTML=`<div class="cc-stmt">"${r.s}"</div>
+  <div class="cc-btns">
+    <button class="cbn" data-w="rp" onclick="ansCC('rp')">🦊 Red Panda</button>
+    <button class="cbn" data-w="both" onclick="ansCC('both')">🤝 Both</button>
+    <button class="cbn" data-w="sl" onclick="ansCC('sl')">🐆 Snow Leopard</button>
+  </div>`;
+  area.appendChild(d);
+}
+function ansCC(who){
+  const r=CC[ccIdx];
+  const cor=who===r.a;
+  if(cor)ccRight++;
+  document.querySelectorAll(".cbn").forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.w===r.a)b.classList.add("sel-cor");
+    else if(b.dataset.w===who&&!cor)b.classList.add("sel-wrg");
+  });
+  const label={rp:"🦊 Red Panda",both:"🤝 Both",sl:"🐆 Snow Leopard"};
+  document.getElementById("cc-score").textContent=cor?"✅ Correct!":"❌ Answer: "+label[r.a];
+  setTimeout(()=>{ccIdx++;buildCC();},1500);
+}
+function restartCC(){ccIdx=0;ccRight=0;document.getElementById("cc-done").style.display="none";buildCC();}
+
+// ── QUIZ ─────────────────────────────────────────────────
+const QUIZ=[
+  {q:"What does the word 'elusive' mean?",opts:["Easy to find anywhere","Hard to find or catch","Very fast and strong","Brightly colored"],a:1},
+  {q:"Snow leopards are 'solitary' animals. What does this mean for them?",opts:["They live in large family groups","They migrate each winter","They prefer to live and hunt alone","They are only active at night"],a:2},
+  {q:"What special nickname is given to the snow leopard?",opts:["King of the Jungle","Ghost of the Mountains","Lord of the Peaks","Shadow Stalker"],a:1},
+  {q:"What does the snow leopard use its long tail for?",opts:["Attracting mates","Communicating danger","Balance and steering like a rudder","Storing extra fat"],a:2},
+  {q:"What does 'apex predator' mean?",opts:["A predator that is hunted by others","An animal at the top of the food chain with no predators","A predator that only eats plants","An animal that lives in groups"],a:1},
+  {q:"About how many snow leopards remain in the wild today?",opts:["Fewer than 400","Fewer than 4,000","Fewer than 40,000","More than 100,000"],a:1},
+  {q:"What does 'vulnerable' mean in a conservation context?",opts:["Very strong and healthy","Fully protected by law","At risk of going extinct","Recently discovered"],a:2},
+  {q:"What does camouflage help the snow leopard do?",opts:["Run faster than prey","Find water in dry seasons","Blend into rocky mountain surroundings","Communicate with other leopards"],a:2},
+  {q:"What does 'adorned' mean?",opts:["Frightened or scared","Decorated with; made more striking by adding something","Hidden from view","Very hungry"],a:1},
+  {q:"In how many countries do snow leopards live?",opts:["3 countries","6 countries","12 countries","20 countries"],a:2}
+];
+let qAns={},qDone=false;
+function buildQuiz(){
+  const area=document.getElementById("quiz-area");
+  area.innerHTML="";
+  QUIZ.forEach((q,i)=>{
+    const d=document.createElement("div");d.className="qq";d.id="qq"+i;
+    d.innerHTML=`<div class="qq-txt">${i+1}. ${q.q}</div><div class="qopts">${q.opts.map((o,j)=>`<button class="qopt" id="qo${i}_${j}" onclick="ansQ(${i},${j})">${o}</button>`).join("")}</div>`;
+    area.appendChild(d);
+  });
+}
+function logMistake(c,qx,qt){
+  try{
+    const s=JSON.parse(localStorage.getItem(MKEY)||"{}");
+    const id="ELA|Day 3: Snow Leopard|"+qx;
+    if(c)delete s[id];
+    else s[id]={subject:"ELA",lesson:"Day 3: Snow Leopard",q:qt,file:"ela-lesson-03-snow-leopard.html",ts:Date.now()};
+    localStorage.setItem(MKEY,JSON.stringify(s));
+  }catch(e){}
+}
+function ansQ(i,idx){
+  if(qAns[i]!==undefined)return;
+  const q=QUIZ[i];
+  const cor=idx===q.a;
+  qAns[i]=idx;
+  logMistake(cor,i,q.q);
+  for(let j=0;j<q.opts.length;j++){
+    const b=document.getElementById("qo"+i+"_"+j);
+    b.disabled=true;
+    if(j===q.a)b.classList.add("cor");
+    else if(j===idx&&!cor)b.classList.add("wrg");
+  }
+  if(Object.keys(qAns).length===QUIZ.length&&!qDone){
+    qDone=true;
+    const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[k].a).length;
+    try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+    const b=document.getElementById("done-banner");
+    b.style.display="block";
+    b.innerHTML=`🎉 Quiz Complete! ${right}/${QUIZ.length} correct!<br><span style="font-size:.9rem;opacity:.85;font-weight:400">Amazing work with today's vocabulary!</span>`;
+  }
+}
+
+// ── TIMER ─────────────────────────────────────────────────
+const PHASES=[
+  {name:"Warm-Up",mins:5,tab:"read"},
+  {name:"Reading Passage",mins:10,tab:"read"},
+  {name:"Vocabulary Match",mins:10,tab:"match"},
+  {name:"Compare & Contrast",mins:12,tab:"compare"},
+  {name:"Writing Pad",mins:5,tab:"write"},
+  {name:"Quiz",mins:3,tab:"quiz"}
+];
+let curPh=0,tSec=0,tRun=false,tInt=null;
+function initPhase(i){
+  curPh=i;tSec=PHASES[i].mins*60;tRun=false;clearInterval(tInt);
+  document.querySelectorAll(".ph").forEach((el,j)=>{
+    el.className="ph "+(j<i?"done":j===i?"active":"todo");
+  });
+  document.getElementById("timer-label").textContent=PHASES[i].name;
+  updDisp();showTab(PHASES[i].tab);
+}
+function updDisp(){
+  const m=Math.floor(tSec/60),s=tSec%60;
+  document.getElementById("timer-display").textContent=`${m}:${String(s).padStart(2,"0")}`;
+}
+function toggleTimer(){
+  if(tRun){clearInterval(tInt);tRun=false;}
+  else{
+    tRun=true;
+    tInt=setInterval(()=>{
+      if(tSec>0){tSec--;updDisp();}
+      else{clearInterval(tInt);tRun=false;if(curPh<PHASES.length-1)skipPhase();}
+    },1000);
+  }
+}
+function skipPhase(){
+  clearInterval(tInt);tRun=false;
+  if(curPh<PHASES.length-1)initPhase(curPh+1);
+  else{document.getElementById("timer-label").textContent="All Done! 🎉";document.getElementById("timer-display").textContent="";}
+}
+function jumpPhase(i){initPhase(i);}
+
+initPhase(0);
+buildMatch();
+buildCC();
+buildQuiz();
+</script>
+</body>
+</html>

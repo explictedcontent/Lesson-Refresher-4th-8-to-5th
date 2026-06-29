@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Math · Day 3 · Multi-Step Word Problems</title>
+<style>
+:root{--accent:#2e86de;--accent2:#f9ca24;--bg:#f4f8ff;--card:#fff;--text:#222}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+#sidebar{width:220px;min-width:220px;background:#1a3a5c;color:#fff;display:flex;flex-direction:column;padding:16px 12px;gap:8px}
+#sidebar h2{font-size:1rem;text-align:center;margin-bottom:4px}
+.ph{border-radius:8px;padding:8px 10px;font-size:.82rem;cursor:pointer;transition:background .2s}
+.ph.done{background:#4caf50;opacity:.8}
+.ph.active{background:var(--accent);font-weight:700}
+.ph.todo{background:#ffffff20}
+#timer-box{background:#ffffff15;border-radius:8px;padding:10px;text-align:center;margin-top:auto}
+#timer-display{font-size:2rem;font-weight:700;letter-spacing:2px}
+#timer-label{font-size:.78rem;opacity:.8;margin-bottom:6px}
+.tbtn{background:var(--accent);border:none;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.78rem;margin:2px}
+#main{flex:1;display:flex;flex-direction:column;padding:20px;gap:16px;overflow-y:auto}
+h1{font-size:1.4rem;color:var(--accent)}
+.subtitle{font-size:.9rem;color:#666}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:8px 16px;border:2px solid var(--accent);border-radius:20px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--accent);background:transparent;transition:all .2s}
+.tab.active{background:var(--accent);color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+/* STRATEGY */
+.strat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:8px;max-width:720px}
+.strat-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 6px #0001;border-top:4px solid var(--accent)}
+.strat-card .step{font-size:1.6rem;margin-bottom:6px}
+.strat-card h3{color:var(--accent);font-size:1rem;margin-bottom:6px}
+.strat-card p{font-size:.88rem;color:#444;line-height:1.5}
+.tip-box{background:linear-gradient(135deg,#2e86de18,#f9ca2418);border-radius:10px;padding:14px;margin-top:12px;max-width:720px;font-size:.9rem;border-left:4px solid var(--accent)}
+/* WORD PROBLEMS */
+.wp-set{display:flex;flex-direction:column;gap:14px;max-width:680px}
+.wp{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 6px #0001}
+.wp-num{font-size:.78rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.wp-text{font-size:.97rem;line-height:1.7;margin-bottom:14px;color:#333}
+.wp-text strong{color:#333}
+.wp-input-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wp-input{border:2px solid #ddd;border-radius:8px;padding:8px 12px;font-size:1rem;width:140px;font-family:inherit}
+.wp-input:focus{outline:none;border-color:var(--accent)}
+.wp-unit{font-size:.9rem;color:#555}
+.chk-btn{padding:8px 18px;border:none;border-radius:20px;background:var(--accent);color:#fff;cursor:pointer;font-size:.88rem;font-weight:600}
+.chk-btn:hover{opacity:.85}
+.wp-fb{margin-top:8px;font-size:.88rem;font-weight:600;padding:6px 10px;border-radius:6px;display:none}
+.wp-fb.cor{background:#e8f5e9;color:#2e7d32;display:block}
+.wp-fb.wrg{background:#ffebee;color:#c62828;display:block}
+.wp-hint{font-size:.82rem;color:#888;font-style:italic;margin-top:6px;cursor:pointer;text-decoration:underline}
+/* MENTAL MATH */
+.mm-area{max-width:560px}
+.mm-problem{background:#fff;border-radius:14px;padding:28px;box-shadow:0 2px 8px #0001;text-align:center;margin-bottom:16px}
+.mm-eq{font-size:2.2rem;font-weight:700;color:var(--accent);margin-bottom:16px;letter-spacing:2px}
+.mm-opts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.mm-opt{padding:12px 24px;border:2px solid #ddd;border-radius:12px;cursor:pointer;font-size:1.1rem;font-weight:700;transition:all .2s;background:#fff;min-width:80px}
+.mm-opt:hover{border-color:var(--accent);color:var(--accent)}
+.mm-opt.cor{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
+.mm-opt.wrg{background:#ffebee;border-color:#f44336;color:#c62828}
+.mm-info{font-size:.9rem;color:#888;text-align:center;margin-bottom:8px}
+.mm-score{font-weight:700;color:var(--accent);text-align:center;font-size:1rem}
+/* QUIZ */
+.quiz-box{max-width:620px}
+.qq{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 6px #0001;margin-bottom:12px}
+.qq-txt{font-size:.95rem;font-weight:600;margin-bottom:12px;color:#333;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:8px}
+.qopt{padding:10px 14px;border:2px solid #ddd;border-radius:8px;cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;background:#fff}
+.qopt:hover:not(:disabled){border-color:var(--accent)}
+.qopt.cor{background:#e8f5e9;border-color:#4caf50;color:#2e7d32;font-weight:700}
+.qopt.wrg{background:#ffebee;border-color:#f44336;color:#c62828}
+#done-banner{display:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;padding:28px;text-align:center;font-size:1.2rem;font-weight:700;margin-top:16px}
+.btn{padding:10px 22px;border:none;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:600;margin:4px}
+.btn-p{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <h2>📐 Math · Day 3</h2>
+  <div style="text-align:center;font-size:.75rem;opacity:.7;margin-bottom:6px">Word Problems</div>
+  <div class="ph todo" id="ph0" onclick="jumpPhase(0)">1 · Warm-Up <span style="float:right">5 min</span></div>
+  <div class="ph todo" id="ph1" onclick="jumpPhase(1)">2 · Strategy <span style="float:right">8 min</span></div>
+  <div class="ph todo" id="ph2" onclick="jumpPhase(2)">3 · Problems Set 1 <span style="float:right">12 min</span></div>
+  <div class="ph todo" id="ph3" onclick="jumpPhase(3)">4 · Problems Set 2 <span style="float:right">12 min</span></div>
+  <div class="ph todo" id="ph4" onclick="jumpPhase(4)">5 · Mental Math <span style="float:right">5 min</span></div>
+  <div class="ph todo" id="ph5" onclick="jumpPhase(5)">6 · Quiz <span style="float:right">3 min</span></div>
+  <div id="timer-box">
+    <div id="timer-label">Warm-Up</div>
+    <div id="timer-display">5:00</div>
+    <div style="margin-top:6px">
+      <button class="tbtn" onclick="toggleTimer()">⏯ Start</button>
+      <button class="tbtn" onclick="skipPhase()">⏭ Skip</button>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div>
+    <h1>📐 Math — Day 3: Multi-Step Word Problems</h1>
+    <div class="subtitle">Strategy · Word Problems · Mental Math · Quiz &nbsp;|&nbsp; 45 minutes</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('strat')">📋 Strategy</button>
+    <button class="tab" onclick="showTab('wp1')">🔢 Set 1</button>
+    <button class="tab" onclick="showTab('wp2')">🔢 Set 2</button>
+    <button class="tab" onclick="showTab('mental')">⚡ Mental Math</button>
+    <button class="tab" onclick="showTab('quiz')">🧪 Quiz</button>
+  </div>
+
+  <!-- STRATEGY -->
+  <div class="panel active" id="tab-strat">
+    <p style="color:#444;font-size:.95rem;margin-bottom:12px;max-width:680px">Use the <strong>U-P-S-S</strong> method for any word problem — it works every time!</p>
+    <div class="strat-grid">
+      <div class="strat-card">
+        <div class="step">🔍</div>
+        <h3>U — Understand</h3>
+        <p>Read the problem twice. Underline the question. Circle important numbers. Cross out information you don't need.</p>
+      </div>
+      <div class="strat-card">
+        <div class="step">📝</div>
+        <h3>P — Plan</h3>
+        <p>Decide which operation(s) to use: add, subtract, multiply, or divide? Write a number sentence with a box for the unknown.</p>
+      </div>
+      <div class="strat-card">
+        <div class="step">✏️</div>
+        <h3>S — Solve</h3>
+        <p>Do the math step by step. Show your work. If the problem has two steps, label Step 1 and Step 2 clearly.</p>
+      </div>
+      <div class="strat-card">
+        <div class="step">✅</div>
+        <h3>S — Check</h3>
+        <p>Does your answer make sense? Use the opposite operation to check. Re-read the question to make sure you answered it.</p>
+      </div>
+    </div>
+    <div class="tip-box">
+      💡 <strong>Key Words to Watch:</strong><br>
+      <strong>Add (+):</strong> in all, total, combined, together, sum, more than<br>
+      <strong>Subtract (−):</strong> difference, less than, how many more, left over, remaining<br>
+      <strong>Multiply (×):</strong> each, every, times, product, groups of, per<br>
+      <strong>Divide (÷):</strong> share equally, split, per, how many in each, quotient
+    </div>
+  </div>
+
+  <!-- WORD PROBLEMS SET 1 -->
+  <div class="panel" id="tab-wp1">
+    <p style="color:#666;font-size:.9rem;margin-bottom:14px">Type your answer and tap <strong>Check</strong>. Show your work on scratch paper!</p>
+    <div class="wp-set" id="wp1-set"></div>
+  </div>
+
+  <!-- WORD PROBLEMS SET 2 -->
+  <div class="panel" id="tab-wp2">
+    <p style="color:#666;font-size:.9rem;margin-bottom:14px">Harder problems — use the U-P-S-S strategy and show all steps!</p>
+    <div class="wp-set" id="wp2-set"></div>
+  </div>
+
+  <!-- MENTAL MATH -->
+  <div class="panel" id="tab-mental">
+    <div class="mm-area">
+      <p style="color:#666;font-size:.9rem;margin-bottom:10px">Quick mental math — no pencil needed! Pick the correct answer.</p>
+      <div class="mm-info" id="mm-info">Problem 1 of 8</div>
+      <div id="mm-area"></div>
+      <div class="mm-score" id="mm-score"></div>
+      <div id="mm-done" style="display:none;text-align:center;margin-top:10px">
+        <button class="btn btn-p" onclick="restartMM()">🔄 Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="panel" id="tab-quiz">
+    <div class="quiz-box" id="quiz-area"></div>
+    <div id="done-banner"></div>
+  </div>
+</div>
+
+<script>
+const MKEY="refresher-mistakes";
+const QKEY="math-l3-quiz";
+
+function showTab(id){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
+  const map={strat:"Strategy",wp1:"Set 1",wp2:"Set 2",mental:"Mental Math",quiz:"Quiz"};
+  document.querySelectorAll(".tab").forEach(t=>{if(t.textContent.includes(map[id]))t.classList.add("active");});
+}
+
+// ── WORD PROBLEMS SET 1 ──────────────────────────────────
+// Animal appears only in the story context of word problems
+const WP1=[
+  {
+    n:"Problem 1",
+    t:"A snow leopard in the wild weighs 88 pounds. A red panda weighs 14 pounds. How many pounds heavier is the snow leopard than the red panda?",
+    ans:74,unit:"pounds",hint:"Subtract: 88 − 14 = ?"
+  },
+  {
+    n:"Problem 2",
+    t:"Snow leopards can leap up to 30 feet in a single jump. If a snow leopard makes 6 jumps while chasing prey, how many total feet does it cover?",
+    ans:180,unit:"feet",hint:"Multiply: 6 × 30 = ?"
+  },
+  {
+    n:"Problem 3",
+    t:"There are 4,000 snow leopards in the wild today. Scientists hope to increase that number to 5,350 by 2030. How many more snow leopards need to be born to reach that goal?",
+    ans:1350,unit:"snow leopards",hint:"Subtract: 5,350 − 4,000 = ?"
+  },
+  {
+    n:"Problem 4",
+    t:"A zoo has 3 snow leopards. Each leopard eats 8 pounds of meat per day. How many total pounds of meat do all three leopards eat in one week (7 days)?",
+    ans:168,unit:"pounds",hint:"Step 1: 3 × 8 = ? pounds per day. Step 2: answer × 7 = ?"
+  },
+  {
+    n:"Problem 5",
+    t:"A wildlife ranger must patrol a snow leopard reserve that is 450 square miles. The ranger covers the same distance every day and finishes in 9 days. How many square miles does the ranger patrol each day?",
+    ans:50,unit:"sq miles",hint:"Divide: 450 ÷ 9 = ?"
+  },
+  {
+    n:"Problem 6",
+    t:"A conservation group raises $1,250 in January, $875 in February, and $2,100 in March to protect snow leopards. What is the total amount raised over those three months?",
+    ans:4225,unit:"dollars",hint:"Add all three: 1,250 + 875 + 2,100 = ?"
+  }
+];
+
+// ── WORD PROBLEMS SET 2 ──────────────────────────────────
+const WP2=[
+  {
+    n:"Problem 7",
+    t:"A snow leopard's tail is 36 inches long. Its body is 48 inches long. What is the total length of the leopard from nose to tail tip?",
+    ans:84,unit:"inches",hint:"Add: 48 + 36 = ?"
+  },
+  {
+    n:"Problem 8",
+    t:"Scientists counted 4,386 snow leopards in a recent survey. Round this number to the nearest hundred.",
+    ans:4400,unit:"(rounded)",hint:"Look at the tens digit: 8 ≥ 5, so round UP the hundreds."
+  },
+  {
+    n:"Problem 9",
+    t:"A snow leopard climbs 2,450 feet up a mountain in the morning, then descends 875 feet in the afternoon. How many feet higher is it now compared to where it started that morning?",
+    ans:1575,unit:"feet higher",hint:"Subtract: 2,450 − 875 = ?"
+  },
+  {
+    n:"Problem 10",
+    t:"A national park covers 12,600 square miles. Snow leopards each need about 400 square miles of territory. How many snow leopards can the park support?",
+    ans:31,unit:"snow leopards",hint:"Divide: 12,600 ÷ 400 = ? (ignore the remainder)"
+  },
+  {
+    n:"Problem 11",
+    t:"A snow leopard travels an average of 25 miles per day. How many miles does it travel in 2 weeks?",
+    ans:350,unit:"miles",hint:"2 weeks = 14 days. Multiply: 25 × 14 = ?"
+  },
+  {
+    n:"Problem 12",
+    t:"Three conservation groups each donate $2,375 to protect snow leopards. A fourth group donates $1,850. What is the total donation from all four groups?",
+    ans:8975,unit:"dollars",hint:"Step 1: 3 × 2,375 = ? Step 2: add 1,850 to that total."
+  }
+];
+
+function buildWPs(set,containerId){
+  const el=document.getElementById(containerId);
+  el.innerHTML="";
+  set.forEach((p,i)=>{
+    const id=containerId+i;
+    const d=document.createElement("div");d.className="wp";
+    d.innerHTML=`<div class="wp-num">${p.n}</div>
+    <div class="wp-text">${p.t}</div>
+    <div class="wp-input-row">
+      <input class="wp-input" type="number" id="${id}-inp" placeholder="Answer">
+      <span class="wp-unit">${p.unit}</span>
+      <button class="chk-btn" onclick="chkWP('${id}',${p.ans},'${id}-inp')">Check ✓</button>
+    </div>
+    <div class="wp-fb" id="${id}-fb"></div>
+    <div class="wp-hint" onclick="toggleHint('${id}-hint')">💡 Show hint</div>
+    <div id="${id}-hint" style="display:none;font-size:.85rem;color:#555;margin-top:6px;background:#f5f5f5;border-radius:6px;padding:8px">🔍 ${p.hint}</div>`;
+    el.appendChild(d);
+  });
+}
+function chkWP(id,ans,inpId){
+  const inp=document.getElementById(inpId);
+  const val=parseFloat(inp.value);
+  const fb=document.getElementById(id+"-fb");
+  if(isNaN(val)){fb.className="wp-fb wrg";fb.textContent="Enter a number first!";return;}
+  if(val===ans){
+    fb.className="wp-fb cor";fb.textContent="✅ Correct! Great work!";
+    inp.style.borderColor="#4caf50";
+  } else {
+    fb.className="wp-fb wrg";fb.textContent=`❌ Not quite. Try again! (Hint: check your arithmetic)`;
+    inp.style.borderColor="#f44336";
+  }
+}
+function toggleHint(hid){
+  const h=document.getElementById(hid);
+  h.style.display=h.style.display==="none"?"block":"none";
+}
+
+// ── MENTAL MATH ──────────────────────────────────────────
+// CLEAN — no animal theme, pure number practice
+const MM=[
+  {eq:"47 + 38 = ?",ans:85,opts:[83,85,87,75]},
+  {eq:"200 − 63 = ?",ans:137,opts:[137,143,127,147]},
+  {eq:"9 × 7 = ?",ans:63,opts:[54,56,63,72]},
+  {eq:"144 ÷ 6 = ?",ans:24,opts:[22,23,24,26]},
+  {eq:"356 + 247 = ?",ans:603,opts:[593,603,613,600]},
+  {eq:"500 − 178 = ?",ans:322,opts:[312,322,332,328]},
+  {eq:"12 × 8 = ?",ans:96,opts:[86,92,96,104]},
+  {eq:"270 ÷ 9 = ?",ans:30,opts:[27,30,33,36]}
+];
+let mmIdx=0,mmRight=0;
+function buildMM(){
+  const area=document.getElementById("mm-area");
+  area.innerHTML="";
+  document.getElementById("mm-score").textContent="";
+  if(mmIdx>=MM.length){
+    area.innerHTML=`<div class="mm-problem"><div style="font-size:1.2rem;font-weight:700;color:var(--accent)">🎉 ${mmRight}/${MM.length} correct!</div></div>`;
+    document.getElementById("mm-done").style.display="block";
+    document.getElementById("mm-info").textContent="Game complete!";
+    return;
+  }
+  document.getElementById("mm-info").textContent=`Problem ${mmIdx+1} of ${MM.length}`;
+  const r=MM[mmIdx];
+  const d=document.createElement("div");d.className="mm-problem";
+  d.innerHTML=`<div class="mm-eq">${r.eq}</div><div class="mm-opts">${r.opts.map(o=>`<button class="mm-opt" onclick="ansMM(${o})">${o}</button>`).join("")}</div>`;
+  area.appendChild(d);
+}
+function ansMM(val){
+  const r=MM[mmIdx];
+  const cor=val===r.ans;
+  if(cor)mmRight++;
+  document.querySelectorAll(".mm-opt").forEach(b=>{
+    b.disabled=true;
+    if(+b.textContent===r.ans)b.classList.add("cor");
+    else if(+b.textContent===val&&!cor)b.classList.add("wrg");
+  });
+  document.getElementById("mm-score").textContent=cor?"✅ Correct!":"❌ Answer: "+r.ans;
+  setTimeout(()=>{mmIdx++;buildMM();},1300);
+}
+function restartMM(){mmIdx=0;mmRight=0;document.getElementById("mm-done").style.display="none";buildMM();}
+
+// ── QUIZ ─────────────────────────────────────────────────
+const QUIZ=[
+  {q:"A ranger patrols 1/4 of a 400 square mile territory each day. How many square miles per day?",opts:["25 sq miles","50 sq miles","75 sq miles","100 sq miles"],a:3},
+  {q:"What is 4,386 rounded to the nearest hundred?",opts:["4,300","4,380","4,400","4,390"],a:2},
+  {q:"A snow leopard climbs 2,450 feet and then descends 875 feet. How many feet higher is it than when it started?",opts:["1,475 feet","1,575 feet","1,625 feet","1,675 feet"],a:1},
+  {q:"3 animals each eat 8 pounds of food per day. How many total pounds do they eat in 7 days?",opts:["24 pounds","56 pounds","168 pounds","168 grams"],a:2},
+  {q:"What is 25 × 14?",opts:["280","320","350","375"],a:2},
+  {q:"Three groups each donate $2,375 and a fourth donates $1,850. What is the total?",opts:["$7,125","$8,975","$9,350","$8,125"],a:1},
+  {q:"What is 4 × 30?",opts:["90","100","120","130"],a:2},
+  {q:"12,600 ÷ 400 = ?",opts:["31","31.5","32","315"],a:0},
+  {q:"What is 2,450 − 875?",opts:["1,475","1,550","1,575","1,625"],a:2},
+  {q:"Which UPSS step means 'decide which operation to use'?",opts:["Understand","Plan","Solve","Check"],a:1}
+];
+let qAns={},qDone=false;
+function buildQuiz(){
+  const area=document.getElementById("quiz-area");
+  area.innerHTML="";
+  QUIZ.forEach((q,i)=>{
+    const d=document.createElement("div");d.className="qq";d.id="qq"+i;
+    d.innerHTML=`<div class="qq-txt">${i+1}. ${q.q}</div><div class="qopts">${q.opts.map((o,j)=>`<button class="qopt" id="qo${i}_${j}" onclick="ansQ(${i},${j})">${o}</button>`).join("")}</div>`;
+    area.appendChild(d);
+  });
+}
+function logMistake(c,qx,qt){
+  try{
+    const s=JSON.parse(localStorage.getItem(MKEY)||"{}");
+    const id="Math|Day 3: Multi-Step Problems|"+qx;
+    if(c)delete s[id];
+    else s[id]={subject:"Math",lesson:"Day 3: Multi-Step Problems",q:qt,file:"math-lesson-03-snow-leopard.html",ts:Date.now()};
+    localStorage.setItem(MKEY,JSON.stringify(s));
+  }catch(e){}
+}
+function ansQ(i,idx){
+  if(qAns[i]!==undefined)return;
+  const q=QUIZ[i];
+  const cor=idx===q.a;
+  qAns[i]=idx;
+  logMistake(cor,i,q.q);
+  for(let j=0;j<q.opts.length;j++){
+    const b=document.getElementById("qo"+i+"_"+j);
+    b.disabled=true;
+    if(j===q.a)b.classList.add("cor");
+    else if(j===idx&&!cor)b.classList.add("wrg");
+  }
+  if(Object.keys(qAns).length===QUIZ.length&&!qDone){
+    qDone=true;
+    const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[k].a).length;
+    try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+    const b=document.getElementById("done-banner");
+    b.style.display="block";
+    b.innerHTML=`🎉 Quiz Complete! ${right}/${QUIZ.length} correct!<br><span style="font-size:.9rem;opacity:.85;font-weight:400">Excellent problem-solving work today!</span>`;
+  }
+}
+
+// ── TIMER ─────────────────────────────────────────────────
+const PHASES=[
+  {name:"Warm-Up",mins:5,tab:"strat"},
+  {name:"U-P-S-S Strategy",mins:8,tab:"strat"},
+  {name:"Word Problems Set 1",mins:12,tab:"wp1"},
+  {name:"Word Problems Set 2",mins:12,tab:"wp2"},
+  {name:"Mental Math",mins:5,tab:"mental"},
+  {name:"Quiz",mins:3,tab:"quiz"}
+];
+let curPh=0,tSec=0,tRun=false,tInt=null;
+function initPhase(i){
+  curPh=i;tSec=PHASES[i].mins*60;tRun=false;clearInterval(tInt);
+  document.querySelectorAll(".ph").forEach((el,j)=>{
+    el.className="ph "+(j<i?"done":j===i?"active":"todo");
+  });
+  document.getElementById("timer-label").textContent=PHASES[i].name;
+  updDisp();showTab(PHASES[i].tab);
+}
+function updDisp(){
+  const m=Math.floor(tSec/60),s=tSec%60;
+  document.getElementById("timer-display").textContent=`${m}:${String(s).padStart(2,"0")}`;
+}
+function toggleTimer(){
+  if(tRun){clearInterval(tInt);tRun=false;}
+  else{
+    tRun=true;
+    tInt=setInterval(()=>{
+      if(tSec>0){tSec--;updDisp();}
+      else{clearInterval(tInt);tRun=false;if(curPh<PHASES.length-1)skipPhase();}
+    },1000);
+  }
+}
+function skipPhase(){
+  clearInterval(tInt);tRun=false;
+  if(curPh<PHASES.length-1)initPhase(curPh+1);
+  else{document.getElementById("timer-label").textContent="All Done! 🎉";document.getElementById("timer-display").textContent="";}
+}
+function jumpPhase(i){initPhase(i);}
+
+// safety save stub (no canvas/writing in math lesson)
+document.addEventListener("visibilitychange",()=>{});
+window.addEventListener("pagehide",()=>{});
+window.addEventListener("beforeunload",()=>{});
+
+initPhase(0);
+buildWPs(WP1,"wp1-set");
+buildWPs(WP2,"wp2-set");
+buildMM();
+buildQuiz();
+</script>
+</body>
+</html>
