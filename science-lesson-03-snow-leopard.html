@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Science · Day 3: Snow Leopard (Interactive)</title>
+<style>
+:root{--bg:#1d1f2b;--panel:#262a3b;--panel2:#2f3447;--ink:#f4f5fb;--muted:#a7adc4;
+  --accent:#54b06b;--accent2:#5bd1c4;--good:#7bd88f;--line:#3a4059;--warn:#ffd166;--bad:#ff6b81;--sl:#7ec8e3;}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}h1,h2,h3{margin:0 0 .35em}.hidden{display:none !important}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.topbar .ltitle{font-weight:800;font-size:17px}.topbar .lsub{color:var(--muted);font-size:13px}
+.spacer{flex:1}.tbtn-top{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+.stage{flex:1;display:flex;min-height:0}
+.side{width:380px;max-width:44vw;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.timerwrap{padding:14px 16px;border-bottom:1px solid var(--line)}
+.phasename{font-size:13px;color:var(--accent2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.clock{font-size:46px;font-weight:800;line-height:1;margin:6px 0 4px;font-variant-numeric:tabular-nums}.clock.low{color:var(--warn)}
+.bar{height:8px;background:var(--panel2);border-radius:999px;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%}
+.tbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tbtns button{flex:1;min-width:84px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;padding:9px 8px;font-size:13px;font-weight:700}
+.tbtns .primary{background:var(--accent);border-color:var(--accent);color:#06210f}
+.steps{padding:14px 16px;overflow:auto;flex:1;min-height:0}
+.phaserow{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;margin-bottom:6px;border:1px solid transparent}
+.phaserow.active{background:var(--panel2);border-color:var(--line)}.phaserow.done .dot{background:var(--good);border-color:var(--good)}.phaserow.active .dot{background:var(--accent);border-color:var(--accent)}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px;flex:none}
+.phaserow .pn{font-weight:700;font-size:14px}.phaserow .pm{font-size:12px;color:var(--muted)}
+.phaserow ul{margin:6px 0 0;padding-left:18px}.phaserow li{font-size:13.5px;line-height:1.5;margin:2px 0;color:#dfe2f1}
+.doactive{margin-top:8px;font-size:12.5px;font-weight:700;color:#ffd166}
+.extra{margin-top:10px;padding:12px;border-radius:12px;background:#1a2e1e;border:1px solid #2d5235}
+.extra .lab{font-size:12px;font-weight:700;color:#8fcc9f;text-transform:uppercase;letter-spacing:.05em}
+.extra p{margin:.4em 0 0;font-size:13.5px;line-height:1.5;color:#cdecd4}
+.studio{flex:1;display:flex;flex-direction:column;min-width:0;background:#14151d}
+.tabs{display:flex;gap:6px;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700}
+.tab.on{background:var(--accent2);color:#063;border-color:var(--accent2)}
+.zone{flex:1;min-height:0;overflow:auto;padding:18px;display:none}.zone.on{display:block}
+.zone h3{font-size:18px}.zone p.lead{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:64ch}
+.factgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px}
+.fact{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sl);border-radius:12px;padding:13px 14px}
+.fact .fe{font-size:24px}.fact .ft{font-weight:800;margin:4px 0 2px;font-size:14.5px}.fact .fd{font-size:13px;color:var(--muted);line-height:1.45}
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:10px 0}
+.qask{font-size:17px;font-weight:700;margin-bottom:10px;line-height:1.4}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+.opt:hover:not(:disabled){border-color:var(--accent)}.opt:disabled{cursor:default;opacity:.92}
+.opt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}.opt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+.gamemsg{margin-top:10px;font-weight:700;font-size:14px;min-height:1.2em}.gamemsg.ok{color:var(--good)}.gamemsg.no{color:var(--bad)}
+.scorepill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;color:var(--accent2)}
+.gnext{margin-top:12px;background:var(--accent);border:none;color:#06210f;font-weight:800;padding:10px 16px;border-radius:11px;font-size:14px}
+.chain-items{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.ci{background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer}
+.ci:hover{border-color:var(--accent)}.ci.placed{opacity:.4;cursor:default}
+.chain-slots{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.slot{width:120px;min-height:52px;border:2px dashed var(--line);border-radius:12px;padding:8px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.slot.filled{border-color:var(--accent2);background:#0f2a2a;color:var(--ink)}
+.slot-labels{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.slot-lbl{width:120px;font-size:10px;color:var(--muted);font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:.05em}
+.modal{position:fixed;inset:0;background:#0b0c12d8;display:flex;align-items:center;justify-content:center;z-index:60;padding:18px}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;max-height:92vh;overflow:auto;padding:22px}
+.sheet .x{float:right;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:6px 11px;font-weight:700}
+.qprog{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.qtext{font-size:18px;font-weight:700;line-height:1.35;margin:8px 0 14px}
+.qopts{display:flex;flex-direction:column;gap:9px}
+.qopt{text-align:left;background:var(--panel2);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+.qopt:hover:not(:disabled){border-color:var(--accent)}.qopt:disabled{cursor:default;opacity:.92}
+.qopt.right{background:#1f3d2b;border-color:var(--good);color:#d6f5df}.qopt.wrong{background:#43222a;border-color:var(--bad);color:#ffd9df}
+.qfb{margin-top:14px;font-size:14.5px;font-weight:700;min-height:1.2em}.qfb.ok{color:var(--good)}.qfb.no{color:#ff8a9a}
+.qnext{margin-top:16px;background:var(--accent);border:none;color:#06210f;font-weight:800;padding:11px 18px;border-radius:11px;font-size:15px;width:100%}
+.scorebig{font-size:40px;font-weight:800;margin:6px 0}
+.reviewlist{margin:10px 0 0;padding-left:18px}.reviewlist li{font-size:14px;line-height:1.5;margin:4px 0;color:#ffd9df}
+.keybtn{margin-top:16px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:13.5px;font-weight:700;width:100%}
+.answerkey{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.answerkey .ak{font-size:13.5px;line-height:1.5;margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+.answerkey .ak .qq{font-weight:700}.answerkey .ak .correct{color:var(--good)}.answerkey .ak .got{color:#ff8a9a}.answerkey .ak .got.okgot{color:var(--good)}
+#doneBanner .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;max-width:430px;text-align:center}
+#doneBanner h2{font-size:24px}#doneBanner p{color:var(--muted);line-height:1.5}
+#doneBanner button{margin-top:14px;background:var(--accent);border:none;color:#06210f;font-weight:700;padding:11px 18px;border-radius:11px;font-size:15px}
+@media(max-width:820px){.stage{flex-direction:column}.side{width:100%;max-width:none;max-height:46%;border-right:none;border-bottom:1px solid var(--line)}.clock{font-size:38px}}
+</style>
+</head>
+<body>
+<section id="app">
+<div class="topbar">
+  <div><div class="ltitle">🔬 Science · Day 3: Snow Leopard</div>
+  <div class="lsub">Adaptations, food chains &amp; ecosystems · 45 min · 🐆 Animal of the Day</div></div>
+  <div class="spacer"></div>
+  <button class="tbtn-top" id="quizBtn">📝 Quiz</button>
+</div>
+<div class="stage">
+  <aside class="side">
+    <div class="timerwrap">
+      <div class="phasename" id="phaseName">Warm-Up</div>
+      <div class="clock" id="clock">05:00</div>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="tbtns"><button class="primary" id="startBtn">▶ Start</button><button id="pauseBtn">⏸ Pause</button><button id="skipBtn">Next ⏭</button></div>
+    </div>
+    <div class="steps" id="steps"></div>
+  </aside>
+  <div class="studio">
+    <div class="tabs">
+      <button class="tab on" data-z="meet">🐆 Meet the Snow Leopard</button>
+      <button class="tab" data-z="chain">🔗 Food Chain Builder</button>
+      <button class="tab" data-z="adapt">🧩 Adaptation Match</button>
+    </div>
+    <div class="zone on" id="z-meet">
+      <h3>Meet the Snow Leopard</h3>
+      <p class="lead">The snow leopard is one of Earth's most mysterious big cats — so rarely seen it's nicknamed the <b>"Ghost of the Mountains."</b> Every part of its body is engineered for survival in the coldest, highest mountains on Earth.</p>
+      <div class="factgrid" id="facts"></div>
+    </div>
+    <div class="zone" id="z-chain">
+      <h3>Food Chain Builder 🔗 <span class="scorepill" id="chainScore">0 / 0</span></h3>
+      <p class="lead">A <b>food chain</b> shows who eats whom. Energy flows from the Sun → plants → plant-eaters → meat-eaters. Tap the items in the correct order from <b>energy source → producer → prey → apex predator</b>.</p>
+      <div id="chainGame"></div>
+    </div>
+    <div class="zone" id="z-adapt">
+      <h3>Adaptation Match 🧩 <span class="scorepill" id="adaptScore">0 / 0</span></h3>
+      <p class="lead">An <b>adaptation</b> is a body feature or behavior that helps an animal survive. Match each snow leopard adaptation to the job it does.</p>
+      <div class="qcard">
+        <div class="qask" id="adaptAsk">—</div>
+        <div class="opts" id="adaptOpts"></div>
+        <div class="gamemsg" id="adaptMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<div id="doneBanner" class="modal hidden"><div class="box"><h2 id="doneTitle">⏰ Time!</h2><p id="doneMsg"></p><button id="doneBtn">Next ▶</button></div></div>
+<div id="quizModal" class="modal hidden"><div class="sheet" id="quizSheet"></div></div>
+<script>
+const $=s=>document.querySelector(s);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+const FACTS=[
+  {e:"👻",t:"Ghost of the Mountains",d:"Snow leopards are so secretive and well-camouflaged they're rarely spotted — even by scientists who study them!"},
+  {e:"🏔️",t:"Extreme altitude",d:"They live at 3,000–4,500 m elevation — higher than most planes fly over North America."},
+  {e:"⚖️",t:"Size",d:"40–55 kg and up to 2.4 m long including tail — roughly the size of a large dog but twice as powerful."},
+  {e:"🦴",t:"The mighty tail",d:"Their tail is nearly as long as their body. It helps balance on rocky cliffs AND wraps around like a scarf for warmth."},
+  {e:"🐑",t:"Powerful hunter",d:"They prey on blue sheep, ibex, and marmots — animals up to 3× their own weight. True apex predators."},
+  {e:"👣",t:"Snow-shoe paws",d:"Wide, fur-covered paws spread their weight on snow AND muffle their footsteps for silent stalking."},
+  {e:"❄️",t:"Perfect camouflage",d:"Pale grey-white fur with black rosettes blends into rocky, snowy slopes — almost invisible to prey."},
+  {e:"💨",t:"Thin-air breather",d:"An enlarged nasal cavity warms and filters the cold, thin mountain air before it reaches the lungs."},
+  {e:"⚠️",t:"Vulnerable & endangered",d:"Fewer than 4,000 remain in the wild. Habitat loss, poaching, and prey reduction are the main threats."},
+];
+function renderFacts(){$("#facts").innerHTML=FACTS.map(f=>`<div class="fact"><div class="fe">${f.e}</div><div class="ft">${f.t}</div><div class="fd">${f.d}</div></div>`).join("");}
+
+/* PHASES — 45 min total */
+const PHASES=[
+  {name:"Warm-Up",min:5,tab:"meet",steps:["Open 🐆 Meet the Snow Leopard and read ALL the fact cards.","Look for a pattern: how many adaptations are about STAYING WARM vs. HUNTING BETTER?","Out loud: is the snow leopard an apex predator or prey? How do you know?"],doline:"DO NOW: read the facts & answer the warm-up question →"},
+  {name:"Mini-Lesson",min:10,tab:"meet",steps:["An APEX PREDATOR sits at the TOP of the food chain — nothing hunts it.","Food chain: Sun → Mountain Grass → Blue Sheep (bharal) → Snow Leopard.","Each arrow means 'is eaten by' — energy moves up the chain.","The snow leopard's adaptations fit its job at every step: sneak (camouflage + silent paws), chase (speed), survive cold (tail + thick fur + big nose).","ECOSYSTEM = all the living things in a place plus their environment, working together."],doline:"DO NOW: draw the snow leopard food chain in your head →"},
+  {name:"Food Chain Game",min:10,tab:"chain",steps:["Open 🔗 Food Chain Builder.","Tap the 4 items in the correct order from energy source → producer → prey → top predator.","Think: plants get energy from the sun, plant-eaters eat plants, meat-eaters eat plant-eaters."],doline:"DO NOW: build all the food chains in the right order →"},
+  {name:"Adaptation Match",min:12,tab:"adapt",steps:["Open 🧩 Adaptation Match.","For each body feature or behavior, choose the survival job it does.","Think: 'How does THIS help a snow leopard survive in cold, rocky, high mountains?'"],doline:"DO NOW: match every adaptation to its job →"},
+  {name:"Guided Practice",min:5,tab:"meet",steps:["If a prey animal (like a blue sheep) disappeared from the mountains, what would happen to snow leopards?","Name one adaptation a PREY animal might have to survive against snow leopards.","Think: why would living alone (solitary) be an advantage for a top predator?"],doline:"DO NOW: think through these ecosystem questions →"},
+  {name:"Reflection + Quiz",min:3,tab:"meet",steps:["Tell someone: what makes the snow leopard a perfect mountain predator?","Press 📝 Quiz to check what you learned.","Misses go to the Review tab to fix later."],doline:"DO NOW: take the 📝 Quiz →"},
+];
+let curPhase=0,remaining=0,timerId=null,running=false;
+function renderSteps(){const w=$("#steps");w.innerHTML="";
+  PHASES.forEach((p,idx)=>{const r=document.createElement("div");r.className="phaserow"+(idx===curPhase?" active":"")+(idx<curPhase?" done":"");
+    r.innerHTML=`<div class="dot"></div><div><div class="pn">${p.name} <span class="pm">· ${p.min} min</span></div><ul>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ul>${idx===curPhase?`<div class="doactive">${p.doline}</div>`:""}</div>`;
+    r.onclick=()=>selectPhase(idx,false);w.appendChild(r);});
+  const ex=document.createElement("div");ex.className="extra";
+  ex.innerHTML=`<div class="lab">🐆 Animal of the Day — Bonus</div><p>Research challenge: find ONE other apex predator from a different continent. What does it eat? What adaptations make it a great hunter? Compare it to the snow leopard!</p>`;
+  w.appendChild(ex);}
+function selectPhase(idx,auto){stop();curPhase=idx;const p=PHASES[idx];remaining=p.min*60;$("#phaseName").textContent=p.name;updateClock();renderSteps();if(p.tab)showZone(p.tab);const a=document.querySelector(".phaserow.active");if(a)a.scrollIntoView({block:"nearest",behavior:"smooth"});if(auto)startT();}
+function updateClock(){const m=Math.floor(remaining/60),s=remaining%60;const el=$("#clock");el.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;el.classList.toggle("low",remaining<=30&&remaining>0);$("#barFill").style.width=(100-(remaining/(PHASES[curPhase].min*60))*100)+"%";}
+function tick(){if(remaining>0){remaining--;updateClock();}if(remaining<=0){stop();finishPhase();}}
+function startT(){if(running)return;running=true;timerId=setInterval(tick,1000);}
+function stop(){running=false;if(timerId)clearInterval(timerId);timerId=null;}
+function finishPhase(){const last=curPhase>=PHASES.length-1;$("#doneTitle").textContent=last?"🎉 Science done!":"⏰ Step done!";
+  $("#doneMsg").textContent=last?"Great work, scientist! Take the quiz if you haven't — then move on to your next subject.":`Nice! Next: ${PHASES[curPhase+1].name} (${PHASES[curPhase+1].min} min).`;
+  $("#doneBtn").textContent=last?"Finish":"Start next ▶";$("#doneBanner").classList.remove("hidden");try{beep();}catch(e){}}
+$("#doneBtn").onclick=()=>{$("#doneBanner").classList.add("hidden");if(curPhase<PHASES.length-1)selectPhase(curPhase+1,true);};
+$("#startBtn").onclick=startT;$("#pauseBtn").onclick=stop;
+$("#skipBtn").onclick=()=>{if(curPhase<PHASES.length-1)selectPhase(curPhase+1,false);else finishPhase();};
+let actx;function beep(){actx=actx||new(window.AudioContext||window.webkitAudioContext)();[660,880,990].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type="sine";o.connect(g);g.connect(actx.destination);const t=actx.currentTime+i*0.12;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);o.start(t);o.stop(t+0.2);});}
+function showZone(z){document.querySelectorAll(".zone").forEach(x=>x.classList.toggle("on",x.id==="z-"+z));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.z===z));}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showZone(t.dataset.z));
+
+/* FOOD CHAIN BUILDER */
+const CHAINS=[
+  {items:["Mountain Grass","Blue Sheep (Bharal)","Snow Leopard","Sun"],correct:["Sun","Mountain Grass","Blue Sheep (Bharal)","Snow Leopard"],labels:["Energy source","Producer","Prey animal","Apex predator"]},
+  {items:["Ibex","Shrubs & Lichen","Snow Leopard","Sunlight"],correct:["Sunlight","Shrubs & Lichen","Ibex","Snow Leopard"],labels:["Energy source","Producer","Prey animal","Apex predator"]},
+  {items:["Alpine Flowers","Pika","Snow Leopard","Sunlight"],correct:["Sunlight","Alpine Flowers","Pika","Snow Leopard"],labels:["Energy source","Producer","Prey animal","Apex predator"]},
+  {items:["Mountain Grass","Marmot","Snow Leopard","Sun"],correct:["Sun","Mountain Grass","Marmot","Snow Leopard"],labels:["Energy source","Producer","Prey animal","Apex predator"]},
+];
+let cIdx=0,cRight=0,cDone=0,cPlaced=[],cLock=false;
+function buildChain(){cIdx=0;cRight=0;cDone=0;renderChain();}
+function renderChain(){cLock=false;cPlaced=[];
+  if(cIdx>=CHAINS.length){$("#chainGame").innerHTML=`<div class="gamemsg ok" style="font-size:16px;padding:16px">🏁 All chains built! You got ${cRight} of ${CHAINS.length} correct.</div>`;$("#chainScore").textContent=`${cRight} / ${CHAINS.length}`;return;}
+  const c=CHAINS[cIdx];const shuffled=shuffle(c.items);
+  let html=`<p style="font-size:13px;color:var(--muted);margin:0 0 6px">Tap items in order from left to right:</p>`;
+  html+=`<div class="slot-labels">${c.labels.map(l=>`<div class="slot-lbl">${l}</div>`).join("")}</div>`;
+  html+=`<div class="chain-slots" id="slots">${c.correct.map((_,i)=>`<div class="slot" id="slot${i}">—</div>`).join("")}</div>`;
+  html+=`<div class="chain-items" id="citems">${shuffled.map(it=>`<button class="ci" data-val="${it}">${it}</button>`).join("")}</div>`;
+  html+=`<div class="gamemsg" id="cMsg">Chain ${cIdx+1} of ${CHAINS.length}</div>`;
+  html+=`<div id="cNext"></div>`;
+  $("#chainGame").innerHTML=html;
+  $("#chainScore").textContent=`${cRight} / ${cDone}`;
+  document.querySelectorAll(".ci").forEach(b=>b.onclick=()=>{
+    if(cLock||b.classList.contains("placed"))return;
+    const val=b.dataset.val;const nextSlot=cPlaced.length;
+    b.classList.add("placed");$(`#slot${nextSlot}`).textContent=val;$(`#slot${nextSlot}`).classList.add("filled");
+    cPlaced.push(val);
+    if(cPlaced.length===c.correct.length){cLock=true;cDone++;
+      const ok=cPlaced.every((v,i)=>v===c.correct[i]);
+      if(ok){cRight++;$("#cMsg").className="gamemsg ok";$("#cMsg").textContent="✓ Perfect order!";}
+      else{$("#cMsg").className="gamemsg no";$("#cMsg").textContent="✗ Not quite — the right order is: "+c.correct.join(" → ");}
+      $("#chainScore").textContent=`${cRight} / ${cDone}`;
+      const nb=document.createElement("button");nb.className="gnext";nb.textContent=cIdx<CHAINS.length-1?"Next chain →":"See score →";nb.onclick=()=>{cIdx++;renderChain();};$("#cNext").appendChild(nb);}});}
+
+/* ADAPTATION MATCH */
+const ADAPTS=[
+  {a:"Wide, fur-covered paws",right:"Act like snowshoes AND muffle footsteps for silent stalking",wrong:["Help see in the dark","Store fat for winter"]},
+  {a:"Long tail (nearly as long as the body)",right:"Balance on rocky cliffs + wrap around for warmth like a scarf",wrong:["Sting predators","Signal other leopards from far away"]},
+  {a:"Pale grey fur with black rosettes",right:"Camouflage against rocky, snowy slopes",wrong:["Attract mates by color","Generate body heat"]},
+  {a:"Enlarged nasal cavity",right:"Warms and filters thin, freezing mountain air before it reaches the lungs",wrong:["Makes the roar louder","Detects water underground"]},
+  {a:"Being solitary (living and hunting alone)",right:"Less competition for scarce mountain prey; easier to stay hidden",wrong:["Keeps the animal warmer","Scares off other predators"]},
+  {a:"Stalking slowly before sprinting",right:"Saves energy and closes the gap before prey can escape",wrong:["Lets the prey tire itself out","Attracts prey toward the predator"]},
+  {a:"Thick double-layer fur",right:"Insulates against extreme cold at high altitude",wrong:["Keeps the leopard cool in summer","Helps it float in water"]},
+];
+let aIdx=0,aRight=0,aDone=0,aLock=false;
+function buildAdapt(){aIdx=0;aRight=0;aDone=0;renderAdapt();}
+function renderAdapt(){aLock=false;
+  if(aIdx>=ADAPTS.length){$("#adaptAsk").textContent="🏁 All matched!";$("#adaptOpts").innerHTML="";$("#adaptMsg").className="gamemsg ok";$("#adaptMsg").textContent=`You got ${aRight} of ${ADAPTS.length}.`;$("#adaptScore").textContent=`${aRight} / ${ADAPTS.length}`;return;}
+  const it=ADAPTS[aIdx];$("#adaptAsk").textContent=it.a;
+  const opts=shuffle([it.right,...it.wrong]);const host=$("#adaptOpts");host.innerHTML="";
+  opts.forEach(o=>{const b=document.createElement("button");b.className="opt";b.textContent=o;b.onclick=()=>pickAdapt(o,it.right,b);host.appendChild(b);});
+  $("#adaptMsg").className="gamemsg";$("#adaptMsg").textContent=`Adaptation ${aIdx+1} of ${ADAPTS.length}`;$("#adaptScore").textContent=`${aRight} / ${aDone}`;}
+function pickAdapt(o,right,btn){if(aLock)return;aLock=true;aDone++;document.querySelectorAll("#adaptOpts .opt").forEach(b=>b.disabled=true);
+  const m=$("#adaptMsg");if(o===right){aRight++;btn.classList.add("right");m.className="gamemsg ok";m.textContent="✓ Exactly right!";}
+  else{btn.classList.add("wrong");m.className="gamemsg no";m.textContent="✗ Not quite.";document.querySelectorAll("#adaptOpts .opt").forEach(b=>{if(b.textContent===right)b.classList.add("right");});}
+  $("#adaptScore").textContent=`${aRight} / ${aDone}`;
+  const n=document.createElement("button");n.className="gnext";n.textContent=aIdx<ADAPTS.length-1?"Next →":"See score →";n.onclick=()=>{aIdx++;renderAdapt();};$("#adaptOpts").appendChild(n);}
+
+/* QUIZ */
+const QUIZ=[
+  {q:"Snow leopards are nicknamed…",opts:["Ghost of the Mountains","King of the Jungle","Wolf of the Peaks"],a:0},
+  {q:"What do snow leopards mainly eat?",opts:["Blue sheep, ibex & marmots","Fish & frogs","Bamboo & berries"],a:0},
+  {q:"In a food chain, the snow leopard is a…",opts:["Apex predator","Producer","Primary consumer"],a:0},
+  {q:"In a food chain, energy starts with…",opts:["The Sun","The top predator","Rain"],a:0},
+  {q:"Wide, fur-covered paws help the snow leopard…",opts:["Walk on snow & stalk silently","Swim faster","Climb trees"],a:0},
+  {q:"The long tail is used for…",opts:["Balance on cliffs and warmth","Attracting mates","Storing fat"],a:0},
+  {q:"Its grey spotted fur provides…",opts:["Camouflage on rocky snow slopes","Heat generation","Waterproofing"],a:0},
+  {q:"The enlarged nasal cavity helps the snow leopard…",opts:["Breathe thin, cold mountain air","Roar louder","Smell prey from 50 km away"],a:0},
+  {q:"About how many wild snow leopards are left?",opts:["Fewer than 4,000","Millions","Exactly 400"],a:0},
+  {q:"An ECOSYSTEM includes…",opts:["All living things in a place AND their environment","Only the apex predators","Just the plants"],a:0},
+];
+let qi=0,qAns=[];const MKEY="refresher-mistakes";
+function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="Science|Day 3: Snow Leopard|"+qx;if(c)delete s[id];else s[id]={subject:"Science",lesson:"Day 3: Snow Leopard",q:qt,file:"science-lesson-03-snow-leopard.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}
+function saveQuizResult(right){try{localStorage.setItem("science-l3-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}}
+$("#quizBtn").onclick=()=>{qi=0;qAns=[];$("#quizModal").classList.remove("hidden");renderQ();};
+function renderQ(){const sheet=$("#quizSheet");if(qi>=QUIZ.length)return renderResults();const it=QUIZ[qi];
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button><div class="qprog">Question ${qi+1} of ${QUIZ.length}</div><div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
+  $("#qClose").onclick=closeQuiz;const o=$("#qopts");
+  it.opts.forEach((t,idx)=>{const b=document.createElement("button");b.className="qopt";b.textContent=t;b.onclick=()=>ansQ(idx,b);o.appendChild(b);});}
+function ansQ(idx,btn){const it=QUIZ[qi],correct=idx===it.a;qAns[qi]=idx;logMistake(correct,qi,it.q);
+  document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);btn.classList.add(correct?"right":"wrong");
+  const fb=$("#qfb");fb.className="qfb "+(correct?"ok":"no");fb.textContent=correct?"✓ Correct!":"✗ Marked wrong — added to your review list.";
+  const n=document.createElement("button");n.className="qnext";n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";n.onclick=()=>{qi++;renderQ();};$("#quizSheet").appendChild(n);}
+function renderResults(){let right=0;QUIZ.forEach((it,i)=>{if(qAns[i]===it.a)right++;});saveQuizResult(right);
+  const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);const pct=Math.round(right/QUIZ.length*100);const sheet=$("#quizSheet");
+  sheet.innerHTML=`<button class="x" id="qClose">✕</button><h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2><div class="scorebig">${right} / ${QUIZ.length}</div>
+    <p class="lead">${right===QUIZ.length?"Perfect — every answer correct!":"Topics to review (saved for the grown-up below):"}</p>
+    ${missed.length?`<ul class="reviewlist">${missed.map(m=>`<li>${m.it.q}</li>`).join("")}</ul>`:""}
+    <button class="keybtn" id="keyBtn">🔑 For the grown-up: answer key &amp; what was chosen</button><div class="answerkey hidden" id="answerKey"></div><button class="qnext" id="qDone">Done</button>`;
+  $("#qClose").onclick=closeQuiz;$("#qDone").onclick=closeQuiz;
+  $("#keyBtn").onclick=()=>{const ak=$("#answerKey");ak.classList.toggle("hidden");if(!ak.dataset.built){ak.innerHTML=QUIZ.map((it,i)=>{const g=qAns[i],ok=g===it.a;const got=g==null?"(no answer)":it.opts[g];return`<div class="ak"><div class="qq">${i+1}. ${it.q}</div><div class="correct">✓ ${it.opts[it.a]}</div><div class="got ${ok?"okgot":""}">${ok?"✓":"✗"} Chose: ${got}</div></div>`;}).join("");ak.dataset.built="1";}};}
+function closeQuiz(){$("#quizModal").classList.add("hidden");}
+
+renderFacts();buildChain();buildAdapt();renderSteps();selectPhase(0,false);
+function flushSave(){try{saveQuizResult(qAns.filter((v,i)=>v===QUIZ[i].a).length);}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSave();});
+window.addEventListener("pagehide",flushSave);window.addEventListener("beforeunload",flushSave);
+</script>
+</body>
+</html>

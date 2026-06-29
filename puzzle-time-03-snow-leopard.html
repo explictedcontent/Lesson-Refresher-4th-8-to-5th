@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Puzzle Time · Day 3 · Snow Leopard</title>
+<style>
+:root{--accent:#e67e22;--accent2:#8e44ad;--bg:#fffbf4;--card:#fff;--text:#222}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+#sidebar{width:220px;min-width:220px;background:#3d1f00;color:#fff;display:flex;flex-direction:column;padding:16px 12px;gap:8px}
+#sidebar h2{font-size:1rem;text-align:center;margin-bottom:4px}
+.ph{border-radius:8px;padding:8px 10px;font-size:.82rem;cursor:pointer;transition:background .2s}
+.ph.done{background:#4caf50;opacity:.8}
+.ph.active{background:var(--accent);font-weight:700}
+.ph.todo{background:#ffffff20}
+#timer-box{background:#ffffff15;border-radius:8px;padding:10px;text-align:center;margin-top:auto}
+#timer-display{font-size:2rem;font-weight:700;letter-spacing:2px}
+#timer-label{font-size:.78rem;opacity:.8;margin-bottom:6px}
+.tbtn{background:var(--accent);border:none;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.78rem;margin:2px}
+#main{flex:1;display:flex;flex-direction:column;padding:20px;gap:16px;overflow-y:auto}
+h1{font-size:1.4rem;color:var(--accent)}
+.subtitle{font-size:.9rem;color:#666}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:8px 16px;border:2px solid var(--accent);border-radius:20px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--accent);background:transparent;transition:all .2s}
+.tab.active{background:var(--accent);color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+/* RIDDLES */
+.riddle-stack{display:flex;flex-direction:column;gap:14px;max-width:600px}
+.riddle-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px #0001;border-left:5px solid var(--accent)}
+.riddle-q{font-size:1rem;font-weight:600;line-height:1.6;margin-bottom:12px;color:#333}
+.reveal-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:.88rem;font-weight:600}
+.reveal-btn:hover{opacity:.85}
+.riddle-ans{display:none;margin-top:10px;background:linear-gradient(135deg,#e67e2222,#8e44ad22);border-radius:8px;padding:10px 14px;font-size:.95rem;font-weight:700;color:var(--accent2)}
+.solved-badge{display:none;background:#4caf50;color:#fff;border-radius:20px;padding:4px 12px;font-size:.78rem;font-weight:700;margin-left:8px}
+/* SCRAMBLES */
+.scr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;max-width:680px}
+.scr-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 6px #0001}
+.scr-word{font-size:1.5rem;font-weight:700;letter-spacing:4px;color:var(--accent);text-align:center;margin-bottom:8px;font-family:monospace}
+.scr-clue{font-size:.82rem;color:#888;text-align:center;margin-bottom:10px}
+.scr-input{width:100%;border:2px solid #ddd;border-radius:8px;padding:8px 10px;font-size:1rem;text-align:center;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.scr-input:focus{outline:none;border-color:var(--accent)}
+.scr-input.cor{border-color:#4caf50;background:#e8f5e9;color:#2e7d32}
+.scr-input.wrg{border-color:#f44336;background:#ffebee}
+.scr-check{width:100%;margin-top:8px;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600}
+.scr-fb{font-size:.82rem;font-weight:600;text-align:center;margin-top:6px;min-height:20px}
+/* PATTERNS */
+.pat-set{display:flex;flex-direction:column;gap:14px;max-width:640px}
+.pat-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 6px #0001}
+.pat-seq{font-size:1.3rem;font-weight:700;letter-spacing:3px;color:var(--accent);margin-bottom:10px;font-family:monospace}
+.pat-q{font-size:.9rem;color:#555;margin-bottom:10px}
+.pat-input{border:2px solid #ddd;border-radius:8px;padding:8px 12px;font-size:1.1rem;font-weight:700;width:120px;text-align:center}
+.pat-input:focus{outline:none;border-color:var(--accent)}
+.pat-btn{margin-left:10px;padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600}
+.pat-fb{font-size:.88rem;font-weight:600;margin-top:8px;min-height:20px}
+.pat-fb.cor{color:#2e7d32}
+.pat-fb.wrg{color:#c62828}
+/* BRAIN TEASERS */
+.bt-set{display:flex;flex-direction:column;gap:14px;max-width:620px}
+.bt-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 6px #0001;border-top:4px solid var(--accent2)}
+.bt-q{font-size:.97rem;font-weight:600;line-height:1.6;margin-bottom:12px;color:#333}
+.bt-opts{display:flex;flex-wrap:wrap;gap:8px}
+.bt-opt{padding:8px 16px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-size:.88rem;transition:all .2s}
+.bt-opt:hover{border-color:var(--accent2);color:var(--accent2)}
+.bt-opt.cor{background:#e8f5e9;border-color:#4caf50;color:#2e7d32;font-weight:700}
+.bt-opt.wrg{background:#ffebee;border-color:#f44336;color:#c62828}
+.bt-expl{display:none;margin-top:10px;font-size:.85rem;color:#555;font-style:italic;background:#f9f9f9;border-radius:6px;padding:8px}
+/* LOGIC */
+.logic-card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 8px #0001;max-width:680px}
+.logic-story{font-size:.93rem;line-height:1.7;margin-bottom:16px;color:#333;background:#fafafa;border-radius:8px;padding:14px;border-left:4px solid var(--accent)}
+.logic-clues{margin-bottom:16px}
+.logic-clues li{font-size:.9rem;margin-bottom:8px;line-height:1.5}
+.logic-grid-wrap{overflow-x:auto;margin-bottom:14px}
+.logic-grid{border-collapse:collapse;min-width:320px}
+.logic-grid th,.logic-grid td{border:2px solid #ddd;padding:10px 14px;text-align:center;font-size:.9rem}
+.logic-grid th{background:#f5f5f5;font-weight:700}
+.logic-grid td select{border:1px solid #ccc;border-radius:4px;padding:4px;font-size:.88rem}
+.lg-check{padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:.9rem;font-weight:600}
+#lg-result{margin-top:10px;font-weight:700;font-size:.95rem}
+/* BONUS */
+.bonus-set{display:flex;flex-direction:column;gap:14px;max-width:640px}
+.bonus-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 6px #0001;border-left:5px solid var(--accent2)}
+.bonus-type{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin-bottom:6px}
+.bonus-q{font-size:.97rem;font-weight:600;margin-bottom:12px;line-height:1.5}
+.bonus-input{border:2px solid #ddd;border-radius:8px;padding:8px 12px;font-size:.95rem;width:100%;max-width:300px}
+.bonus-input:focus{outline:none;border-color:var(--accent2)}
+.bonus-btn{margin-top:8px;padding:8px 18px;background:var(--accent2);color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:.88rem;font-weight:600}
+.bonus-fb{font-size:.88rem;font-weight:600;margin-top:8px}
+/* SCORE */
+#score-bar{background:#fff;border-radius:12px;padding:12px 20px;box-shadow:0 2px 6px #0001;display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+.sc-item{font-size:.9rem;color:#555}
+.sc-item strong{color:var(--accent);font-size:1rem}
+#done-banner{display:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px;padding:28px;text-align:center;font-size:1.1rem;font-weight:700;margin-top:16px}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <h2>🧩 Puzzle Time</h2>
+  <div style="text-align:center;font-size:.75rem;opacity:.7;margin-bottom:6px">🐆 Day 3 · Snow Leopard</div>
+  <div class="ph todo" id="ph0" onclick="jumpPhase(0)">1 · Riddles <span style="float:right">12 min</span></div>
+  <div class="ph todo" id="ph1" onclick="jumpPhase(1)">2 · Scrambles <span style="float:right">10 min</span></div>
+  <div class="ph todo" id="ph2" onclick="jumpPhase(2)">3 · Patterns <span style="float:right">10 min</span></div>
+  <div class="ph todo" id="ph3" onclick="jumpPhase(3)">4 · Brain Teasers <span style="float:right">12 min</span></div>
+  <div class="ph todo" id="ph4" onclick="jumpPhase(4)">5 · Logic Puzzle <span style="float:right">10 min</span></div>
+  <div class="ph todo" id="ph5" onclick="jumpPhase(5)">6 · Bonus Challenges <span style="float:right">6 min</span></div>
+  <div id="timer-box">
+    <div id="timer-label">Riddles</div>
+    <div id="timer-display">12:00</div>
+    <div style="margin-top:6px">
+      <button class="tbtn" onclick="toggleTimer()">⏯ Start</button>
+      <button class="tbtn" onclick="skipPhase()">⏭ Skip</button>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div>
+    <h1>🧩 Puzzle Time — Day 3: Snow Leopard</h1>
+    <div class="subtitle">Riddles · Scrambles · Patterns · Brain Teasers · Logic · Bonus &nbsp;|&nbsp; 60 minutes</div>
+  </div>
+
+  <div id="score-bar">
+    <div class="sc-item">Riddles revealed: <strong id="sc-riddles">0/8</strong></div>
+    <div class="sc-item">Scrambles solved: <strong id="sc-scr">0/8</strong></div>
+    <div class="sc-item">Patterns: <strong id="sc-pat">0/6</strong></div>
+    <div class="sc-item">Brain teasers: <strong id="sc-bt">0/6</strong></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('riddles')">🎯 Riddles</button>
+    <button class="tab" onclick="showTab('scrambles')">🔤 Scrambles</button>
+    <button class="tab" onclick="showTab('patterns')">🔢 Patterns</button>
+    <button class="tab" onclick="showTab('brain')">🧠 Brain Teasers</button>
+    <button class="tab" onclick="showTab('logic')">🔍 Logic</button>
+    <button class="tab" onclick="showTab('bonus')">🏆 Bonus</button>
+  </div>
+
+  <!-- RIDDLES -->
+  <div class="panel active" id="tab-riddles">
+    <p style="color:#666;font-size:.9rem;margin-bottom:12px">Think about each riddle, then tap <strong>Reveal Answer</strong> when you're ready!</p>
+    <div class="riddle-stack">
+      <div class="riddle-card">
+        <div class="riddle-q">🐆 I am a ghost with spots, yet no one calls me a spirit. I roam the highest peaks where eagles barely visit. I hunt alone, I leap like wind, my tail is long and pale. What am I?</div>
+        <button class="reveal-btn" onclick="revealRiddle(0)">Reveal Answer</button>
+        <div class="riddle-ans" id="r0">A Snow Leopard 🐆</div>
+      </div>
+      <div class="riddle-card">
+        <div class="riddle-q">🌿 I can be a verb — I help you vanish. I can be a noun — I make armies invisible. Animals wear me without knowing it. What am I?</div>
+        <button class="reveal-btn" onclick="revealRiddle(1)">Reveal Answer</button>
+        <div class="riddle-ans" id="r1">Camouflage 🎨</div>
+      </div>
+      <div class="riddle-card">
+        <div class="riddle-q">⛰️ I am the roof of Central Asia. 12 countries share my peaks. I am home to the ghost cat and the red panda. My tallest point is the highest on Earth. What am I?</div>
+        <button class="reveal-btn" onclick="revealRiddle(2)">Reveal Answer</button>
+        <div class="riddle-ans" id="r2">The Himalayan Mountain Range ⛰️ (and nearby ranges like the Hindu Kush and Karakoram)</div>
+      </div>
+      <div class="riddle-card">
+        <div class="riddle-q">🔢 I am an even number. Divide me by 4 and you get 10. Multiply me by 3 and you get 120. What number am I?</div>
+        <button class="reveal-btn" onclick="revealRiddle(3)">Reveal Answer</button>
+        <div class="riddle-ans" id="r3">40 (40 ÷ 4 = 10 ✓ and 40 × 3 = 120 ✓)</div>
+      </div>
+      <div class="riddle-card">
+        <div class="riddle-q">🦅 I sit at the top and eat everything below me, but nothing eats me. Remove me and the whole system tips. I am not a king but I rule the mountain. What am I?</div>
+        <button class="reveal-btn" onclick="revealRiddle(4)">Reveal Answer</button>
+        <div class="riddle-ans" id="r4">An Apex Predator 🦁 (like the snow leopard!)</div>
+      </div>
+      <div class="riddle-card">
+        <div class="riddle-q">🌍 I have 12 owners but belong to all. I stretch from Russia to India. Countries share me but I belong to no single one. I am a strip of high mountains crossing a continent. What am I?</div>
+        <button class="reveal-btn" onclick="revealRiddle(5)">Reveal Answer</button>
+        <div class="riddle-ans" id="r5">The Snow Leopard's Range — 12 countries across Central Asia 🗺️</div>
+      </div>
+      <div class="riddle-card">
+        <div class="riddle-q">🔤 I have 5 letters. Remove my first two and I become something you row on water. Keep all 5 and I describe something in danger of disappearing. What word am I?</div>
+        <button class="reveal-btn" onclick="revealRiddle(6)">Reveal Answer</button>
+        <div class="riddle-ans" id="r6">"Vulnerable" — remove "vulne" and... hmm. Actually: "At risk" → the word is VULNERABLE. Remove first letter V → "ulnerable" — not quite. Fun approach: 5-letter hint applies to ELUDE → ELUSIVE! Remove first 2 letters "EL" → "USIVE." Or think: the word that means "in danger" with 10 letters is VULNERABLE. The 5-letter word in danger = "RISKY" → remove first 2 = "SKY" ✈️. Answer: RISKY (or accept: vulnerable!)</div>
+      </div>
+      <div class="riddle-card">
+        <div class="riddle-q">🧮 A snow leopard sleeps 18 hours a day. In a week, how many total hours is it AWAKE? (7 days in a week)</div>
+        <button class="reveal-btn" onclick="revealRiddle(7)">Reveal Answer</button>
+        <div class="riddle-ans" id="r7">42 hours awake! (24 − 18 = 6 hours awake per day × 7 days = 42 hours)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRAMBLES -->
+  <div class="panel" id="tab-scrambles">
+    <p style="color:#666;font-size:.9rem;margin-bottom:12px">Unscramble the letters to reveal a word from Day 3! Type your answer in ALL CAPS.</p>
+    <div class="scr-grid" id="scr-grid"></div>
+  </div>
+
+  <!-- PATTERNS -->
+  <div class="panel" id="tab-patterns">
+    <p style="color:#666;font-size:.9rem;margin-bottom:12px">Figure out the pattern and type the next number or answer in the sequence.</p>
+    <div class="pat-set" id="pat-set"></div>
+  </div>
+
+  <!-- BRAIN TEASERS -->
+  <div class="panel" id="tab-brain">
+    <p style="color:#666;font-size:.9rem;margin-bottom:12px">Think carefully — these need logic, not just facts!</p>
+    <div class="bt-set" id="bt-set"></div>
+  </div>
+
+  <!-- LOGIC PUZZLE -->
+  <div class="panel" id="tab-logic">
+    <div class="logic-card">
+      <h3 style="color:var(--accent);margin-bottom:12px">🔍 Logic Puzzle: Mountain Wildlife Center</h3>
+      <div class="logic-story">
+        A wildlife center cares for 4 rescued animals: a Snow Leopard, a Red Panda, an Ibex, and a Golden Eagle. Each animal has a different enclosure number (1, 2, 3, 4) and eats a different food (Meat, Bamboo, Grass, Fish). Use the clues to figure out which animal is in which enclosure and eats what!
+      </div>
+      <div class="logic-clues">
+        <strong>Clues:</strong>
+        <ol>
+          <li>The Snow Leopard is in an odd-numbered enclosure.</li>
+          <li>The Red Panda eats bamboo and is NOT in enclosure 1.</li>
+          <li>The animal in enclosure 4 eats fish.</li>
+          <li>The Ibex eats grass and is in enclosure 2.</li>
+          <li>The Golden Eagle is not in enclosure 1 or 3.</li>
+          <li>The Snow Leopard does not eat fish or grass.</li>
+        </ol>
+      </div>
+      <div class="logic-grid-wrap">
+        <table class="logic-grid">
+          <thead><tr><th>Enclosure</th><th>Animal</th><th>Food</th></tr></thead>
+          <tbody>
+            <tr><td>1</td>
+              <td><select id="lg-a1"><option value="">Choose...</option><option>Snow Leopard</option><option>Red Panda</option><option>Ibex</option><option>Golden Eagle</option></select></td>
+              <td><select id="lg-f1"><option value="">Choose...</option><option>Meat</option><option>Bamboo</option><option>Grass</option><option>Fish</option></select></td>
+            </tr>
+            <tr><td>2</td>
+              <td><select id="lg-a2"><option value="">Choose...</option><option>Snow Leopard</option><option>Red Panda</option><option>Ibex</option><option>Golden Eagle</option></select></td>
+              <td><select id="lg-f2"><option value="">Choose...</option><option>Meat</option><option>Bamboo</option><option>Grass</option><option>Fish</option></select></td>
+            </tr>
+            <tr><td>3</td>
+              <td><select id="lg-a3"><option value="">Choose...</option><option>Snow Leopard</option><option>Red Panda</option><option>Ibex</option><option>Golden Eagle</option></select></td>
+              <td><select id="lg-f3"><option value="">Choose...</option><option>Meat</option><option>Bamboo</option><option>Grass</option><option>Fish</option></select></td>
+            </tr>
+            <tr><td>4</td>
+              <td><select id="lg-a4"><option value="">Choose...</option><option>Snow Leopard</option><option>Red Panda</option><option>Ibex</option><option>Golden Eagle</option></select></td>
+              <td><select id="lg-f4"><option value="">Choose...</option><option>Meat</option><option>Bamboo</option><option>Grass</option><option>Fish</option></select></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="lg-check" onclick="checkLogic()">✓ Check My Answers</button>
+      <div id="lg-result"></div>
+      <div style="margin-top:12px;font-size:.82rem;color:#888">
+        <details><summary style="cursor:pointer;color:var(--accent)">💡 Show Solution</summary>
+        <div style="margin-top:8px;line-height:1.8">
+          Enclosure 1: Snow Leopard — Meat<br>
+          Enclosure 2: Ibex — Grass<br>
+          Enclosure 3: Red Panda — Bamboo<br>
+          Enclosure 4: Golden Eagle — Fish
+        </div></details>
+      </div>
+    </div>
+  </div>
+
+  <!-- BONUS -->
+  <div class="panel" id="tab-bonus">
+    <p style="color:#666;font-size:.9rem;margin-bottom:12px">Extra challenges for puzzle masters! ⭐</p>
+    <div class="bonus-set" id="bonus-set"></div>
+    <div id="done-banner"></div>
+  </div>
+</div>
+
+<script>
+const SKEY="puzzle-l3-solved";
+function sid(x){return"l3:"+x;}
+let solved=new Set();
+try{const s=JSON.parse(localStorage.getItem(SKEY)||"[]");s.forEach(id=>solved.add(id));}catch(e){}
+function markSolved(id){
+  solved.add(sid(id));
+  try{localStorage.setItem(SKEY,JSON.stringify([...solved]));}catch(e){}
+}
+
+// tabs
+function showTab(id){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
+  const map={riddles:"Riddles",scrambles:"Scrambles",patterns:"Patterns",brain:"Brain",logic:"Logic",bonus:"Bonus"};
+  document.querySelectorAll(".tab").forEach(t=>{if(t.textContent.includes(map[id]))t.classList.add("active");});
+}
+
+// ── RIDDLES ───────────────────────────────────────────────
+let riddlesShown=0;
+function revealRiddle(i){
+  const el=document.getElementById("r"+i);
+  if(el.style.display==="block")return;
+  el.style.display="block";
+  riddlesShown++;
+  markSolved("riddle"+i);
+  document.getElementById("sc-riddles").textContent=riddlesShown+"/8";
+}
+
+// ── SCRAMBLES ─────────────────────────────────────────────
+const SCRS=[
+  {scr:"VLUIESE",ans:"ELUSIVE",clue:"Hard to find or catch"},
+  {scr:"DORENAD",ans:"ADORNED",clue:"Decorated with"},
+  {scr:"UAMELFGAC",ans:"CAMOUFLAGE",clue:"Blending into surroundings"},
+  {scr:"AIRLSTYO",ans:"SOLITARY",clue:"Living alone"},
+  {scr:"ERDDRU",ans:"RUDDER",clue:"Used for steering and balance"},
+  {scr:"ERALVBLENVU",ans:"VULNERABLE",clue:"In danger; at risk"},
+  {scr:"DTAERORPC",ans:"PREDATOR",clue:"An animal that hunts others"},
+  {scr:"LDRPEA",ans:"LEOPARD",clue:"The spotted big cat of Day 3"}
+];
+let scrRight=0;
+function buildScrambles(){
+  const grid=document.getElementById("scr-grid");
+  grid.innerHTML="";
+  SCRS.forEach((s,i)=>{
+    const d=document.createElement("div");d.className="scr-card";
+    const isSolved=solved.has(sid("scr"+i));
+    d.innerHTML=`<div class="scr-word">${s.scr}</div>
+    <div class="scr-clue">Clue: ${s.clue}</div>
+    <input class="scr-input ${isSolved?"cor":""}" id="si${i}" type="text" value="${isSolved?s.ans:""}" placeholder="Type answer" ${isSolved?"disabled":""} oninput="this.value=this.value.toUpperCase()">
+    <button class="scr-check" onclick="chkScr(${i})" ${isSolved?"disabled":""}>Check ✓</button>
+    <div class="scr-fb" id="sf${i}">${isSolved?"✅ Correct!":""}</div>`;
+    grid.appendChild(d);
+    if(isSolved)scrRight++;
+  });
+  document.getElementById("sc-scr").textContent=scrRight+"/8";
+}
+function chkScr(i){
+  const inp=document.getElementById("si"+i);
+  const fb=document.getElementById("sf"+i);
+  if(inp.value.trim()===SCRS[i].ans){
+    inp.className="scr-input cor";inp.disabled=true;
+    fb.textContent="✅ Correct!";fb.style.color="#2e7d32";
+    document.querySelector(`#scr-grid .scr-card:nth-child(${i+1}) .scr-check`).disabled=true;
+    if(!solved.has(sid("scr"+i))){scrRight++;markSolved("scr"+i);}
+    document.getElementById("sc-scr").textContent=scrRight+"/8";
+  } else {
+    inp.className="scr-input wrg";
+    fb.textContent="❌ Try again!";fb.style.color="#c62828";
+    setTimeout(()=>{inp.className="scr-input";fb.textContent="";},1500);
+  }
+}
+
+// ── PATTERNS ─────────────────────────────────────────────
+const PATS=[
+  {seq:"2, 4, 8, 16, 32, ___",ans:"64",q:"What comes next? (multiply by 2 each time)",expl:"Each number doubles: ×2 → 64"},
+  {seq:"100, 90, 81, 73, 66, ___",ans:"60",q:"What comes next? (the amount subtracted decreases by 1 each time)",expl:"Subtract 10, 9, 8, 7, 6 → next subtract 6 → 66−6=60"},
+  {seq:"1, 4, 9, 16, 25, ___",ans:"36",q:"What comes next? (square numbers: 1², 2², 3²…)",expl:"These are perfect squares: 6²=36"},
+  {seq:"3, 6, 12, 24, 48, ___",ans:"96",q:"What comes next? (multiply by 2 each time)",expl:"Doubles each time: 48×2=96"},
+  {seq:"500, 250, 125, ___",ans:"62.5",q:"What comes next? (divide by 2 each time — decimal answer!)",expl:"Halved each time: 125÷2=62.5"},
+  {seq:"1, 1, 2, 3, 5, 8, 13, ___",ans:"21",q:"What comes next? (add the two numbers before it!)",expl:"Fibonacci sequence: 8+13=21"}
+];
+let patRight=0;
+function buildPatterns(){
+  const set=document.getElementById("pat-set");
+  set.innerHTML="";
+  PATS.forEach((p,i)=>{
+    const isSolved=solved.has(sid("pat"+i));
+    const d=document.createElement("div");d.className="pat-card";
+    d.innerHTML=`<div class="pat-seq">${p.seq}</div>
+    <div class="pat-q">${p.q}</div>
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">
+      <input class="pat-input" id="pi${i}" type="text" placeholder="?" value="${isSolved?p.ans:""}" ${isSolved?"disabled":""}>
+      <button class="pat-btn" onclick="chkPat(${i})" ${isSolved?"disabled":""}>Check ✓</button>
+    </div>
+    <div class="pat-fb ${isSolved?"cor":""}" id="pf${i}">${isSolved?"✅ "+p.expl:""}</div>`;
+    set.appendChild(d);
+    if(isSolved)patRight++;
+  });
+  document.getElementById("sc-pat").textContent=patRight+"/6";
+}
+function chkPat(i){
+  const inp=document.getElementById("pi"+i);
+  const fb=document.getElementById("pf"+i);
+  const userVal=inp.value.trim().replace(/,/g,"");
+  const ansVal=PATS[i].ans.replace(/,/g,"");
+  if(userVal===ansVal||parseFloat(userVal)===parseFloat(ansVal)){
+    inp.disabled=true;
+    fb.className="pat-fb cor";fb.textContent="✅ "+PATS[i].expl;
+    document.querySelector(`#pat-set .pat-card:nth-child(${i+1}) .pat-btn`).disabled=true;
+    if(!solved.has(sid("pat"+i))){patRight++;markSolved("pat"+i);}
+    document.getElementById("sc-pat").textContent=patRight+"/6";
+  } else {
+    fb.className="pat-fb wrg";fb.textContent="❌ Not quite — look at the pattern again!";
+    setTimeout(()=>{fb.textContent="";fb.className="pat-fb";},2000);
+  }
+}
+
+// ── BRAIN TEASERS ─────────────────────────────────────────
+const BTS=[
+  {
+    q:"A snow leopard has 4 paws. Each paw has 5 claws. How many claws does a group of 3 snow leopards have in total?",
+    opts:["40","50","60","55"],a:2,
+    expl:"4 paws × 5 claws = 20 claws per leopard. 20 × 3 = 60 total claws."
+  },
+  {
+    q:"If you can see the snow leopard, it's NOT doing its job. If it's doing its job, you CAN'T see it. What is the snow leopard's job in this riddle?",
+    opts:["Sleeping","Using camouflage to hide while hunting","Playing in snow","Drinking water"],a:1,
+    expl:"Camouflage! A successful predator hides perfectly. If you see it, it failed at hiding."
+  },
+  {
+    q:"There are 12 countries with snow leopards. In 4 of those countries, snow leopards are legally protected. In how many countries are they NOT legally protected?",
+    opts:["4","6","8","16"],a:2,
+    expl:"12 total − 4 protected = 8 countries without full legal protection."
+  },
+  {
+    q:"A ranger hikes into a mountain. She takes 3 steps forward and 1 step back, over and over. After 20 'moves' (each forward+back = 1 move), how many net steps has she taken?",
+    opts:["20 steps","40 steps","60 steps","80 steps"],a:1,
+    expl:"Each move = 3 forward − 1 back = 2 net steps. 20 moves × 2 = 40 net steps."
+  },
+  {
+    q:"A snow leopard can jump 6 times its own body length. If its body is 4 feet long, how far can it jump?",
+    opts:["10 feet","18 feet","24 feet","30 feet"],a:2,
+    expl:"6 × 4 = 24 feet in a single leap!"
+  },
+  {
+    q:"There are 4,000 snow leopards in the wild. If 10% are in China and 15% are in Mongolia, what percentage live in the other 10 countries combined?",
+    opts:["25%","50%","75%","80%"],a:2,
+    expl:"10% + 15% = 25% in China and Mongolia. 100% − 25% = 75% in the other 10 countries."
+  }
+];
+let btRight=0;
+function buildBrainTeasers(){
+  const set=document.getElementById("bt-set");
+  set.innerHTML="";
+  BTS.forEach((b,i)=>{
+    const isSolved=solved.has(sid("bt"+i));
+    const d=document.createElement("div");d.className="bt-card";
+    d.innerHTML=`<div class="bt-q">${i+1}. ${b.q}</div>
+    <div class="bt-opts">${b.opts.map((o,j)=>`<button class="bt-opt${isSolved&&j===b.a?" cor":""}" id="bto${i}_${j}" onclick="ansBT(${i},${j})" ${isSolved?"disabled":""}>${o}</button>`).join("")}</div>
+    <div class="bt-expl" id="bte${i}" style="${isSolved?"display:block":""}">${b.expl}</div>`;
+    set.appendChild(d);
+    if(isSolved)btRight++;
+  });
+  document.getElementById("sc-bt").textContent=btRight+"/6";
+}
+function ansBT(i,idx){
+  const b=BTS[i];
+  const cor=idx===b.a;
+  if(cor)btRight++;
+  for(let j=0;j<b.opts.length;j++){
+    const btn=document.getElementById("bto"+i+"_"+j);
+    btn.disabled=true;
+    if(j===b.a)btn.classList.add("cor");
+    else if(j===idx&&!cor)btn.classList.add("wrg");
+  }
+  document.getElementById("bte"+i).style.display="block";
+  if(cor)markSolved("bt"+i);
+  document.getElementById("sc-bt").textContent=btRight+"/6";
+}
+
+// ── LOGIC PUZZLE ──────────────────────────────────────────
+// Solution: E1=Snow Leopard/Meat, E2=Ibex/Grass, E3=Red Panda/Bamboo, E4=Golden Eagle/Fish
+function checkLogic(){
+  const ans={
+    "lg-a1":"Snow Leopard","lg-f1":"Meat",
+    "lg-a2":"Ibex","lg-f2":"Grass",
+    "lg-a3":"Red Panda","lg-f3":"Bamboo",
+    "lg-a4":"Golden Eagle","lg-f4":"Fish"
+  };
+  let right=0,total=8;
+  Object.entries(ans).forEach(([id,val])=>{
+    if(document.getElementById(id).value===val)right++;
+  });
+  const res=document.getElementById("lg-result");
+  if(right===total){
+    res.style.color="#2e7d32";
+    res.textContent="🎉 Perfect! All 8 cells correct! You solved the logic puzzle!";
+    markSolved("logic");
+  } else {
+    res.style.color="#c62828";
+    res.textContent=`${right}/${total} correct — keep going! Re-read the clues carefully.`;
+  }
+}
+
+// ── BONUS CHALLENGES ──────────────────────────────────────
+const BONUS=[
+  {type:"Vocabulary",q:"Use the word 'elusive' in a sentence about something other than a snow leopard.",chk:null,ans:"Open-ended — any sentence using 'elusive' correctly!"},
+  {type:"Math",q:"A snow leopard's heart beats 50 times per minute. How many times does it beat in one hour? In one day?",chk:"3000|72000",ans:"3,000 beats/hour (50×60) and 72,000 beats/day (3,000×24)"},
+  {type:"Creative",q:"Write a 2-sentence description of a snow leopard using EXACTLY 3 of the 7 vocabulary words from today's ELA lesson.",chk:null,ans:"Open-ended — check that you used exactly 3 vocab words!"},
+  {type:"Geography",q:"Name 5 of the 12 countries where snow leopards live. (No peeking — challenge your memory!)",chk:null,ans:"China, Mongolia, Russia, India, Nepal, Bhutan, Pakistan, Afghanistan, Tajikistan, Kyrgyzstan, Kazakhstan, Uzbekistan"},
+  {type:"Science",q:"A food chain goes: Sun → Grass → Blue Sheep → Snow Leopard. If the blue sheep population dropped by 80%, what would likely happen to the snow leopard population? Explain why.",chk:null,ans:"The snow leopard population would also drop — less prey = less food = fewer leopards can survive. This shows how food chain disruptions affect every level."},
+  {type:"Puzzle",q:"I am the 8th letter of the alphabet, the 15th, the 13th, the 5th, the 19th, and back to 'I am in CAMOUFLAGE but not in PREDATOR.' Spell out my letters to reveal a word!",chk:null,ans:"H-O-M-E-S = HOMES! (H=8th, O=15th, M=13th, E=5th, S=19th) — the mountain is the snow leopard's home!"}
+];
+function buildBonus(){
+  const set=document.getElementById("bonus-set");
+  set.innerHTML="";
+  BONUS.forEach((b,i)=>{
+    const d=document.createElement("div");d.className="bonus-card";
+    d.innerHTML=`<div class="bonus-type">⭐ ${b.type} Challenge</div>
+    <div class="bonus-q">${b.q}</div>
+    ${b.chk?`<input class="bonus-input" id="bi${i}" type="text" placeholder="Your answer...">
+    <button class="bonus-btn" onclick="chkBonus(${i})">Check ✓</button>`
+    :`<textarea style="width:100%;border:2px solid #ddd;border-radius:8px;padding:8px;font-size:.9rem;min-height:80px;font-family:inherit;margin-top:6px" placeholder="Write your response here..."></textarea>`}
+    <button class="bonus-btn" style="background:#888;margin-left:${b.chk?"8px":"0"}" onclick="revealBonus(${i})">Show Answer 💡</button>
+    <div class="bonus-fb" id="bf${i}"></div>`;
+    set.appendChild(d);
+  });
+}
+function chkBonus(i){
+  const inp=document.getElementById("bi"+i);
+  const fb=document.getElementById("bf"+i);
+  const answers=BONUS[i].chk.split("|");
+  const userNums=inp.value.replace(/,/g,"").match(/\d+/g)||[];
+  const correct=answers.every(a=>userNums.includes(a));
+  if(correct){
+    fb.style.color="#2e7d32";fb.textContent="✅ Correct! "+BONUS[i].ans;
+    markSolved("bonus"+i);
+  } else {
+    fb.style.color="#c62828";fb.textContent="❌ Not quite — try again!";
+  }
+}
+function revealBonus(i){
+  const fb=document.getElementById("bf"+i);
+  fb.style.color="#555";fb.textContent="💡 Answer: "+BONUS[i].ans;
+}
+
+// ── TIMER ─────────────────────────────────────────────────
+const PHASES=[
+  {name:"Riddles",mins:12,tab:"riddles"},
+  {name:"Scrambles",mins:10,tab:"scrambles"},
+  {name:"Patterns",mins:10,tab:"patterns"},
+  {name:"Brain Teasers",mins:12,tab:"brain"},
+  {name:"Logic Puzzle",mins:10,tab:"logic"},
+  {name:"Bonus Challenges",mins:6,tab:"bonus"}
+];
+let curPh=0,tSec=0,tRun=false,tInt=null;
+function initPhase(i){
+  curPh=i;tSec=PHASES[i].mins*60;tRun=false;clearInterval(tInt);
+  document.querySelectorAll(".ph").forEach((el,j)=>{
+    el.className="ph "+(j<i?"done":j===i?"active":"todo");
+  });
+  document.getElementById("timer-label").textContent=PHASES[i].name;
+  updDisp();showTab(PHASES[i].tab);
+}
+function updDisp(){
+  const m=Math.floor(tSec/60),s=tSec%60;
+  document.getElementById("timer-display").textContent=`${m}:${String(s).padStart(2,"0")}`;
+}
+function toggleTimer(){
+  if(tRun){clearInterval(tInt);tRun=false;}
+  else{
+    tRun=true;
+    tInt=setInterval(()=>{
+      if(tSec>0){tSec--;updDisp();}
+      else{clearInterval(tInt);tRun=false;if(curPh<PHASES.length-1)skipPhase();}
+    },1000);
+  }
+}
+function skipPhase(){
+  clearInterval(tInt);tRun=false;
+  if(curPh<PHASES.length-1)initPhase(curPh+1);
+  else{
+    document.getElementById("timer-label").textContent="All Done! 🎉";
+    document.getElementById("timer-display").textContent="";
+    const b=document.getElementById("done-banner");
+    b.style.display="block";
+    b.innerHTML="🏆 Puzzle Time Complete!<br><span style='font-size:.9rem;font-weight:400;opacity:.9'>You finished all 60 minutes of Day 3 puzzles. Incredible work!</span>";
+  }
+}
+function jumpPhase(i){initPhase(i);}
+
+// safety save
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden")try{localStorage.setItem(SKEY,JSON.stringify([...solved]));}catch(e){}
+});
+window.addEventListener("pagehide",()=>{try{localStorage.setItem(SKEY,JSON.stringify([...solved]));}catch(e){}});
+window.addEventListener("beforeunload",()=>{try{localStorage.setItem(SKEY,JSON.stringify([...solved]));}catch(e){}});
+window.addEventListener("blur",()=>{try{localStorage.setItem(SKEY,JSON.stringify([...solved]));}catch(e){}});
+
+initPhase(0);
+buildScrambles();
+buildPatterns();
+buildBrainTeasers();
+buildBonus();
+</script>
+</body>
+</html>
