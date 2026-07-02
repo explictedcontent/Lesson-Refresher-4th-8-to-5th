@@ -249,16 +249,23 @@ const QUIZ=[
 let qi=0,qAns=[];const MKEY="refresher-mistakes";
 function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="Social Studies|Day 3: Snow Leopard|"+qx;if(c)delete s[id];else s[id]={subject:"Social Studies",lesson:"Day 3: Snow Leopard",q:qt,file:"social-studies-lesson-03-snow-leopard.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}
 function saveQuizResult(right){try{localStorage.setItem("ss-l3-quiz",JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}}
-$("#quizBtn").onclick=()=>{qi=0;qAns=[];$("#quizModal").classList.remove("hidden");renderQ();};
+$("#quizBtn").onclick=()=>{
+  const sv=JSON.parse(localStorage.getItem("ss-l3-qans")||"null");
+  if(sv&&sv.qAns&&sv.qAns.filter(v=>v!==undefined).length){
+    qAns=sv.qAns;qi=sv.qAns.filter(v=>v!==undefined).length;
+    if(qi>=QUIZ.length){qi=0;qAns=[];}
+  }else{qi=0;qAns=[];}
+  $("#quizModal").classList.remove("hidden");renderQ();
+};
 function renderQ(){const sheet=$("#quizSheet");if(qi>=QUIZ.length)return renderResults();const it=QUIZ[qi];
   sheet.innerHTML=`<button class="x" id="qClose">✕</button><div class="qprog">Question ${qi+1} of ${QUIZ.length}</div><div class="qtext">${it.q}</div><div class="qopts" id="qopts"></div><div class="qfb" id="qfb"></div>`;
   $("#qClose").onclick=closeQuiz;const o=$("#qopts");
   it.opts.forEach((t,idx)=>{const b=document.createElement("button");b.className="qopt";b.textContent=t;b.onclick=()=>ansQ(idx,b);o.appendChild(b);});}
-function ansQ(idx,btn){const it=QUIZ[qi],correct=idx===it.a;qAns[qi]=idx;logMistake(correct,qi,it.q);
+function ansQ(idx,btn){const it=QUIZ[qi],correct=idx===it.a;qAns[qi]=idx;try{localStorage.setItem("ss-l3-qans",JSON.stringify({qi,qAns}));}catch(e){}logMistake(correct,qi,it.q);
   document.querySelectorAll("#qopts .qopt").forEach(b=>b.disabled=true);btn.classList.add(correct?"right":"wrong");
   const fb=$("#qfb");fb.className="qfb "+(correct?"ok":"no");fb.textContent=correct?"✓ Correct!":"✗ Marked wrong — added to your review list.";
   const n=document.createElement("button");n.className="qnext";n.textContent=qi<QUIZ.length-1?"Next question →":"See results →";n.onclick=()=>{qi++;renderQ();};$("#quizSheet").appendChild(n);}
-function renderResults(){let right=0;QUIZ.forEach((it,i)=>{if(qAns[i]===it.a)right++;});saveQuizResult(right);
+function renderResults(){try{localStorage.removeItem("ss-l3-qans");}catch(e){}let right=0;QUIZ.forEach((it,i)=>{if(qAns[i]===it.a)right++;});saveQuizResult(right);
   const missed=QUIZ.map((it,i)=>({it,i})).filter(x=>qAns[x.i]!==x.it.a);const pct=Math.round(right/QUIZ.length*100);const sheet=$("#quizSheet");
   sheet.innerHTML=`<button class="x" id="qClose">✕</button><h2>${pct>=80?"🌟 Great job!":pct>=50?"👍 Nice work!":"📚 Keep practicing!"}</h2><div class="scorebig">${right} / ${QUIZ.length}</div>
     <p class="lead">${right===QUIZ.length?"Perfect!":"Topics to review:"}</p>
