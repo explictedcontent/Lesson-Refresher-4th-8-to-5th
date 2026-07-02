@@ -345,6 +345,7 @@ const QUIZ=[
   {q:"In how many countries do snow leopards live?",opts:["3 countries","6 countries","12 countries","20 countries"],a:2}
 ];
 let qAns={},qDone=false;
+const QAKEY="ela-l3-qans";
 function buildQuiz(){
   const area=document.getElementById("quiz-area");
   area.innerHTML="";
@@ -368,6 +369,7 @@ function ansQ(i,idx){
   const q=QUIZ[i];
   const cor=idx===q.a;
   qAns[i]=idx;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns));}catch(e){}
   logMistake(cor,i,q.q);
   for(let j=0;j<q.opts.length;j++){
     const b=document.getElementById("qo"+i+"_"+j);
@@ -379,6 +381,7 @@ function ansQ(i,idx){
     qDone=true;
     const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[k].a).length;
     try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+    try{localStorage.removeItem(QAKEY);}catch(e){}
     const b=document.getElementById("done-banner");
     b.style.display="block";
     b.innerHTML=`🎉 Quiz Complete! ${right}/${QUIZ.length} correct!<br><span style="font-size:.9rem;opacity:.85;font-weight:400">Amazing work with today's vocabulary!</span>`;
@@ -424,10 +427,35 @@ function skipPhase(){
 }
 function jumpPhase(i){initPhase(i);}
 
+function restoreQuiz(){
+  try{
+    const sv=JSON.parse(localStorage.getItem(QAKEY)||"null");
+    if(!sv||!Object.keys(sv).length)return;
+    Object.keys(sv).forEach(k=>{
+      const i=+k,idx=sv[k],q=QUIZ[i];
+      if(!q)return;
+      qAns[i]=idx;
+      for(let j=0;j<q.opts.length;j++){
+        const b=document.getElementById("qo"+i+"_"+j);
+        if(b){b.disabled=true;if(j===q.a)b.classList.add("cor");else if(j===idx)b.classList.add("wrg");}
+      }
+    });
+    if(Object.keys(qAns).length===QUIZ.length&&!qDone){
+      qDone=true;
+      const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[+k].a).length;
+      try{localStorage.removeItem(QAKEY);}catch(e){}
+      try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+      const b=document.getElementById("done-banner");
+      b.style.display="block";
+      b.innerHTML=`🎉 Quiz Complete! ${right}/${QUIZ.length} correct!<br><span style="font-size:.9rem;opacity:.85;font-weight:400">Amazing work with today's vocabulary!</span>`;
+    }
+  }catch(e){}
+}
 initPhase(0);
 buildMatch();
 buildCC();
 buildQuiz();
+restoreQuiz();
 </script>
 </body>
 </html>
