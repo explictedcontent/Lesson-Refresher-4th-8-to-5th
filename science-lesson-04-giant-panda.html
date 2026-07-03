@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Science – Day 4: Giant Panda</title>
+<style>
+:root{
+  --bg:#14151d;--panel:#1e2130;--panel2:#252a3a;
+  --ink:#f4f5fb;--muted:#a7adc4;
+  --accent:#ff7a59;--accent2:#5bd1c4;
+  --good:#7bd88f;--warn:#ffd166;--bad:#ff6b81;--line:#2e3347;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.55;min-height:100vh}
+.wrap{max-width:780px;margin:0 auto;padding:16px}
+
+/* ── Phase bar ── */
+#phasebar{position:sticky;top:0;z-index:200;background:var(--bg);padding:10px 16px 8px;margin:0 -16px;border-bottom:1px solid var(--line)}
+.pb-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin-bottom:5px}
+.pb-track{height:8px;background:var(--line);border-radius:4px;position:relative;overflow:visible}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:4px;transition:width .4s ease}
+.pb-dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--accent);border:3px solid var(--bg);transform:translate(-50%,-50%);transition:left .4s ease;box-shadow:0 0 0 2px var(--accent)}
+.pb-label{text-align:center;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-top:5px;text-transform:uppercase}
+
+/* ── Layout ── */
+.phase{display:none}.phase.on{display:block}
+h1{font-size:22px;font-weight:800;margin-bottom:4px;line-height:1.2}
+h2{font-size:17px;font-weight:700;margin:18px 0 10px;color:var(--accent2)}
+h3{font-size:15px;font-weight:700;margin-bottom:7px}
+p{font-size:15px;margin-bottom:10px;line-height:1.6}
+.muted{color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.info-box{background:var(--panel2);border-left:4px solid var(--accent2);border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:14px}
+.nav{display:flex;gap:10px;margin-top:20px}
+.nav button{flex:1;min-height:48px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s;font-family:inherit}
+.nav button:active{opacity:.8}
+.nav .sec{background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
+.nav .pri{background:var(--accent);color:#fff}
+
+/* ── Warm-up ── */
+.wu-card{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;transition:border-color .2s}
+.wu-card:active,.wu-card.open{border-color:var(--accent)}
+.wu-top{display:flex;align-items:center;gap:12px}
+.wu-icon{font-size:30px;flex-shrink:0}
+.wu-title{font-size:15px;font-weight:700}
+.wu-hint{font-size:13px;color:var(--muted);margin-top:2px}
+.wu-reveal{display:none;margin-top:12px;background:var(--panel2);border-radius:10px;padding:11px 13px;font-size:14px;color:var(--good);line-height:1.5}
+.wu-card.open .wu-reveal{display:block}
+.wu-badge{font-size:11px;font-weight:700;background:var(--accent2);color:#14151d;border-radius:20px;padding:2px 10px;display:inline-block;margin-top:4px}
+
+/* ── Passage ── */
+.passage{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.passage h3{color:var(--accent);margin-top:14px;margin-bottom:6px}
+.passage h3:first-child{margin-top:0}
+
+/* ── Adaptation match ── */
+.match-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.match-score{font-size:14px;font-weight:700;color:var(--accent2)}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.match-col-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;text-align:center;margin-bottom:4px}
+.mcol{display:flex;flex-direction:column;gap:6px}
+.mcell{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:10px 11px;font-size:13px;font-weight:600;cursor:pointer;min-height:56px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.3;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent;user-select:none}
+.mcell:active{background:var(--panel)}
+.mcell.sel{border-color:var(--accent);background:rgba(255,122,89,.1);color:var(--accent)}
+.mcell.matched{border-color:var(--good);background:rgba(123,216,143,.1);color:var(--good);cursor:default}
+.mcell.wrong{border-color:var(--bad);animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.retry-btn{display:block;width:100%;min-height:46px;background:var(--panel2);color:var(--accent);border:2px solid var(--accent);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s}
+.retry-btn:active{background:var(--panel)}
+.match-done{text-align:center;padding:18px;background:rgba(123,216,143,.1);border:2px solid var(--good);border-radius:12px;margin-top:10px;display:none}
+.match-done h3{color:var(--good);font-size:18px}
+
+/* ── Food web ── */
+.fw-orgs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 12px}
+.fw-btn{background:var(--panel2);border:2px solid var(--line);border-radius:24px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;min-height:44px;font-family:inherit;color:var(--ink);transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent;user-select:none;white-space:nowrap}
+.fw-btn:active{background:var(--panel)}
+.fw-btn.sel{border-color:var(--accent);color:var(--accent)}
+.fw-btn.used{border-color:var(--accent2)}
+.fw-conns-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:70px;margin-bottom:10px}
+.fw-conns-box h4{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.fw-conn-item{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:5px;flex-wrap:nowrap}
+.fw-conn-item .arrow{color:var(--accent2);font-weight:700}
+.fw-del{background:none;border:none;color:var(--bad);cursor:pointer;font-size:15px;padding:2px 6px;line-height:1;flex-shrink:0}
+.fw-check-btn{width:100%;min-height:48px;background:var(--accent2);color:#14151d;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:10px}
+.fw-result{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:none}
+.fw-result.show{display:block}
+.fw-result h4{color:var(--accent);margin-bottom:8px;font-size:15px}
+
+/* ── Writing ── */
+.wp-prompt{background:var(--panel2);border-left:4px solid var(--warn);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:12px;font-size:15px;font-style:italic;color:var(--warn)}
+#writing{width:100%;min-height:180px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:15px;border-radius:12px;padding:14px;resize:vertical;outline:none;line-height:1.6}
+#writing:focus{border-color:var(--accent2)}
+.wp-footer{display:flex;justify-content:space-between;align-items:center;margin-top:5px;font-size:12px;color:var(--muted)}
+.wp-saved{color:var(--good);transition:opacity .4s}
+.wp-saved.hide{opacity:0}
+
+/* ── Quiz ── */
+.qprog-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.qprog-track{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.qprog-fill{height:100%;background:var(--accent2);border-radius:3px;transition:width .3s}
+.qprog-lbl{font-size:12px;color:var(--muted);white-space:nowrap;font-weight:700}
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px}
+.qnum{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.qtxt{font-size:16px;font-weight:700;margin-bottom:14px;line-height:1.45}
+.qopts{display:flex;flex-direction:column;gap:8px}
+.qopt{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;cursor:pointer;text-align:left;min-height:50px;display:flex;align-items:center;gap:10px;font-family:inherit;color:var(--ink);width:100%;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.qopt:active{background:var(--panel)}
+.qopt.cor{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.qopt.wrg{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.qletter{font-weight:800;color:var(--muted);width:18px;flex-shrink:0}
+.qfb{margin-top:12px;padding:10px 13px;border-radius:8px;font-size:13px;display:none}
+.qfb.show{display:block}
+.qfb.good{background:rgba(123,216,143,.12);color:var(--good);border:1px solid rgba(123,216,143,.3)}
+.qfb.bad{background:rgba(255,107,129,.12);color:var(--bad);border:1px solid rgba(255,107,129,.3)}
+.q-next{width:100%;min-height:48px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;display:none}
+.q-next.show{display:block}
+.quiz-result{text-align:center;padding:28px 20px}
+.qr-score{font-size:54px;font-weight:900;margin-bottom:4px}
+.qr-pct{font-size:15px;color:var(--muted);margin-bottom:14px}
+.qr-msg{font-size:17px;font-weight:700;margin-bottom:18px}
+.qr-retry{min-height:48px;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:0 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.qr-review{margin-top:16px;text-align:left}
+.qr-item{background:var(--panel);border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid var(--line);font-size:13px}
+.qr-item.ok{border-color:rgba(123,216,143,.4)}
+.qr-item.bad{border-color:rgba(255,107,129,.4)}
+</style>
+</head>
+<body>
+<div style="max-width:780px;margin:0 auto">
+
+<!-- Phase Bar -->
+<div id="phasebar">
+  <div class="pb-row">
+    <span>Warm-Up</span><span>Reading</span><span>Match</span><span>Food Web</span><span>Writing</span><span>Quiz</span>
+  </div>
+  <div class="pb-track">
+    <div class="pb-fill" id="pb-fill" style="width:0%"></div>
+    <div class="pb-dot" id="pb-dot" style="left:0%"></div>
+  </div>
+  <div class="pb-label" id="pb-label">Phase 1 — Warm-Up</div>
+</div>
+
+</div>
+<div class="wrap">
+
+<!-- ── PHASE 1: Warm-Up ── -->
+<div class="phase on" id="ph0">
+  <h1 style="margin-top:14px">🐼 Giant Pandas</h1>
+  <p class="muted" style="margin-bottom:14px;font-size:13px">Science · Day 4 · 45-Minute Lesson</p>
+  <h2>Phase 1 — Panda Body Mystery (5 min)</h2>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:12px">Each card shows a panda body part. Tap to reveal what it does!</p>
+  <div id="wu-area"></div>
+  <div class="nav">
+    <button class="pri" onclick="goPhase(1)">Next: Reading →</button>
+  </div>
+</div>
+
+<!-- ── PHASE 2: Reading ── -->
+<div class="phase" id="ph1">
+  <h2>Phase 2 — Core Reading (10 min)</h2>
+  <div class="passage">
+    <h1 style="font-size:19px;color:var(--accent);margin-bottom:14px">Superpowers of the Giant Panda</h1>
+
+    <h3>A Carnivore Eating Plants</h3>
+    <p>Giant pandas belong to the bear family, which is classified as carnivorous (meat-eating). Yet 99% of a panda's diet is bamboo — a tough, fibrous plant. This creates a major problem: pandas still have the short, simple digestive tract of a carnivore, designed for digesting meat, not breaking down plant fibers. As a result, pandas absorb only a small fraction of the nutrients in bamboo. To compensate, they must eat <strong>26–84 pounds of bamboo per day</strong>, spending up to <strong>14 hours eating</strong> just to stay alive.</p>
+
+    <div class="info-box">Fun Fact: Bamboo passes through a panda in as little as 5–8 hours — far too fast to extract much nutrition. That's why they essentially eat all day, every day.</div>
+
+    <h3>The False Thumb</h3>
+    <p>To grip all that bamboo, pandas evolved a remarkable adaptation: the <strong>pseudo-thumb</strong>, or radial sesamoid bone. This is technically their sixth "finger" — not a true thumb, but a wrist bone that has grown large enough to function like one. By pressing this false thumb against their five regular fingers, pandas can rotate bamboo stalks, strip off leaves, and bite through woody stems with precision.</p>
+
+    <h3>Black, White, and Hidden</h3>
+    <p>Scientists puzzled over the panda's coloring for decades. Current research suggests it serves multiple purposes: the <strong>white fur</strong> provides camouflage in snowy mountain conditions; the <strong>black patches</strong> on ears and eyes help pandas blend into shadows and dark forests; and each panda's eye patches are <em>unique</em> — like fingerprints — which appears to help pandas recognize individuals from a distance.</p>
+
+    <h3>Communication Without Confrontation</h3>
+    <p>Giant pandas are mostly solitary. Rather than risk fighting, they communicate through <strong>scent marking</strong> — rubbing scent glands (located near their tail) on trees, rocks, and logs. This conveys information about identity, age, and readiness to mate. They also make sounds: <strong>bleats, honks, and chirps</strong> — quite different from what you'd expect from a large bear.</p>
+
+    <h3>The Reproduction Challenge</h3>
+    <p>A female panda is only fertile for <strong>24–72 hours per year</strong>. When cubs are born, they are tiny: just <strong>3–5 ounces</strong> (about the size of a stick of butter) and completely helpless. Twins are common, but in the wild a mother typically raises only one cub. This very low reproductive rate is why giant pandas were so endangered.</p>
+
+    <div class="info-box">Lifespan: 15–20 years in the wild; up to 30 years in captivity, where better nutrition and medical care help pandas thrive.</div>
+  </div>
+  <div class="nav">
+    <button class="sec" onclick="goPhase(0)">← Back</button>
+    <button class="pri" onclick="goPhase(2)">Next: Match Game →</button>
+  </div>
+</div>
+
+<!-- ── PHASE 3: Adaptation Match ── -->
+<div class="phase" id="ph2">
+  <h2>Phase 3 — Adaptation Match Game (10 min)</h2>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:10px">Tap an <strong style="color:var(--accent)">adaptation</strong>, then tap its matching <strong style="color:var(--accent2)">function</strong>. Match all 8 pairs!</p>
+  <div class="match-hdr">
+    <div class="match-score" id="match-score">Matches: 0 / 8</div>
+    <button class="retry-btn" id="match-retry" style="width:auto;padding:0 16px;min-height:38px;display:none" onclick="retryUnmatched()">Retry Unmatched</button>
+  </div>
+  <div class="match-grid">
+    <div>
+      <div class="match-col-lbl">Feature (Adaptation)</div>
+      <div class="mcol" id="feat-col"></div>
+    </div>
+    <div>
+      <div class="match-col-lbl">Function (What It Does)</div>
+      <div class="mcol" id="func-col"></div>
+    </div>
+  </div>
+  <div class="match-done" id="match-done">
+    <h3>All 8 Matched!</h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:0">You've mastered all giant panda adaptations.</p>
+  </div>
+  <div class="nav">
+    <button class="sec" onclick="goPhase(1)">← Back</button>
+    <button class="pri" onclick="goPhase(3)">Next: Food Web →</button>
+  </div>
+</div>
+
+<!-- ── PHASE 4: Food Web ── -->
+<div class="phase" id="ph3">
+  <h2>Phase 4 — Food Web Builder (10 min)</h2>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:6px">Tap one organism, then tap another to draw an energy-flow arrow from the first to the second. Build the bamboo forest food web!</p>
+  <p id="fw-status" style="font-size:13px;color:var(--accent);margin-bottom:2px;min-height:20px"></p>
+  <div class="fw-orgs" id="fw-orgs"></div>
+  <div class="fw-conns-box">
+    <h4>Connections (<span id="fw-count">0</span>)</h4>
+    <div id="fw-conn-list"></div>
+    <p id="fw-empty" style="font-size:13px;color:var(--muted)">No connections yet — tap two organisms to link them.</p>
+  </div>
+  <button class="fw-check-btn" onclick="checkFW()">Check My Web</button>
+  <div class="fw-result" id="fw-result">
+    <h4>Energy Flow Explanation</h4>
+    <p style="font-size:14px;margin-bottom:6px"><strong>Score: <span id="fw-score">0</span> valid connections found.</strong></p>
+    <p style="font-size:13px;margin-bottom:5px">In a healthy food web, energy flows: <strong>Sun → Producers → Primary Consumers → Secondary Consumers</strong>.</p>
+    <p style="font-size:13px;margin-bottom:5px">• <strong>Sun</strong> provides energy to Bamboo via photosynthesis.</p>
+    <p style="font-size:13px;margin-bottom:5px">• <strong>Bamboo</strong> feeds giant pandas, red pandas, bamboo rats, and golden pheasants.</p>
+    <p style="font-size:13px;margin-bottom:5px">• <strong>Snow leopards</strong> and <strong>golden eagles</strong> are secondary consumers — they eat the primary consumers.</p>
+    <p style="font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:0">Key: Giant pandas are primary consumers even though their ancestors were carnivores!</p>
+  </div>
+  <div class="nav" style="margin-top:14px">
+    <button class="sec" onclick="goPhase(2)">← Back</button>
+    <button class="pri" onclick="goPhase(4)">Next: Writing →</button>
+  </div>
+</div>
+
+<!-- ── PHASE 5: Writing ── -->
+<div class="phase" id="ph4">
+  <h2>Phase 5 — Writing Response (5 min)</h2>
+  <div class="wp-prompt">The giant panda has a carnivore's digestive system but eats only bamboo. What challenges does this create? What body adaptations help overcome them?</div>
+  <textarea id="writing" placeholder="Write your response here… your work saves automatically."></textarea>
+  <div class="wp-footer">
+    <span id="wp-saved" class="wp-saved hide">Saved ✓</span>
+    <span id="wp-count">0 characters</span>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3 style="color:var(--accent2);margin-bottom:6px">Think About:</h3>
+    <ul style="padding-left:18px;font-size:14px;color:var(--muted);line-height:1.8">
+      <li>Why is bamboo hard to digest for pandas specifically?</li>
+      <li>How much bamboo must pandas eat, and why so much?</li>
+      <li>Which body parts help pandas handle bamboo?</li>
+      <li>What would happen if pandas ate only a small amount?</li>
+    </ul>
+  </div>
+  <div class="nav">
+    <button class="sec" onclick="goPhase(3)">← Back</button>
+    <button class="pri" onclick="goPhase(5)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- ── PHASE 6: Quiz ── -->
+<div class="phase" id="ph5">
+  <h2>Phase 6 — Quiz (5 min)</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:14px">8 questions · one at a time · saves automatically</p>
+  <div id="quiz-area"></div>
+  <div class="nav" style="margin-top:14px">
+    <button class="sec" onclick="goPhase(4)">← Back</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+<script>
+/* ── Constants ── */
+const WKEY   = "science-l4-writing";
+const QKEY   = "science-l4-quiz";
+const QAKEY  = "science-l4-qans";
+const MKEY   = "refresher-mistakes";
+const FILE   = "science-lesson-04-giant-panda.html";
+const PFX    = "Science|Day 4: Giant Panda|";
+
+const PHASE_NAMES = [
+  "Phase 1 — Warm-Up (5 min)",
+  "Phase 2 — Reading (10 min)",
+  "Phase 3 — Adaptation Match (10 min)",
+  "Phase 4 — Food Web (10 min)",
+  "Phase 5 — Writing (5 min)",
+  "Phase 6 — Quiz (5 min)"
+];
+let curPhase = 0;
+
+/* ── Phase bar ── */
+function updateBar(n) {
+  const pct = (n / (PHASE_NAMES.length - 1)) * 100;
+  document.getElementById("pb-fill").style.width = pct + "%";
+  // keep dot inside track (0–98% to avoid overflow)
+  const dotPct = Math.max(0, Math.min(97, pct));
+  document.getElementById("pb-dot").style.left = "calc(" + dotPct + "% + " + (n === 0 ? "7px" : "0px") + ")";
+  document.getElementById("pb-label").textContent = PHASE_NAMES[n];
+}
+
+/* ── Auto-save ── */
+function autoSave() {
+  try { localStorage.setItem("science-l4-state", JSON.stringify({ phase: curPhase, ts: Date.now() })); } catch(e) {}
+}
+function safetySave() {
+  autoSave();
+  const ta = document.getElementById("writing");
+  if (ta) { try { localStorage.setItem(WKEY, ta.value); } catch(e) {} }
+  if (Object.keys(qAns).length) { try { localStorage.setItem(QAKEY, JSON.stringify(qAns)); } catch(e) {} }
+}
+["visibilitychange", "pagehide", "beforeunload", "blur"].forEach(ev => {
+  (ev === "visibilitychange" ? document : window).addEventListener(ev, safetySave);
+});
+
+/* ── logMistake ── */
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    const list = JSON.parse(localStorage.getItem(MKEY) || "[]");
+    list.push({
+      prefix: PFX,
+      file: FILE,
+      quiz: quizTitle,
+      question: questionText,
+      correct: correct,
+      ts: Date.now()
+    });
+    localStorage.setItem(MKEY, JSON.stringify(list));
+  } catch(e) {}
+}
+
+/* ── PHASE 1: Warm-Up ── */
+const WU = [
+  { icon: "🦴", title: "Pseudo-Thumb (Extra Wrist Bone)", hint: "A wrist bone slightly larger than usual…",
+    reveal: "Acts like a 6th finger! This radial sesamoid bone grew large enough to work like a thumb — letting pandas grip and rotate bamboo stalks with surprising precision." },
+  { icon: "🦷", title: "Flat, Wide Molars", hint: "Extra-wide, flat back teeth…",
+    reveal: "Crush tough bamboo! These broad grinding teeth mash through fibrous bamboo stalks the way a millstone grinds grain — essential for breaking down plant material." },
+  { icon: "👁️", title: "Black Eye Patches", hint: "Unique dark markings around each eye…",
+    reveal: "Double purpose! Each panda's patches are unique (like fingerprints), helping pandas recognize each other. They also may reduce sun glare on snow-covered mountains." },
+  { icon: "🧥", title: "Thick Woolly Fur", hint: "Dense, layered black-and-white coat…",
+    reveal: "Insulation for cold mountain living! Pandas live at 5,000–10,000 ft where temperatures drop sharply. Thick fur traps heat; oily guard hairs repel rain and snow." },
+  { icon: "💪", title: "Massive Jaw Muscles", hint: "Bulging muscles that make the skull look round…",
+    reveal: "One of the strongest bites relative to body size of any land animal! Pandas generate enormous jaw force to crack through hard, woody bamboo stems — up to 14 hours a day." }
+];
+
+function buildWarmup() {
+  document.getElementById("wu-area").innerHTML = WU.map((c, i) => `
+    <div class="wu-card" id="wc${i}" onclick="this.classList.toggle('open')">
+      <div class="wu-top">
+        <div class="wu-icon">${c.icon}</div>
+        <div>
+          <div class="wu-title">${c.title}</div>
+          <div class="wu-hint">${c.hint} <span style="color:var(--accent2);font-size:11px">(tap to reveal)</span></div>
+        </div>
+      </div>
+      <div class="wu-reveal">💡 ${c.reveal}</div>
+    </div>`).join("");
+}
+
+/* ── PHASE 3: Adaptation Match ── */
+const MATCH_PAIRS = [
+  { feat: "Pseudo-thumb",              func: "Grip bamboo stalks" },
+  { feat: "Flat wide molars",          func: "Crush tough bamboo" },
+  { feat: "Thick black-and-white fur", func: "Camouflage in snow and shade + sun protection" },
+  { feat: "Large stomach",             func: "Hold huge bamboo meals" },
+  { feat: "Scent glands",              func: "Mark territory without confrontation" },
+  { feat: "Low reproductive rate",     func: "Survive long-term as species even with few births" },
+  { feat: "Short digestive tract",     func: "Must eat more bamboo to absorb enough nutrients" },
+  { feat: "Strong jaw muscles",        func: "Crack through thick bamboo stems" }
+];
+
+let matchSel = null;
+let matchSide = null;
+let matchCount = 0;
+let matchBuilt = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildMatch() {
+  if (matchBuilt) return;
+  matchBuilt = true;
+  const featOrder = shuffle(MATCH_PAIRS.map((_, i) => i));
+  const funcOrder = shuffle(MATCH_PAIRS.map((_, i) => i));
+  const fc = document.getElementById("feat-col");
+  const uc = document.getElementById("func-col");
+  fc.innerHTML = "";
+  uc.innerHTML = "";
+  featOrder.forEach(idx => {
+    const d = document.createElement("div");
+    d.className = "mcell";
+    d.dataset.idx = idx;
+    d.dataset.side = "feat";
+    d.textContent = MATCH_PAIRS[idx].feat;
+    d.addEventListener("click", () => handleMatchClick(d, "feat"));
+    fc.appendChild(d);
+  });
+  funcOrder.forEach(idx => {
+    const d = document.createElement("div");
+    d.className = "mcell";
+    d.dataset.idx = idx;
+    d.dataset.side = "func";
+    d.textContent = MATCH_PAIRS[idx].func;
+    d.addEventListener("click", () => handleMatchClick(d, "func"));
+    uc.appendChild(d);
+  });
+}
+
+function handleMatchClick(el, side) {
+  if (el.classList.contains("matched")) return;
+  if (matchSel && matchSide === side) {
+    matchSel.classList.remove("sel");
+    matchSel = el;
+    el.classList.add("sel");
+    return;
+  }
+  if (!matchSel) {
+    matchSel = el;
+    matchSide = side;
+    el.classList.add("sel");
+    return;
+  }
+  // We have a pair — check
+  const a = matchSel, b = el;
+  a.classList.remove("sel");
+  if (parseInt(a.dataset.idx) === parseInt(b.dataset.idx)) {
+    a.classList.add("matched");
+    b.classList.add("matched");
+    matchCount++;
+    document.getElementById("match-score").textContent = "Matches: " + matchCount + " / 8";
+    if (matchCount === 8) {
+      document.getElementById("match-done").style.display = "block";
+      document.getElementById("match-retry").style.display = "none";
+    }
+  } else {
+    a.classList.add("wrong"); b.classList.add("wrong");
+    document.getElementById("match-retry").style.display = "inline-block";
+    setTimeout(() => { a.classList.remove("wrong"); b.classList.remove("wrong"); }, 500);
+  }
+  matchSel = null; matchSide = null;
+}
+
+function retryUnmatched() {
+  matchSel = null; matchSide = null;
+  const unmatched = el => !el.classList.contains("matched");
+  const featUnmatched = [...document.querySelectorAll("#feat-col .mcell")].filter(unmatched);
+  const funcUnmatched = [...document.querySelectorAll("#func-col .mcell")].filter(unmatched);
+  const featIdx = shuffle(featUnmatched.map(e => e.dataset.idx));
+  const funcIdx = shuffle(funcUnmatched.map(e => e.dataset.idx));
+  featUnmatched.forEach((el, i) => {
+    const newIdx = featIdx[i];
+    el.dataset.idx = newIdx;
+    el.textContent = MATCH_PAIRS[parseInt(newIdx)].feat;
+  });
+  funcUnmatched.forEach((el, i) => {
+    const newIdx = funcIdx[i];
+    el.dataset.idx = newIdx;
+    el.textContent = MATCH_PAIRS[parseInt(newIdx)].func;
+  });
+}
+
+/* ── PHASE 4: Food Web ── */
+const FW_ORGS = [
+  { id: "sun",      label: "☀️ Sun" },
+  { id: "bamboo",   label: "🎋 Bamboo" },
+  { id: "panda",    label: "🐼 Giant Panda" },
+  { id: "pheasant", label: "🐦 Golden Pheasant" },
+  { id: "leopard",  label: "🐆 Snow Leopard" },
+  { id: "redpanda", label: "🦝 Red Panda" },
+  { id: "rat",      label: "🐀 Bamboo Rat" },
+  { id: "eagle",    label: "🦅 Golden Eagle" }
+];
+// Valid energy-flow connections [from, to]
+const FW_VALID = [
+  ["sun","bamboo"],["bamboo","panda"],["bamboo","pheasant"],
+  ["bamboo","redpanda"],["bamboo","rat"],
+  ["panda","leopard"],["pheasant","eagle"],["pheasant","leopard"],
+  ["rat","eagle"],["rat","leopard"],["redpanda","leopard"]
+];
+
+let fwSel = null;
+let fwConns = []; // [{from, to}]
+let fwBuilt = false;
+
+function buildFW() {
+  if (fwBuilt) return;
+  fwBuilt = true;
+  const area = document.getElementById("fw-orgs");
+  FW_ORGS.forEach(org => {
+    const b = document.createElement("button");
+    b.className = "fw-btn";
+    b.id = "fwb-" + org.id;
+    b.textContent = org.label;
+    b.addEventListener("click", () => fwClick(org.id, org.label));
+    area.appendChild(b);
+  });
+}
+
+function fwClick(id, label) {
+  if (!fwSel) {
+    fwSel = { id, label };
+    document.getElementById("fwb-" + id).classList.add("sel");
+    document.getElementById("fw-status").textContent = "Selected: " + label + " → now tap another organism";
+  } else if (fwSel.id === id) {
+    document.getElementById("fwb-" + id).classList.remove("sel");
+    fwSel = null;
+    document.getElementById("fw-status").textContent = "";
+  } else {
+    const from = fwSel, to = { id, label };
+    document.getElementById("fwb-" + from.id).classList.remove("sel");
+    fwSel = null;
+    document.getElementById("fw-status").textContent = "";
+    const dup = fwConns.find(c => c.fromId === from.id && c.toId === to.id);
+    if (!dup) {
+      fwConns.push({ fromId: from.id, toId: to.id, fromLabel: from.label, toLabel: to.label });
+      document.getElementById("fwb-" + from.id).classList.add("used");
+      document.getElementById("fwb-" + to.id).classList.add("used");
+      renderFWConns();
+    }
+  }
+}
+
+function renderFWConns() {
+  const list = document.getElementById("fw-conn-list");
+  const empty = document.getElementById("fw-empty");
+  const count = document.getElementById("fw-count");
+  list.innerHTML = "";
+  count.textContent = fwConns.length;
+  empty.style.display = fwConns.length ? "none" : "block";
+  fwConns.forEach((c, i) => {
+    const d = document.createElement("div");
+    d.className = "fw-conn-item";
+    d.innerHTML = `<span>${c.fromLabel}</span><span class="arrow">→</span><span>${c.toLabel}</span>
+      <button class="fw-del" onclick="removeFWConn(${i})" title="Remove">✕</button>`;
+    list.appendChild(d);
+  });
+}
+
+function removeFWConn(idx) {
+  fwConns.splice(idx, 1);
+  // Recompute "used" state
+  FW_ORGS.forEach(org => {
+    const btn = document.getElementById("fwb-" + org.id);
+    const inUse = fwConns.some(c => c.fromId === org.id || c.toId === org.id);
+    btn.classList.toggle("used", inUse);
+  });
+  renderFWConns();
+}
+
+function checkFW() {
+  let score = 0;
+  fwConns.forEach(c => {
+    const valid = FW_VALID.some(v => v[0] === c.fromId && v[1] === c.toId);
+    if (valid) score++;
+  });
+  document.getElementById("fw-score").textContent = score + " / " + FW_VALID.length + " possible";
+  const r = document.getElementById("fw-result");
+  r.classList.add("show");
+  r.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/* ── PHASE 5: Writing ── */
+function initWriting() {
+  const ta = document.getElementById("writing");
+  const ct = document.getElementById("wp-count");
+  const sv = document.getElementById("wp-saved");
+  try { const s = localStorage.getItem(WKEY); if (s) { ta.value = s; ct.textContent = s.length + " characters"; } } catch(e) {}
+  let timer = null;
+  ta.addEventListener("input", () => {
+    ct.textContent = ta.value.length + " characters";
+    sv.classList.add("hide");
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      try { localStorage.setItem(WKEY, ta.value); } catch(e) {}
+      sv.classList.remove("hide");
+      setTimeout(() => sv.classList.add("hide"), 2000);
+    }, 300);
+  });
+}
+
+/* ── PHASE 6: Quiz ── */
+const QUIZ = [
+  { q: "What is the \"pseudo-thumb\" on a giant panda?",
+    opts: ["A real extra thumb","A wrist bone that works like a thumb","A modified claw","A pad of skin"], a: 1 },
+  { q: "Why do pandas have to eat so much bamboo each day?",
+    opts: ["They eat it for fun","Their digestive system doesn't absorb plant nutrients efficiently","Bamboo has no calories","They share food with their cubs"], a: 1 },
+  { q: "How long are female giant pandas fertile each year?",
+    opts: ["1–2 weeks","3–4 weeks","24–72 hours","All year"], a: 2 },
+  { q: "About how much does a newborn giant panda cub weigh?",
+    opts: ["1–2 pounds","3–5 ounces","10 pounds","5 pounds"], a: 1 },
+  { q: "Giant pandas evolved from what type of ancestor?",
+    opts: ["Herbivores","Carnivores","Omnivores","Rodents"], a: 1 },
+  { q: "How do giant pandas mainly communicate with each other?",
+    opts: ["Roaring loudly","Scent marking on trees","Changing fur color","Using their pseudo-thumb"], a: 1 },
+  { q: "What does the black-and-white coloring of a giant panda help with?",
+    opts: ["Attracting mates","Camouflage in snow and shade, plus recognition","Regulating body temperature","Warning predators"], a: 1 },
+  { q: "How long can a giant panda live in captivity?",
+    opts: ["5–10 years","15–20 years","Up to 30 years","Over 50 years"], a: 2 }
+];
+const LETTERS = ["A","B","C","D"];
+let qAns = {};
+let qCur = 0;
+let qDone = false;
+let quizBuilt = false;
+
+function buildQuiz() {
+  qAns = {}; qCur = 0; qDone = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const area = document.getElementById("quiz-area");
+  if (qDone) { renderResult(); return; }
+  const q = QUIZ[qCur];
+  const pct = (qCur / QUIZ.length) * 100;
+  area.innerHTML = `
+    <div class="qprog-row">
+      <div class="qprog-track"><div class="qprog-fill" style="width:${pct}%"></div></div>
+      <div class="qprog-lbl">Q${qCur + 1} of ${QUIZ.length}</div>
+    </div>
+    <div class="qcard">
+      <div class="qnum">Question ${qCur + 1}</div>
+      <div class="qtxt">${q.q}</div>
+      <div class="qopts" id="qopts"></div>
+      <div class="qfb" id="qfb"></div>
+      <button class="q-next" id="q-next" onclick="nextQ()">${qCur < QUIZ.length - 1 ? "Next Question →" : "See Results"}</button>
+    </div>`;
+  const opts = document.getElementById("qopts");
+  q.opts.forEach((o, j) => {
+    const b = document.createElement("button");
+    b.className = "qopt";
+    b.innerHTML = `<span class="qletter">${LETTERS[j]}</span>${o}`;
+    b.addEventListener("click", () => answerQ(j));
+    opts.appendChild(b);
+  });
+  // Restore answer if already answered (from restoreQuiz)
+  if (qAns[qCur] !== undefined) applyAnswer(qCur, qAns[qCur], false);
+}
+
+function answerQ(chosen) {
+  if (qAns[qCur] !== undefined) return;
+  qAns[qCur] = chosen;
+  try { localStorage.setItem(QAKEY, JSON.stringify(qAns)); } catch(e) {}
+  applyAnswer(qCur, chosen, true);
+}
+
+function applyAnswer(qi, chosen, live) {
+  const q = QUIZ[qi];
+  const opts = document.querySelectorAll(".qopt");
+  opts.forEach((b, j) => {
+    b.style.pointerEvents = "none";
+    if (j === q.a) b.classList.add("cor");
+    else if (j === chosen && chosen !== q.a) b.classList.add("wrg");
+  });
+  const fb = document.getElementById("qfb");
+  const correct = chosen === q.a;
+  fb.className = "qfb show " + (correct ? "good" : "bad");
+  fb.textContent = correct ? "✓ Correct!" : "✗ Not quite. Correct answer: " + q.opts[q.a];
+  const nb = document.getElementById("q-next");
+  if (nb) nb.className = "q-next show";
+  if (live && !correct) logMistake(q.opts[q.a], q.q, "Giant Panda Quiz");
+}
+
+function nextQ() {
+  qCur++;
+  if (qCur >= QUIZ.length) {
+    qDone = true;
+    saveQuizResult();
+    try { localStorage.removeItem(QAKEY); } catch(e) {}
+  } else {
+    try { localStorage.setItem(QAKEY, JSON.stringify(qAns)); } catch(e) {}
+  }
+  renderQuestion();
+}
+
+function saveQuizResult() {
+  let right = 0;
+  QUIZ.forEach((q, i) => { if (qAns[i] === q.a) right++; });
+  try { localStorage.setItem(QKEY, JSON.stringify({ right, total: QUIZ.length, ts: Date.now() })); } catch(e) {}
+}
+
+function renderResult() {
+  let right = 0;
+  QUIZ.forEach((q, i) => { if (qAns[i] === q.a) right++; });
+  const pct = Math.round((right / QUIZ.length) * 100);
+  let msg = "", col = "";
+  if (pct >= 88) { msg = "Outstanding! You mastered giant panda biology!"; col = "var(--good)"; }
+  else if (pct >= 75) { msg = "Great work! Review a few answers below."; col = "var(--accent2)"; }
+  else if (pct >= 50) { msg = "Good effort — re-read the passage and retry!"; col = "var(--warn)"; }
+  else { msg = "Keep studying — you've got this!"; col = "var(--bad)"; }
+  const area = document.getElementById("quiz-area");
+  area.innerHTML = `
+    <div class="quiz-result">
+      <div class="qr-score" style="color:${col}">${right}/${QUIZ.length}</div>
+      <div class="qr-pct">${pct}%</div>
+      <div class="qr-msg" style="color:${col}">${msg}</div>
+      <button class="qr-retry" onclick="resetQuiz()">Retry Quiz</button>
+    </div>
+    <div class="qr-review" id="qr-review"></div>`;
+  const rev = document.getElementById("qr-review");
+  QUIZ.forEach((q, i) => {
+    const ok = qAns[i] === q.a;
+    const d = document.createElement("div");
+    d.className = "qr-item " + (ok ? "ok" : "bad");
+    d.innerHTML = `
+      <div style="font-weight:700;color:${ok ? "var(--good)" : "var(--bad)"};margin-bottom:3px">Q${i+1}: ${ok ? "✓ Correct" : "✗ Incorrect"}</div>
+      <div style="margin-bottom:3px">${q.q}</div>
+      ${!ok ? `<div style="color:var(--muted)">Your answer: ${q.opts[qAns[i]] || "—"}</div>` : ""}
+      <div style="color:var(--good)">Correct: ${q.opts[q.a]}</div>`;
+    rev.appendChild(d);
+  });
+}
+
+function resetQuiz() {
+  try { localStorage.removeItem(QAKEY); } catch(e) {}
+  buildQuiz();
+}
+
+function restoreQuiz() {
+  try {
+    const sv = JSON.parse(localStorage.getItem(QAKEY) || "null");
+    if (!sv || !Object.keys(sv).length) return;
+    qAns = sv;
+    const answered = Object.keys(sv).map(Number);
+    const maxAnswered = Math.max(...answered);
+    // Find the first unanswered question
+    let firstUnanswered = 0;
+    for (let i = 0; i < QUIZ.length; i++) {
+      if (sv[i] === undefined) { firstUnanswered = i; break; }
+      if (i === QUIZ.length - 1) firstUnanswered = QUIZ.length; // all answered
+    }
+    if (firstUnanswered >= QUIZ.length) {
+      qDone = true;
+      saveQuizResult();
+      try { localStorage.removeItem(QAKEY); } catch(e) {}
+      renderResult();
+    } else {
+      qCur = firstUnanswered;
+      renderQuestion();
+    }
+  } catch(e) {}
+}
+
+/* ── INIT ── */
+(function init() {
+  buildWarmup();
+  initWriting();
+  // Build match and food web lazily when those phases are first entered
+  // (triggered from goPhase for phases 2 & 3)
+  updateBar(0);
+
+  // Restore last phase
+  try {
+    const s = JSON.parse(localStorage.getItem("science-l4-state") || "null");
+    if (s && typeof s.phase === "number" && s.phase >= 0 && s.phase < 6) {
+      goPhase(s.phase);
+    }
+  } catch(e) {}
+})();
+
+function goPhase(n) {
+  document.getElementById("ph" + curPhase).classList.remove("on");
+  curPhase = n;
+  document.getElementById("ph" + n).classList.add("on");
+  updateBar(n);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (n === 2) buildMatch();
+  if (n === 3) buildFW();
+  if (n === 5 && !quizBuilt) { buildQuiz(); restoreQuiz(); quizBuilt = true; }
+  autoSave();
+}
+</script>
+</body>
+</html>

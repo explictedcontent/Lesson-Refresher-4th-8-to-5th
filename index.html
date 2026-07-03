@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 3 · Snow Leopard 🐆 — today's plan, in order (45 min/subject + 60 min Puzzle Time)", items:[
+    {label:"Day 4 · Giant Panda 🐼 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — Giant Panda's World",topic:"Geography",time:"45 min",file:"social-studies-lesson-04-giant-panda.html",desc:"China's provinces, mountain ranges, conservation timeline, and geography match game."},
+      {n:2,emoji:"🔬",title:"Science — Adaptations & Biology",topic:"Science",time:"45 min",file:"science-lesson-04-giant-panda.html",desc:"Pseudo-thumb, carnivore eating plants, food web builder, and panda biology deep dive."},
+      {n:3,emoji:"📖",title:"ELA — Passage, Vocab & Writing",topic:"Reading",time:"45 min",file:"ela-lesson-04-giant-panda.html",desc:"Read about giant pandas, learn 7 vocabulary words, compare snow leopard vs panda, and write."},
+      {n:4,emoji:"📐",title:"Math — Multi-Step & Division",topic:"Number",time:"45 min",file:"math-lesson-04-giant-panda.html",desc:"U-P-S-S strategy, 12 word problems, mental math challenges."},
+      {n:5,emoji:"💻",title:"Coding — Intro to Programming",topic:"Coding",time:"60 min",file:"coding-lesson-01-intro.html",desc:"What is code? Variables, if statements, loops — with a live code editor you can run right on the page!"},
+    ]},
+    {label:"Day 3 · Snow Leopard 🐆 — previous day (45 min/subject + 60 min Puzzle Time)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Snow Leopard's World",topic:"Geography",time:"45 min",file:"social-studies-lesson-03-snow-leopard.html",desc:"12 countries, 5 mountain ranges, alpine climate zones & a geography challenge."},
       {n:2,emoji:"🔬",title:"Science — Food Chains & Adaptations",topic:"Science",time:"45 min",file:"science-lesson-03-snow-leopard.html",desc:"Build food chains, match adaptations to functions, and explore how the Ghost of the Mountains survives."},
       {n:3,emoji:"📖",title:"ELA — Passage, Vocab & Writing",topic:"Reading",time:"45 min",file:"ela-lesson-03-snow-leopard.html",desc:"Read about snow leopards, learn 7 vocabulary words, compare with red pandas, and write."},
@@ -169,6 +176,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 4 · Giant Panda 🐼", items:[
+       {n:4,emoji:"🐼",title:"Multi-Step & Division",topic:"Number",time:"45 min",file:"math-lesson-04-giant-panda.html",desc:"U-P-S-S strategy, 12 word problems using panda data, mental math challenges."},
+     ]},
      {label:"Day 3 · Snow Leopard 🐆", items:[
        {n:3,emoji:"🐆",title:"Multi-Step Word Problems",topic:"Number",time:"45 min",file:"math-lesson-03-snow-leopard.html",desc:"U-P-S-S strategy, 12 multi-step word problems using snow leopard data, plus mental math."},
      ]},
@@ -184,6 +194,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 4 · Giant Panda 🐼", items:[
+       {n:4,emoji:"🐼",title:"Giant Panda: Adaptations & Biology",topic:"Science",time:"45 min",file:"science-lesson-04-giant-panda.html",desc:"Pseudo-thumb, carnivore eating bamboo, adaptation match, food web builder."},
+     ]},
      {label:"Day 3 · Snow Leopard 🐆", items:[
        {n:3,emoji:"🐆",title:"Snow Leopard: Food Chains & Adaptations",topic:"Science",time:"45 min",file:"science-lesson-03-snow-leopard.html",desc:"Build food chains, match adaptations to functions, and explore how the Ghost of the Mountains survives."},
      ]},
@@ -197,6 +210,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 4 · Giant Panda 🐼", items:[
+       {n:4,emoji:"🐼",title:"Giant Panda: Passage, Vocab & Writing",topic:"Reading",time:"45 min",file:"ela-lesson-04-giant-panda.html",desc:"Read about giant pandas, learn 7 vocabulary words, compare snow leopard vs panda, and write."},
+     ]},
      {label:"Day 3 · Snow Leopard 🐆", items:[
        {n:3,emoji:"🐆",title:"Snow Leopard: Passage, Vocab & Writing",topic:"Reading",time:"45 min",file:"ela-lesson-03-snow-leopard.html",desc:"Read about snow leopards, learn 7 vocabulary words, compare with red pandas, and write a creative response."},
      ]},
@@ -206,6 +222,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 4 · Giant Panda 🐼", items:[
+       {n:4,emoji:"🐼",title:"Giant Panda's World (China)",topic:"Geography",time:"45 min",file:"social-studies-lesson-04-giant-panda.html",desc:"China's provinces, mountain ranges, panda diplomacy, conservation timeline & geography match."},
+     ]},
      {label:"Day 3 · Snow Leopard 🐆", items:[
        {n:3,emoji:"🐆",title:"Snow Leopard's World (12 Countries)",topic:"Geography",time:"45 min",file:"social-studies-lesson-03-snow-leopard.html",desc:"12 countries, 5 mountain ranges, alpine climate zones, geography challenge & climate matching."},
      ]},
@@ -216,6 +235,12 @@ const SUBJECTS=[
        {n:1,emoji:"🗺️",title:"U.S. Geography",topic:"Geography",time:"30 min",file:"social-lesson-01-us-geography.html",desc:"The 5 U.S. regions, states, capitals, landmarks, and map & compass skills."},
        {n:2,emoji:"🪶",title:"Native American Cultures",topic:"History",time:"30 min",file:"social-lesson-02-native-americans.html",desc:"The 5 culture regions and how the land shaped homes, food, and travel."},
        {n:3,emoji:"🏛️",title:"The 3 Branches of Government",topic:"Civics",time:"30 min",file:"social-lesson-03-government.html",desc:"Legislative, executive & judicial branches, the Constitution, and checks & balances."},
+     ]},
+   ]},
+  {key:"coding", emoji:"💻", name:"Coding",
+   groups:[
+     {label:"Beginner Coding", items:[
+       {n:1,emoji:"💻",title:"Intro to Programming",topic:"Coding",time:"60 min",file:"coding-lesson-01-intro.html",desc:"What is code? Variables, if statements, and loops — with a LIVE code editor that runs right on the page!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

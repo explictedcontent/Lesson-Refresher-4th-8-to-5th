@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Day 4 ELA — Giant Panda 🐼</title>
+<style>
+:root{--bg:#14151d;--panel:#1e2130;--panel2:#252a3a;--ink:#f4f5fb;--muted:#a7adc4;--accent:#ff7a59;--accent2:#5bd1c4;--good:#7bd88f;--warn:#ffd166;--bad:#ff6b81;--line:#2e3347}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%}
+body{padding:16px;max-width:780px;margin:0 auto}
+h1{font-size:22px;font-weight:800;margin-bottom:4px}
+h2{font-size:17px;font-weight:700;margin-bottom:10px;color:var(--accent2)}
+h3{font-size:15px;font-weight:700;margin-bottom:8px}
+p{line-height:1.6;font-size:15px;margin-bottom:10px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:700;font-size:15px;padding:12px 20px;min-height:44px;transition:transform .1s}
+button:active{transform:scale(.97)}
+textarea{font-family:inherit;font-size:15px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 14px;width:100%;resize:vertical;min-height:100px}
+
+#phasebar{display:flex;gap:4px;margin-bottom:18px;padding:12px 0 4px}
+.pb{flex:1;height:7px;border-radius:4px;background:var(--panel2);transition:background .3s}
+.pb.done{background:var(--good)}.pb.active{background:var(--accent)}
+#phaselabel{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.phase{display:none}.phase.on{display:block}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h3{color:var(--accent2)}
+.nav{display:flex;gap:10px;margin-top:20px}
+.nav button{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.nav button.primary{background:linear-gradient(135deg,var(--accent),#ff5e93);color:#fff;border:none}
+
+/* warm-up fact cards */
+.fact-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer}
+.fact-card .fc-front{font-size:15px;font-weight:700;line-height:1.4}
+.fact-card .fc-btns{display:flex;gap:8px;margin-top:10px}
+.fact-card .fc-btn{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-size:13px;padding:10px}
+.fact-card .fc-r{margin-top:8px;font-size:13px;padding:8px 12px;border-radius:8px;background:var(--panel2);display:none}
+.fact-card.answered .fc-r{display:block}
+
+/* vocab match */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.mcell{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:13px;cursor:pointer;min-height:60px;display:flex;align-items:center;text-align:center;justify-content:center;line-height:1.35;transition:border-color .15s,background .15s}
+.mcell.sel{border-color:var(--accent);background:#2a1f2e}
+.mcell.matched{background:#1a3325;border-color:var(--good);color:var(--good);cursor:default}
+.score-line{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:12px}
+
+/* compare contrast */
+.cc-stmt{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.cc-txt{font-size:15px;margin-bottom:10px;line-height:1.4}
+.cc-btns{display:flex;gap:6px}
+.cc-btn{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-size:13px;padding:10px 6px}
+.cc-btn.cor{background:#1a3325;border-color:var(--good);color:var(--good)}
+.cc-btn.wrg{background:#2d1a1e;border-color:var(--bad);color:var(--bad)}
+.cc-btn:disabled{cursor:default}
+
+/* quiz */
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.qcard .qtxt{font-size:16px;font-weight:700;margin-bottom:14px;line-height:1.45}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);text-align:left;padding:12px 16px}
+.opts button.cor{background:#1a3325;border-color:var(--good);color:var(--good)}
+.opts button.wrg{background:#2d1a1e;border-color:var(--bad);color:var(--bad)}
+.opts button:disabled{cursor:default}
+
+#done-banner{display:none;background:linear-gradient(135deg,#1a3325,#1e2130);border:2px solid var(--good);border-radius:16px;padding:20px;text-align:center;margin:14px 0}
+#done-banner h2{color:var(--good);font-size:22px}
+.wcount{font-size:12px;color:var(--muted);margin-top:4px;text-align:right}
+
+/* reading passage */
+.passage{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:12px}
+.passage h3{color:var(--accent2);font-size:18px;margin-bottom:12px}
+.passage p{font-size:15px;line-height:1.7}
+
+/* vocab word display */
+.vocab-word{font-weight:800;color:var(--accent);font-style:italic}
+</style>
+</head>
+<body>
+<h1>🐼 Day 4 ELA</h1>
+<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Reading, Vocabulary &amp; Writing · 45 min</p>
+
+<div id="phasebar">
+  <div class="pb" id="pb0"></div><div class="pb" id="pb1"></div>
+  <div class="pb" id="pb2"></div><div class="pb" id="pb3"></div>
+  <div class="pb" id="pb4"></div><div class="pb" id="pb5"></div>
+</div>
+<div id="phaselabel"></div>
+
+<!-- PHASE 0: Warm-Up -->
+<div class="phase" id="ph0">
+  <h2>Phase 1 — Warm-Up (5 min)</h2>
+  <p>Did you know these panda facts? Tap <b>I Knew This!</b> or <b>New to Me!</b> — just for fun!</p>
+  <div id="wu-area"></div>
+  <div class="nav"><button class="primary" onclick="goPhase(1)">Next: Reading →</button></div>
+</div>
+
+<!-- PHASE 1: Reading -->
+<div class="phase" id="ph1">
+  <h2>Phase 2 — Reading Passage (10 min)</h2>
+  <div class="passage">
+    <h3>The Gentle Giant of the Bamboo Forest</h3>
+    <p>The giant panda is one of the world's most recognized animals — and one of the most carefully protected. With its distinctive black-and-white fur and round, gentle face, the giant panda has become a global symbol of <span class="vocab-word">conservation</span>: the effort to protect nature and wildlife from harm.</p>
+    <p>Deep in the mountain forests of central China, where mist clings to bamboo groves and temperatures drop below freezing, giant pandas have carved out a unique home. These forests — once vast — have been reduced by farming and logging to <span class="vocab-word">isolated</span> patches in three Chinese provinces: Sichuan, Shaanxi, and Gansu. Isolated means separated or cut off from others. Today, wild pandas exist in fewer than 30 fragmented habitat patches.</p>
+    <p>Perhaps the most surprising thing about giant pandas is their diet paradox. Pandas are classified as carnivores — meat-eaters — yet they eat bamboo almost exclusively. Their short digestive tracts, inherited from meat-eating ancestors, cannot process plant cellulose efficiently. To <span class="vocab-word">compensate</span> — to make up for what's lacking — pandas eat for up to 14 hours daily, consuming 26–84 pounds of bamboo. This remarkable <span class="vocab-word">adaptation</span> — a change that helps a living thing survive — is one of the most unusual in the animal kingdom.</p>
+    <p>The story of giant panda conservation is one of cautious hope. In 1990, fewer than 1,000 pandas survived in the wild — they were listed as <span class="vocab-word">endangered</span>, meaning seriously at risk of dying out. Through international cooperation, habitat protection, and breeding programs, their numbers slowly recovered. By 2016, the International Union for Conservation of Nature (IUCN) officially changed their status to <span class="vocab-word">vulnerable</span> — still at risk, but improving. Today approximately 1,800 live in the wild.</p>
+    <p>More than just a bear, the giant panda represents what's possible when humans choose to protect endangered species. China's network of 67 panda reserves, the dedication of conservationists worldwide, and decades of careful research turned a species teetering on extinction into a story of real progress.</p>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <h3>Quick Comprehension Check</h3>
+    <p style="font-size:14px;color:var(--muted)">Tap each question to see the answer:</p>
+    <div id="comp-area"></div>
+  </div>
+  <div class="nav">
+    <button onclick="goPhase(0)">← Back</button>
+    <button class="primary" onclick="goPhase(2)">Next: Vocabulary →</button>
+  </div>
+</div>
+
+<!-- PHASE 2: Vocabulary Match -->
+<div class="phase" id="ph2">
+  <h2>Phase 3 — Vocabulary Match (10 min)</h2>
+  <p>Match each <b style="color:var(--accent)">word</b> to its <b style="color:var(--accent2)">definition</b>. Tap one from each column!</p>
+  <div class="score-line" id="vocab-score">Matched: 0 / 7</div>
+  <div class="match-grid" id="vocab-grid"></div>
+  <div id="vocab-result" style="display:none" class="card">
+    <h3 style="color:var(--good)">🎉 Vocabulary Master!</h3>
+    <p>You matched all 7 words! These words appear in science, social studies, and ELA passages — knowing them will help you throughout 5th grade.</p>
+  </div>
+  <div class="nav">
+    <button onclick="goPhase(1)">← Back</button>
+    <button class="primary" onclick="goPhase(3)">Next: Compare &amp; Contrast →</button>
+  </div>
+</div>
+
+<!-- PHASE 3: Compare & Contrast -->
+<div class="phase" id="ph3">
+  <h2>Phase 4 — Compare &amp; Contrast (12 min)</h2>
+  <p>For each statement, tap which animal it describes: 🐆 Snow Leopard, 🤝 Both, or 🐼 Giant Panda.</p>
+  <div class="score-line" id="cc-score">Answered: 0 / 10</div>
+  <div id="cc-area"></div>
+  <div id="cc-result" style="display:none" class="card">
+    <h3 style="color:var(--good)">🎉 Compare &amp; Contrast Champion!</h3>
+    <p>Snow leopards and giant pandas share their mountain home and their endangered status — but they fill very different roles in the ecosystem. One hunts, one grazes. Both need protection.</p>
+  </div>
+  <div class="nav">
+    <button onclick="goPhase(2)">← Back</button>
+    <button class="primary" onclick="goPhase(4)">Next: Writing →</button>
+  </div>
+</div>
+
+<!-- PHASE 4: Writing -->
+<div class="phase" id="ph4">
+  <h2>Phase 5 — Writing Pad (5 min)</h2>
+  <div class="card">
+    <h3>Your Opinion Matters</h3>
+    <p style="color:var(--accent2);font-style:italic">The giant panda has become a global symbol of conservation. In your opinion, why do people connect so strongly with pandas? Use at least 2 facts from the lesson to support your answer.</p>
+    <p style="font-size:13px;color:var(--muted)">Sentence starter: <em>"I think people connect with pandas because..."</em></p>
+    <textarea id="writing" placeholder="Start writing here... everything saves automatically." rows="7"></textarea>
+    <div class="wcount" id="wcount">0 characters</div>
+  </div>
+  <div class="nav">
+    <button onclick="goPhase(3)">← Back</button>
+    <button class="primary" onclick="goPhase(5)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- PHASE 5: Quiz -->
+<div class="phase" id="ph5">
+  <h2>Phase 6 — Quiz (3 min)</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:14px">8 questions · saves automatically</p>
+  <div id="done-banner">
+    <h2 id="done-text">🎉 Quiz Complete!</h2>
+    <p id="done-sub" style="color:var(--muted);margin-top:6px"></p>
+  </div>
+  <div id="quiz-area"></div>
+  <div class="nav"><button onclick="goPhase(4)">← Back</button></div>
+</div>
+
+<script>
+const WKEY="ela-l4-writing";
+const QKEY="ela-l4-quiz";
+const QAKEY="ela-l4-qans";
+const MKEY="refresher-mistakes";
+const SUBJECT="ELA";
+const LESSON="Day 4: Giant Panda";
+const FILE="ela-lesson-04-giant-panda.html";
+const PHASES=["Warm-Up","Reading","Vocabulary","Compare & Contrast","Writing","Quiz"];
+
+const WARMUP_FACTS=[
+  {fact:"Giant pandas spend up to 14 hours a day eating bamboo.",note:"That's more than half the day — just eating!"},
+  {fact:"A panda cub is born smaller than a candy bar — about 3–5 ounces.",note:"The mom can weigh 200+ pounds. The cub weighs less than a can of soda!"},
+  {fact:"China has been lending pandas to zoos around the world since the 1970s.",note:"This 'panda diplomacy' is a famous part of Chinese foreign policy."},
+  {fact:"Despite being related to carnivores, 99% of a panda's diet is plants.",note:"Their carnivore gut means they must eat massive amounts to get enough energy."},
+];
+
+const COMP_QS=[
+  {q:"What is the main topic of this passage?",a:"The conservation of giant pandas — how they were threatened and how their numbers have improved."},
+  {q:"Why do pandas eat so much bamboo each day?",a:"Their carnivore digestive system can't absorb plant nutrients well, so they must eat huge amounts to get enough energy."},
+  {q:"What did the IUCN do in 2016?",a:"They changed the panda's status from Endangered to Vulnerable — a sign that conservation efforts were working."},
+  {q:"Name two details that show humans are protecting pandas.",a:"China has 67 panda reserves; international cooperation and breeding programs helped the population recover from under 1,000 to about 1,800."},
+  {q:"What does it mean that pandas are 'isolated' in their habitat?",a:"Their forest patches are cut off from each other by farms and logging, so pandas can't easily move between habitats."},
+];
+
+const VOCAB_PAIRS=[
+  {word:"endangered",def:"Seriously at risk of dying out completely"},
+  {word:"conservation",def:"Protecting nature and wildlife from damage"},
+  {word:"isolated",def:"Separated from others; cut off"},
+  {word:"compensate",def:"To make up for something lacking or lost"},
+  {word:"cellulose",def:"The tough plant fiber in cell walls"},
+  {word:"adaptation",def:"A change that helps an animal survive"},
+  {word:"vulnerable",def:"At risk but improving; better than endangered"},
+];
+
+const CC_STMTS=[
+  {txt:"Lives in the mountains of China.",ans:2},          // panda=2
+  {txt:"Diet is mostly plant-based.",ans:2},
+  {txt:"Lives in a high mountain habitat.",ans:1},         // both=1
+  {txt:"Is classified as a carnivore by scientists.",ans:1},
+  {txt:"Was once listed as Endangered by the IUCN.",ans:1},
+  {txt:"Uses camouflage to blend into its environment.",ans:1},
+  {txt:"Eats primarily bamboo.",ans:2},
+  {txt:"Is an apex predator that actively hunts prey.",ans:0},  // snow leopard=0
+  {txt:"Has become a global symbol of conservation.",ans:2},
+  {txt:"Has a long tail used for balance on steep terrain.",ans:0},
+];
+const CC_LABELS=["🐆 Snow Leopard","🤝 Both","🐼 Giant Panda"];
+
+const QUIZ=[
+  {q:"What is the main topic of 'The Gentle Giant of the Bamboo Forest'?",opts:["A panda's daily eating habits","The conservation of giant pandas and why they matter","How pandas are trained in captivity","Comparing pandas to other bears"],a:1},
+  {q:"What does the word 'endangered' mean in the passage?",opts:["Safely protected","Seriously at risk of dying out","Living in captivity","Eating an unusual diet"],a:1},
+  {q:"In 2016, the IUCN changed the panda's status from Endangered to:",opts:["Extinct","Protected","Vulnerable","Threatened"],a:2},
+  {q:"Why do pandas eat bamboo for up to 14 hours a day?",opts:["They love the taste","Their digestive system doesn't process plants efficiently","Bamboo gives extra energy","Their cubs eat all the other food"],a:1},
+  {q:"Which word from the lesson means 'a change that helps an animal survive'?",opts:["Compensation","Conservation","Adaptation","Isolation"],a:2},
+  {q:"About how many giant pandas live in the wild today?",opts:["About 500","About 1,800","About 5,000","About 10,000"],a:1},
+  {q:"The passage says the panda story is one of 'cautious hope.' What does that mean?",opts:["Pandas are the most beloved animals","Conservation shows humans CAN protect endangered species","Pandas bring good luck","Scientists hope to clone pandas"],a:1},
+  {q:"What is 'cellulose' as used in the passage?",opts:["A type of bamboo","The tough fiber in plant cell walls","A panda's digestive enzyme","The panda's coloring"],a:1},
+];
+
+let curPhase=0;
+let qAns={};
+let qDone=false;
+const donePhases=new Set();
+let vocabSel=null, vocabMatched=0;
+let ccAnswered=0;
+
+function goPhase(n){
+  donePhases.add(curPhase);
+  document.getElementById("ph"+curPhase).classList.remove("on");
+  curPhase=n;
+  document.getElementById("ph"+n).classList.add("on");
+  updateBar();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function updateBar(){
+  PHASES.forEach((_,i)=>{
+    const el=document.getElementById("pb"+i);
+    if(i===curPhase){el.classList.add("active");el.classList.remove("done");}
+    else if(donePhases.has(i)){el.classList.remove("active");el.classList.add("done");}
+    else{el.classList.remove("active","done");}
+  });
+  document.getElementById("phaselabel").textContent="Phase "+(curPhase+1)+" of "+PHASES.length+" — "+PHASES[curPhase];
+}
+
+function buildWarmup(){
+  document.getElementById("wu-area").innerHTML=WARMUP_FACTS.map((f,i)=>`
+    <div class="fact-card" id="fc${i}">
+      <div class="fc-front">🐼 ${f.fact}</div>
+      <div class="fc-btns">
+        <button class="fc-btn" onclick="ansFC(${i},'knew')">✅ I Knew This!</button>
+        <button class="fc-btn" onclick="ansFC(${i},'new')">🤯 New to Me!</button>
+      </div>
+      <div class="fc-r" id="fcr${i}">💡 ${f.note}</div>
+    </div>`).join("");
+}
+function ansFC(i,type){
+  document.getElementById("fc"+i).classList.add("answered");
+  document.getElementById("fc"+i).querySelectorAll("button").forEach(b=>b.disabled=true);
+}
+
+function buildComp(){
+  document.getElementById("comp-area").innerHTML=COMP_QS.map((q,i)=>`
+    <div style="background:var(--panel2);border-radius:10px;padding:10px 14px;margin-bottom:8px;cursor:pointer" onclick="toggleComp(${i})">
+      <div style="font-weight:700;font-size:14px">❓ ${q.q}</div>
+      <div id="ca${i}" style="display:none;margin-top:6px;font-size:14px;color:var(--good);line-height:1.5">✅ ${q.a}</div>
+    </div>`).join("");
+}
+function toggleComp(i){document.getElementById("ca"+i).style.display=document.getElementById("ca"+i).style.display==="none"?"block":"none";}
+
+function buildVocab(){
+  const pairs=[...VOCAB_PAIRS];
+  const words=pairs.map(p=>({type:"word",text:p.word,pair:p.word}));
+  const defs=pairs.map(p=>({type:"def",text:p.def,pair:p.word}));
+  const all=[];pairs.forEach((_,i)=>{all.push(words[i]);all.push(defs[i]);});
+  for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]];}
+  document.getElementById("vocab-grid").innerHTML=all.map((item,i)=>`
+    <div class="mcell" data-type="${item.type}" data-pair="${item.pair}" data-idx="${i}" onclick="vocabClick(this)">${item.text}</div>`).join("");
+}
+function vocabClick(el){
+  if(el.classList.contains("matched")||el.classList.contains("sel")) return;
+  if(vocabSel){
+    const a=vocabSel,b=el;
+    if(a.dataset.pair===b.dataset.pair&&a.dataset.type!==b.dataset.type){
+      a.classList.remove("sel");a.classList.add("matched");b.classList.add("matched");
+      vocabMatched++;
+      document.getElementById("vocab-score").textContent="Matched: "+vocabMatched+" / "+VOCAB_PAIRS.length;
+      if(vocabMatched===VOCAB_PAIRS.length) document.getElementById("vocab-result").style.display="block";
+    } else {a.classList.remove("sel");el.classList.add("sel");vocabSel=el;return;}
+    vocabSel=null;
+  } else {el.classList.add("sel");vocabSel=el;}
+}
+
+function buildCC(){
+  document.getElementById("cc-area").innerHTML=CC_STMTS.map((s,i)=>`
+    <div class="cc-stmt" id="cc${i}">
+      <div class="cc-txt">${i+1}. ${s.txt}</div>
+      <div class="cc-btns">
+        ${CC_LABELS.map((l,j)=>`<button class="cc-btn" id="ccb${i}_${j}" onclick="ansCC(${i},${j})">${l}</button>`).join("")}
+      </div>
+    </div>`).join("");
+}
+function ansCC(i,idx){
+  const stmt=CC_STMTS[i];
+  for(let j=0;j<3;j++){
+    const b=document.getElementById("ccb"+i+"_"+j);
+    b.disabled=true;
+    if(j===stmt.ans)b.classList.add("cor");else if(j===idx)b.classList.add("wrg");
+  }
+  ccAnswered++;
+  document.getElementById("cc-score").textContent="Answered: "+ccAnswered+" / "+CC_STMTS.length;
+  if(ccAnswered===CC_STMTS.length) document.getElementById("cc-result").style.display="block";
+}
+
+function initWriting(){
+  const ta=document.getElementById("writing");
+  ta.value=localStorage.getItem(WKEY)||"";
+  updateWCount();
+  let timer=null;
+  ta.addEventListener("input",()=>{updateWCount();clearTimeout(timer);timer=setTimeout(()=>{try{localStorage.setItem(WKEY,ta.value);}catch(e){}},300);});
+}
+function updateWCount(){const v=document.getElementById("writing").value;document.getElementById("wcount").textContent=v.length+" character"+(v.length!==1?"s":"");}
+
+function logMistake(correct,q,qt){
+  try{
+    const m=JSON.parse(localStorage.getItem(MKEY)||"{}");
+    const id=FILE+"|"+q.substring(0,40);
+    if(correct){delete m[id];}else{m[id]={subject:SUBJECT,lesson:LESSON,q,qt,file:FILE,ts:Date.now()};}
+    localStorage.setItem(MKEY,JSON.stringify(m));
+  }catch(e){}
+}
+function buildQuiz(){
+  document.getElementById("quiz-area").innerHTML=QUIZ.map((q,i)=>`
+    <div class="qcard" id="qcard${i}">
+      <div class="qtxt">${i+1}. ${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`<button id="qo${i}_${j}" onclick="ansQ(${i},${j})">${o}</button>`).join("")}</div>
+    </div>`).join("");
+}
+function ansQ(i,idx){
+  if(qAns[i]!==undefined) return;
+  qAns[i]=idx;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns));}catch(e){}
+  const q=QUIZ[i];
+  for(let j=0;j<q.opts.length;j++){
+    const b=document.getElementById("qo"+i+"_"+j);
+    b.disabled=true;if(j===q.a)b.classList.add("cor");else if(j===idx)b.classList.add("wrg");
+  }
+  logMistake(idx===q.a,q.q,LESSON);
+  if(Object.keys(qAns).length===QUIZ.length&&!qDone){
+    qDone=true;
+    const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[+k].a).length;
+    try{localStorage.removeItem(QAKEY);}catch(e){}
+    try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+    const b=document.getElementById("done-banner");b.style.display="block";
+    document.getElementById("done-text").textContent="🎉 Quiz Complete! "+right+"/"+QUIZ.length+" correct!";
+    document.getElementById("done-sub").textContent=right===QUIZ.length?"Perfect score! Reading genius!":right>=6?"Great work!":"Review the passage and try again!";
+    b.scrollIntoView({behavior:"smooth"});
+  }
+}
+function restoreQuiz(){
+  try{
+    const sv=JSON.parse(localStorage.getItem(QAKEY)||"null");
+    if(!sv||!Object.keys(sv).length) return;
+    Object.keys(sv).forEach(k=>{
+      const i=+k,idx=sv[k],q=QUIZ[i];if(!q) return;
+      qAns[i]=idx;
+      for(let j=0;j<q.opts.length;j++){const b=document.getElementById("qo"+i+"_"+j);if(b){b.disabled=true;if(j===q.a)b.classList.add("cor");else if(j===idx)b.classList.add("wrg");}}
+    });
+    if(Object.keys(qAns).length===QUIZ.length&&!qDone){
+      qDone=true;
+      const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[+k].a).length;
+      try{localStorage.removeItem(QAKEY);}catch(e){}
+      try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+      const b=document.getElementById("done-banner");b.style.display="block";
+      document.getElementById("done-text").textContent="🎉 Quiz Complete! "+right+"/"+QUIZ.length+" correct!";
+    }
+  }catch(e){}
+}
+function safetySave(){
+  try{localStorage.setItem(WKEY,document.getElementById("writing").value||localStorage.getItem(WKEY)||"");}catch(e){}
+  try{if(Object.keys(qAns).length)localStorage.setItem(QAKEY,JSON.stringify(qAns));}catch(e){}
+}
+["visibilitychange","pagehide","beforeunload","blur"].forEach(ev=>(ev==="visibilitychange"?document:window).addEventListener(ev,safetySave));
+
+buildWarmup(); buildComp(); buildVocab(); buildCC(); initWriting(); buildQuiz(); restoreQuiz(); goPhase(0);
+</script>
+</body>
+</html>

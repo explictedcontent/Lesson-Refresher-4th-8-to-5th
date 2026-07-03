@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Coding Lesson 1 — Intro to Programming 💻</title>
+<style>
+:root{--bg:#14151d;--panel:#1e2130;--panel2:#252a3a;--ink:#f4f5fb;--muted:#a7adc4;--accent:#ff7a59;--accent2:#5bd1c4;--good:#7bd88f;--warn:#ffd166;--bad:#ff6b81;--line:#2e3347;--code:#0d1117;--codeink:#e6edf3;--keyword:#ff7b72;--string:#a5d6ff;--num:#f2cc60;--comment:#8b949e;--func:#d2a8ff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%}
+body{padding:16px;max-width:780px;margin:0 auto}
+h1{font-size:22px;font-weight:800;margin-bottom:4px}
+h2{font-size:17px;font-weight:700;margin-bottom:10px;color:var(--accent2)}
+h3{font-size:15px;font-weight:700;margin-bottom:8px}
+p{line-height:1.6;font-size:15px;margin-bottom:10px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:700;font-size:15px;padding:12px 20px;min-height:44px;transition:transform .1s}
+button:active{transform:scale(.97)}
+input,textarea{font-family:inherit;font-size:15px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 14px;width:100%}
+textarea{resize:vertical}
+
+#phasebar{display:flex;gap:4px;margin-bottom:18px;padding:12px 0 4px}
+.pb{flex:1;height:7px;border-radius:4px;background:var(--panel2);transition:background .3s}
+.pb.done{background:var(--good)}.pb.active{background:var(--accent)}
+#phaselabel{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.phase{display:none}.phase.on{display:block}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card h3{color:var(--accent2)}
+.nav{display:flex;gap:10px;margin-top:20px}
+.nav button{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.nav button.primary{background:linear-gradient(135deg,var(--accent),#ff5e93);color:#fff;border:none}
+
+/* code blocks */
+.code-block{background:var(--code);border:1px solid #30363d;border-radius:12px;padding:14px 16px;font-family:"Courier New",Courier,monospace;font-size:14px;line-height:1.65;margin:10px 0;overflow-x:auto;color:var(--codeink)}
+.kw{color:var(--keyword)}.str{color:var(--string)}.num{color:var(--num)}.cm{color:var(--comment)}.fn{color:var(--func)}
+
+/* mini editor */
+.editor-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0}
+.editor-header{background:var(--panel2);padding:8px 14px;font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:8px}
+.editor-dot{width:10px;height:10px;border-radius:50%}
+.editor-textarea{background:var(--code);color:var(--codeink);font-family:"Courier New",Courier,monospace;font-size:14px;padding:14px;width:100%;min-height:120px;border:none;outline:none;resize:vertical;line-height:1.6}
+.run-btn{background:var(--good);color:#14151d;border:none;border-radius:0;width:100%;padding:10px;font-weight:700;font-size:14px;cursor:pointer;min-height:44px}
+.output-box{background:#0d0f14;border-top:1px solid var(--line);padding:12px 16px;font-family:"Courier New",Courier,monospace;font-size:14px;min-height:48px;color:var(--good);white-space:pre-wrap;word-break:break-word}
+.output-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;padding:6px 16px 0;background:#0d0f14;border-top:1px solid var(--line)}
+
+/* concept cards */
+.concept{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent2);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.concept .clabel{font-size:11px;color:var(--accent2);font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.concept .ctitle{font-size:16px;font-weight:800;margin-bottom:8px}
+
+/* challenges */
+.challenge{background:var(--panel);border:1px solid var(--warn);border-radius:14px;padding:16px;margin-bottom:14px}
+.challenge .ch-label{font-size:11px;color:var(--warn);font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
+.challenge .ch-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.challenge .ch-hint{font-size:13px;color:var(--muted);margin-bottom:10px}
+
+/* fill-in blanks quiz */
+.blank-q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.blank-q .bq-prompt{font-family:"Courier New",Courier,monospace;font-size:14px;background:var(--code);padding:10px 12px;border-radius:8px;margin-bottom:10px;line-height:1.6;color:var(--codeink)}
+.blank-q input{font-family:"Courier New",Courier,monospace;font-size:14px;background:var(--panel2);max-width:220px;margin-right:8px}
+.blank-q button{background:var(--accent2);color:#14151d;padding:9px 14px;font-size:13px;display:inline-block;width:auto;min-height:38px}
+.blank-q .bq-fb{margin-top:8px;font-size:13px;font-weight:700;min-height:18px}
+
+/* quiz */
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.qcard .qtxt{font-size:16px;font-weight:700;margin-bottom:14px;line-height:1.45}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);text-align:left;padding:12px 16px;font-family:inherit}
+.opts button.cor{background:#1a3325;border-color:var(--good);color:var(--good)}
+.opts button.wrg{background:#2d1a1e;border-color:var(--bad);color:var(--bad)}
+.opts button:disabled{cursor:default}
+
+#done-banner{display:none;background:linear-gradient(135deg,#1a3325,#1e2130);border:2px solid var(--good);border-radius:16px;padding:20px;text-align:center;margin:14px 0}
+#done-banner h2{color:var(--good);font-size:22px}
+
+/* output terminal color coding */
+.out-error{color:var(--bad)}
+.out-ok{color:var(--good)}
+</style>
+</head>
+<body>
+<h1>💻 Coding Lesson 1</h1>
+<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Intro to Programming · Concepts + Live Practice · ~60 min</p>
+
+<div id="phasebar">
+  <div class="pb" id="pb0"></div><div class="pb" id="pb1"></div>
+  <div class="pb" id="pb2"></div><div class="pb" id="pb3"></div>
+  <div class="pb" id="pb4"></div><div class="pb" id="pb5"></div>
+</div>
+<div id="phaselabel"></div>
+
+<!-- PHASE 0: What is coding? -->
+<div class="phase" id="ph0">
+  <h2>Part 1 — What Is Coding? (8 min)</h2>
+  <div class="card">
+    <h3>Computers only do exactly what you tell them</h3>
+    <p>Coding (also called programming) means writing instructions for a computer to follow. Computers are incredibly fast — but also incredibly literal. They do <em>exactly</em> what you say, nothing more.</p>
+    <p>Imagine giving directions to a robot friend who has never been to your house:</p>
+    <ul style="margin:8px 0 10px 20px;line-height:1.8;font-size:15px">
+      <li>Walk forward 10 steps</li>
+      <li>Turn right</li>
+      <li>Open the door</li>
+      <li>Say "Hello!"</li>
+    </ul>
+    <p>Those are instructions — just like code! Code is written in special languages computers understand, like <b style="color:var(--accent2)">JavaScript</b>, Python, Scratch, or Java.</p>
+    <p>In this lesson, you'll learn the most important building blocks of coding. By the end, you'll write real code that actually runs right here in your browser!</p>
+  </div>
+
+  <div class="card" style="border-color:var(--accent2)">
+    <h3>3 things every program needs</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px">
+      <div style="background:var(--panel2);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:28px">📥</div>
+        <div style="font-weight:700;margin:6px 0 4px">Input</div>
+        <div style="font-size:13px;color:var(--muted)">Data that comes IN (typing, clicking, numbers)</div>
+      </div>
+      <div style="background:var(--panel2);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:28px">⚙️</div>
+        <div style="font-weight:700;margin:6px 0 4px">Process</div>
+        <div style="font-size:13px;color:var(--muted)">The instructions that run on the input</div>
+      </div>
+      <div style="background:var(--panel2);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:28px">📤</div>
+        <div style="font-weight:700;margin:6px 0 4px">Output</div>
+        <div style="font-size:13px;color:var(--muted)">The result that comes OUT (a result on screen)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav"><button class="primary" onclick="goPhase(1)">Next: Variables →</button></div>
+</div>
+
+<!-- PHASE 1: Variables -->
+<div class="phase" id="ph1">
+  <h2>Part 2 — Variables: Boxes That Store Things (12 min)</h2>
+
+  <div class="concept">
+    <div class="clabel">Concept</div>
+    <div class="ctitle">A variable is like a labeled box 📦</div>
+    <p>A variable stores a piece of information — a number, a word, anything. You give it a name so you can use it later. In JavaScript we write:</p>
+    <div class="code-block"><span class="kw">let</span> age = <span class="num">10</span>;
+<span class="kw">let</span> name = <span class="str">"Alex"</span>;
+<span class="kw">let</span> score = <span class="num">0</span>;</div>
+    <p style="font-size:14px;color:var(--muted)"><b>let</b> = "create a box" &nbsp;·&nbsp; = means "put this inside" &nbsp;·&nbsp; ; ends the instruction</p>
+    <p style="font-size:14px;color:var(--muted)">Words (called <b style="color:var(--string)">strings</b>) go in quotes. Numbers don't need quotes.</p>
+  </div>
+
+  <div class="concept">
+    <div class="clabel">Concept</div>
+    <div class="ctitle">Changing what's in the box</div>
+    <div class="code-block"><span class="kw">let</span> score = <span class="num">0</span>;
+score = score + <span class="num">10</span>; <span class="cm">// score is now 10</span>
+score = score + <span class="num">5</span>;  <span class="cm">// score is now 15</span></div>
+    <p style="font-size:14px;color:var(--muted)">Lines starting with <span style="color:var(--comment)">//</span> are <b>comments</b> — notes for humans. The computer ignores them.</p>
+  </div>
+
+  <h3 style="margin-bottom:10px;margin-top:6px">🖥️ Try it! Live Code Editor</h3>
+  <p style="font-size:14px;color:var(--muted);margin-bottom:8px">This editor runs real JavaScript. Tap <b>▶ Run Code</b> to see the output. Try changing the values!</p>
+
+  <div class="editor-wrap">
+    <div class="editor-header">
+      <div class="editor-dot" style="background:#ff5f57"></div>
+      <div class="editor-dot" style="background:#febc2e"></div>
+      <div class="editor-dot" style="background:#28c840"></div>
+      <span style="margin-left:4px">variables.js</span>
+    </div>
+    <textarea class="editor-textarea" id="ed1" spellcheck="false">// Create some variables
+let myName = "Alex";
+let myAge = 10;
+let myScore = 100;
+
+// Print them out
+console.log("Name: " + myName);
+console.log("Age: " + myAge);
+console.log("Score: " + myScore);
+
+// Change a variable
+myScore = myScore + 50;
+console.log("New score: " + myScore);</textarea>
+    <button class="run-btn" onclick="runCode('ed1','out1')">▶ Run Code</button>
+    <div class="output-label">📤 Output:</div>
+    <div class="output-box" id="out1">← Tap Run Code to see what happens!</div>
+  </div>
+
+  <div class="challenge">
+    <div class="ch-label">🏆 Challenge 1</div>
+    <div class="ch-title">Make your own variables!</div>
+    <div class="ch-hint">In the editor above, change "Alex" to YOUR name, change 10 to YOUR age, and change 100 to your favorite number. Then run it!</div>
+  </div>
+
+  <div class="nav">
+    <button onclick="goPhase(0)">← Back</button>
+    <button class="primary" onclick="goPhase(2)">Next: If Statements →</button>
+  </div>
+</div>
+
+<!-- PHASE 2: If Statements -->
+<div class="phase" id="ph2">
+  <h2>Part 3 — If Statements: Making Decisions (12 min)</h2>
+
+  <div class="concept">
+    <div class="clabel">Concept</div>
+    <div class="ctitle">if / else = the computer makes a choice</div>
+    <p>An <b style="color:var(--keyword)">if</b> statement says: "IF this is true, do this. Otherwise (<b style="color:var(--keyword)">else</b>), do that."</p>
+    <div class="code-block"><span class="kw">let</span> score = <span class="num">85</span>;
+
+<span class="kw">if</span> (score >= <span class="num">90</span>) {
+  console.log(<span class="str">"A! Amazing job!"</span>);
+} <span class="kw">else if</span> (score >= <span class="num">70</span>) {
+  console.log(<span class="str">"B! Good work!"</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="str">"Keep practicing!"</span>);
+}</div>
+    <p style="font-size:14px;color:var(--muted);margin-top:6px">The computer checks the conditions top to bottom. First true one wins!</p>
+    <p style="font-size:14px;color:var(--muted)"><b>Comparison operators:</b> &gt;= (greater or equal) &nbsp;·&nbsp; &lt;= (less or equal) &nbsp;·&nbsp; === (exactly equal) &nbsp;·&nbsp; !== (not equal)</p>
+  </div>
+
+  <h3 style="margin-bottom:10px;margin-top:6px">🖥️ Try it!</h3>
+  <div class="editor-wrap">
+    <div class="editor-header">
+      <div class="editor-dot" style="background:#ff5f57"></div>
+      <div class="editor-dot" style="background:#febc2e"></div>
+      <div class="editor-dot" style="background:#28c840"></div>
+      <span style="margin-left:4px">decisions.js</span>
+    </div>
+    <textarea class="editor-textarea" id="ed2" spellcheck="false">let age = 10;
+
+if (age >= 13) {
+  console.log("You are a teenager!");
+} else if (age >= 10) {
+  console.log("You are a preteen — almost a teenager!");
+} else {
+  console.log("You are still in single digits!");
+}
+
+// Try changing the age to different numbers
+// What happens if age is 8? 13? 18?</textarea>
+    <button class="run-btn" onclick="runCode('ed2','out2')">▶ Run Code</button>
+    <div class="output-label">📤 Output:</div>
+    <div class="output-box" id="out2">← Tap Run Code!</div>
+  </div>
+
+  <div class="challenge">
+    <div class="ch-label">🏆 Challenge 2</div>
+    <div class="ch-title">Weather decider</div>
+    <div class="ch-hint">In the editor, change the code so it checks a temperature variable instead of age. If temperature is above 85, print "Hot day!". If it's between 60 and 85, print "Nice day!". Below 60, print "Bundle up!"</div>
+  </div>
+
+  <div class="nav">
+    <button onclick="goPhase(1)">← Back</button>
+    <button class="primary" onclick="goPhase(3)">Next: Loops →</button>
+  </div>
+</div>
+
+<!-- PHASE 3: Loops -->
+<div class="phase" id="ph3">
+  <h2>Part 4 — Loops: Doing Things Over and Over (10 min)</h2>
+
+  <div class="concept">
+    <div class="clabel">Concept</div>
+    <div class="ctitle">A loop repeats code so you don't have to</div>
+    <p>What if you wanted to say "Hello!" 100 times? You don't want to write the same line 100 times! A <b style="color:var(--keyword)">for</b> loop does it for you:</p>
+    <div class="code-block"><span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">1</span>; i <= <span class="num">5</span>; i = i + <span class="num">1</span>) {
+  console.log(<span class="str">"Hello number "</span> + i);
+}
+<span class="cm">// Prints: Hello number 1, 2, 3, 4, 5</span></div>
+    <p style="font-size:14px;color:var(--muted);margin-top:6px">Breaking it down:</p>
+    <ul style="margin:6px 0 0 16px;font-size:14px;line-height:1.8;color:var(--muted)">
+      <li><b style="color:var(--ink)">let i = 1</b> — start counting at 1</li>
+      <li><b style="color:var(--ink)">i &lt;= 5</b> — keep going while i is 5 or less</li>
+      <li><b style="color:var(--ink)">i = i + 1</b> — after each loop, add 1 to i</li>
+    </ul>
+  </div>
+
+  <h3 style="margin-bottom:10px;margin-top:6px">🖥️ Try it!</h3>
+  <div class="editor-wrap">
+    <div class="editor-header">
+      <div class="editor-dot" style="background:#ff5f57"></div>
+      <div class="editor-dot" style="background:#febc2e"></div>
+      <div class="editor-dot" style="background:#28c840"></div>
+      <span style="margin-left:4px">loops.js</span>
+    </div>
+    <textarea class="editor-textarea" id="ed3" spellcheck="false">// Count from 1 to 10
+for (let i = 1; i <= 10; i = i + 1) {
+  console.log("Count: " + i);
+}
+
+// Add up numbers 1 through 5
+let total = 0;
+for (let i = 1; i <= 5; i = i + 1) {
+  total = total + i;
+}
+console.log("1+2+3+4+5 = " + total);</textarea>
+    <button class="run-btn" onclick="runCode('ed3','out3')">▶ Run Code</button>
+    <div class="output-label">📤 Output:</div>
+    <div class="output-box" id="out3">← Tap Run Code!</div>
+  </div>
+
+  <div class="challenge">
+    <div class="ch-label">🏆 Challenge 3</div>
+    <div class="ch-title">Multiplication table</div>
+    <div class="ch-hint">Write a loop that prints the 5 times table: "5 × 1 = 5", "5 × 2 = 10", all the way to "5 × 10 = 50". Hint: use i * 5 inside the loop.</div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-header">
+      <div class="editor-dot" style="background:#ff5f57"></div>
+      <div class="editor-dot" style="background:#febc2e"></div>
+      <div class="editor-dot" style="background:#28c840"></div>
+      <span style="margin-left:4px">your-loop.js</span>
+    </div>
+    <textarea class="editor-textarea" id="ed3b" spellcheck="false">// Write a loop that prints the 5 times table
+// 5 × 1 = 5
+// 5 × 2 = 10
+// ... up to 5 × 10 = 50
+
+for (let i = 1; i <= 10; i = i + 1) {
+  // YOUR CODE HERE: use console.log to print each line
+
+}</textarea>
+    <button class="run-btn" onclick="runCode('ed3b','out3b')">▶ Run Code</button>
+    <div class="output-label">📤 Output:</div>
+    <div class="output-box" id="out3b">← Write your code and tap Run!</div>
+  </div>
+
+  <div class="nav">
+    <button onclick="goPhase(2)">← Back</button>
+    <button class="primary" onclick="goPhase(4)">Next: Big Challenge →</button>
+  </div>
+</div>
+
+<!-- PHASE 4: Big Challenge -->
+<div class="phase" id="ph4">
+  <h2>Part 5 — Put It All Together! (10 min)</h2>
+  <p>You've learned 3 big ideas: <b style="color:var(--accent2)">variables</b>, <b style="color:var(--accent2)">if statements</b>, and <b style="color:var(--accent2)">loops</b>. Now use them all at once!</p>
+
+  <div class="challenge">
+    <div class="ch-label">🏆 Big Challenge: Grade Calculator</div>
+    <div class="ch-title">Use a loop + if statements to grade a list of scores</div>
+    <div class="ch-hint">The starter code has 5 scores in a list. Your job: loop through them, and for each one print whether it's an A (≥90), B (≥80), C (≥70), or "Needs work" (below 70).</div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-header">
+      <div class="editor-dot" style="background:#ff5f57"></div>
+      <div class="editor-dot" style="background:#febc2e"></div>
+      <div class="editor-dot" style="background:#28c840"></div>
+      <span style="margin-left:4px">grade-calculator.js</span>
+    </div>
+    <textarea class="editor-textarea" id="ed4" spellcheck="false" style="min-height:200px">// A list (called an array) of 5 quiz scores
+let scores = [95, 82, 67, 91, 74];
+
+// Loop through each score
+for (let i = 0; i < scores.length; i = i + 1) {
+  let score = scores[i];
+
+  // YOUR CODE: use if/else if/else to print the grade
+  // A = 90 and above
+  // B = 80 to 89
+  // C = 70 to 79
+  // Needs work = below 70
+
+  if (score >= 90) {
+    console.log("Score " + score + ": A!");
+  }
+  // ADD THE REST HERE...
+
+}</textarea>
+    <button class="run-btn" onclick="runCode('ed4','out4')">▶ Run Code</button>
+    <div class="output-label">📤 Output:</div>
+    <div class="output-box" id="out4">← Complete the code and tap Run!</div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>🌟 Bonus: Free Coding Sandbox</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:10px">Type any JavaScript you want below and run it!</p>
+    <div class="editor-wrap">
+      <div class="editor-header">
+        <div class="editor-dot" style="background:#ff5f57"></div>
+        <div class="editor-dot" style="background:#febc2e"></div>
+        <div class="editor-dot" style="background:#28c840"></div>
+        <span style="margin-left:4px">sandbox.js</span>
+      </div>
+      <textarea class="editor-textarea" id="ed_sandbox" spellcheck="false">// Try anything you want here!
+let myFavoriteAnimal = "giant panda";
+console.log("I love " + myFavoriteAnimal + "s!");
+
+// Try making a loop that counts down from 10 to 1
+for (let i = 10; i >= 1; i = i - 1) {
+  console.log(i + "...");
+}
+console.log("Blast off! 🚀");</textarea>
+      <button class="run-btn" onclick="runCode('ed_sandbox','out_sandbox')">▶ Run Code</button>
+      <div class="output-label">📤 Output:</div>
+      <div class="output-box" id="out_sandbox">← Your sandbox is ready!</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button onclick="goPhase(3)">← Back</button>
+    <button class="primary" onclick="goPhase(5)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- PHASE 5: Quiz -->
+<div class="phase" id="ph5">
+  <h2>Part 6 — Quiz (5 min)</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:14px">10 coding questions · saves automatically</p>
+  <div id="done-banner">
+    <h2 id="done-text">🎉 Quiz Complete!</h2>
+    <p id="done-sub" style="color:var(--muted);margin-top:6px"></p>
+  </div>
+  <div id="quiz-area"></div>
+  <div class="nav"><button onclick="goPhase(4)">← Back</button></div>
+</div>
+
+<script>
+const QKEY="coding-l1-quiz";
+const QAKEY="coding-l1-qans";
+const MKEY="refresher-mistakes";
+const SUBJECT="Coding";
+const LESSON="Lesson 1: Intro to Programming";
+const FILE="coding-lesson-01-intro.html";
+const PHASES=["What is Coding?","Variables","If Statements","Loops","Big Challenge","Quiz"];
+
+const QUIZ=[
+  {q:"What is a variable in coding?",opts:["A type of computer","A box that stores information","A command that repeats","A mistake in code"],a:1},
+  {q:"In JavaScript, how do you create a variable named 'score' with a value of 10?",opts:["score = 10","let score = 10;","variable score 10;","make score = 10"],a:1},
+  {q:"What does this code print? let x = 5; console.log(x + 3);",opts:["x + 3","5","8","53"],a:2},
+  {q:"What is a 'string' in programming?",opts:["A piece of rope","A number with decimals","Text data written in quotes","A type of loop"],a:2},
+  {q:"What does // mean in JavaScript?",opts:["Divide by two","Start of a comment (note for humans)","End of the program","A loop"],a:1},
+  {q:"When does the code inside an 'if' block run?",opts:["Always","Never","Only when the condition is true","Only when it's false"],a:2},
+  {q:"Which symbol checks if two things are exactly equal?",opts:["=","==","===","=>"],a:2},
+  {q:"What is a 'for loop' used for?",opts:["Storing data","Repeating code a set number of times","Making decisions","Creating variables"],a:1},
+  {q:"What does this loop print? for (let i = 1; i <= 3; i = i + 1) { console.log(i); }",opts:["1 2 3","0 1 2","1 2 3 4","0 1 2 3"],a:0},
+  {q:"What are the 3 main parts of any program?",opts:["HTML, CSS, JavaScript","Start, middle, end","Input, process, output","Variables, loops, functions"],a:2},
+];
+
+let curPhase=0;
+let qAns={};
+let qDone=false;
+const donePhases=new Set();
+
+function goPhase(n){
+  donePhases.add(curPhase);
+  document.getElementById("ph"+curPhase).classList.remove("on");
+  curPhase=n;
+  document.getElementById("ph"+n).classList.add("on");
+  updateBar();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function updateBar(){
+  PHASES.forEach((_,i)=>{
+    const el=document.getElementById("pb"+i);
+    if(i===curPhase){el.classList.add("active");el.classList.remove("done");}
+    else if(donePhases.has(i)){el.classList.remove("active");el.classList.add("done");}
+    else{el.classList.remove("active","done");}
+  });
+  document.getElementById("phaselabel").textContent="Part "+(curPhase+1)+" of "+PHASES.length+" — "+PHASES[curPhase];
+}
+
+// ── live code runner ──
+function runCode(edId, outId){
+  const code=document.getElementById(edId).value;
+  const out=document.getElementById(outId);
+  const lines=[];
+  const origLog=console.log;
+  console.log=(...args)=>{ lines.push(args.map(a=>String(a)).join(" ")); };
+  try{
+    // eslint-disable-next-line no-new-func
+    new Function(code)();
+    out.innerHTML=lines.length?lines.map(l=>`<span class="out-ok">${escHtml(l)}</span>`).join("\n"):'<span style="color:var(--muted)">(No output — did you add a console.log?)</span>';
+  }catch(e){
+    out.innerHTML=`<span class="out-error">❌ Error: ${escHtml(e.message)}</span>\n${lines.map(l=>`<span class="out-ok">${escHtml(l)}</span>`).join("\n")}`;
+  }
+  console.log=origLog;
+}
+function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+// ── quiz ──
+function logMistake(correct,q,qt){
+  try{
+    const m=JSON.parse(localStorage.getItem(MKEY)||"{}");
+    const id=FILE+"|"+q.substring(0,40);
+    if(correct){delete m[id];}else{m[id]={subject:SUBJECT,lesson:LESSON,q,qt,file:FILE,ts:Date.now()};}
+    localStorage.setItem(MKEY,JSON.stringify(m));
+  }catch(e){}
+}
+function buildQuiz(){
+  document.getElementById("quiz-area").innerHTML=QUIZ.map((q,i)=>`
+    <div class="qcard" id="qcard${i}">
+      <div class="qtxt">${i+1}. ${q.q}</div>
+      <div class="opts">${q.opts.map((o,j)=>`<button id="qo${i}_${j}" onclick="ansQ(${i},${j})">${escHtml(o)}</button>`).join("")}</div>
+    </div>`).join("");
+}
+function ansQ(i,idx){
+  if(qAns[i]!==undefined) return;
+  qAns[i]=idx;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns));}catch(e){}
+  const q=QUIZ[i];
+  for(let j=0;j<q.opts.length;j++){
+    const b=document.getElementById("qo"+i+"_"+j);
+    b.disabled=true;if(j===q.a)b.classList.add("cor");else if(j===idx)b.classList.add("wrg");
+  }
+  logMistake(idx===q.a,q.q,LESSON);
+  if(Object.keys(qAns).length===QUIZ.length&&!qDone){
+    qDone=true;
+    const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[+k].a).length;
+    try{localStorage.removeItem(QAKEY);}catch(e){}
+    try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+    const b=document.getElementById("done-banner");b.style.display="block";
+    document.getElementById("done-text").textContent="🎉 Quiz Complete! "+right+"/"+QUIZ.length+" correct!";
+    document.getElementById("done-sub").textContent=right===QUIZ.length?"Perfect! You're a coding star! ⭐":right>=8?"Great job! Almost perfect!":right>=6?"Good work! Keep coding!":"Review the lesson and try again!";
+    b.scrollIntoView({behavior:"smooth"});
+  }
+}
+function restoreQuiz(){
+  try{
+    const sv=JSON.parse(localStorage.getItem(QAKEY)||"null");
+    if(!sv||!Object.keys(sv).length) return;
+    Object.keys(sv).forEach(k=>{
+      const i=+k,idx=sv[k],q=QUIZ[i];if(!q) return;
+      qAns[i]=idx;
+      for(let j=0;j<q.opts.length;j++){const b=document.getElementById("qo"+i+"_"+j);if(b){b.disabled=true;if(j===q.a)b.classList.add("cor");else if(j===idx)b.classList.add("wrg");}}
+    });
+    if(Object.keys(qAns).length===QUIZ.length&&!qDone){
+      qDone=true;
+      const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[+k].a).length;
+      try{localStorage.removeItem(QAKEY);}catch(e){}
+      try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
+      const b=document.getElementById("done-banner");b.style.display="block";
+      document.getElementById("done-text").textContent="🎉 Quiz Complete! "+right+"/"+QUIZ.length+" correct!";
+    }
+  }catch(e){}
+}
+function safetySave(){
+  try{if(Object.keys(qAns).length)localStorage.setItem(QAKEY,JSON.stringify(qAns));}catch(e){}
+}
+["visibilitychange","pagehide","beforeunload","blur"].forEach(ev=>(ev==="visibilitychange"?document:window).addEventListener(ev,safetySave));
+
+buildQuiz(); restoreQuiz(); goPhase(0);
+</script>
+</body>
+</html>
