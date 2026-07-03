@@ -1,431 +1,1197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Day 4 Social Studies — Giant Panda 🐼</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Studies Day 4 – Giant Panda 🐼</title>
 <style>
-:root{--bg:#14151d;--panel:#1e2130;--panel2:#252a3a;--ink:#f4f5fb;--muted:#a7adc4;--accent:#ff7a59;--accent2:#5bd1c4;--good:#7bd88f;--warn:#ffd166;--bad:#ff6b81;--line:#2e3347}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%}
-body{padding:16px;max-width:780px;margin:0 auto}
-h1{font-size:22px;font-weight:800;margin-bottom:4px}
-h2{font-size:17px;font-weight:700;margin-bottom:10px;color:var(--accent2)}
-h3{font-size:15px;font-weight:700;margin-bottom:8px}
-p{line-height:1.6;font-size:15px;margin-bottom:10px;color:var(--ink)}
-button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:700;font-size:15px;padding:12px 20px;min-height:44px;transition:transform .1s,opacity .1s}
-button:active{transform:scale(.97)}
-input,textarea{font-family:inherit;font-size:15px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 14px;width:100%}
-textarea{resize:vertical;min-height:100px}
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a;
+  --ink:#f4f5fb; --muted:#a7adc4; --accent:#ff7a59;
+  --accent2:#5bd1c4; --good:#7bd88f; --warn:#ffd166;
+  --bad:#ff6b81; --line:#2e3347;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;
+  font-size:16px;line-height:1.6;min-height:100vh}
+.wrap{max-width:780px;margin:0 auto;padding:16px}
 
-/* progress bar */
-#phasebar{display:flex;gap:4px;margin-bottom:18px;padding:12px 0 4px}
-.pb{flex:1;height:7px;border-radius:4px;background:var(--panel2);transition:background .3s}
-.pb.done{background:var(--good)}
-.pb.active{background:var(--accent)}
+/* TIMER BAR */
+#timer-bar{position:sticky;top:0;z-index:100;background:var(--bg);
+  padding:8px 0 4px;border-bottom:1px solid var(--line)}
+.phases{display:flex;gap:3px}
+.ph-seg{flex:1;height:6px;border-radius:3px;background:var(--line);
+  transition:background .4s}
+.ph-seg.done{background:var(--good)}
+.ph-seg.active{background:var(--accent)}
+.timer-info{display:flex;justify-content:space-between;align-items:center;
+  margin-top:4px;font-size:12px;color:var(--muted)}
+.timer-info strong{color:var(--ink);font-size:13px}
 
-/* phase label */
-#phaselabel{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+/* HEADER */
+.lesson-header{text-align:center;padding:24px 0 16px}
+.lesson-header h1{font-size:clamp(1.4rem,4vw,2rem);font-weight:700;color:var(--accent)}
+.lesson-header p{color:var(--muted);margin-top:6px}
 
-/* phase sections */
-.phase{display:none}
-.phase.on{display:block}
+/* PANELS */
+.phase-panel{display:none;animation:fadeIn .3s ease}
+.phase-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:20px;margin-bottom:16px}
+.card h2{font-size:1.1rem;font-weight:700;color:var(--accent2);margin-bottom:12px}
+.card h3{font-size:1rem;font-weight:600;color:var(--warn);margin-bottom:8px}
 
-/* cards */
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
-.card h3{color:var(--accent2)}
+/* NAV BUTTONS */
+.nav-row{display:flex;gap:10px;justify-content:space-between;margin-top:20px}
+.btn{min-height:44px;padding:10px 20px;border:none;border-radius:8px;
+  font-size:1rem;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;
+  display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default;pointer-events:none}
 
-/* nav buttons */
-.nav{display:flex;gap:10px;margin-top:20px}
-.nav button{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
-.nav button.primary{background:linear-gradient(135deg,var(--accent),#ff5e93);color:#fff;border:none}
+/* PHASE LABELS */
+.phase-label{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);border:1px solid var(--line);
+  border-radius:20px;padding:2px 10px;margin-bottom:8px}
 
-/* quiz */
-.qcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
-.qcard .qtxt{font-size:16px;font-weight:700;margin-bottom:14px;line-height:1.45}
-.opts{display:flex;flex-direction:column;gap:8px}
-.opts button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);text-align:left;padding:12px 16px}
-.opts button.cor{background:#1a3325;border-color:var(--good);color:var(--good)}
-.opts button.wrg{background:#2d1a1e;border-color:var(--bad);color:var(--bad)}
-.opts button:disabled{cursor:default}
+/* WARM-UP */
+.world-map-wrap{background:var(--panel2);border-radius:10px;overflow:hidden;
+  margin-bottom:16px;padding:4px}
+.world-map-wrap svg{width:100%;height:auto;display:block}
+.tf-list{display:flex;flex-direction:column;gap:10px}
+.tf-item{background:var(--panel2);border-radius:10px;padding:14px 16px;
+  border:1px solid var(--line)}
+.tf-q{font-weight:600;margin-bottom:10px}
+.tf-btns{display:flex;gap:8px}
+.tf-btn{flex:1;min-height:44px;border:1px solid var(--line);border-radius:8px;
+  background:var(--panel);color:var(--ink);font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:background .2s,border-color .2s}
+.tf-btn.correct{background:var(--good);border-color:var(--good);color:#0a1a0e}
+.tf-btn.incorrect{background:var(--bad);border-color:var(--bad);color:#fff}
+.tf-fact{margin-top:10px;font-size:.88rem;color:var(--accent2);display:none;
+  padding:8px 12px;background:var(--panel);border-radius:8px;
+  border-left:3px solid var(--accent2)}
 
-/* game */
-.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-.mcell{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:13px;cursor:pointer;min-height:54px;display:flex;align-items:center;text-align:center;justify-content:center;line-height:1.35;transition:border-color .15s,background .15s}
-.mcell.sel{border-color:var(--accent);background:#2a1f2e}
-.mcell.matched{background:#1a3325;border-color:var(--good);color:var(--good);cursor:default}
+/* READING */
+.reading-body{color:var(--ink);line-height:1.75;font-size:.97rem}
+.reading-body p{margin-bottom:14px}
+.reading-body strong{color:var(--accent)}
+.reading-body em{color:var(--accent2)}
+.vocab-pill{display:inline-block;background:var(--panel2);border:1px solid var(--accent2);
+  border-radius:4px;padding:1px 6px;font-size:.82rem;color:var(--accent2);
+  cursor:help;position:relative}
+.vocab-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);background:#0d0f18;color:var(--ink);font-size:.78rem;
+  padding:6px 10px;border-radius:6px;z-index:50;border:1px solid var(--line);
+  width:210px;line-height:1.4;white-space:normal;pointer-events:none}
+.vocab-pill:hover .vocab-tip,.vocab-pill:focus .vocab-tip{display:block}
 
-/* timeline */
-.tl-item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
-.tl-item .yr{font-size:18px;font-weight:800;color:var(--accent);min-width:48px}
-.tl-item .fact{font-size:14px;color:var(--muted);display:none;margin-top:6px;line-height:1.5}
-.tl-item.open .fact{display:block}
+/* MAP CHALLENGE */
+.match-instruction{font-size:.9rem;color:var(--muted);margin-bottom:10px}
+.match-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.match-col-label{font-size:.8rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.match-card{min-height:52px;background:var(--panel2);border:2px solid var(--line);
+  border-radius:8px;padding:10px 12px;cursor:pointer;font-size:.85rem;
+  transition:border-color .2s,background .2s;display:flex;align-items:center;
+  justify-content:center;text-align:center;line-height:1.3;word-break:break-word}
+.match-card:hover{border-color:var(--accent2)}
+.match-card.selected{border-color:var(--accent);background:rgba(255,122,89,.15)}
+.match-card.matched{border-color:var(--good);background:rgba(123,216,143,.12);
+  cursor:default;color:var(--good)}
+.match-card.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);
+  animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.match-score{font-size:.9rem;color:var(--muted);margin-top:10px}
+.match-score strong{color:var(--warn)}
+.match-banner{display:none;background:var(--panel2);border:2px solid var(--good);
+  border-radius:10px;padding:14px;text-align:center;margin-top:12px;
+  color:var(--good);font-weight:700;font-size:1rem}
 
-/* warmup */
-.wucard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
-.wu-q{font-size:16px;font-weight:700;margin-bottom:12px}
-.wu-btns{display:flex;gap:8px}
-.wu-btn{flex:1;background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-size:14px}
-.wu-reveal{margin-top:10px;background:var(--panel2);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--accent2);display:none}
+/* TIMELINE */
+.tl-instruction{font-size:.9rem;color:var(--muted);margin-bottom:12px;
+  padding:10px 14px;background:var(--panel2);border-radius:8px;
+  border-left:3px solid var(--warn)}
+.tl-tap-note{font-size:.82rem;color:var(--muted);margin-bottom:10px;font-style:italic}
+.timeline-list{display:flex;flex-direction:column;gap:8px;min-height:40px}
+.tl-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;
+  padding:12px 16px;cursor:grab;user-select:none;display:flex;align-items:flex-start;
+  gap:12px;transition:border-color .2s,background .2s,box-shadow .2s}
+.tl-item:active{cursor:grabbing}
+.tl-item.tap-selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,89,.25)}
+.tl-drag{font-size:1.2rem;color:var(--muted);flex-shrink:0;margin-top:2px}
+.tl-text{font-size:.9rem;line-height:1.4;font-weight:600}
+.tl-story{font-size:.82rem;color:var(--accent2);margin-top:6px;display:none;
+  padding-top:6px;border-top:1px solid var(--line);line-height:1.5}
+.tl-item.correct-pos{border-color:var(--good);background:rgba(123,216,143,.07)}
+.tl-item.correct-pos .tl-story{display:block}
+.tl-item.wrong-pos{border-color:var(--bad)}
+.tl-check-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.tl-result{display:none;padding:12px 16px;border-radius:10px;margin-top:12px;
+  font-weight:600;font-size:.95rem}
+.tl-result.success{border:2px solid var(--good);color:var(--good);background:rgba(123,216,143,.08)}
+.tl-result.fail{border:2px solid var(--bad);color:var(--bad);background:rgba(255,107,129,.08)}
 
-/* writing */
-.wcount{font-size:12px;color:var(--muted);margin-top:4px;text-align:right}
+/* WRITING */
+.writing-prompt{background:var(--panel2);border-left:4px solid var(--accent2);
+  border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:14px;
+  font-size:.97rem;line-height:1.6}
+textarea.writing-area{width:100%;min-height:200px;background:var(--panel2);
+  border:1px solid var(--line);border-radius:8px;color:var(--ink);
+  font-size:.95rem;line-height:1.6;padding:12px;resize:vertical;
+  font-family:inherit;transition:border-color .2s}
+textarea.writing-area:focus{outline:none;border-color:var(--accent2)}
+.char-count{font-size:.8rem;color:var(--muted);text-align:right;margin-top:4px}
+.save-status{font-size:.8rem;color:var(--good);margin-top:4px;min-height:1.2rem}
 
-/* done banner */
-#done-banner{display:none;background:linear-gradient(135deg,#1a3325,#1e2130);border:2px solid var(--good);border-radius:16px;padding:20px;text-align:center;margin:14px 0}
-#done-banner h2{color:var(--good);font-size:22px}
+/* QUIZ */
+.quiz-progress{display:flex;gap:4px;margin-bottom:16px}
+.qp-dot{flex:1;height:5px;border-radius:3px;background:var(--line);transition:background .3s}
+.qp-dot.correct{background:var(--good)}
+.qp-dot.wrong{background:var(--bad)}
+.qp-dot.answered{background:var(--accent2)}
+.quiz-q-num{font-size:.82rem;color:var(--muted);margin-bottom:6px}
+.quiz-question{font-size:1.05rem;font-weight:600;margin-bottom:16px;line-height:1.5}
+.quiz-choices{display:flex;flex-direction:column;gap:10px}
+.quiz-choice{min-height:48px;background:var(--panel2);border:2px solid var(--line);
+  border-radius:10px;padding:12px 16px;cursor:pointer;font-size:.95rem;
+  text-align:left;color:var(--ink);width:100%;
+  transition:border-color .2s,background .2s;display:flex;align-items:center;gap:10px}
+.quiz-choice:hover:not(:disabled){border-color:var(--accent)}
+.quiz-choice.sel-right{border-color:var(--good);background:rgba(123,216,143,.15)}
+.quiz-choice.sel-wrong{border-color:var(--bad);background:rgba(255,107,129,.15)}
+.quiz-choice.reveal-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.quiz-choice:disabled{cursor:default}
+.quiz-feedback{margin-top:12px;padding:12px 16px;border-radius:8px;
+  font-size:.9rem;line-height:1.5;display:none}
+.quiz-feedback.right{background:rgba(123,216,143,.1);border:1px solid var(--good);color:var(--good)}
+.quiz-feedback.wrong{background:rgba(255,107,129,.1);border:1px solid var(--bad);color:var(--bad)}
+.quiz-next-btn{margin-top:14px;display:none}
+.quiz-score-banner{display:none;text-align:center;padding:28px 20px;
+  background:var(--panel2);border-radius:12px;border:2px solid var(--accent2)}
+.score-big{font-size:3.2rem;font-weight:800;color:var(--accent)}
+.score-msg{font-size:1.1rem;color:var(--ink);margin-top:8px}
+.score-sub{font-size:.9rem;color:var(--muted);margin-top:6px}
 
-/* score */
-.score-line{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:12px}
+/* MISC */
+.icon-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.icon-chip{background:var(--panel2);border:1px solid var(--line);border-radius:20px;
+  padding:5px 12px;font-size:.83rem;display:flex;align-items:center;gap:5px}
+.china-map-wrap{margin-bottom:14px;border-radius:10px;overflow:hidden;
+  background:var(--panel2)}
+.china-map-wrap svg{width:100%;height:auto;display:block}
+
+@media(max-width:500px){
+  .match-cols{grid-template-columns:1fr}
+  .match-card{min-height:56px}
+}
 </style>
 </head>
 <body>
-<h1>🐼 Day 4 Social Studies</h1>
-<p style="color:var(--muted);font-size:13px;margin-bottom:14px">Giant Panda Geography &amp; Conservation · 45 min</p>
+<div class="wrap">
 
-<div id="phasebar">
-  <div class="pb" id="pb0"></div>
-  <div class="pb" id="pb1"></div>
-  <div class="pb" id="pb2"></div>
-  <div class="pb" id="pb3"></div>
-  <div class="pb" id="pb4"></div>
-  <div class="pb" id="pb5"></div>
-</div>
-<div id="phaselabel"></div>
-
-<!-- PHASE 0: Warm-Up -->
-<div class="phase" id="ph0">
-  <h2>Phase 1 — Warm-Up (5 min)</h2>
-  <p>Tap <b>True</b> or <b>False</b> for each statement. Then see the real answer!</p>
-  <div id="wu-area"></div>
-  <div class="nav">
-    <button class="primary" onclick="goPhase(1)">Next: Reading →</button>
+<!-- TIMER BAR -->
+<div id="timer-bar">
+  <div class="phases" id="phases">
+    <div class="ph-seg active" title="Phase 1: Warm-Up (5 min)"></div>
+    <div class="ph-seg" title="Phase 2: Core Reading (10 min)"></div>
+    <div class="ph-seg" title="Phase 3: Map Challenge (10 min)"></div>
+    <div class="ph-seg" title="Phase 4: Timeline (10 min)"></div>
+    <div class="ph-seg" title="Phase 5: Writing (5 min)"></div>
+    <div class="ph-seg" title="Phase 6: Quiz (5 min)"></div>
+  </div>
+  <div class="timer-info">
+    <span id="phase-label-text">Phase 1 of 6 — Warm-Up</span>
+    <strong id="timer-display">45:00</strong>
   </div>
 </div>
 
-<!-- PHASE 1: Reading -->
-<div class="phase" id="ph1">
-  <h2>Phase 2 — Core Reading (10 min)</h2>
+<div class="lesson-header">
+  <h1>🐼 Giant Pandas: Geography &amp; Conservation</h1>
+  <p>Social Studies · Day 4 · 45 minutes · 4th → 5th Grade</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+══════════════════════════════════════════ -->
+<div class="phase-panel active" id="phase-1">
+  <span class="phase-label">Phase 1 — Warm-Up · 5 min</span>
   <div class="card">
-    <h3>The Giant Panda's World</h3>
-    <p>The giant panda is one of the most recognized animals on Earth — and one of the most carefully protected. Native only to a small region in central China, the giant panda has become a global symbol of conservation and international cooperation.</p>
-    <p><b>Where They Live:</b> Wild giant pandas are found exclusively in China, in the provinces of Sichuan, Shaanxi, and Gansu. These areas contain dense bamboo forests on misty mountain slopes at elevations between 5,000 and 10,000 feet. The mountain ranges that shelter pandas include the Qinling, Minshan, and Qionglai ranges — rugged terrain where bamboo grows thick and predators are few.</p>
-    <p><b>What They Eat:</b> Bamboo makes up 99% of the giant panda's diet. Because bamboo is low in nutrition, pandas must eat between 26 and 84 pounds of it every single day, spending up to 14 hours eating. This near-total dependence on one plant makes habitat loss especially dangerous — when bamboo forests disappear, pandas have nowhere to go.</p>
-    <p><b>Conservation Story:</b> In the early 1990s, fewer than 1,000 giant pandas survived in the wild — they were listed as Critically Endangered. Through decades of effort by China and international partners, the population slowly recovered. By 2014, surveys counted 1,864 wild pandas. In 2016, the International Union for Conservation of Nature (IUCN) officially changed the panda's status from "Endangered" to "Vulnerable" — a rare conservation victory. China has established 67 protected nature reserves dedicated to panda habitat.</p>
-    <p><b>Panda Diplomacy:</b> China has long used giant pandas as diplomatic gifts and loans to other countries — a practice called "panda diplomacy." When China lends a panda to a foreign zoo, it is considered a gesture of friendship and goodwill. The WWF (World Wildlife Fund) chose the panda as its logo in 1961, cementing the animal's role as the face of global conservation.</p>
+    <h2>Where in the World?</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">
+      Look at the map below. Giant pandas live wild in <strong style="color:var(--accent)">only one country on Earth</strong>.
+      Can you spot it before you even start?
+    </p>
+    <div class="world-map-wrap">
+      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" aria-label="World map with China highlighted in orange">
+        <rect width="800" height="400" fill="#151f30"/>
+        <!-- North America -->
+        <path d="M75,55 L185,45 L225,75 L235,125 L205,155 L185,200 L155,225 L125,215 L90,180 L68,140 L58,100 Z" fill="#232e42" stroke="#2e3d52" stroke-width="1"/>
+        <!-- South America -->
+        <path d="M158,228 L195,218 L215,248 L222,300 L205,342 L172,352 L148,322 L136,280 L140,252 Z" fill="#232e42" stroke="#2e3d52" stroke-width="1"/>
+        <!-- Europe -->
+        <path d="M338,52 L392,48 L412,68 L402,92 L372,98 L345,88 L328,74 Z" fill="#232e42" stroke="#2e3d52" stroke-width="1"/>
+        <!-- Africa -->
+        <path d="M338,108 L392,103 L422,128 L432,178 L422,238 L392,268 L352,263 L322,238 L317,188 L322,138 Z" fill="#232e42" stroke="#2e3d52" stroke-width="1"/>
+        <!-- Asia (non-China) -->
+        <path d="M400,48 L478,44 L478,88 L440,115 L415,148 L412,108 L402,92 L412,68 Z" fill="#232e42" stroke="#2e3d52" stroke-width="1"/>
+        <path d="M560,44 L610,48 L652,72 L670,100 L645,140 L605,162 L572,182 L560,170 L575,142 L575,100 Z" fill="#232e42" stroke="#2e3d52" stroke-width="1"/>
+        <!-- CHINA — highlighted -->
+        <path d="M478,88 L560,82 L575,100 L575,142 L560,170 L528,180 L500,185 L478,172 L458,148 L440,115 Z"
+              fill="#ff7a59" stroke="#ff9a79" stroke-width="1.5" opacity=".82"/>
+        <!-- Australia -->
+        <path d="M578,258 L645,253 L665,278 L655,320 L615,330 L580,312 L572,285 Z" fill="#232e42" stroke="#2e3d52" stroke-width="1"/>
+        <!-- Labels -->
+        <text x="515" y="138" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff" font-family="sans-serif">CHINA</text>
+        <text x="140" y="128" text-anchor="middle" font-size="9" fill="#4a5a6a" font-family="sans-serif">N. America</text>
+        <text x="178" y="295" text-anchor="middle" font-size="9" fill="#4a5a6a" font-family="sans-serif">S. America</text>
+        <text x="368" y="74" text-anchor="middle" font-size="9" fill="#4a5a6a" font-family="sans-serif">Europe</text>
+        <text x="372" y="188" text-anchor="middle" font-size="9" fill="#4a5a6a" font-family="sans-serif">Africa</text>
+        <text x="618" y="296" text-anchor="middle" font-size="9" fill="#4a5a6a" font-family="sans-serif">Australia</text>
+        <!-- arrow -->
+        <line x1="515" y1="80" x2="515" y2="66" stroke="#ffd166" stroke-width="2" stroke-dasharray="3,2"/>
+        <polygon points="515,60 511,68 519,68" fill="#ffd166"/>
+        <text x="515" y="56" text-anchor="middle" font-size="9" fill="#ffd166" font-family="sans-serif">Wild pandas live here!</text>
+        <!-- Legend -->
+        <rect x="625" y="14" width="12" height="10" rx="2" fill="#ff7a59" opacity=".82"/>
+        <text x="641" y="23" font-size="9" fill="#a7adc4" font-family="sans-serif">Giant Panda Habitat</text>
+      </svg>
+    </div>
+
+    <h3>Quick True or False</h3>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:10px">Not graded — just to warm up your brain! Tap True or False to see the answer.</p>
+    <div class="tf-list">
+
+      <div class="tf-item">
+        <div class="tf-q">1. Giant pandas can be found living wild in Japan.</div>
+        <div class="tf-btns">
+          <button class="tf-btn" onclick="checkTF(this,'F')">True</button>
+          <button class="tf-btn" onclick="checkTF(this,'T')">False</button>
+        </div>
+        <div class="tf-fact">
+          <strong>False!</strong> Wild giant pandas exist only in China — specifically in the mountain forests of Sichuan, Shaanxi, and Gansu provinces. Japan has no wild pandas, though some live in Japanese zoos on loan from China.
+        </div>
+      </div>
+
+      <div class="tf-item">
+        <div class="tf-q">2. Giant pandas eat mostly meat because they are bears.</div>
+        <div class="tf-btns">
+          <button class="tf-btn" onclick="checkTF(this,'F')">True</button>
+          <button class="tf-btn" onclick="checkTF(this,'T')">False</button>
+        </div>
+        <div class="tf-fact">
+          <strong>False!</strong> Despite being in the bear family, giant pandas eat bamboo for 99% of their diet. Their digestive systems are still designed for meat, so they must eat enormous amounts of bamboo just to get enough energy!
+        </div>
+      </div>
+
+      <div class="tf-item">
+        <div class="tf-q">3. The giant panda is the official logo of the World Wildlife Fund (WWF).</div>
+        <div class="tf-btns">
+          <button class="tf-btn" onclick="checkTF(this,'T')">True</button>
+          <button class="tf-btn" onclick="checkTF(this,'F')">False</button>
+        </div>
+        <div class="tf-fact">
+          <strong>True!</strong> Since WWF was founded in 1961, the giant panda has been its iconic symbol. The panda's black-and-white markings were also practical — they reproduced well on early black-and-white photocopied fundraising materials!
+        </div>
+      </div>
+
+    </div>
   </div>
-  <div class="nav">
-    <button onclick="goPhase(0)">← Back</button>
-    <button class="primary" onclick="goPhase(2)">Next: Map Challenge →</button>
+  <div class="nav-row">
+    <button class="btn btn-secondary" disabled>← Previous</button>
+    <button class="btn btn-primary" onclick="goPhase(2)">Next: Reading →</button>
   </div>
 </div>
 
-<!-- PHASE 2: Map Challenge -->
-<div class="phase" id="ph2">
-  <h2>Phase 3 — Geography Match (10 min)</h2>
-  <p>Match each geographic location to its description. Tap a <b style="color:var(--accent)">location</b>, then tap its <b style="color:var(--accent2)">description</b>.</p>
-  <div class="score-line" id="geo-score">Matched: 0 / 6</div>
-  <div class="match-grid" id="geo-grid"></div>
-  <div id="geo-result" style="display:none" class="card">
-    <h3 style="color:var(--good)">🎉 Geography Expert!</h3>
-    <p>You matched all 6 locations. Giant panda territory is tiny compared to China's total size — that's why protecting it matters so much!</p>
-  </div>
-  <div class="nav">
-    <button onclick="goPhase(1)">← Back</button>
-    <button class="primary" onclick="goPhase(3)">Next: Timeline →</button>
-  </div>
-</div>
-
-<!-- PHASE 3: Conservation Timeline -->
-<div class="phase" id="ph3">
-  <h2>Phase 4 — Conservation Timeline (10 min)</h2>
-  <p>Tap each event to learn what happened — and why it mattered for panda conservation.</p>
-  <div id="timeline-area"></div>
-  <div class="nav">
-    <button onclick="goPhase(2)">← Back</button>
-    <button class="primary" onclick="goPhase(4)">Next: Writing →</button>
-  </div>
-</div>
-
-<!-- PHASE 4: Writing -->
-<div class="phase" id="ph4">
-  <h2>Phase 5 — Writing Pad (5 min)</h2>
+<!-- ══════════════════════════════════════════
+     PHASE 2 — CORE READING
+══════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-2">
+  <span class="phase-label">Phase 2 — Core Reading · 10 min</span>
   <div class="card">
-    <h3>Your Turn to Write</h3>
-    <p style="color:var(--accent2);font-style:italic">If you could design a new panda reserve, what would it include? Describe what you'd put there and why pandas need it.</p>
-    <p style="font-size:13px;color:var(--muted)">Sentence starter: <em>"My panda reserve would include..."</em></p>
-    <textarea id="writing" placeholder="Start writing here... everything saves automatically." rows="7"></textarea>
-    <div class="wcount" id="wcount">0 characters</div>
+    <h2>The Giant Panda's World</h2>
+    <div class="reading-body">
+
+      <p>
+        Deep in the misty mountain forests of central China lives one of the world's most beloved animals — the <strong>giant panda</strong> (<em>Ailuropoda melanoleuca</em>, meaning "black-and-white cat-foot"). Despite their global fame, wild giant pandas survive in a surprisingly small corner of the planet: the steep, bamboo-covered slopes of just three Chinese provinces.
+      </p>
+
+      <p>
+        Wild pandas are found exclusively in <strong>Sichuan, Shaanxi, and Gansu provinces</strong>, tucked into the slopes of several mountain ranges. The most important of these are the <strong>Qinling Mountains</strong>, the <strong>Minshan</strong>, and the <strong>Qionglai</strong> ranges. These peaks rise to elevations of roughly <strong>5,000 to 10,000 feet</strong> above sea level — high enough to stay cool and mist-covered, but not so high that little can grow. This zone of <span class="vocab-pill" tabindex="0">temperate broadleaf and mixed forests<span class="vocab-tip">A biome with a mix of deciduous (leaf-dropping) and evergreen trees, found in cool, moist mountain climates. Not tropical — think leafy slopes with four seasons.</span></span> is exactly the ecosystem giant pandas depend on.
+      </p>
+
+      <p>
+        The reason? <strong>Bamboo</strong>. Pandas have evolved to depend on bamboo for <strong>99% of their diet</strong>. Because bamboo is very low in nutrients, a panda must consume a staggering <strong>26 to 84 pounds of it every single day</strong> — spending up to 14 hours eating. Their wrists have evolved a special bony extension that acts like a sixth "thumb," helping them grip bamboo stalks with precision. When one bamboo species flowers and dies (which happens naturally every few decades), pandas must move to a new area to find a different bamboo species — making connected, unbroken forest habitat critical to their survival.
+      </p>
+
+      <p>
+        For most of the 20th century, the panda's future looked extremely grim. Farming, logging, and human settlement destroyed most of the bamboo forests that once carpeted China's mountain slopes. By the <strong>1990s</strong>, the wild panda population had fallen to roughly <strong>1,000 individuals</strong>. The species was classified as <span class="vocab-pill" tabindex="0">Endangered<span class="vocab-tip">On the IUCN Red List, "Endangered" means a species faces a very high risk of extinction in the wild. It's the second-most severe category before "Critically Endangered."</span></span> — just one step away from the most critical level.
+      </p>
+
+      <p>
+        Then something remarkable happened: China committed to saving the panda. Today there are <strong>67 protected panda reserves</strong> covering vast stretches of mountain forest, and wildlife corridors link isolated panda populations so they can travel between forests to find mates and food. A national census in 2014 counted <strong>1,864 pandas in the wild</strong>. As of recent estimates, roughly <strong>1,800 wild pandas</strong> survive, plus more than <strong>600 in captivity</strong> in China and zoos worldwide. In <strong>2016</strong>, the <span class="vocab-pill" tabindex="0">IUCN<span class="vocab-tip">The International Union for Conservation of Nature — the global authority that publishes the "Red List" of threatened and endangered species worldwide.</span></span> officially downgraded the giant panda from <strong>Endangered</strong> to <strong>Vulnerable</strong>. In <strong>2021</strong>, China went even further — declaring that giant pandas were no longer endangered at the national level.
+      </p>
+
+      <p>
+        Beyond their own survival, pandas have become a powerful symbol for conservation everywhere. Since 1961, the giant panda has been the logo of the <strong>World Wildlife Fund (WWF)</strong> — one of the most recognized conservation organizations on Earth. China has also made pandas a tool of diplomacy, a practice nicknamed <span class="vocab-pill" tabindex="0">bamboo diplomacy<span class="vocab-tip">China's practice of lending giant pandas to other countries as a diplomatic gesture of goodwill — often tied to trade agreements or political relationships.</span></span>: lending pandas to foreign countries as goodwill gestures. Pandas housed in zoos in the United States, Germany, Australia, and elsewhere are typically on loan from China, tied to diplomatic or trade arrangements.
+      </p>
+
+      <p>
+        The giant panda's story is, in many ways, a rare conservation success story — proof that when humans choose to protect a species and its habitat, remarkable recoveries are possible. The work is not finished, but the panda's striking black-and-white face now represents hope as much as it represents danger.
+      </p>
+
+    </div>
   </div>
-  <div class="nav">
-    <button onclick="goPhase(3)">← Back</button>
-    <button class="primary" onclick="goPhase(5)">Next: Quiz →</button>
+
+  <div class="card">
+    <h2>Key Facts at a Glance</h2>
+    <div class="icon-row">
+      <div class="icon-chip">🌏 Native to China only</div>
+      <div class="icon-chip">🏔️ 5,000–10,000 ft elevation</div>
+      <div class="icon-chip">🎋 99% bamboo diet</div>
+      <div class="icon-chip">⚖️ 26–84 lbs/day eaten</div>
+      <div class="icon-chip">🌿 ~1,800 in the wild</div>
+      <div class="icon-chip">🏛️ 67 protected reserves</div>
+      <div class="icon-chip">📋 IUCN: Vulnerable (2016)</div>
+      <div class="icon-chip">🤝 Bamboo diplomacy</div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goPhase(1)">← Warm-Up</button>
+    <button class="btn btn-primary" onclick="goPhase(3)">Next: Map Challenge →</button>
   </div>
 </div>
 
-<!-- PHASE 5: Quiz -->
-<div class="phase" id="ph5">
-  <h2>Phase 6 — Quiz (5 min)</h2>
-  <p style="font-size:13px;color:var(--muted);margin-bottom:14px">8 questions · answers save automatically</p>
-  <div id="done-banner">
-    <h2 id="done-text">🎉 Quiz Complete!</h2>
-    <p id="done-sub" style="color:var(--muted);margin-top:6px"></p>
+<!-- ══════════════════════════════════════════
+     PHASE 3 — MAP CHALLENGE
+══════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-3">
+  <span class="phase-label">Phase 3 — Map Challenge · 10 min</span>
+  <div class="card">
+    <h2>China Geography Match</h2>
+    <p class="match-instruction">
+      Use the reference map below, then match each geographic feature on the left to the correct description on the right.
+      Tap a <strong style="color:var(--accent)">left card</strong>, then the matching <strong style="color:var(--accent2)">right card</strong>. 6 pairs total.
+    </p>
+
+    <!-- Reference map -->
+    <div class="china-map-wrap">
+      <svg viewBox="0 0 540 340" xmlns="http://www.w3.org/2000/svg" aria-label="Map of China showing panda provinces and mountain ranges">
+        <rect width="540" height="340" fill="#151f30"/>
+        <!-- China base shape -->
+        <path d="M58,78 L118,52 L198,48 L278,58 L338,52 L400,68 L432,88 L445,118
+                 L435,153 L402,178 L412,208 L392,238 L362,258 L322,278 L282,293
+                 L242,298 L202,283 L167,263 L152,233 L122,218 L98,198 L75,173
+                 L55,143 L50,113 Z"
+              fill="#2a3545" stroke="#3d4f65" stroke-width="1.5"/>
+
+        <!-- Gansu Province -->
+        <path d="M158,78 L228,70 L258,98 L252,122 L202,130 L163,120 L143,100 Z"
+              fill="rgba(255,209,102,.28)" stroke="#ffd166" stroke-width="1.5"/>
+        <text x="200" y="104" text-anchor="middle" font-size="10" fill="#ffd166" font-family="sans-serif" font-weight="bold">Gansu</text>
+
+        <!-- Shaanxi Province -->
+        <path d="M248,112 L294,108 L308,133 L302,162 L272,172 L248,163 L237,138 Z"
+              fill="rgba(91,209,196,.28)" stroke="#5bd1c4" stroke-width="1.5"/>
+        <text x="272" y="146" text-anchor="middle" font-size="10" fill="#5bd1c4" font-family="sans-serif" font-weight="bold">Shaanxi</text>
+
+        <!-- Sichuan Province -->
+        <path d="M152,172 L200,162 L238,176 L248,208 L228,238 L192,248 L160,233 L145,208 Z"
+              fill="rgba(255,122,89,.28)" stroke="#ff7a59" stroke-width="1.5"/>
+        <text x="193" y="208" text-anchor="middle" font-size="10" fill="#ff9a79" font-family="sans-serif" font-weight="bold">Sichuan</text>
+
+        <!-- Mountain range labels -->
+        <line x1="238" y1="142" x2="298" y2="140" stroke="#a7adc4" stroke-width=".8" stroke-dasharray="3,2"/>
+        <text x="268" y="138" text-anchor="middle" font-size="8.5" fill="#a7adc4" font-family="sans-serif" font-style="italic">~ Qinling Mtns ~</text>
+
+        <text x="174" y="170" text-anchor="middle" font-size="7.5" fill="#a7adc4" font-family="sans-serif" font-style="italic">Minshan</text>
+        <text x="178" y="192" text-anchor="middle" font-size="7.5" fill="#a7adc4" font-family="sans-serif" font-style="italic">Qionglai</text>
+
+        <!-- Neighboring labels -->
+        <text x="70" y="45" font-size="8" fill="#3d4f65" font-family="sans-serif">Mongolia</text>
+        <text x="450" y="52" font-size="8" fill="#3d4f65" font-family="sans-serif">Korea</text>
+        <text x="458" y="108" font-size="8" fill="#3d4f65" font-family="sans-serif">Pacific</text>
+        <text x="62" y="248" font-size="8" fill="#3d4f65" font-family="sans-serif">India</text>
+        <text x="400" y="298" font-size="8" fill="#3d4f65" font-family="sans-serif">Vietnam</text>
+
+        <!-- Legend -->
+        <text x="450" y="158" font-size="8" fill="#a7adc4" font-family="sans-serif" font-weight="bold">Legend:</text>
+        <rect x="450" y="165" width="10" height="8" rx="1" fill="rgba(255,122,89,.5)"/>
+        <text x="464" y="173" font-size="7.5" fill="#a7adc4" font-family="sans-serif">Sichuan</text>
+        <rect x="450" y="178" width="10" height="8" rx="1" fill="rgba(91,209,196,.4)"/>
+        <text x="464" y="186" font-size="7.5" fill="#a7adc4" font-family="sans-serif">Shaanxi</text>
+        <rect x="450" y="191" width="10" height="8" rx="1" fill="rgba(255,209,102,.4)"/>
+        <text x="464" y="199" font-size="7.5" fill="#a7adc4" font-family="sans-serif">Gansu</text>
+
+        <!-- North arrow -->
+        <text x="498" y="320" font-size="12" fill="#4a5a6a" font-family="sans-serif" text-anchor="middle">N ↑</text>
+      </svg>
+    </div>
+
+    <!-- Match game cards -->
+    <div class="match-cols">
+      <div>
+        <div class="match-col-label">Geographic Feature</div>
+        <div id="left-cards" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+      <div>
+        <div class="match-col-label">Description</div>
+        <div id="right-cards" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
+    <div class="match-score">Score: <strong id="match-score-num">0</strong> / 6</div>
+    <div class="match-banner" id="match-banner">All 6 matched! Excellent geography knowledge!</div>
+    <button class="btn btn-secondary" id="match-retry-btn" onclick="resetMatch()" style="margin-top:12px;display:none">Try Again</button>
   </div>
-  <div id="quiz-area"></div>
-  <div class="nav">
-    <button onclick="goPhase(4)">← Back</button>
+
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goPhase(2)">← Reading</button>
+    <button class="btn btn-primary" onclick="goPhase(4)">Next: Timeline →</button>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════
+     PHASE 4 — CONSERVATION TIMELINE
+══════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-4">
+  <span class="phase-label">Phase 4 — Conservation Timeline · 10 min</span>
+  <div class="card">
+    <h2>Panda Conservation Timeline</h2>
+    <div class="tl-instruction">
+      <strong style="color:var(--warn)">Put these 6 events in chronological order</strong> — earliest at the top, most recent at the bottom.
+      <strong>Drag</strong> to rearrange. On a phone: <strong>tap an event</strong> to select it (it glows orange), then <strong>tap another event</strong> to swap their positions.
+    </div>
+    <p class="tl-tap-note" id="tl-tap-note">Tip: Use the ⠿ handle to drag, or tap two events to swap them.</p>
+
+    <div id="timeline-list" class="timeline-list"
+         ondragover="tlDragOver(event)" ondrop="tlDrop(event)"></div>
+
+    <div class="tl-check-row">
+      <button class="btn btn-primary" onclick="checkTimeline()">Check Order</button>
+      <button class="btn btn-secondary" onclick="shuffleTimeline()">Shuffle &amp; Try Again</button>
+    </div>
+    <div class="tl-result" id="tl-result"></div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goPhase(3)">← Map Challenge</button>
+    <button class="btn btn-primary" onclick="goPhase(5)">Next: Writing →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PHASE 5 — WRITING PAD
+══════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-5">
+  <span class="phase-label">Phase 5 — Writing Pad · 5 min</span>
+  <div class="card">
+    <h2>Design Your Own Panda Reserve</h2>
+    <div class="writing-prompt">
+      <strong style="color:var(--accent2)">Writing Prompt:</strong><br>
+      If you could design a new panda reserve, what would it include? Describe what you'd put there and why pandas need it.
+      Think about: bamboo forests, elevation and mountain terrain, wildlife corridors connecting habitats, rules about
+      human activity nearby, research stations, water sources. Be creative — there are no wrong answers!
+    </div>
+    <textarea
+      class="writing-area"
+      id="writing-pad"
+      placeholder="Write your response here... Aim for at least 3–4 sentences. Your work saves automatically."
+      oninput="onWriteInput()"
+      aria-label="Writing response area"
+    ></textarea>
+    <div class="char-count" id="char-count">0 characters</div>
+    <div class="save-status" id="save-status"></div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goPhase(4)">← Timeline</button>
+    <button class="btn btn-primary" onclick="goPhase(6)">Next: Quiz →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PHASE 6 — QUIZ
+══════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-6">
+  <span class="phase-label">Phase 6 — Quiz · 5 min</span>
+  <div class="card">
+    <h2>Knowledge Check</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:14px">
+      8 multiple-choice questions. Tap your answer to get instant feedback, then move on.
+      Your progress saves automatically — you can safely reload the page.
+    </p>
+    <div class="quiz-progress" id="quiz-progress"></div>
+    <div id="quiz-area">
+      <div class="quiz-q-num" id="quiz-q-num">Question 1 of 8</div>
+      <div class="quiz-question" id="quiz-question"></div>
+      <div class="quiz-choices" id="quiz-choices"></div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <button class="btn btn-primary quiz-next-btn" id="quiz-next-btn" onclick="quizNext()">Next Question →</button>
+    </div>
+    <div class="quiz-score-banner" id="quiz-score-banner">
+      <div class="score-big" id="score-big"></div>
+      <div class="score-msg" id="score-msg"></div>
+      <div class="score-sub" id="score-sub"></div>
+      <button class="btn btn-secondary" onclick="retakeQuiz()" style="margin-top:18px">Retake Quiz</button>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-secondary" onclick="goPhase(5)">← Writing</button>
+    <button class="btn btn-secondary" onclick="goPhase(1)" style="margin-left:auto">↩ Start Over</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
 
 <script>
-const WKEY="ss-l4-writing";
-const QKEY="ss-l4-quiz";
-const QAKEY="ss-l4-qans";
-const MKEY="refresher-mistakes";
-const SUBJECT="Social Studies";
-const LESSON="Day 4: Giant Panda";
-const FILE="social-studies-lesson-04-giant-panda.html";
+/* ═════════════════════════════════════
+   KEYS & CONSTANTS
+═════════════════════════════════════ */
+const QAKEY = "ss-l4-qans";
+const QKEY  = "ss-l4-quiz";
+const WKEY  = "ss-l4-writing";
+const MISTAKE_KEY = "refresher-mistakes";
+const FILE   = "social-studies-lesson-04-giant-panda.html";
+const PREFIX = "Social Studies|Day 4: Giant Panda|";
 
-const PHASES=["Warm-Up","Reading","Map Challenge","Timeline","Writing","Quiz"];
-
-// ── warm-up ──
-const WU=[
-  {q:"Giant pandas live in 3 provinces of China.",a:true,fact:"Correct! Sichuan, Shaanxi, and Gansu are the only places wild pandas live."},
-  {q:"Pandas eat meat as their main food.",a:false,fact:"False! 99% of their diet is bamboo — though they are classified as carnivores."},
-  {q:"The WWF uses the panda as its logo.",a:true,fact:"True! WWF chose the panda as its symbol in 1961."},
-  {q:"Giant pandas were recently upgraded from Endangered to Vulnerable.",a:true,fact:"True! In 2016 the IUCN made this change — meaning things are improving!"},
-];
-
-// ── geo match ──
-const GEO_PAIRS=[
-  {loc:"Sichuan Province",desc:"China's largest panda habitat province"},
-  {loc:"Qinling Mountains",desc:"Mountain range sheltering a unique panda subspecies"},
-  {loc:"Minshan Range",desc:"Range with the highest density of wild pandas"},
-  {loc:"Shaanxi Province",desc:"Province home to the Qinling panda subspecies"},
-  {loc:"Gansu Province",desc:"Third province where wild pandas still roam"},
-  {loc:"Wolong Reserve",desc:"China's first and most famous panda nature reserve (est. 1963)"},
-];
-
-// ── timeline ──
-const TL=[
-  {yr:"1869",event:"Western world learns of giant pandas",fact:"French missionary Père Armand David first described the giant panda to Western scientists — it was unknown outside Asia until then."},
-  {yr:"1961",event:"WWF founded; chooses panda as logo",fact:"The World Wildlife Fund was founded in 1961. Co-founder Sir Peter Scott drew the famous panda logo, which remains one of the world's most recognized conservation symbols."},
-  {yr:"1963",event:"China creates Wolong Nature Reserve",fact:"Wolong was China's first nature reserve dedicated to pandas. It now covers 485,000 acres and is a world-famous research center."},
-  {yr:"1990s",event:"Wild panda population drops to ~1,000",fact:"Habitat destruction from farming and logging pushed panda numbers to their lowest recorded level. Emergency conservation efforts began worldwide."},
-  {yr:"2016",event:"IUCN downgrades from Endangered to Vulnerable",fact:"Thanks to decades of protection, the panda population recovered enough to change status. This was a celebrated victory — but 'Vulnerable' still means they need protection."},
-  {yr:"2021",event:"China declares pandas no longer endangered nationally",fact:"China officially declared the panda 'no longer endangered' in 2021, recognizing that their own conservation programs had worked. The global total including captive pandas exceeded 2,400."},
-];
-
-// ── quiz ──
-const QUIZ=[
-  {q:"In which country do wild giant pandas live?",opts:["China","India","Japan","Thailand"],a:0},
-  {q:"Which mountain range is home to giant pandas?",opts:["Himalayas","Qinling Mountains","Alps","Andes"],a:1},
-  {q:"About how many pounds of bamboo must a panda eat each day?",opts:["2–5 lbs","10–15 lbs","26–84 lbs","100+ lbs"],a:2},
-  {q:"What percentage of the panda's diet is bamboo?",opts:["50%","75%","90%","99%"],a:3},
-  {q:"In 2016, the IUCN changed the panda's status from Endangered to:",opts:["Extinct","Vulnerable","Least Concern","Threatened"],a:1},
-  {q:"What famous conservation organization uses the giant panda as its logo?",opts:["Greenpeace","WWF","Sierra Club","PETA"],a:1},
-  {q:"How many protected panda reserves does China have?",opts:["About 12","About 30","About 67","About 150"],a:2},
-  {q:"What is 'bamboo diplomacy'?",opts:["Pandas eating bamboo","China lending pandas to other countries","Teaching pandas to farm bamboo","Importing bamboo from other countries"],a:1},
-];
-
-// ── state ──
-let curPhase=0;
-let qAns={};
-let qDone=false;
-const donePhases=new Set();
-
-function goPhase(n){
-  donePhases.add(curPhase);
-  document.getElementById("ph"+curPhase).classList.remove("on");
-  curPhase=n;
-  document.getElementById("ph"+n).classList.add("on");
-  updateBar();
-  window.scrollTo({top:0,behavior:"smooth"});
+/* ═════════════════════════════════════
+   MISTAKE LOGGER
+═════════════════════════════════════ */
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    const arr = JSON.parse(localStorage.getItem(MISTAKE_KEY) || "[]");
+    arr.push({
+      prefix: PREFIX, file: FILE, quiz: quizTitle,
+      question: questionText, correct: correct,
+      ts: new Date().toISOString()
+    });
+    localStorage.setItem(MISTAKE_KEY, JSON.stringify(arr));
+  } catch(e) {}
 }
 
-function updateBar(){
-  PHASES.forEach((_,i)=>{
-    const el=document.getElementById("pb"+i);
-    if(i===curPhase){el.classList.add("active");el.classList.remove("done");}
-    else if(donePhases.has(i)){el.classList.remove("active");el.classList.add("done");}
-    else{el.classList.remove("active","done");}
+/* ═════════════════════════════════════
+   TIMER
+═════════════════════════════════════ */
+const PHASE_MINS = [5,10,10,10,5,5];
+const PHASE_NAMES = ["Warm-Up","Core Reading","Map Challenge","Conservation Timeline","Writing Pad","Quiz"];
+const TOTAL_SECS = 45 * 60;
+let timerStart = null;
+let timerInterval = null;
+
+function startTimer() {
+  timerStart = Date.now();
+  timerInterval = setInterval(tickTimer, 1000);
+  tickTimer();
+}
+
+function tickTimer() {
+  const elapsed = Math.floor((Date.now() - timerStart) / 1000);
+  const remaining = Math.max(0, TOTAL_SECS - elapsed);
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  document.getElementById("timer-display").textContent =
+    String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+
+  let cumSecs = 0, suggested = 1;
+  for (let i = 0; i < PHASE_MINS.length; i++) {
+    cumSecs += PHASE_MINS[i] * 60;
+    if (elapsed < cumSecs) { suggested = i + 1; break; }
+    suggested = PHASE_MINS.length;
+  }
+
+  document.querySelectorAll(".ph-seg").forEach((seg, i) => {
+    seg.classList.remove("done","active");
+    if (i + 1 < suggested) seg.classList.add("done");
+    else if (i + 1 === suggested) seg.classList.add("active");
   });
-  document.getElementById("phaselabel").textContent="Phase "+(curPhase+1)+" of "+PHASES.length+" — "+PHASES[curPhase];
+  document.getElementById("phase-label-text").textContent =
+    "Phase " + suggested + " of 6 — " + PHASE_NAMES[suggested - 1];
 }
 
-// ── warm-up ──
-function buildWarmup(){
-  const el=document.getElementById("wu-area");
-  el.innerHTML=WU.map((w,i)=>`
-    <div class="wucard">
-      <div class="wu-q">${i+1}. ${w.q}</div>
-      <div class="wu-btns">
-        <button class="wu-btn" onclick="ansWU(${i},true,this)">✅ True</button>
-        <button class="wu-btn" onclick="ansWU(${i},false,this)">❌ False</button>
-      </div>
-      <div class="wu-reveal" id="wur${i}">${w.fact}</div>
-    </div>`).join("");
-}
-function ansWU(i,guess,btn){
-  const w=WU[i]; const r=document.getElementById("wur"+i);
-  r.style.display="block";
-  r.style.color=guess===w.a?"var(--good)":"var(--bad)";
-  btn.closest(".wu-btns").querySelectorAll("button").forEach(b=>b.disabled=true);
+/* ═════════════════════════════════════
+   PHASE NAVIGATION
+═════════════════════════════════════ */
+function goPhase(n) {
+  document.querySelectorAll(".phase-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("phase-" + n).classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ── geo match ──
-let geoSel=null, geoMatched=0;
-function buildGeo(){
-  const pairs=[...GEO_PAIRS];
-  const locs=pairs.map(p=>({type:"loc",text:p.loc,pair:p.loc}));
-  const descs=pairs.map(p=>({type:"desc",text:p.desc,pair:p.loc}));
-  // interleave: locs left, descs right
-  const grid=document.getElementById("geo-grid");
-  const allItems=[];
-  pairs.forEach((p,i)=>{allItems.push(locs[i]);allItems.push(descs[i]);});
-  // shuffle
-  for(let i=allItems.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[allItems[i],allItems[j]]=[allItems[j],allItems[i]];}
-  grid.innerHTML=allItems.map((item,i)=>`<div class="mcell" data-type="${item.type}" data-pair="${item.pair}" data-idx="${i}" onclick="geoClick(this)">${item.text}</div>`).join("");
-}
-function geoClick(el){
-  if(el.classList.contains("matched")||el.classList.contains("sel")) return;
-  if(geoSel){
-    const a=geoSel,b=el;
-    if(a.dataset.pair===b.dataset.pair&&a.dataset.type!==b.dataset.type){
-      a.classList.remove("sel"); a.classList.add("matched");
-      b.classList.add("matched");
-      geoMatched++;
-      document.getElementById("geo-score").textContent="Matched: "+geoMatched+" / "+GEO_PAIRS.length;
-      if(geoMatched===GEO_PAIRS.length) document.getElementById("geo-result").style.display="block";
-    } else {
-      a.classList.remove("sel");
-      el.classList.add("sel");
-      geoSel=el; return;
-    }
-    geoSel=null;
+/* ═════════════════════════════════════
+   PHASE 1 — TRUE/FALSE
+═════════════════════════════════════ */
+function checkTF(clickedBtn, correctMark) {
+  const item = clickedBtn.closest(".tf-item");
+  const btns = item.querySelectorAll(".tf-btn");
+  const fact = item.querySelector(".tf-fact");
+
+  // correctMark is 'T' if the clicked button IS the correct answer
+  btns.forEach(b => { b.disabled = true; b.style.pointerEvents = "none"; });
+
+  const isCorrect = clickedBtn.textContent.trim() === (correctMark === "T" ? "True" : "False")
+    ? (correctMark === "T") : (correctMark === "F");
+
+  // Determine which button holds True and which holds False
+  const trueBtn  = btns[0];
+  const falseBtn = btns[1];
+
+  // correctMark = 'T' means "True is correct", 'F' means "False is correct"
+  if (correctMark === "T") {
+    trueBtn.classList.add("correct");
+    falseBtn.classList.add("incorrect");
   } else {
-    el.classList.add("sel"); geoSel=el;
+    falseBtn.classList.add("correct");
+    trueBtn.classList.add("incorrect");
   }
+  fact.style.display = "block";
 }
 
-// ── timeline ──
-function buildTimeline(){
-  document.getElementById("timeline-area").innerHTML=TL.map((t,i)=>`
-    <div class="tl-item" onclick="this.classList.toggle('open')">
-      <div class="yr">${t.yr}</div>
-      <div style="flex:1">
-        <div style="font-weight:700;font-size:14px">${t.event}</div>
-        <div class="fact">${t.fact}</div>
-      </div>
-      <div style="color:var(--muted);font-size:18px">▼</div>
-    </div>`).join("");
+/* ═════════════════════════════════════
+   PHASE 3 — MATCH GAME
+═════════════════════════════════════ */
+const MATCH_PAIRS = [
+  { left:"Sichuan Province",   right:"Home to the most giant pandas; contains the Wolong and Qionglai reserves" },
+  { left:"Qinling Mountains",  right:"Mountain range in Shaanxi; home to a unique dark-and-light panda subspecies" },
+  { left:"Minshan Range",      right:"Mountain range spanning Sichuan and Gansu; largest contiguous panda habitat" },
+  { left:"Gansu Province",     right:"Northernmost panda province, bordering Sichuan and Inner Mongolia" },
+  { left:"Qionglai Range",     right:"Mountain range in western Sichuan; site of Wolong Nature Reserve" },
+  { left:"Shaanxi Province",   right:"Province where Qinling pandas live; located north of Sichuan" },
+];
+
+let mState = { leftSel: null, rightSel: null, matched: new Set(), score: 0 };
+let rightOrder = [];
+
+function initMatch() {
+  rightOrder = [...Array(MATCH_PAIRS.length).keys()].sort(() => Math.random() - .5);
+  mState = { leftSel: null, rightSel: null, matched: new Set(), score: 0 };
+  renderMatch();
 }
 
-// ── writing ──
-function initWriting(){
-  const ta=document.getElementById("writing");
-  const saved=localStorage.getItem(WKEY)||"";
-  ta.value=saved;
-  updateWCount();
-  let timer=null;
-  ta.addEventListener("input",()=>{
-    updateWCount();
-    clearTimeout(timer);
-    timer=setTimeout(()=>{try{localStorage.setItem(WKEY,ta.value);}catch(e){}},300);
+function renderMatch() {
+  const leftDiv  = document.getElementById("left-cards");
+  const rightDiv = document.getElementById("right-cards");
+  leftDiv.innerHTML = "";
+  rightDiv.innerHTML = "";
+
+  MATCH_PAIRS.forEach((pair, i) => {
+    const lc = document.createElement("div");
+    lc.className = "match-card" + (mState.matched.has(i) ? " matched" : "");
+    lc.dataset.idx = i;
+    lc.textContent = pair.left;
+    if (!mState.matched.has(i)) lc.addEventListener("click", () => pickLeft(i));
+    leftDiv.appendChild(lc);
   });
-}
-function updateWCount(){
-  const v=document.getElementById("writing").value;
-  document.getElementById("wcount").textContent=v.length+" character"+(v.length!==1?"s":"");
-}
 
-// ── quiz ──
-function logMistake(correct,q,qt){
-  try{
-    const m=JSON.parse(localStorage.getItem(MKEY)||"{}");
-    const id=FILE+"|"+q.substring(0,40);
-    if(correct){delete m[id];}
-    else{m[id]={subject:SUBJECT,lesson:LESSON,q,qt,file:FILE,ts:Date.now()};}
-    localStorage.setItem(MKEY,JSON.stringify(m));
-  }catch(e){}
-}
+  rightOrder.forEach(ri => {
+    const rc = document.createElement("div");
+    rc.className = "match-card" + (mState.matched.has(ri) ? " matched" : "");
+    rc.dataset.idx = ri;
+    rc.textContent = MATCH_PAIRS[ri].right;
+    if (!mState.matched.has(ri)) rc.addEventListener("click", () => pickRight(ri));
+    rightDiv.appendChild(rc);
+  });
 
-function buildQuiz(){
-  const area=document.getElementById("quiz-area");
-  area.innerHTML=QUIZ.map((q,i)=>`
-    <div class="qcard" id="qcard${i}">
-      <div class="qtxt">${i+1}. ${q.q}</div>
-      <div class="opts">${q.opts.map((o,j)=>`<button id="qo${i}_${j}" onclick="ansQ(${i},${j})">${o}</button>`).join("")}</div>
-    </div>`).join("");
-}
-
-function ansQ(i,idx){
-  if(qAns[i]!==undefined) return;
-  qAns[i]=idx;
-  try{localStorage.setItem(QAKEY,JSON.stringify(qAns));}catch(e){}
-  const q=QUIZ[i];
-  for(let j=0;j<q.opts.length;j++){
-    const b=document.getElementById("qo"+i+"_"+j);
-    b.disabled=true;
-    if(j===q.a) b.classList.add("cor");
-    else if(j===idx) b.classList.add("wrg");
-  }
-  logMistake(idx===q.a,q.q,LESSON);
-  if(Object.keys(qAns).length===QUIZ.length&&!qDone){
-    qDone=true;
-    const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[+k].a).length;
-    try{localStorage.removeItem(QAKEY);}catch(e){}
-    try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
-    const b=document.getElementById("done-banner");
-    b.style.display="block";
-    document.getElementById("done-text").textContent="🎉 Quiz Complete! "+right+"/"+QUIZ.length+" correct!";
-    document.getElementById("done-sub").textContent=right===QUIZ.length?"Perfect score! You know your panda geography!":right>=6?"Great job! Almost perfect!":"Keep reviewing and try again!";
-    b.scrollIntoView({behavior:"smooth"});
+  document.getElementById("match-score-num").textContent = mState.score;
+  if (mState.score === 6) {
+    document.getElementById("match-banner").style.display = "block";
+    document.getElementById("match-retry-btn").style.display = "inline-flex";
   }
 }
 
-function restoreQuiz(){
-  try{
-    const sv=JSON.parse(localStorage.getItem(QAKEY)||"null");
-    if(!sv||!Object.keys(sv).length) return;
-    Object.keys(sv).forEach(k=>{
-      const i=+k,idx=sv[k],q=QUIZ[i];
-      if(!q) return;
-      qAns[i]=idx;
-      for(let j=0;j<q.opts.length;j++){
-        const b=document.getElementById("qo"+i+"_"+j);
-        if(b){b.disabled=true;if(j===q.a)b.classList.add("cor");else if(j===idx)b.classList.add("wrg");}
+function pickLeft(idx) {
+  // deselect previous
+  document.querySelectorAll("#left-cards .match-card").forEach(c => c.classList.remove("selected"));
+  mState.leftSel = idx;
+  const el = document.querySelector(`#left-cards .match-card[data-idx="${idx}"]`);
+  if (el) el.classList.add("selected");
+  tryMatch();
+}
+
+function pickRight(idx) {
+  document.querySelectorAll("#right-cards .match-card").forEach(c => c.classList.remove("selected"));
+  mState.rightSel = idx;
+  const el = document.querySelector(`#right-cards .match-card[data-idx="${idx}"]`);
+  if (el) el.classList.add("selected");
+  tryMatch();
+}
+
+function tryMatch() {
+  if (mState.leftSel === null || mState.rightSel === null) return;
+  const li = mState.leftSel, ri = mState.rightSel;
+  mState.leftSel = null;
+  mState.rightSel = null;
+
+  if (li === ri) {
+    // Correct
+    mState.matched.add(li);
+    mState.score++;
+    renderMatch();
+  } else {
+    // Wrong — shake both
+    const lEl = document.querySelector(`#left-cards .match-card[data-idx="${li}"]`);
+    const rEl = document.querySelector(`#right-cards .match-card[data-idx="${ri}"]`);
+    [lEl, rEl].forEach(el => { if (el) { el.classList.add("wrong"); el.classList.remove("selected"); } });
+    setTimeout(() => {
+      [lEl, rEl].forEach(el => { if (el) el.classList.remove("wrong"); });
+    }, 500);
+  }
+}
+
+function resetMatch() {
+  document.getElementById("match-banner").style.display = "none";
+  document.getElementById("match-retry-btn").style.display = "none";
+  initMatch();
+}
+
+/* ═════════════════════════════════════
+   PHASE 4 — TIMELINE
+═════════════════════════════════════ */
+const TL_EVENTS = [
+  {
+    year: 1869,
+    text: "1869 — French missionary Père David introduces giant pandas to the Western world",
+    story: "Father Armand David became the first Western scientist to describe the giant panda. His discovery sparked enormous curiosity in Europe and America about this mysterious black-and-white animal hiding in China's mountains."
+  },
+  {
+    year: 1961,
+    text: "1961 — WWF is founded and adopts the giant panda as its logo",
+    story: "The World Wildlife Fund chose the panda as its symbol partly for its emotional appeal and partly because its black-and-white markings reproduced cheaply on early printed materials. Chi-Chi, a panda at the London Zoo, directly inspired the logo design."
+  },
+  {
+    year: 1963,
+    text: "1963 — China establishes its first panda nature reserve at Wolong, Sichuan",
+    story: "Wolong Nature Reserve became China's first protected area dedicated to giant pandas. Despite being heavily damaged in the 2008 Sichuan earthquake, Wolong remains one of the world's most important panda research and breeding centers."
+  },
+  {
+    year: 1990,
+    text: "1990s — Wild panda population drops to ~1,000 (the lowest recorded point)",
+    story: "Decades of logging, farming, and human encroachment had fragmented bamboo forests across China. By the 1990s, fewer than 1,000 wild pandas remained, placing the species in severe danger. International pressure mounted for urgent conservation action."
+  },
+  {
+    year: 2016,
+    text: "2016 — IUCN officially downgrades panda status from Endangered to Vulnerable",
+    story: "Following a 2014 census that counted 1,864 wild pandas, the IUCN updated the Red List status to 'Vulnerable' — acknowledging that China's 67 reserves and habitat corridors had worked. A celebrated global conservation milestone."
+  },
+  {
+    year: 2021,
+    text: "2021 — China officially declares giant pandas no longer nationally endangered",
+    story: "China's government removed 'endangered' status for the giant panda at the national level. While still classified as Vulnerable globally, this marked continued population growth and expanding bamboo forest coverage — a historic conservation achievement."
+  }
+];
+
+let tlOrder = [];
+let tlDragSrc = null;
+let tlTapSel = null;
+
+function initTimeline() {
+  tlOrder = [...Array(TL_EVENTS.length).keys()].sort(() => Math.random() - .5);
+  // Ensure it isn't accidentally already in correct order
+  if (tlOrder.every((v, i) => v === i)) tlOrder = [2,0,4,1,5,3];
+  renderTimeline(false);
+}
+
+function renderTimeline(showResults) {
+  const list = document.getElementById("timeline-list");
+  list.innerHTML = "";
+  tlTapSel = null;
+
+  tlOrder.forEach((evtIdx, pos) => {
+    const evt = TL_EVENTS[evtIdx];
+    const item = document.createElement("div");
+    item.className = "tl-item";
+    item.draggable = true;
+    item.dataset.pos = pos;
+
+    if (showResults) {
+      item.classList.add(evtIdx === pos ? "correct-pos" : "wrong-pos");
+    }
+
+    item.innerHTML =
+      '<span class="tl-drag" aria-hidden="true">⠿</span>' +
+      '<div style="flex:1">' +
+        '<div class="tl-text">' + evt.text + '</div>' +
+        '<div class="tl-story">' + evt.story + '</div>' +
+      '</div>';
+
+    item.addEventListener("dragstart", function(e) {
+      tlDragSrc = pos;
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(pos));
+      setTimeout(() => { item.style.opacity = ".45"; }, 0);
+    });
+    item.addEventListener("dragend", function() { item.style.opacity = "1"; });
+
+    // Tap-to-swap for mobile
+    item.addEventListener("click", function() {
+      if (tlTapSel === null) {
+        tlTapSel = pos;
+        item.classList.add("tap-selected");
+      } else {
+        if (tlTapSel !== pos) {
+          const tmp = tlOrder[tlTapSel];
+          tlOrder[tlTapSel] = tlOrder[pos];
+          tlOrder[pos] = tmp;
+        }
+        tlTapSel = null;
+        renderTimeline(false);
       }
     });
-    if(Object.keys(qAns).length===QUIZ.length&&!qDone){
-      qDone=true;
-      const right=Object.keys(qAns).filter(k=>qAns[k]===QUIZ[+k].a).length;
-      try{localStorage.removeItem(QAKEY);}catch(e){}
-      try{localStorage.setItem(QKEY,JSON.stringify({right,total:QUIZ.length,date:Date.now()}));}catch(e){}
-      const b=document.getElementById("done-banner");
-      b.style.display="block";
-      document.getElementById("done-text").textContent="🎉 Quiz Complete! "+right+"/"+QUIZ.length+" correct!";
-      document.getElementById("done-sub").textContent=right===QUIZ.length?"Perfect score!":"Keep it up!";
+
+    list.appendChild(item);
+  });
+}
+
+function tlDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+}
+
+function tlDrop(e) {
+  e.preventDefault();
+  const target = e.target.closest(".tl-item");
+  if (!target || tlDragSrc === null) return;
+  const dest = parseInt(target.dataset.pos);
+  if (dest === tlDragSrc) { tlDragSrc = null; return; }
+  const tmp = tlOrder[tlDragSrc];
+  tlOrder[tlDragSrc] = tlOrder[dest];
+  tlOrder[dest] = tmp;
+  tlDragSrc = null;
+  renderTimeline(false);
+}
+
+function checkTimeline() {
+  const allCorrect = tlOrder.every((evtIdx, pos) => evtIdx === pos);
+  renderTimeline(true);
+  const res = document.getElementById("tl-result");
+  res.style.display = "block";
+  if (allCorrect) {
+    res.className = "tl-result success";
+    res.textContent = "✅ Perfect order! Read the story notes that appeared below each event to learn more about what made each moment historically important.";
+  } else {
+    res.className = "tl-result fail";
+    res.textContent = "Not quite — red-outlined events are in the wrong position. Drag or tap-to-swap them, then press Check Order again!";
+  }
+}
+
+function shuffleTimeline() {
+  document.getElementById("tl-result").style.display = "none";
+  let s = [...Array(TL_EVENTS.length).keys()].sort(() => Math.random() - .5);
+  if (s.every((v,i) => v === i)) s = [1,3,0,5,2,4];
+  tlOrder = s;
+  renderTimeline(false);
+}
+
+/* ═════════════════════════════════════
+   PHASE 5 — WRITING PAD
+═════════════════════════════════════ */
+let writeTimer = null;
+
+function onWriteInput() {
+  const ta  = document.getElementById("writing-pad");
+  const cc  = document.getElementById("char-count");
+  const ss  = document.getElementById("save-status");
+  cc.textContent = ta.value.length + " characters";
+  ss.textContent = "";
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(WKEY, ta.value);
+      ss.textContent = "Saved ✓";
+      setTimeout(() => { ss.textContent = ""; }, 2000);
+    } catch(e) {}
+  }, 300);
+}
+
+function loadWriting() {
+  try {
+    const saved = localStorage.getItem(WKEY);
+    if (saved) {
+      const ta = document.getElementById("writing-pad");
+      ta.value = saved;
+      document.getElementById("char-count").textContent = saved.length + " characters";
     }
-  }catch(e){}
+  } catch(e) {}
 }
 
-// ── safety save ──
-function safetySave(){
-  try{localStorage.setItem(WKEY,document.getElementById("writing").value||localStorage.getItem(WKEY)||"");}catch(e){}
-  try{if(Object.keys(qAns).length) localStorage.setItem(QAKEY,JSON.stringify(qAns));}catch(e){}
-}
-["visibilitychange","pagehide","beforeunload","blur"].forEach(ev=>
-  (ev==="visibilitychange"?document:window).addEventListener(ev,safetySave));
+/* ═════════════════════════════════════
+   PHASE 6 — QUIZ
+═════════════════════════════════════ */
+const QUESTIONS = [
+  {
+    q: "In which country do wild giant pandas live?",
+    choices: ["China","India","Japan","Thailand"],
+    correct: 0,
+    explanation: "Wild giant pandas are found only in China — specifically in the mountain forests of Sichuan, Shaanxi, and Gansu provinces. No other country has wild pandas."
+  },
+  {
+    q: "Which of these mountain ranges is home to giant pandas?",
+    choices: ["Himalayas","Qinling Mountains","Alps","Andes"],
+    correct: 1,
+    explanation: "The Qinling Mountains in Shaanxi Province are one of the key ranges where giant pandas live. The Himalayas are in Nepal/Tibet, the Alps are in Europe, and the Andes are in South America."
+  },
+  {
+    q: "About how many pounds of bamboo must a panda eat each day?",
+    choices: ["2–5 lbs","10–15 lbs","26–84 lbs","100+ lbs"],
+    correct: 2,
+    explanation: "Because bamboo is so low in nutrients, pandas must eat 26 to 84 pounds every single day — spending up to 14 hours eating! Their digestive systems are not very efficient with plant matter."
+  },
+  {
+    q: "What percentage of the giant panda's diet is bamboo?",
+    choices: ["50%","75%","90%","99%"],
+    correct: 3,
+    explanation: "An astonishing 99% of a giant panda's diet is bamboo. They are technically omnivores (they can eat small animals), but they almost never do in the wild."
+  },
+  {
+    q: "In 2016, the IUCN changed the giant panda's status from Endangered to:",
+    choices: ["Extinct","Vulnerable","Least Concern","Threatened"],
+    correct: 1,
+    explanation: "After a 2014 census found 1,864 wild pandas, the IUCN updated the status to 'Vulnerable' in 2016 — a major conservation victory, though the panda still needs protection."
+  },
+  {
+    q: "What famous conservation organization uses the giant panda as its logo?",
+    choices: ["Greenpeace","WWF","Sierra Club","PETA"],
+    correct: 1,
+    explanation: "The World Wildlife Fund (WWF) has used the giant panda as its logo since the organization was founded in 1961. The panda Chi-Chi at the London Zoo inspired the original black-and-white design."
+  },
+  {
+    q: "How many protected panda reserves does China have?",
+    choices: ["About 12","About 30","About 67","About 150"],
+    correct: 2,
+    explanation: "China has established about 67 protected panda reserves covering large areas of mountain forest in Sichuan, Shaanxi, and Gansu provinces — all critical to the panda's recovery."
+  },
+  {
+    q: "What is \"bamboo diplomacy\"?",
+    choices: [
+      "Pandas eating bamboo all day",
+      "China lending pandas to other countries as goodwill gestures",
+      "Teaching pandas to grow their own bamboo",
+      "Importing bamboo from other countries"
+    ],
+    correct: 1,
+    explanation: "\"Bamboo diplomacy\" is China's practice of lending giant pandas to other nations as a diplomatic gesture of goodwill. Pandas in foreign zoos are typically on loan from China, often connected to trade or political agreements."
+  }
+];
 
-// ── init ──
-buildWarmup();
-buildGeo();
-buildTimeline();
-initWriting();
-buildQuiz();
-restoreQuiz();
-goPhase(0);
+let qState = {
+  current: 0,
+  answers: new Array(QUESTIONS.length).fill(null),
+  answered: false,
+  done: false
+};
+
+function buildQuiz() {
+  const prog = document.getElementById("quiz-progress");
+  prog.innerHTML = "";
+  QUESTIONS.forEach((_, i) => {
+    const dot = document.createElement("div");
+    dot.className = "qp-dot";
+    dot.id = "qp-" + i;
+    prog.appendChild(dot);
+  });
+  renderQuizQ();
+}
+
+function restoreQuiz() {
+  try {
+    const savedResult = JSON.parse(localStorage.getItem(QKEY) || "null");
+    if (savedResult && savedResult.done) {
+      qState.answers = savedResult.answers || qState.answers;
+      qState.done = true;
+      qState.current = QUESTIONS.length - 1;
+      qState.answers.forEach((a, i) => {
+        const dot = document.getElementById("qp-" + i);
+        if (dot && a !== null) dot.classList.add(a === QUESTIONS[i].correct ? "correct" : "wrong");
+      });
+      showScoreBanner();
+      return;
+    }
+    const savedAns = JSON.parse(localStorage.getItem(QAKEY) || "null");
+    if (savedAns && Array.isArray(savedAns)) {
+      qState.answers = savedAns;
+      let next = savedAns.findIndex(a => a === null);
+      if (next === -1) next = QUESTIONS.length - 1;
+      qState.current = next;
+      savedAns.forEach((a, i) => {
+        const dot = document.getElementById("qp-" + i);
+        if (dot && a !== null) dot.classList.add(a === QUESTIONS[i].correct ? "correct" : "wrong");
+      });
+      renderQuizQ();
+    }
+  } catch(e) {}
+}
+
+function saveQAnswers() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(qState.answers)); } catch(e) {}
+}
+
+function renderQuizQ() {
+  document.getElementById("quiz-score-banner").style.display = "none";
+  document.getElementById("quiz-area").style.display = "block";
+
+  const q = QUESTIONS[qState.current];
+  document.getElementById("quiz-q-num").textContent =
+    "Question " + (qState.current + 1) + " of " + QUESTIONS.length;
+  document.getElementById("quiz-question").textContent = q.q;
+  document.getElementById("quiz-feedback").style.display = "none";
+  document.getElementById("quiz-next-btn").style.display = "none";
+  document.getElementById("quiz-next-btn").onclick = quizNext;
+  document.getElementById("quiz-next-btn").textContent = "Next Question →";
+
+  const choicesDiv = document.getElementById("quiz-choices");
+  choicesDiv.innerHTML = "";
+  q.choices.forEach((ch, ci) => {
+    const btn = document.createElement("button");
+    btn.className = "quiz-choice";
+    btn.innerHTML = '<span style="color:var(--muted);font-weight:700;min-width:22px;flex-shrink:0">' +
+      String.fromCharCode(65 + ci) + '.</span> ' + ch;
+    btn.addEventListener("click", () => answerQ(ci));
+    choicesDiv.appendChild(btn);
+  });
+
+  // If already answered
+  const prev = qState.answers[qState.current];
+  if (prev !== null) {
+    lockChoices(prev, q.correct);
+    showFeedback(prev === q.correct, q.explanation);
+    const nb = document.getElementById("quiz-next-btn");
+    if (qState.current < QUESTIONS.length - 1) {
+      nb.style.display = "inline-flex";
+    } else {
+      nb.style.display = "inline-flex";
+      nb.textContent = "See Results →";
+      nb.onclick = finishQuiz;
+    }
+    qState.answered = true;
+  } else {
+    qState.answered = false;
+  }
+}
+
+function answerQ(ci) {
+  if (qState.answered) return;
+  qState.answered = true;
+  const q = QUESTIONS[qState.current];
+  qState.answers[qState.current] = ci;
+  saveQAnswers();
+
+  const isRight = ci === q.correct;
+  if (!isRight) logMistake(q.choices[q.correct], q.q, "Giant Panda Quiz");
+
+  lockChoices(ci, q.correct);
+  showFeedback(isRight, q.explanation);
+
+  const dot = document.getElementById("qp-" + qState.current);
+  if (dot) dot.classList.add(isRight ? "correct" : "wrong");
+
+  const nb = document.getElementById("quiz-next-btn");
+  nb.style.display = "inline-flex";
+  if (qState.current < QUESTIONS.length - 1) {
+    nb.textContent = "Next Question →";
+    nb.onclick = quizNext;
+  } else {
+    nb.textContent = "See Results →";
+    nb.onclick = finishQuiz;
+  }
+}
+
+function lockChoices(picked, correct) {
+  document.querySelectorAll(".quiz-choice").forEach((btn, ci) => {
+    btn.disabled = true;
+    btn.style.pointerEvents = "none";
+    if (ci === correct) btn.classList.add("sel-right");
+    else if (ci === picked && picked !== correct) btn.classList.add("sel-wrong");
+  });
+}
+
+function showFeedback(isRight, explanation) {
+  const fb = document.getElementById("quiz-feedback");
+  fb.className = "quiz-feedback " + (isRight ? "right" : "wrong");
+  fb.textContent = (isRight ? "✓ Correct! " : "✗ Not quite. ") + explanation;
+  fb.style.display = "block";
+}
+
+function quizNext() {
+  qState.current++;
+  qState.answered = false;
+  renderQuizQ();
+}
+
+function finishQuiz() {
+  qState.done = true;
+  const score = qState.answers.filter((a, i) => a !== null && a === QUESTIONS[i].correct).length;
+  try {
+    localStorage.setItem(QKEY, JSON.stringify({
+      done: true, score, total: QUESTIONS.length,
+      answers: qState.answers, ts: new Date().toISOString()
+    }));
+  } catch(e) {}
+  showScoreBanner();
+}
+
+function showScoreBanner() {
+  const score = qState.answers.filter((a, i) => a !== null && a === QUESTIONS[i].correct).length;
+  const total = QUESTIONS.length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById("quiz-area").style.display = "none";
+  document.getElementById("quiz-score-banner").style.display = "block";
+  document.getElementById("score-big").textContent = score + " / " + total;
+  let msg, sub;
+  if (score === total) {
+    msg = "Perfect score! Outstanding work!";
+    sub = "You know your giant panda geography and conservation history.";
+  } else if (score >= 6) {
+    msg = "Great job! You really know your pandas!";
+    sub = "Review any questions you missed in the reading passage.";
+  } else if (score >= 4) {
+    msg = "Good effort — solid understanding!";
+    sub = "Go back to the reading and map challenge, then try again.";
+  } else {
+    msg = "Keep working at it — you've got this!";
+    sub = "Review the passage carefully, then retake the quiz.";
+  }
+  document.getElementById("score-msg").textContent = msg + " (" + pct + "%)";
+  document.getElementById("score-sub").textContent = sub;
+}
+
+function retakeQuiz() {
+  qState = { current:0, answers:new Array(QUESTIONS.length).fill(null), answered:false, done:false };
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+/* ═════════════════════════════════════
+   SAFETY SAVES
+═════════════════════════════════════ */
+function safeSaveAll() {
+  try {
+    const ta = document.getElementById("writing-pad");
+    if (ta && ta.value) localStorage.setItem(WKEY, ta.value);
+  } catch(e) {}
+  saveQAnswers();
+}
+
+["visibilitychange","pagehide","beforeunload","blur"].forEach(function(evt) {
+  window.addEventListener(evt, safeSaveAll);
+});
+
+/* ═════════════════════════════════════
+   INIT
+═════════════════════════════════════ */
+function init() {
+  startTimer();
+  initMatch();
+  initTimeline();
+  loadWriting();
+  buildQuiz();
+  restoreQuiz();
+}
+
+document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>
