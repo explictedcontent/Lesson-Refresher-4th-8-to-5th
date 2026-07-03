@@ -94,7 +94,7 @@
     padding:9px 14px;font-size:14px;font-weight:700}
   .obar .otitle{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .obar .ospace{flex:1}
-  #frame{flex:1;border:0;width:100%;background:#14151d}
+  #lesson-inject{flex:1;}
 
   @media(max-width:560px){ .hero h1{font-size:25px} .wrap{padding:18px 14px 60px} }
 </style>
@@ -127,7 +127,7 @@
     <div class="ospace"></div>
     <button id="openNew" title="Open in its own tab">⤢ Full screen</button>
   </div>
-  <iframe id="frame" title="Lesson"></iframe>
+  <div id="lesson-inject" style="flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#14151d;position:relative"></div>
 </div>
 
 <script>
@@ -329,19 +329,93 @@ function setTab(k){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-/* ---------------- lesson overlay ---------------- */
+/* ---------------- lesson overlay (inline injection — works on iOS Safari) ---------------- */
 const overlay=document.getElementById("overlay");
-const frame=document.getElementById("frame");
+const lessonDiv=document.getElementById("lesson-inject");
 let currentFile=null;
+let _injectedStyles=[];  // <style> elements we added to <head>
+let _injectedScripts=[]; // <script> elements we added to <body>
+let _floatBtn=null;
+
 function openLesson(file,title){
   currentFile=file;
   document.getElementById("oTitle").textContent=title||"Lesson";
-  frame.srcdoc=(window.LESSONS&&window.LESSONS[file])||""; overlay.classList.add("on"); document.body.style.overflow="hidden";
+  _injectLesson(file);
+  overlay.classList.add("on");
+  document.body.style.overflow="hidden";
+  lessonDiv.scrollTop=0;
 }
+
+function _injectLesson(file){
+  const src=window.LESSONS&&window.LESSONS[file];
+  if(!src){ lessonDiv.innerHTML='<p style="color:#fff;padding:40px;text-align:center">Lesson not found.</p>'; return; }
+
+  // Parse the lesson HTML
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(src,'text/html');
+
+  // Inject <style> tags into main document head so CSS scopes correctly
+  doc.querySelectorAll('style').forEach(s=>{
+    const el=document.createElement('style');
+    el.textContent=s.textContent;
+    el.setAttribute('data-lesson-style','1');
+    document.head.appendChild(el);
+    _injectedStyles.push(el);
+  });
+
+  // Build body HTML (skip <script> tags — we run those separately)
+  let bodyHTML='';
+  doc.body.childNodes.forEach(node=>{
+    if(node.nodeType===1&&node.tagName==='SCRIPT') return; // skip scripts
+    if(node.nodeType===1){ bodyHTML+=node.outerHTML; }
+    else if(node.nodeType===3){ bodyHTML+=node.textContent; }
+  });
+  lessonDiv.innerHTML=bodyHTML;
+
+  // Add floating back button in case lesson's own layout covers the obar
+  if(!_floatBtn){
+    _floatBtn=document.createElement('button');
+    _floatBtn.textContent='← Hub';
+    _floatBtn.setAttribute('style',
+      'position:fixed;top:10px;left:10px;z-index:99999;'+
+      'background:rgba(30,32,46,.92);color:#f4f5fb;border:1px solid #5bd1c4;'+
+      'border-radius:10px;padding:7px 13px;font-size:14px;font-weight:700;'+
+      'box-shadow:0 4px 14px #0009;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)');
+    _floatBtn.onclick=closeLesson;
+    document.body.appendChild(_floatBtn);
+  }
+
+  // Execute scripts in order (deferred so DOM is ready)
+  const scripts=Array.from(doc.querySelectorAll('script'));
+  function runNext(i){
+    if(i>=scripts.length) return;
+    const orig=scripts[i];
+    if(orig.src) { runNext(i+1); return; } // skip external src scripts
+    const el=document.createElement('script');
+    el.textContent=orig.textContent;
+    document.body.appendChild(el);
+    _injectedScripts.push(el);
+    runNext(i+1);
+  }
+  runNext(0);
+}
+
 function closeLesson(){
-  overlay.classList.remove("on"); frame.src="about:blank"; document.body.style.overflow="";
-  renderReview(); // refresh in case a quiz was taken
+  // Remove injected styles
+  _injectedStyles.forEach(el=>{ if(el.parentNode) el.parentNode.removeChild(el); });
+  _injectedStyles=[];
+  // Remove injected scripts
+  _injectedScripts.forEach(el=>{ if(el.parentNode) el.parentNode.removeChild(el); });
+  _injectedScripts=[];
+  // Clear lesson content
+  lessonDiv.innerHTML='';
+  // Remove float button
+  if(_floatBtn){ if(_floatBtn.parentNode) _floatBtn.parentNode.removeChild(_floatBtn); _floatBtn=null; }
+  overlay.classList.remove("on");
+  document.body.style.overflow="";
+  renderReview();
 }
+
 document.getElementById("backBtn").onclick=closeLesson;
 document.getElementById("openNew").onclick=()=>{
   if(!currentFile) return;
@@ -350,7 +424,6 @@ document.getElementById("openNew").onclick=()=>{
   else { window.open(currentFile,"_blank"); }
 };
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && overlay.classList.contains("on")) closeLesson(); });
-// refresh review when returning focus (mistakes may have changed in the iframe)
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") renderReview(); });
 window.addEventListener("focus",renderReview);
 
