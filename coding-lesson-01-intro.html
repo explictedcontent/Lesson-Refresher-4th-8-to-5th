@@ -3,380 +3,478 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Coding Lesson 1 — Intro to Programming</title>
+<title>Boss the Panda 🐼</title>
 <style>
 :root{
-  --bg:#14151d;--panel:#1e2130;--panel2:#252a3a;--ink:#f4f5fb;
-  --muted:#a7adc4;--accent:#ff7a59;--accent2:#5bd1c4;--good:#7bd88f;
-  --warn:#ffd166;--bad:#ff6b81;--line:#2e3347
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
 
-.pbar{display:flex;background:var(--panel);border-bottom:2px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
-.pbar::-webkit-scrollbar{display:none}
-.ptab{flex:0 0 auto;padding:11px 14px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none}
-.ptab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.ptab.done{color:var(--good)}
+/* ── Mission bar ── */
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.mtab.locked{opacity:.4;cursor:default}
 
-.phase{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .3s}
-.phase.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ── XP Badge ── */
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-bar .xp-num{font-size:16px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
 
-.concept{background:var(--panel2);border-left:4px solid var(--accent2);border-radius:10px;padding:14px 16px;margin:14px 0;line-height:1.6;font-size:15px}
-.concept strong{color:var(--accent2);display:block;margin-bottom:5px;font-size:16px}
+/* ── Screen content ── */
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
-.btn:active{transform:scale(.94)}
-.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#0a1a18}
-.btn.good{background:var(--good);border-color:var(--good);color:#071209}
-.btn.bad{background:#2d1010;border-color:var(--bad);color:var(--bad)}
-.btn.big{padding:14px 24px;font-size:17px}
-.btn.xl{padding:18px 28px;font-size:20px}
+/* ── Mission header ── */
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* ── COMPLETE banner ── */
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.complete-banner .big{font-size:52px;margin-bottom:6px}
+.complete-banner h3{color:var(--good);font-size:20px;margin-bottom:4px}
+.complete-banner .xp-earn{font-size:16px;color:var(--warn);font-weight:900}
+
+/* ── Fail banner ── */
+.fail-banner{background:#150408;border:2px solid var(--bad);border-radius:14px;padding:14px;text-align:center;display:none;margin:12px 0}
+.fail-banner.show{display:block}
+
+/* ── Discovery box ── */
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+
+/* ── Buttons ── */
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation;text-transform:none}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff;text-shadow:0 1px 3px #0005}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
 .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center}
 
-.cmd-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border-radius:8px;padding:6px 11px;font-size:14px;font-weight:700}
-.cmd-tag .x{cursor:pointer;opacity:.75;font-size:16px}
+/* ── Order tag ── */
+.order-tag{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:7px 12px;font-size:14px;font-weight:900;color:#fff}
+.order-tag .x{cursor:pointer;opacity:.7;font-size:15px}
 
-.prog-box{min-height:52px;padding:10px;background:#0d1117;border-radius:10px;border:2px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+/* ── Order list ── */
+.order-list{min-height:56px;padding:10px;background:#08090f;border-radius:10px;border:2px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
 
-canvas{display:block;border-radius:14px;margin:0 auto 14px;max-width:100%}
+/* ── Canvas ── */
+canvas{display:block;border-radius:14px;margin:0 auto 14px;max-width:100%;border:2px solid var(--line)}
 
-.slider-row{display:flex;align-items:center;gap:12px;margin:10px 0;flex-wrap:wrap}
-.slider-row label{font-size:15px;font-weight:600;min-width:130px}
+/* ── Slider ── */
+.dial-row{display:flex;align-items:center;gap:12px;margin:12px 0;flex-wrap:wrap}
+.dial-row label{font-size:15px;font-weight:800;min-width:120px}
 input[type=range]{-webkit-appearance:none;height:10px;border-radius:5px;background:var(--line);outline:none;flex:1;min-width:120px;max-width:200px}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--accent2);cursor:pointer;border:3px solid var(--bg)}
-.val-badge{background:var(--accent2);color:#0a1a18;border-radius:8px;padding:3px 10px;font-size:15px;font-weight:700;min-width:34px;text-align:center}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--accent2);cursor:pointer;border:3px solid var(--bg)}
+.badge{border-radius:8px;padding:4px 11px;font-size:15px;font-weight:900;min-width:36px;text-align:center;background:var(--accent2);color:#001a16}
 
-.code-block{background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:14px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:12px 0;line-height:1.9;overflow-x:auto;white-space:pre-wrap}
-.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.hl{background:#ffd16644;border-radius:4px;padding:1px 4px;color:#ffd166;font-weight:700}.cm{color:#8b949e}
+/* ── Code preview ── */
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
 
-.apad{display:grid;grid-template-columns:repeat(3,60px);grid-template-rows:repeat(3,60px);gap:6px;margin:12px auto;width:max-content}
-.ab{background:var(--panel2);border:2px solid var(--line);border-radius:12px;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:.15s}
-.ab:active{background:var(--accent);transform:scale(.9)}
-.empty-cell{background:transparent;border:none}
+/* ── Weather card ── */
+.wx-card{border-radius:14px;padding:22px;text-align:center;margin:12px 0;cursor:pointer;border:3px solid;transition:.35s}
+.wx-card.sunny{background:linear-gradient(135deg,#201000,#2a1800);border-color:var(--warn)}
+.wx-card.rainy{background:linear-gradient(135deg,#00080f,#000e18);border-color:var(--accent2)}
 
-.move-box{min-height:44px;padding:8px;background:#0d1117;border-radius:10px;border:2px dashed var(--line);display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
-.move-tag{background:var(--panel2);border:2px solid var(--accent2);border-radius:7px;padding:4px 11px;font-size:13px;font-weight:700;color:var(--accent2)}
+/* ── Panda display ── */
+.panda-stage{text-align:center;padding:22px;border-radius:14px;background:var(--panel2);margin:12px 0;min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:2px solid var(--line)}
 
-.weather-card{border-radius:16px;padding:24px;text-align:center;margin:12px 0;transition:.4s;cursor:pointer;border:3px solid transparent}
-.weather-card.sunny{background:linear-gradient(135deg,#2a1800,#3d2800);border-color:var(--warn)}
-.weather-card.rainy{background:linear-gradient(135deg,#001122,#001a2a);border-color:var(--accent2)}
+/* ── Bamboo forest ── */
+.forest{display:flex;justify-content:center;align-items:flex-end;gap:7px;padding:16px;background:#030a04;border-radius:14px;min-height:90px;margin:12px 0;flex-wrap:wrap;border:2px solid #0a2010}
+.stalk{font-size:38px;animation:grow .3s ease-out}
+@keyframes grow{from{opacity:0;transform:translateY(18px)scale(.7)}to{opacity:1;transform:none}}
 
-.panda-display{text-align:center;padding:20px;border-radius:14px;background:var(--panel2);margin:12px 0;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+/* ── Arrow pad ── */
+.apad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:7px;margin:12px auto;width:max-content}
+.ab{background:var(--panel2);border:2px solid var(--line);border-radius:12px;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation}
+.ab:active{background:var(--accent);border-color:var(--accent);transform:scale(.88)}
+.empty-cell{background:transparent;border:none;display:flex;align-items:center;justify-content:center;font-size:26px}
 
-.bamboo-forest{display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:16px;background:#071209;border-radius:14px;min-height:100px;margin:12px 0;flex-wrap:wrap}
-.bamboo-stalk{font-size:36px;animation:growUp .35s ease-out}
-@keyframes growUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+/* ── Move list ── */
+.move-list{min-height:46px;padding:8px;background:#08090f;border-radius:10px;border:2px dashed var(--line);display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+.move-pill{background:var(--panel2);border:2px solid var(--accent2);border-radius:7px;padding:5px 11px;font-size:14px;font-weight:900;color:var(--accent2)}
 
-.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;margin:8px 0;cursor:pointer;transition:.15s;touch-action:manipulation}
-.opt.correct{background:#071a0d;border-color:var(--good);color:var(--good)}
-.opt.wrong{background:#1a0707;border-color:var(--bad);color:var(--bad)}
+/* ── Quiz ── */
+.q-num-label{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.q-text{font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt:active{opacity:.82}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
 .q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
 .q-feedback.show{display:block}
-.q-feedback.ok{background:#071a0d;color:var(--good);border:1px solid var(--good)}
-.q-feedback.no{background:#1a0707;color:var(--bad);border:1px solid var(--bad)}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
 .q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
 .dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
-.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--accent);box-shadow:0 0 0 3px #ff7a5933}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
 
-.win-banner{text-align:center;padding:24px;background:linear-gradient(135deg,#071a0d,#0a2a15);border:3px solid var(--good);border-radius:16px;margin:14px 0;display:none}
-.win-banner.show{display:block;animation:fadeIn .4s}
-.lose-banner{text-align:center;padding:20px;background:#1a0707;border:2px solid var(--bad);border-radius:14px;margin:14px 0;display:none}
-.lose-banner.show{display:block}
+/* ── Action grid ── */
+.act-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.act-btn{padding:14px 6px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:22px;cursor:pointer;text-align:center;transition:.15s;touch-action:manipulation}
+.act-btn:active{transform:scale(.93)}
+.act-btn.sel{border-color:var(--accent2);background:#003328}
+.act-lbl{font-size:11px;font-weight:800;color:var(--muted);margin-top:4px;text-transform:uppercase}
 
-.action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
-.action-btn{padding:14px 8px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:22px;cursor:pointer;text-align:center;transition:.15s;touch-action:manipulation}
-.action-btn:active{transform:scale(.94)}
-.action-btn.sel{border-color:var(--accent2);background:#0a2828}
-.action-label{font-size:12px;font-weight:700;color:var(--muted);margin-top:4px}
+/* ── Level badge ── */
+.level-badge{display:inline-flex;align-items:center;gap:6px;background:#0f0a1a;border:2px solid var(--purple);border-radius:20px;padding:5px 14px;font-size:13px;font-weight:900;color:var(--purple);margin:8px 0}
 
-.sec{font-size:12px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 8px}
-h1{font-size:24px;margin-bottom:8px}
-h2{font-size:20px;margin-bottom:8px;color:var(--accent2)}
+/* ── Section label ── */
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px}
+
+/* ── Stars ── */
+.stars{font-size:28px;letter-spacing:4px}
+
+/* ── Score screen ── */
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+
+/* ── Pulse animation for CTA ── */
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+
+/* ── Unlock toast ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
 p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
-.big-emoji{font-size:72px;text-align:center;margin:16px 0;display:block}
-.score-card{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0}
-.score-big{font-size:64px;font-weight:900;color:var(--good)}
+h2{font-size:20px;font-weight:900;margin-bottom:8px}
 </style>
 </head>
 <body>
 
-<div class="pbar" id="pbar">
-  <div class="ptab active" onclick="goPhase(0)" id="tab0">🖥️ Intro</div>
-  <div class="ptab" onclick="goPhase(1)" id="tab1">📋 Commands</div>
-  <div class="ptab" onclick="goPhase(2)" id="tab2">📦 Variables</div>
-  <div class="ptab" onclick="goPhase(3)" id="tab3">🤔 If/Else</div>
-  <div class="ptab" onclick="goPhase(4)" id="tab4">🔁 Loops</div>
-  <div class="ptab" onclick="goPhase(5)" id="tab5">🏆 Challenge</div>
-  <div class="ptab" onclick="goPhase(6)" id="tab6">📝 Quiz</div>
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<!-- ── Mission bar ── -->
+<div class="mbar" id="mbar">
+  <div class="mtab active" onclick="goMission(0)" id="tab0">🚀 START</div>
+  <div class="mtab" onclick="goMission(1)" id="tab1">🎮 ORDERS</div>
+  <div class="mtab" onclick="goMission(2)" id="tab2">⚡ SETTINGS</div>
+  <div class="mtab" onclick="goMission(3)" id="tab3">🧠 DECISIONS</div>
+  <div class="mtab" onclick="goMission(4)" id="tab4">💥 POWER UP</div>
+  <div class="mtab" onclick="goMission(5)" id="tab5">🎯 THE ESCAPE</div>
+  <div class="mtab" onclick="goMission(6)" id="tab6">👑 BOSS TEST</div>
 </div>
 
-<!-- PHASE 0 — INTRO -->
-<div class="phase active" id="ph0">
-  <span class="big-emoji">🐼💻</span>
-  <h1 style="text-align:center">Welcome to Coding!</h1>
-  <p style="text-align:center">You're about to learn how to talk to computers — and our panda friend will help!</p>
-  <div class="concept">
-    <strong>🤔 What IS code?</strong>
-    Code is a list of instructions that a computer follows — one step at a time, in ORDER.
-    Just like a recipe for cookies! 🍪
-  </div>
-  <div style="display:flex;justify-content:center;gap:24px;font-size:40px;margin:20px 0;flex-wrap:wrap">
-    <div style="text-align:center"><div>📝</div><div style="font-size:11px;color:var(--muted);margin-top:6px">Recipe<br>(instructions)</div></div>
-    <div style="font-size:28px;color:var(--accent);align-self:center">→</div>
-    <div style="text-align:center"><div>👩‍🍳</div><div style="font-size:11px;color:var(--muted);margin-top:6px">Baker follows<br>each step</div></div>
-    <div style="font-size:28px;color:var(--accent);align-self:center">→</div>
-    <div style="text-align:center"><div>🍪😋</div><div style="font-size:11px;color:var(--muted);margin-top:6px">Cookies<br>appear!</div></div>
-  </div>
-  <div class="concept">
-    <strong>💻 Code works the same way!</strong>
-    In each section you'll give instructions to a <strong style="color:var(--accent)">panda 🐼</strong> and watch it actually DO what you tell it — on screen, right away!
-  </div>
-  <div class="btn-row" style="justify-content:center;margin-top:24px">
-    <button class="btn accent xl" onclick="goPhase(1)">Let's Start! 🚀</button>
+<!-- ════════════════════ MISSION 0 — START ════════════════════ -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:80px;margin-bottom:12px">🐼</div>
+    <h2 style="font-size:32px;color:var(--warn);font-weight:900;margin-bottom:6px">BOSS THE PANDA</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:360px;margin:0 auto 20px">
+      A panda needs a boss. That's <strong style="color:var(--ink)">you</strong>.<br>
+      The panda does EXACTLY what you tell it. Nothing more, nothing less.
+    </p>
+
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:380px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">📋 What's the mission?</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:15px">🎮 <strong>Give Orders</strong> — the panda obeys</div>
+        <div style="font-size:15px">⚡ <strong>Dial Settings</strong> — control everything</div>
+        <div style="font-size:15px">🧠 <strong>Make Decisions</strong> — sunny or rainy?</div>
+        <div style="font-size:15px">💥 <strong>Power Move</strong> — do it 10× with one command</div>
+        <div style="font-size:15px">🎯 <strong>The Escape</strong> — guide panda to freedom</div>
+      </div>
+    </div>
+
+    <button class="btn fire xl pulse" onclick="goMission(1)">I'M THE BOSS — LET'S GO 🔥</button>
   </div>
 </div>
 
-<!-- PHASE 1 — COMMANDS -->
-<div class="phase" id="ph1">
-  <h2>📋 Commands — Give Instructions!</h2>
-  <p>Click buttons to add commands to the panda's program. Then hit <strong style="color:var(--good)">▶ Run!</strong> and watch it follow your instructions one by one!</p>
+<!-- ════════════════════ MISSION 1 — GIVE ORDERS ════════════════════ -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 1 of 6</div>
+    <div class="mission-title">🎮 Give Orders</div>
+    <div class="mission-brief">The panda does EXACTLY what you tell it — in the order you say. Build a program and hit RUN to see it happen.</div>
+  </div>
 
-  <canvas id="c1" style="background:#0d1522"></canvas>
+  <canvas id="c1" style="background:#07090f"></canvas>
 
-  <div class="sec">Pick your commands:</div>
+  <div class="sec">Pick your orders:</div>
   <div class="btn-row">
-    <button class="btn big" onclick="p1Add('right')">➡️ Walk Right</button>
-    <button class="btn big" onclick="p1Add('eat')">🎋 Eat Bamboo</button>
-    <button class="btn big" onclick="p1Add('spin')">🌀 Spin!</button>
-    <button class="btn big" onclick="p1Add('sleep')">💤 Nap</button>
-    <button class="btn big" onclick="p1Add('wave')">👋 Wave</button>
+    <button class="btn" style="border-color:#ff5533;font-size:16px" onclick="p1Add('right')">➡️ WALK</button>
+    <button class="btn" style="border-color:#39e07a;font-size:16px" onclick="p1Add('eat')">🎋 EAT</button>
+    <button class="btn" style="border-color:#00e5c8;font-size:16px" onclick="p1Add('spin')">🌀 SPIN</button>
+    <button class="btn" style="border-color:#8890b0;font-size:16px" onclick="p1Add('sleep')">💤 NAP</button>
+    <button class="btn" style="border-color:#ffcc00;font-size:16px" onclick="p1Add('wave')">👋 WAVE</button>
+    <button class="btn" style="border-color:#b06eff;font-size:16px" onclick="p1Add('jump')">🦘 JUMP</button>
   </div>
 
-  <div class="sec">Your program (runs in this order ↓):</div>
-  <div class="prog-box" id="p1List"><span style="color:var(--muted);font-style:italic;font-size:14px">← Click buttons above to add commands!</span></div>
+  <div class="sec">Your program (runs in this exact order ↓):</div>
+  <div class="order-list" id="p1List"><span style="color:var(--muted);font-style:italic;font-size:14px">← Pick orders above!</span></div>
 
   <div class="btn-row">
-    <button class="btn good big" onclick="p1Run()">▶ Run My Program!</button>
-    <button class="btn bad" onclick="p1Clear()">🗑️ Clear</button>
+    <button class="btn go" onclick="p1Run()">▶ EXECUTE!</button>
+    <button class="btn ghost" onclick="p1Clear()">🗑️ CLEAR</button>
   </div>
 
-  <div class="concept" id="p1Result" style="display:none">
-    <strong id="p1RT">🐼</strong>
-    <span id="p1RM"></span>
+  <div class="complete-banner" id="p1Done">
+    <div class="big">🎉</div>
+    <h3>ORDERS EXECUTED!</h3>
+    <p style="color:var(--muted)">The panda obeyed every single command — in order.</p>
+    <div class="xp-earn">+30 XP EARNED</div>
   </div>
 
-  <div class="concept">
-    <strong>💡 Key Idea</strong>
-    The computer runs your instructions <em>one at a time, from top to bottom</em>.
-    Try adding them in different orders and see what changes!
+  <div class="discovery">
+    You just wrote a <strong style="color:#fff">PROGRAM</strong> — a list of instructions that runs step by step, in order.
+    Every app on your phone works the same way. You're doing what professional coders do.
   </div>
 
   <div class="btn-row" style="justify-content:flex-end;margin-top:16px">
-    <button class="btn teal" onclick="goPhase(2)">Next: Variables ➡️</button>
+    <button class="btn teal" onclick="goMission(2)">MISSION 2 ➡️</button>
   </div>
 </div>
 
-<!-- PHASE 2 — VARIABLES -->
-<div class="phase" id="ph2">
-  <h2>📦 Variables — Labeled Boxes!</h2>
-  <p>A <strong style="color:var(--warn)">variable</strong> stores information with a name. Move the sliders and watch the panda change <em>right away!</em></p>
+<!-- ════════════════════ MISSION 2 — SETTINGS ════════════════════ -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 2 of 6</div>
+    <div class="mission-title">⚡ Dial In the Settings</div>
+    <div class="mission-brief">Real bosses control the settings. Move the sliders and watch everything change LIVE — no waiting, no running.</div>
+  </div>
 
-  <canvas id="c2" style="background:#0d1522"></canvas>
+  <canvas id="c2" style="background:#07090f"></canvas>
 
-  <div class="sec">🎮 Control the panda:</div>
+  <div class="sec">🎛️ Live controls — move these:</div>
 
-  <div class="slider-row">
+  <div class="dial-row">
     <label>🐼 Panda size:</label>
     <input type="range" id="sSize" min="1" max="5" value="3" oninput="p2Update()">
-    <span class="val-badge" id="vSize">3</span>
+    <span class="badge" id="vSize">3</span>
   </div>
   <div class="code-block"><span class="kw">let</span> pandaSize = <span class="hl" id="cSize">3</span>;</div>
 
-  <div class="slider-row">
-    <label>🎋 Bamboo stalks:</label>
+  <div class="dial-row">
+    <label>🎋 Bamboo count:</label>
     <input type="range" id="sBamboo" min="0" max="8" value="3" oninput="p2Update()">
-    <span class="val-badge" id="vBamboo">3</span>
+    <span class="badge" id="vBamboo">3</span>
   </div>
   <div class="code-block"><span class="kw">let</span> bambooCount = <span class="hl" id="cBamboo">3</span>;</div>
 
-  <div class="sec">🌟 Panda's mood:</div>
+  <div class="sec">🎭 Panda mood:</div>
   <div class="btn-row">
-    <button class="btn teal" id="mHappy" onclick="p2Mood('happy')">😄 Happy</button>
-    <button class="btn" id="mSleepy" onclick="p2Mood('sleepy')">😴 Sleepy</button>
-    <button class="btn" id="mHungry" onclick="p2Mood('hungry')">🤤 Hungry</button>
+    <button class="btn teal" id="mHappy" onclick="p2Mood('happy')">😄 HYPED</button>
+    <button class="btn" id="mSleepy" onclick="p2Mood('sleepy')">😴 SLEEPY</button>
+    <button class="btn" id="mHungry" onclick="p2Mood('hungry')">🤤 STARVING</button>
   </div>
   <div class="code-block"><span class="kw">let</span> mood = <span class="str">"<span class="hl" id="cMood">happy</span>"</span>;</div>
 
-  <div class="concept">
-    <strong>💡 Key Idea</strong>
-    Variables can <em>change</em>! That's the whole point — "vary-able" means able to vary.
-    When the variable changes, everything using it updates automatically!
+  <div class="discovery">
+    These are called <strong style="color:#fff">VARIABLES</strong> — named boxes that store information.
+    Change the box → everything using it updates instantly. That's how games track your score, health, speed, everything.
   </div>
 
   <div class="btn-row" style="justify-content:space-between;margin-top:16px">
-    <button class="btn" onclick="goPhase(1)">⬅️ Back</button>
-    <button class="btn teal" onclick="goPhase(3)">Next: If/Else ➡️</button>
+    <button class="btn ghost" onclick="goMission(1)">⬅️ Back</button>
+    <button class="btn teal" onclick="m2Complete()">MISSION 2 DONE ✅</button>
   </div>
 </div>
 
-<!-- PHASE 3 — IF/ELSE -->
-<div class="phase" id="ph3">
-  <h2>🤔 If/Else — Make Decisions!</h2>
-  <p>An <strong style="color:var(--warn)">if/else</strong> block makes your program choose: IF this is true → do X. ELSE → do Y instead!</p>
+<!-- ════════════════════ MISSION 3 — DECISIONS ════════════════════ -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 3 of 6</div>
+    <div class="mission-title">🧠 Make Decisions</div>
+    <div class="mission-brief">Weather report just came in. You decide what the panda does — and the program figures out the rest.</div>
+  </div>
 
   <div class="sec">Step 1 — Tap to change the weather:</div>
-  <div class="weather-card sunny" id="wCard" onclick="p3Toggle()">
-    <div style="font-size:64px" id="wIcon">☀️</div>
-    <div style="font-size:18px;font-weight:700" id="wLabel">Sunny — tap me to change!</div>
+  <div class="wx-card sunny" id="wCard" onclick="p3Toggle()">
+    <div style="font-size:60px" id="wIcon">☀️</div>
+    <div style="font-size:17px;font-weight:900" id="wLabel">SUNNY — tap me!</div>
   </div>
 
-  <div class="sec">Step 2 — What should the panda do when it's <span id="wWord" style="color:var(--warn)">SUNNY</span>?</div>
-  <div class="action-grid">
-    <div class="action-btn" id="act0" onclick="p3Pick('eat bamboo')">🎋<div class="action-label">Eat Bamboo</div></div>
-    <div class="action-btn" id="act1" onclick="p3Pick('swim')">🏊<div class="action-label">Swim</div></div>
-    <div class="action-btn" id="act2" onclick="p3Pick('play')">🎮<div class="action-label">Play</div></div>
-    <div class="action-btn" id="act3" onclick="p3Pick('climb')">🧗<div class="action-label">Climb</div></div>
-    <div class="action-btn" id="act4" onclick="p3Pick('dance')">💃<div class="action-label">Dance!</div></div>
-    <div class="action-btn" id="act5" onclick="p3Pick('nap')">😴<div class="action-label">Take a Nap</div></div>
+  <div class="sec">Step 2 — What does the panda do when it's <span id="wWord" style="color:var(--warn)">SUNNY</span>?</div>
+  <div class="act-grid">
+    <div class="act-btn" id="act0" onclick="p3Pick('eat bamboo')">🎋<div class="act-lbl">Chow Down</div></div>
+    <div class="act-btn" id="act1" onclick="p3Pick('swim')">🏊<div class="act-lbl">Go Swim</div></div>
+    <div class="act-btn" id="act2" onclick="p3Pick('play')">🎮<div class="act-lbl">Play Games</div></div>
+    <div class="act-btn" id="act3" onclick="p3Pick('climb')">🧗<div class="act-lbl">Climb</div></div>
+    <div class="act-btn" id="act4" onclick="p3Pick('dance')">💃<div class="act-lbl">Dance!</div></div>
+    <div class="act-btn" id="act5" onclick="p3Pick('nap')">😴<div class="act-lbl">Nap Hard</div></div>
   </div>
 
-  <div class="sec">Step 3 — The code it creates:</div>
-  <div class="code-block" id="p3Code"><span class="cm">// Pick an action above first!</span></div>
+  <div class="sec">Step 3 — The code that runs:</div>
+  <div class="code-block" id="p3Code"><span class="cm">// Pick an action above!</span></div>
 
-  <div class="sec">Step 4 — Watch the panda react:</div>
-  <div class="panda-display" id="p3Panda">
-    <span style="font-size:64px">🐼</span>
-    <span style="color:var(--muted);font-size:14px;font-weight:600">Waiting for your instructions...</span>
+  <div class="sec">Step 4 — The panda reacts:</div>
+  <div class="panda-stage" id="p3Stage">
+    <span style="font-size:60px">🐼</span>
+    <span style="color:var(--muted);font-size:14px;font-weight:700">Waiting for your call...</span>
   </div>
 
-  <div class="concept">
-    <strong>💡 Key Idea</strong>
-    If/else lets your program take DIFFERENT paths.
-    The panda does one thing in sun ☀️ and something different in rain 🌧️!
+  <div class="discovery">
+    You just used an <strong style="color:#fff">IF / ELSE</strong> — the most powerful tool in coding.
+    IF this is true → do X. ELSE → do something different.
+    Every game, every app, every website uses if/else millions of times.
   </div>
 
   <div class="btn-row" style="justify-content:space-between;margin-top:16px">
-    <button class="btn" onclick="goPhase(2)">⬅️ Back</button>
-    <button class="btn teal" onclick="goPhase(4)">Next: Loops ➡️</button>
+    <button class="btn ghost" onclick="goMission(2)">⬅️ Back</button>
+    <button class="btn teal" onclick="m3Complete()">MISSION 3 DONE ✅</button>
   </div>
 </div>
 
-<!-- PHASE 4 — LOOPS -->
-<div class="phase" id="ph4">
-  <h2>🔁 Loops — Do It Again!</h2>
-  <p>A <strong style="color:var(--warn)">loop</strong> repeats the same action many times — without writing it over and over!</p>
-
-  <div class="sec">🎮 Drag the slider — watch the forest grow LIVE!</div>
-  <div class="slider-row">
-    <label>🌱 Bamboo stalks:</label>
-    <input type="range" id="sLoop" min="0" max="10" value="3" oninput="p4Update()">
-    <span class="val-badge" id="vLoop">3</span>
+<!-- ════════════════════ MISSION 4 — POWER UP (LOOPS) ════════════════════ -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 4 of 6</div>
+    <div class="mission-title">💥 Power Move — LOOPS</div>
+    <div class="mission-brief">Why say something 10 times when you can say it ONCE and let the computer repeat it? That's a LOOP.</div>
   </div>
 
-  <div class="bamboo-forest" id="p4Forest"></div>
+  <div class="sec">🎮 Drag the slider — forest grows LIVE:</div>
+  <div class="dial-row">
+    <label>🌱 Stalks to plant:</label>
+    <input type="range" id="sLoop" min="0" max="10" value="3" oninput="p4Update()">
+    <span class="badge" id="vLoop">3</span>
+  </div>
 
-  <div class="code-block" id="p4Code"><span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="hl" id="cLoop">3</span>; i++) {
-  plantBamboo(); <span class="cm">// runs <span id="loopTimes">3</span> time(s)!</span>
+  <div class="forest" id="p4Forest"></div>
+
+  <div class="code-block"><span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="hl" id="cLoop">3</span>; i++) {
+  plantBamboo(); <span class="cm">// fires <span id="loopTimes">3</span> time(s)! 🔥</span>
 }</div>
 
   <div class="btn-row" style="justify-content:center">
-    <button class="btn good big" onclick="p4Plant()">🌱 Animated Plant! (Watch it grow)</button>
+    <button class="btn fire" style="font-size:17px;padding:14px 26px" onclick="p4Plant()">💥 PLANT IT — Animated!</button>
   </div>
 
-  <div class="concept">
-    <strong>💡 Without a loop:</strong> plantBamboo(); plantBamboo(); plantBamboo(); plantBamboo(); ... 😩<br><br>
-    <strong>💡 With a loop:</strong> The computer does all that work with just 3 lines of code! 🎉
+  <div class="discovery">
+    This is a <strong style="color:#fff">LOOP</strong>. Instead of typing plantBamboo() ten times in a row (boring! 😴),
+    one loop does it all. Coders are lazy in a SMART way — they never do something twice when a loop can do it for them.
   </div>
 
   <div class="btn-row" style="justify-content:space-between;margin-top:16px">
-    <button class="btn" onclick="goPhase(3)">⬅️ Back</button>
-    <button class="btn teal" onclick="goPhase(5)">Next: Big Challenge! ➡️</button>
+    <button class="btn ghost" onclick="goMission(3)">⬅️ Back</button>
+    <button class="btn teal" onclick="m4Complete()">MISSION 4 DONE ✅</button>
   </div>
 </div>
 
-<!-- PHASE 5 — CHALLENGE -->
-<div class="phase" id="ph5">
-  <h2>🏆 The Big Challenge!</h2>
-  <p>The panda is HUNGRY! Guide it through the grid to reach the bamboo 🎋.
-  Add your moves, then hit <strong style="color:var(--good)">▶ Run!</strong></p>
+<!-- ════════════════════ MISSION 5 — THE ESCAPE ════════════════════ -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="border-color:var(--warn);background:linear-gradient(135deg,#1a1200,#1f1700)">
+    <div class="mission-tag" style="color:var(--warn)">⚠️ FINAL MISSION — 4 LEVELS</div>
+    <div class="mission-title">🎯 The Escape</div>
+    <div class="mission-brief" id="mBrief">The panda is trapped at the top-left corner. The bamboo is far away. Only YOUR commands can set it free. Queue your moves, then hit EXECUTE!</div>
+  </div>
 
-  <canvas id="c5" style="background:#0d1522;touch-action:none"></canvas>
+  <div class="level-badge" id="lvBadge">🎯 LEVEL 1 of 4 &nbsp;|&nbsp; 3×3 GRID</div>
+  <canvas id="c5" style="background:#07090f;border-color:var(--warn)"></canvas>
 
-  <div class="sec">🕹️ Add moves (they run in order):</div>
+  <div class="sec">Add moves (they run in this order):</div>
   <div class="apad">
     <div class="empty-cell"></div>
     <button class="ab" onclick="p5Add('up')">⬆️</button>
     <div class="empty-cell"></div>
     <button class="ab" onclick="p5Add('left')">⬅️</button>
-    <div class="empty-cell" style="font-size:28px;display:flex;align-items:center;justify-content:center">🐼</div>
+    <div class="empty-cell" style="font-size:28px">🐼</div>
     <button class="ab" onclick="p5Add('right')">➡️</button>
     <div class="empty-cell"></div>
     <button class="ab" onclick="p5Add('down')">⬇️</button>
     <div class="empty-cell"></div>
   </div>
 
-  <div class="sec">Your moves (<span id="moveCount">0</span> total):</div>
-  <div class="move-box" id="p5MoveBox"><span style="color:var(--muted);font-size:13px;font-style:italic">Use the arrows above to add moves!</span></div>
+  <div style="display:flex;align-items:center;gap:8px;margin:8px 0">
+    <div class="sec" style="margin:0">MOVE QUEUE</div>
+    <span style="font-size:13px;font-weight:900;color:var(--warn)" id="moveCount">0 moves</span>
+  </div>
+  <div class="move-list" id="p5MoveBox"><span style="color:var(--muted);font-size:13px;font-style:italic">Queue up moves above!</span></div>
 
   <div class="btn-row">
-    <button class="btn good big" onclick="p5Run()">▶ Run!</button>
-    <button class="btn bad" onclick="p5Clear()">🗑️ Reset</button>
-    <button class="btn" onclick="p5ShowHint()">💡 Hint</button>
+    <button class="btn go" onclick="p5Run()">▶ EXECUTE!</button>
+    <button class="btn ghost" onclick="p5Clear()">🗑️ RESET</button>
+    <button class="btn" style="border-color:var(--purple);color:var(--purple)" onclick="p5Hint()">💡 HINT</button>
   </div>
 
-  <div class="concept" id="p5HintBox" style="display:none">
-    <strong>💡 Hint</strong>
-    The panda always starts in the TOP-LEFT corner and the bamboo is in the BOTTOM-RIGHT corner.
-    You need to go RIGHT and DOWN — count how many squares!
+  <div class="discovery" id="p5HintBox" style="display:none">
+    <strong style="color:#fff">Hint:</strong> The panda starts TOP-LEFT. The bamboo is BOTTOM-RIGHT.
+    You need to go <strong style="color:var(--accent2)">RIGHT</strong> and <strong style="color:var(--accent2)">DOWN</strong>.
+    Count the grid squares to know how many times!
   </div>
 
-  <div class="win-banner" id="p5Win">
-    <div style="font-size:64px">🎉🐼🎋🎉</div>
-    <h2 style="color:var(--good);font-size:26px;margin:10px 0">You Did It!</h2>
-    <p style="color:var(--good)">The panda found the bamboo! You just solved a problem with code!</p>
-    <button class="btn accent big" onclick="p5Next()" style="margin-top:14px">Next Level! 🔥</button>
+  <div class="complete-banner" id="p5Win">
+    <div class="big" id="winEmoji">🎯</div>
+    <h3 id="winTitle">BAMBOO FOUND!</h3>
+    <div class="stars" id="winStars">⭐⭐⭐</div>
+    <p style="color:var(--muted);margin:8px 0" id="winMsg">The panda reached the bamboo!</p>
+    <div class="xp-earn" id="winXP">+25 XP EARNED</div>
+    <button class="btn warn" onclick="p5Next()" style="margin-top:14px;font-size:17px" id="nextLvBtn">NEXT LEVEL ➡️</button>
   </div>
 
-  <div class="lose-banner" id="p5Lose">
-    <div style="font-size:48px">😵🐼</div>
-    <p style="color:var(--bad);font-weight:700;font-size:16px;margin:8px 0" id="p5LoseMsg">The panda got stuck. Try a different path!</p>
-    <button class="btn" onclick="p5Clear()" style="margin-top:10px">Try Again! 🔄</button>
+  <div class="fail-banner" id="p5Lose">
+    <div style="font-size:48px">💀🐼</div>
+    <p style="color:var(--bad);font-weight:900;font-size:16px;margin:8px 0" id="p5LoseMsg">MISSION FAILED. Try a different path!</p>
+    <button class="btn fire" onclick="p5Clear()" style="margin-top:10px">TRY AGAIN 🔄</button>
   </div>
-
-  <div id="p5LevelLabel" style="text-align:center;color:var(--muted);font-size:13px;margin-top:8px">Level 1 of 4</div>
 
   <div class="btn-row" style="justify-content:space-between;margin-top:20px">
-    <button class="btn" onclick="goPhase(4)">⬅️ Back</button>
-    <button class="btn teal" onclick="goPhase(6)">Finished! Take the Quiz ➡️</button>
+    <button class="btn ghost" onclick="goMission(4)">⬅️ Back</button>
+    <button class="btn teal" onclick="goMission(6)">BOSS TEST ➡️</button>
   </div>
 </div>
 
-<!-- PHASE 6 — QUIZ -->
-<div class="phase" id="ph6">
-  <h2>📝 Quick Quiz</h2>
-  <p>Let's see what you remember! Tap the best answer for each question.</p>
+<!-- ════════════════════ MISSION 6 — BOSS TEST ════════════════════ -->
+<div class="screen" id="sc6">
+  <div class="mission-header" style="border-color:var(--warn);background:linear-gradient(135deg,#15100a,#1a1500)">
+    <div class="mission-tag" style="color:var(--warn)">👑 FINAL BOSS</div>
+    <div class="mission-title">The Boss Test</div>
+    <div class="mission-brief">10 rounds. Prove you know your stuff. Pick the best answer for each one.</div>
+  </div>
   <div class="q-dots" id="qDots"></div>
   <div id="qArea"></div>
 </div>
 
 <script>
-/* ─── Storage keys ────────────────────────────────────────────── */
+/* ─── Storage ───────────────────────────────────────────────── */
 const QAKEY='coding-l1-qans';
 const QKEY='coding-l1-quiz';
-const WKEY='coding-l1-prog';
+const WKEY='coding-l1-game';
 const PREFIX='Coding|Lesson 1: Intro to Programming|';
 
-/* ─── Phase nav ──────────────────────────────────────────────── */
-let curPhase=0;
+/* ─── XP system ─────────────────────────────────────────────── */
+let xp=0;
+function addXP(n){
+  xp+=n;
+  const el=document.getElementById('xpNum');
+  el.textContent=xp;
+  el.classList.remove('xp-flash');
+  void el.offsetWidth;
+  el.classList.add('xp-flash');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
 
-function goPhase(n){
-  document.getElementById('ph'+curPhase).classList.remove('active');
-  document.getElementById('tab'+curPhase).classList.remove('active');
-  curPhase=n;
-  document.getElementById('ph'+n).classList.add('active');
+/* ─── Mission nav ────────────────────────────────────────────── */
+let cur=0;
+const done=new Set();
+
+function goMission(n){
+  document.getElementById('sc'+cur).classList.remove('active');
+  document.getElementById('tab'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('sc'+n).classList.add('active');
   const tab=document.getElementById('tab'+n);
   tab.classList.add('active');
   tab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
@@ -387,102 +485,93 @@ function goPhase(n){
   for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PHASE 1 — COMMANDS
-════════════════════════════════════════════════════════════════ */
-const CMD={
-  right:{e:'➡️',label:'Walk Right',color:'#ff7a59'},
-  eat:{e:'🎋',label:'Eat Bamboo',color:'#7bd88f'},
-  spin:{e:'🌀',label:'Spin!',color:'#5bd1c4'},
-  sleep:{e:'💤',label:'Nap',color:'#a7adc4'},
-  wave:{e:'👋',label:'Wave',color:'#ffd166'}
-};
-let p1Cmds=[],p1Running=false,p1X=50,p1Action='idle',p1Frame=0,p1Timer=null;
+function m2Complete(){showToast('⚡ Mission 2 Complete! +20 XP');addXP(20);goMission(3);}
+function m3Complete(){showToast('🧠 Mission 3 Complete! +20 XP');addXP(20);goMission(4);}
+function m4Complete(){showToast('💥 Mission 4 Complete! +20 XP');addXP(20);goMission(5);}
 
-function p1Add(c){
-  if(p1Running)return;
-  p1Cmds.push(c);
-  p1Render();
-}
-function p1Remove(i){
-  if(p1Running)return;
-  p1Cmds.splice(i,1);
-  p1Render();
-}
+/* ════════════════════════════════════════════════════════════
+   MISSION 1 — ORDERS
+════════════════════════════════════════════════════════════ */
+const CMD={
+  right:{e:'➡️',label:'WALK',color:'#ff5533'},
+  eat:{e:'🎋',label:'EAT',color:'#39e07a'},
+  spin:{e:'🌀',label:'SPIN',color:'#00e5c8'},
+  sleep:{e:'💤',label:'NAP',color:'#5a6090'},
+  wave:{e:'👋',label:'WAVE',color:'#ffcc00'},
+  jump:{e:'🦘',label:'JUMP',color:'#b06eff'}
+};
+let p1Cmds=[],p1Running=false,p1X=55,p1Act='idle',p1Frame=0,p1Timer=null;
+
+function p1Add(c){if(p1Running)return;p1Cmds.push(c);p1Render();}
+function p1Remove(i){if(p1Running)return;p1Cmds.splice(i,1);p1Render();}
 function p1Render(){
   const el=document.getElementById('p1List');
-  if(!p1Cmds.length){el.innerHTML='<span style="color:var(--muted);font-style:italic;font-size:14px">← Click buttons above to add commands!</span>';return;}
+  if(!p1Cmds.length){el.innerHTML='<span style="color:var(--muted);font-style:italic;font-size:14px">← Pick orders above!</span>';return;}
   el.innerHTML=p1Cmds.map((c,i)=>{
     const d=CMD[c];
-    return `<span class="cmd-tag" style="background:${d.color}">${d.e} ${d.label} <span class="x" onclick="p1Remove(${i})">✕</span></span>`;
+    return `<span class="order-tag" style="background:${d.color}">${d.e} ${d.label} <span class="x" onclick="p1Remove(${i})">✕</span></span>`;
   }).join('');
 }
 function p1Clear(){
   p1Cmds=[];p1Running=false;clearInterval(p1Timer);
-  p1X=50;p1Action='idle';p1Frame=0;
-  p1Render();
-  document.getElementById('p1Result').style.display='none';
-  p1Draw();
+  p1X=55;p1Act='idle';p1Frame=0;
+  p1Render();document.getElementById('p1Done').classList.remove('show');p1Draw();
 }
 function p1Draw(){
-  const cv=document.getElementById('c1');
-  const ctx=cv.getContext('2d');
-  cv.width=Math.min(480,window.innerWidth-32);cv.height=180;
+  const cv=document.getElementById('c1');const ctx=cv.getContext('2d');
+  cv.width=Math.min(480,window.innerWidth-32);cv.height=175;
   const w=cv.width,h=cv.height;
-  // Sky
-  const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#0a0f1e');g.addColorStop(1,'#0d1a14');
-  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-  // Stars
-  ctx.fillStyle='#ffffff55';
-  [[40,18],[100,32],[170,12],[250,25],[330,10],[420,28]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();});
+  ctx.fillStyle='#07090f';ctx.fillRect(0,0,w,h);
   // Ground
-  ctx.fillStyle='#1a3320';ctx.fillRect(0,h-28,w,28);
-  ctx.fillStyle='#2a4a30';ctx.fillRect(0,h-30,w,4);
-  // Bamboo trees (right side)
-  [w*0.6,w*0.73,w*0.86].forEach(bx=>{
-    const bh=70;
-    ctx.fillStyle='#2d6a30';ctx.fillRect(bx-4,h-28-bh,8,bh);
-    [0.4,0.65,0.88].forEach(f=>{ctx.fillStyle='#3d8a3d';ctx.fillRect(bx-4,h-28-bh*f,8,3);});
-    ctx.font='18px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#4aaa4a';ctx.fillText('🌿',bx,h-28-bh);
+  ctx.fillStyle='#0a1a10';ctx.fillRect(0,h-26,w,26);
+  ctx.fillStyle='#143020';ctx.fillRect(0,h-28,w,4);
+  // Stars
+  ctx.fillStyle='#ffffff44';
+  [[30,16],[80,28],[155,10],[240,22],[340,8],[430,24]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();});
+  // Bamboo right side
+  [w*.6,w*.73,w*.86].forEach(bx=>{
+    ctx.fillStyle='#1a5020';ctx.fillRect(bx-4,h-26-68,8,68);
+    ctx.fillStyle='#2a7030';ctx.fillRect(bx-4,h-26-45,8,3);
+    ctx.fillStyle='#2a7030';ctx.fillRect(bx-4,h-26-65,8,3);
+    ctx.font='16px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.fillText('🌿',bx,h-26-65);
   });
   // Panda
-  const EMOJIS={idle:'🐼',right:'🐼',eat:'😋',spin:'😵',sleep:'😴',wave:'😊',done:'🥳'};
-  const bobY=Math.sin(p1Frame*0.15)*3;
-  const px=Math.max(40,Math.min(p1X,w-50));
-  ctx.font='48px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
-  ctx.fillText(EMOJIS[p1Action]||'🐼',px,h-28+bobY);
+  const EMOJIS={idle:'🐼',right:'🐼',eat:'😋',spin:'😵‍💫',sleep:'😴',wave:'😊',jump:'🐨',done:'🥳'};
+  const bob=Math.sin(p1Frame*.15)*2.5;
+  const px=Math.max(40,Math.min(p1X,w-55));
+  ctx.font='46px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(EMOJIS[p1Act]||'🐼',px,h-26+bob);
 }
 function p1Run(){
   if(p1Running)return;
-  if(!p1Cmds.length){alert('Add some commands first!');return;}
-  p1Running=true;p1X=50;p1Action='idle';
+  if(!p1Cmds.length){alert('Add some orders first!');return;}
+  p1Running=true;p1X=55;p1Act='idle';
   const steps=p1Cmds.slice();let i=0;
-  document.getElementById('p1Result').style.display='none';
+  document.getElementById('p1Done').classList.remove('show');
   function step(){
     if(i>=steps.length){
-      p1Running=false;p1Action='done';p1Draw();
-      const el=document.getElementById('p1Result');
-      el.style.display='block';
-      document.getElementById('p1RT').textContent='🎉 Program done!';
-      document.getElementById('p1RM').textContent=`The panda ran all ${steps.length} command${steps.length===1?'':'s'} in order!`;
+      p1Running=false;p1Act='done';p1Draw();
+      document.getElementById('p1Done').classList.add('show');
+      addXP(30);showToast('🎮 Orders complete! +30 XP');
       return;
     }
-    const cmd=steps[i++];p1Action=cmd;
+    const cmd=steps[i++];p1Act=cmd;
     let f=0;clearInterval(p1Timer);
     p1Timer=setInterval(()=>{
       p1Frame++;f++;
-      if(cmd==='right')p1X=Math.min(p1X+4,Math.min(window.innerWidth-32,480)*0.55);
+      if(cmd==='right')p1X=Math.min(p1X+4,Math.min(window.innerWidth-32,480)*.52);
+      if(cmd==='jump')p1Draw();
       p1Draw();
-      if(f>25){clearInterval(p1Timer);p1Action='idle';setTimeout(step,180);}
+      if(f>22){clearInterval(p1Timer);p1Act='idle';setTimeout(step,160);}
     },33);
   }
   step();
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PHASE 2 — VARIABLES
-════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   MISSION 2 — VARIABLES
+════════════════════════════════════════════════════════════ */
 let p2Size=3,p2Bamboo=3,p2Mood_='happy';
 
 function p2Update(){
@@ -493,243 +582,221 @@ function p2Update(){
   p2Draw();
 }
 function p2Mood(m){
-  p2Mood_=m;
-  document.getElementById('cMood').textContent=m;
+  p2Mood_=m;document.getElementById('cMood').textContent=m;
   ['mHappy','mSleepy','mHungry'].forEach(id=>{document.getElementById(id).classList.remove('teal');});
   document.getElementById({happy:'mHappy',sleepy:'mSleepy',hungry:'mHungry'}[m]).classList.add('teal');
   p2Draw();
 }
 function p2Draw(){
   const cv=document.getElementById('c2');const ctx=cv.getContext('2d');
-  cv.width=Math.min(480,window.innerWidth-32);cv.height=220;
+  cv.width=Math.min(480,window.innerWidth-32);cv.height=210;
   const w=cv.width,h=cv.height;
-  const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#0a0f1e');g.addColorStop(1,'#071209');
-  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-  ctx.fillStyle='#1a3320';ctx.fillRect(0,h-30,w,30);
-  ctx.fillStyle='#2a4a30';ctx.fillRect(0,h-32,w,4);
-  // Bamboo
+  ctx.fillStyle='#07090f';ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#0a1a10';ctx.fillRect(0,h-28,w,28);
+  ctx.fillStyle='#143020';ctx.fillRect(0,h-30,w,4);
   const n=p2Bamboo;
   for(let b=0;b<n;b++){
-    const bx=n===1?w*0.55:30+(b*(w-60)/(n-1||1));
-    const bh=50+Math.sin(b*0.9)*15;
-    ctx.fillStyle='#2d6a30';ctx.fillRect(bx-3,h-30-bh,6,bh);
-    ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillText('🌿',bx,h-30-bh);
+    const bx=n===1?w*.6:40+(b*(w-80)/(n-1||1));
+    const bh=50+Math.sin(b*.9)*14;
+    ctx.fillStyle='#1a5020';ctx.fillRect(bx-3,h-28-bh,6,bh);
+    ctx.font='13px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.fillText('🌿',bx,h-28-bh);
   }
-  // Panda
-  const sz=24+p2Size*10;
+  const sz=22+p2Size*10;
   ctx.font=`${sz}px serif`;ctx.textAlign='center';ctx.textBaseline='bottom';
-  ctx.fillText('🐼',w*0.35,h-30);
-  // Mood badge
-  const moodE={happy:'😄',sleepy:'😴',hungry:'🤤'}[p2Mood_];
-  ctx.font=`${Math.round(sz*0.65)}px serif`;
-  ctx.fillText(moodE,w*0.35+sz*0.55,h-30-sz*0.45);
-  // Labels
-  ctx.font='11px sans-serif';ctx.fillStyle='#5bd1c4';ctx.textAlign='center';
-  ctx.fillText(`pandaSize = ${p2Size}  |  bambooCount = ${p2Bamboo}  |  mood = "${p2Mood_}"`,w/2,h-8);
+  ctx.fillText('🐼',w*.32,h-28);
+  const mE={happy:'😄',sleepy:'😴',hungry:'🤤'}[p2Mood_];
+  ctx.font=`${Math.round(sz*.65)}px serif`;
+  ctx.fillText(mE,w*.32+sz*.5,h-28-sz*.4);
+  ctx.font='10px sans-serif';ctx.fillStyle='#00e5c8';ctx.textAlign='center';
+  ctx.fillText(`size=${p2Size}  bamboo=${p2Bamboo}  mood="${p2Mood_}"`,w/2,h-9);
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PHASE 3 — IF/ELSE
-════════════════════════════════════════════════════════════════ */
-let p3Weather='sunny',p3Action_=null;
-const ACT_E={'eat bamboo':'😋🎋','swim':'🏊','play':'🎮','climb':'🧗','dance':'💃','nap':'😴'};
+/* ════════════════════════════════════════════════════════════
+   MISSION 3 — IF/ELSE
+════════════════════════════════════════════════════════════ */
+let p3Wx='sunny',p3Act_=null;
+const ACT_E={'eat bamboo':'🎋😋','swim':'🏊','play':'🎮😄','climb':'🧗','dance':'💃🕺','nap':'😴'};
 
 function p3Toggle(){
-  p3Weather=p3Weather==='sunny'?'rainy':'sunny';
-  const s=p3Weather==='sunny';
-  const card=document.getElementById('wCard');
-  card.className='weather-card '+(s?'sunny':'rainy');
+  p3Wx=p3Wx==='sunny'?'rainy':'sunny';
+  const s=p3Wx==='sunny';
+  document.getElementById('wCard').className='wx-card '+(s?'sunny':'rainy');
   document.getElementById('wIcon').textContent=s?'☀️':'🌧️';
-  document.getElementById('wLabel').textContent=s?'Sunny — tap me to change!':'Rainy — tap me to change!';
+  document.getElementById('wLabel').textContent=s?'SUNNY — tap me!':'RAINY — tap me!';
   document.getElementById('wWord').textContent=s?'SUNNY':'RAINY';
-  p3UpdateCode();p3UpdatePanda();
+  p3UpdateCode();p3UpdateStage();
 }
 function p3Pick(a){
-  p3Action_=a;
-  document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('sel'));
+  p3Act_=a;
+  document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('sel'));
   const idx={'eat bamboo':0,'swim':1,'play':2,'climb':3,'dance':4,'nap':5}[a];
-  document.querySelectorAll('.action-btn')[idx].classList.add('sel');
-  p3UpdateCode();p3UpdatePanda();
+  document.querySelectorAll('.act-btn')[idx].classList.add('sel');
+  p3UpdateCode();p3UpdateStage();
 }
 function p3UpdateCode(){
-  if(!p3Action_){document.getElementById('p3Code').innerHTML='<span class="cm">// Pick an action above first!</span>';return;}
-  const w=p3Weather;const a=p3Action_;
+  if(!p3Act_){document.getElementById('p3Code').innerHTML='<span class="cm">// Pick an action above!</span>';return;}
   document.getElementById('p3Code').innerHTML=
-    `<span class="kw">if</span> (weather === <span class="str">"${w}"</span>) {\n  panda.action = <span class="str">"<span class="hl">${a}</span>"</span>;\n} <span class="kw">else</span> {\n  panda.action = <span class="str">"<span class="hl">sleep</span>"</span>; <span class="cm">// when it's ${w==='sunny'?'rainy':'sunny'}</span>\n}`;
+    `<span class="kw">if</span> (weather === <span class="str">"${p3Wx}"</span>) {\n  panda.action = <span class="str">"<span class="hl">${p3Act_}</span>"</span>;\n} <span class="kw">else</span> {\n  panda.action = <span class="str">"<span class="hl">sleep</span>"</span>; <span class="cm">// when it's ${p3Wx==='sunny'?'rainy':'sunny'}</span>\n}`;
 }
-function p3UpdatePanda(){
-  if(!p3Action_){return;}
-  const sunny=p3Weather==='sunny';
-  const action=sunny?p3Action_:'nap';
-  const e=ACT_E[action]||'🐼';
-  const msg=sunny?`It's sunny ☀️ → panda will: ${p3Action_}!`:`It's rainy 🌧️ → the ELSE runs → panda will: sleep 💤`;
-  document.getElementById('p3Panda').innerHTML=`<span style="font-size:54px">${e}</span><span style="color:var(--accent2);font-size:15px;font-weight:700;text-align:center">${msg}</span>`;
+function p3UpdateStage(){
+  if(!p3Act_)return;
+  const sunny=p3Wx==='sunny';
+  const act=sunny?p3Act_:'nap';
+  const e=ACT_E[act]||'🐼';
+  const msg=sunny?`☀️ It's sunny → panda: ${p3Act_}!`:`🌧️ It's rainy → ELSE runs → panda: sleep 💤`;
+  document.getElementById('p3Stage').innerHTML=`<span style="font-size:52px">${e}</span><span style="color:var(--accent2);font-size:15px;font-weight:800;text-align:center">${msg}</span>`;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PHASE 4 — LOOPS
-════════════════════════════════════════════════════════════════ */
-let p4Planting=false;
+/* ════════════════════════════════════════════════════════════
+   MISSION 4 — LOOPS
+════════════════════════════════════════════════════════════ */
+let p4Going=false;
 
 function p4Update(){
   const n=parseInt(document.getElementById('sLoop').value);
   document.getElementById('vLoop').textContent=n;
   document.getElementById('cLoop').textContent=n;
   document.getElementById('loopTimes').textContent=n;
-  p4RenderForest(n,false);
-}
-function p4RenderForest(n,animated){
   const el=document.getElementById('p4Forest');
-  if(n===0){el.innerHTML='<span style="color:var(--muted);font-size:14px">No bamboo planted yet — move the slider!</span>';return;}
-  el.innerHTML=Array.from({length:n},(_,i)=>`<span class="bamboo-stalk" style="${animated?`animation-delay:${i*0.12}s`:''}">🎋</span>`).join('');
+  if(n===0){el.innerHTML='<span style="color:var(--muted);font-size:14px">No bamboo — move the slider!</span>';return;}
+  el.innerHTML=Array.from({length:n},(_,i)=>`<span class="stalk" style="animation-delay:${i*.08}s">🎋</span>`).join('');
 }
 function p4Plant(){
-  if(p4Planting)return;
+  if(p4Going)return;
   const n=parseInt(document.getElementById('sLoop').value);
-  if(n===0){alert('Move the slider to pick how many stalks!');return;}
-  p4Planting=true;
-  const el=document.getElementById('p4Forest');el.innerHTML='';
+  if(n===0){alert('Move the slider first!');return;}
+  p4Going=true;const el=document.getElementById('p4Forest');el.innerHTML='';
   let i=0;
-  function next(){
-    if(i>=n){p4Planting=false;return;}
-    const s=document.createElement('span');s.className='bamboo-stalk';s.textContent='🎋';
-    el.appendChild(s);i++;
-    setTimeout(next,180);
-  }
+  function next(){if(i>=n){p4Going=false;addXP(n*2);return;}
+    const s=document.createElement('span');s.className='stalk';s.textContent='🎋';el.appendChild(s);i++;
+    setTimeout(next,170);}
   next();
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PHASE 5 — GRID CHALLENGE
-════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   MISSION 5 — THE ESCAPE
+════════════════════════════════════════════════════════════ */
 const LEVELS=[
-  {g:3,end:[2,2],walls:[]},
-  {g:4,end:[3,3],walls:[]},
-  {g:5,end:[4,4],walls:[]},
-  {g:5,end:[4,4],walls:[[1,1],[2,2],[3,1]]}
+  {g:3,end:[2,2],walls:[],brief:'Guide the panda from top-left to the bamboo at bottom-right.'},
+  {g:4,end:[3,3],walls:[],brief:'Bigger grid now. Count your steps carefully!'},
+  {g:5,end:[4,4],walls:[],brief:'5×5 grid. This one takes real planning.'},
+  {g:5,end:[4,4],walls:[[1,1],[2,2],[3,1]],brief:'ROCKS! 🪨 Dodge them or the panda crashes. Plan your route around them.'}
 ];
-let p5Lv=0,p5Moves_=[],p5Running_=false;
+let p5Lv=0,p5Moves_=[],p5Run_=false;
 
 function p5Draw(pr,pc){
   const lv=LEVELS[p5Lv];const G=lv.g;
   const cv=document.getElementById('c5');
-  const CELL=Math.floor(Math.min(340,window.innerWidth-32)/G);
+  const CELL=Math.floor(Math.min(330,window.innerWidth-32)/G);
   cv.width=CELL*G;cv.height=CELL*G;
   const ctx=cv.getContext('2d');
   const r0=pr!=null?pr:0;const c0=pc!=null?pc:0;
-  for(let r=0;r<G;r++){
-    for(let c=0;c<G;c++){
-      const x=c*CELL,y=r*CELL;
-      const isWall=lv.walls.some(w=>w[0]===r&&w[1]===c);
-      const isEnd=r===lv.end[0]&&c===lv.end[1];
-      ctx.fillStyle=isWall?'#3a0a0a':isEnd?'#071a0d':((r+c)%2===0?'#12192b':'#181f2e');
-      ctx.fillRect(x,y,CELL,CELL);
-      ctx.strokeStyle='#2e3347';ctx.lineWidth=1;ctx.strokeRect(x,y,CELL,CELL);
-      ctx.font=`${Math.round(CELL*0.55)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      if(isWall)ctx.fillText('🪨',x+CELL/2,y+CELL/2);
-      else if(isEnd)ctx.fillText('🎋',x+CELL/2,y+CELL/2);
-    }
-  }
-  // Panda
-  ctx.font=`${Math.round(CELL*0.6)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let r=0;r<G;r++){for(let c=0;c<G;c++){
+    const x=c*CELL,y=r*CELL;
+    const isW=lv.walls.some(w=>w[0]===r&&w[1]===c);
+    const isEnd=r===lv.end[0]&&c===lv.end[1];
+    ctx.fillStyle=isW?'#2a0505':isEnd?'#04120a':((r+c)%2===0?'#0d1020':'#111525');
+    ctx.fillRect(x,y,CELL,CELL);
+    ctx.strokeStyle='#1f2340';ctx.lineWidth=1;ctx.strokeRect(x,y,CELL,CELL);
+    ctx.font=`${Math.round(CELL*.54)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    if(isW)ctx.fillText('🪨',x+CELL/2,y+CELL/2);
+    else if(isEnd)ctx.fillText('🎋',x+CELL/2,y+CELL/2);
+  }}
+  ctx.font=`${Math.round(CELL*.58)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText('🐼',c0*CELL+CELL/2,r0*CELL+CELL/2);
-  // Label
-  ctx.fillStyle='#5bd1c4';ctx.font='bold 10px sans-serif';ctx.textAlign='right';ctx.textBaseline='top';
-  ctx.fillText(`Level ${p5Lv+1}/${LEVELS.length}  (${G}×${G})`,cv.width-4,3);
-  document.getElementById('p5LevelLabel').textContent=`Level ${p5Lv+1} of ${LEVELS.length}${p5Lv===LEVELS.length-1?' (Final level! 🏆)':''}`;
+  document.getElementById('lvBadge').textContent=`🎯 LEVEL ${p5Lv+1} of 4 — ${G}×${G} GRID`;
+  document.getElementById('mBrief').textContent=LEVELS[p5Lv].brief;
 }
-function p5Add(d){
-  if(p5Running_)return;
-  p5Moves_.push(d);p5RenderMoves();
-}
+function p5Add(d){if(p5Run_)return;p5Moves_.push(d);p5RenderMoves();}
 function p5RenderMoves(){
   const A={up:'⬆️',down:'⬇️',left:'⬅️',right:'➡️'};
-  document.getElementById('moveCount').textContent=p5Moves_.length;
+  document.getElementById('moveCount').textContent=p5Moves_.length+' move'+(p5Moves_.length===1?'':'s');
   const el=document.getElementById('p5MoveBox');
-  if(!p5Moves_.length){el.innerHTML='<span style="color:var(--muted);font-size:13px;font-style:italic">Use the arrows above to add moves!</span>';return;}
-  el.innerHTML=p5Moves_.map(m=>`<span class="move-tag">${A[m]}</span>`).join('');
+  if(!p5Moves_.length){el.innerHTML='<span style="color:var(--muted);font-size:13px;font-style:italic">Queue up moves above!</span>';return;}
+  el.innerHTML=p5Moves_.map(m=>`<span class="move-pill">${A[m]}</span>`).join('');
 }
 function p5Clear(){
-  p5Moves_=[];p5Running_=false;
-  p5RenderMoves();
+  p5Moves_=[];p5Run_=false;p5RenderMoves();
   document.getElementById('p5Win').classList.remove('show');
   document.getElementById('p5Lose').classList.remove('show');
   document.getElementById('p5HintBox').style.display='none';
   p5Draw();
 }
-function p5ShowHint(){document.getElementById('p5HintBox').style.display='block';}
+function p5Hint(){document.getElementById('p5HintBox').style.display='block';}
 function p5Next(){
-  if(p5Lv<LEVELS.length-1)p5Lv++;
-  p5Clear();
+  if(p5Lv<LEVELS.length-1){p5Lv++;p5Clear();}
+  else{document.getElementById('nextLvBtn').style.display='none';showToast('🏆 ALL LEVELS COMPLETE! Boss mode: UNLOCKED');addXP(50);}
 }
 function p5Run(){
-  if(p5Running_)return;
-  if(!p5Moves_.length){alert('Add some moves first!');return;}
-  p5Running_=true;
+  if(p5Run_)return;
+  if(!p5Moves_.length){alert('Queue some moves first!');return;}
+  p5Run_=true;
   document.getElementById('p5Win').classList.remove('show');
   document.getElementById('p5Lose').classList.remove('show');
   const lv=LEVELS[p5Lv];const G=lv.g;
   let r=0,c=0;const moves=p5Moves_.slice();let step=0;
+  const DR={up:-1,down:1,left:0,right:0},DC={up:0,down:0,left:-1,right:1};
   function tick(){
     if(step>=moves.length){
-      p5Running_=false;
+      p5Run_=false;
       if(r===lv.end[0]&&c===lv.end[1]){
         document.getElementById('p5Win').classList.add('show');
-        try{localStorage.setItem('coding-l1-challenge',String(p5Lv+1));}catch(e){}
+        const xpEarned=25+p5Lv*10;
+        addXP(xpEarned);
+        document.getElementById('winXP').textContent=`+${xpEarned} XP EARNED`;
+        document.getElementById('winEmoji').textContent=p5Lv===LEVELS.length-1?'🏆':'🎯';
+        document.getElementById('winTitle').textContent=p5Lv===LEVELS.length-1?'ALL LEVELS CRUSHED!':'BAMBOO FOUND!';
+        document.getElementById('winMsg').textContent=`Level ${p5Lv+1} complete! ${p5Lv<LEVELS.length-1?'Ready for level '+(p5Lv+2)+'?':'You beat ALL 4 levels!'}`;
+        if(p5Lv===LEVELS.length-1)document.getElementById('nextLvBtn').textContent='🏆 YOU WIN!';
+        showToast(`🎯 LEVEL ${p5Lv+1} CLEARED! +${xpEarned} XP`);
+        try{localStorage.setItem('coding-l1-escape',p5Lv+1);}catch(e){}
       } else {
         document.getElementById('p5Lose').classList.add('show');
-        document.getElementById('p5LoseMsg').textContent=`Panda stopped at (${r+1},${c+1}) but bamboo is at (${lv.end[0]+1},${lv.end[1]+1}). Not quite — try again!`;
+        document.getElementById('p5LoseMsg').textContent=`Panda ended at (${r+1},${c+1}) — bamboo is at (${lv.end[0]+1},${lv.end[1]+1}). Adjust your route!`;
       }
       return;
     }
     const mv=moves[step++];
-    const DR={up:-1,down:1,left:0,right:0},DC={up:0,down:0,left:-1,right:1};
     const nr=r+DR[mv],nc=c+DC[mv];
     if(nr<0||nr>=G||nc<0||nc>=G){
-      p5Running_=false;p5Draw(r,c);
+      p5Run_=false;p5Draw(r,c);
       document.getElementById('p5Lose').classList.add('show');
-      document.getElementById('p5LoseMsg').textContent=`Oops! At step ${step} the panda tried to walk off the edge! Walls hurt.`;
-      return;
+      document.getElementById('p5LoseMsg').textContent=`CRASH! Step ${step}: panda hit the wall. Stay inside the grid!`;return;
     }
     if(lv.walls.some(w=>w[0]===nr&&w[1]===nc)){
-      p5Running_=false;p5Draw(r,c);
+      p5Run_=false;p5Draw(r,c);
       document.getElementById('p5Lose').classList.add('show');
-      document.getElementById('p5LoseMsg').textContent=`Crash! At step ${step} the panda hit a rock 🪨. Dodge the rocks!`;
-      return;
+      document.getElementById('p5LoseMsg').textContent=`SLAM! Step ${step}: panda hit a rock 🪨. Dodge the rocks!`;return;
     }
     r=nr;c=nc;p5Draw(r,c);
-    setTimeout(tick,360);
+    setTimeout(tick,350);
   }
   tick();
 }
 
-/* ════════════════════════════════════════════════════════════════
-   QUIZ
-════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   BOSS TEST (QUIZ)
+════════════════════════════════════════════════════════════ */
 const QS=[
-  {q:"What is CODE?",o:["A list of instructions the computer follows in order","A magic spell that makes things appear","A secret language only adults know","A type of video game"],a:0,e:"Code is a list of instructions! The computer follows them one at a time, in order — just like a recipe!"},
-  {q:"Which line creates a VARIABLE?",o:["let score = 10;","if (score > 5)","for (let i = 0; i < 3; i++)","click the button"],a:0,e:'The word "let" creates a variable. Variables are like labeled boxes that store information!'},
-  {q:"What does an IF statement do?",o:["Makes a decision — IF this is true, do X","Repeats something over and over","Stores a value in memory","Makes the panda walk right"],a:0,e:"If statements make decisions! IF condition is true → do one thing. ELSE → do something different."},
-  {q:"You set: let bambooCount = 5;\nThen you change it to: let bambooCount = 8;\nThe program will now plant:",o:["8 bamboo stalks","5 bamboo stalks","13 bamboo stalks","Nothing — it's broken"],a:0,e:"When you change a variable's value, the program uses the NEW value — so 8 stalks!"},
-  {q:"What is a LOOP used for?",o:["Repeating the same action many times","Making a decision","Storing information","Naming something"],a:0,e:"Loops repeat! Instead of writing plantBamboo() ten times, a loop does it for you!"},
-  {q:"This code runs:\nfor (let i = 0; i < 4; i++) { plantBamboo(); }\nHow many stalks get planted?",o:["4 stalks","1 stalk","0 stalks","It runs forever"],a:0,e:"The loop runs when i = 0, 1, 2, 3 — that's 4 times! When i reaches 4, i < 4 is FALSE, so it stops."},
-  {q:"In the grid challenge, the panda starts at the TOP-LEFT and the bamboo is at BOTTOM-RIGHT. Which directions do you need?",o:["Right and Down","Left and Up","Only Right","Only Down"],a:0,e:"To get from top-left to bottom-right, you need to go RIGHT and DOWN — perfect use of loops!"},
-  {q:"What do programmers call mistakes in code?",o:["Bugs 🐛","Oops 😬","Crashes 💥","Misses"],a:0,e:"Mistakes in code are called BUGS! Fixing them is called DEBUGGING. Even professional programmers debug all day!"},
-  {q:"The ORDER of instructions in a program:",o:["Matters a lot — change the order, change the result!","Doesn't matter — computers figure it out","Only matters sometimes","Doesn't exist in coding"],a:0,e:"Order matters hugely! 'Wake up → eat breakfast → go to school' is very different from 'go to school → wake up → eat breakfast'!"},
-  {q:"Variables can change their value. That's why they're called:",o:["Variables — because they can VARY (change)!","Containers — because they hold things","Locks — because they stay fixed","Answers — because they solve problems"],a:0,e:"Vary-able = able to vary (change). Variables can be updated anytime, and the whole program automatically uses the new value!"}
+  {q:"What is a PROGRAM?",o:["A list of instructions the computer follows in order","A magic spell","A type of video game","Only something adults can make"],a:0,e:"A program is a list of instructions! The computer runs them one at a time, in order — exactly like you did with the panda."},
+  {q:"Which line creates a VARIABLE?",o:["let score = 10;","if (score > 5)","for (let i = 0; i < 3; i++)","click the button"],a:0,e:'"let" creates a variable — a named box that stores information. score = 10 means the box called "score" holds the number 10.'},
+  {q:"What does IF / ELSE do?",o:["Makes a decision — IF true do X, ELSE do Y","Repeats something many times","Stores a number","Moves the panda"],a:0,e:"If/else makes decisions! IF the condition is true → one path. ELSE → different path. Every game uses this millions of times."},
+  {q:"You set: let pandaSize = 3\nThen change it to: let pandaSize = 7\nThe panda is now:",o:["Bigger — the variable changed!","The same size — nothing updated","Gone — the variable broke","Smaller"],a:0,e:"When you change a variable's value, the whole program uses the new value immediately. pandaSize is now 7, so the panda is bigger!"},
+  {q:"A LOOP is useful when you want to:",o:["Repeat the same thing many times without writing it over and over","Make a decision","Store information","Do nothing"],a:0,e:"Loops repeat! One loop command does the work of writing the same line 10 times. Smart coders use loops everywhere."},
+  {q:"for (let i = 0; i < 5; i++) { plantBamboo(); }\nHow many times does plantBamboo() run?",o:["5 times","1 time","0 times","It never stops"],a:0,e:"i starts at 0 and goes up: 0, 1, 2, 3, 4 — stops when i reaches 5 (because i < 5 becomes false). That's exactly 5 runs!"},
+  {q:"In The Escape, the panda starts at the TOP-LEFT. To reach BOTTOM-RIGHT, you need to go:",o:["RIGHT and DOWN","LEFT and UP","Only RIGHT","Only DOWN"],a:0,e:"To get from top-left to bottom-right you need to move right AND down — how many times depends on the grid size. That's planning!"},
+  {q:"What do coders call a mistake in their code?",o:["A BUG 🐛","An oops 😬","A crash 💥","A fail 😤"],a:0,e:"Mistakes in code are called BUGS! Fixing them is called DEBUGGING. Even professional coders at Google spend lots of time debugging — it's totally normal."},
+  {q:"The ORDER of instructions matters because:",o:["Change the order → the program does something different","Computers rearrange things automatically","Order only matters in math","It doesn't matter at all"],a:0,e:"Order matters hugely! 'Wake up → eat breakfast → go to school' is completely different from 'go to school → wake up → eat breakfast'!"},
+  {q:"You just learned to: (pick the BEST answer)",o:["Write programs, use variables, make decisions with if/else, repeat things with loops, AND solve a maze challenge","Watch someone else code","Play a video game","Do math homework"],a:0,e:"You learned ALL of that! Programs, variables, if/else, loops, and puzzle-solving with code. That's real coding — the same stuff used to make apps and games!"}
 ];
 
 let qIdx=0,qAns_={},qDone_=false;
 
-function logMistake(correct,text,title){
-  try{
-    let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');
-    const key=PREFIX+title;
-    if(!correct){m[key]={subject:'Coding',day:'Lesson 1',q:text,file:'coding-lesson-01-intro.html'};}
-    else{delete m[key];}
-    localStorage.setItem('refresher-mistakes',JSON.stringify(m));
-  }catch(e){}
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 1',q:text,file:'coding-lesson-01-intro.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
 }
 function buildQuiz(){
   document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
@@ -743,15 +810,15 @@ function renderQ(){
   });
   const q=QS[qIdx];
   document.getElementById('qArea').innerHTML=
-    `<div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Question ${qIdx+1} of ${QS.length}</div>`+
-    `<div class="q-text" style="font-size:18px;font-weight:700;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    `<div class="q-num-label">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div class="q-text">${q.q.replace(/\n/g,'<br>')}</div>`+
     q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
     `<div class="q-feedback" id="qfb"></div>`+
-    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn accent" onclick="nextQ()">${qIdx===QS.length-1?'See My Score! 🎉':'Next Question →'}</button></div>`;
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See My Score!':'Next Round →'}</button></div>`;
   if(qAns_[qIdx]!==undefined){
     const p=qAns_[qIdx];const ok=p===q.a;
     document.querySelectorAll('.opt').forEach((b,i)=>{if(i===q.a)b.classList.add('correct');if(i===p&&!ok)b.classList.add('wrong');b.disabled=true;});
-    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ Correct! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
     document.getElementById('qnxt').style.display='block';
   }
 }
@@ -761,10 +828,12 @@ function ansQ(i){
   qAns_[qIdx]=i;
   try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
   logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
   document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
-  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ Correct! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
   document.getElementById('qnxt').style.display='block';
   const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
 }
 function nextQ(){
   qIdx++;if(qIdx>=QS.length)qDone_=true;
@@ -774,42 +843,44 @@ function nextQ(){
 function showScore(){
   const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
   const pct=Math.round(c/QS.length*100);
-  const msg=pct===100?'PERFECT! You are a coding star! 🌟⭐🌟':pct>=80?'Amazing work! 🚀':pct>=60?'Good job! Keep practicing! 💪':'Keep going — coding takes practice! 🐼';
+  const msg=pct===100?'🏆 PERFECT SCORE — PANDA BOSS UNLOCKED!':pct>=80?'🔥 CRUSHING IT — YOU\'RE BASICALLY A CODER!':pct>=60?'💪 SOLID. KEEP PRACTICING AND YOU\'LL BE UNSTOPPABLE.':'🐼 KEEP GOING — EVERY BOSS STARTS AS A BEGINNER.';
   document.getElementById('qArea').innerHTML=
-    `<div class="score-card"><div class="score-big">${c}/${QS.length}</div>`+
-    `<div style="font-size:22px;font-weight:700;margin:10px 0">${msg}</div>`+
-    `<p style="color:var(--muted)">${pct}% — ${c} correct</p></div>`;
+    `<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP earned: ${xp}</p></div>`;
   try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
 }
 function restoreQuiz(){
-  try{
-    const s=localStorage.getItem(QAKEY);if(!s)return;
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;
     Object.assign(qAns_,JSON.parse(s));
     const keys=Object.keys(qAns_).map(Number);
     if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}
-    else{qIdx=Math.max(...keys)+1;if(qIdx>=QS.length){qDone_=true;}}
+    else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}
   }catch(e){}
 }
 
-/* ─── Safety save ─────────────────────────────────────────────── */
+/* ─── Safety save ────────────────────────────────────────── */
 function saveAll(){
   try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
-  try{localStorage.setItem(WKEY,JSON.stringify({phase:curPhase,lv:p5Lv}));}catch(e){}
+  try{localStorage.setItem(WKEY,JSON.stringify({mission:cur,lv:p5Lv,xp}));}catch(e){}
 }
-['visibilitychange','pagehide','beforeunload','blur'].forEach((ev,i)=>{
-  (i===0?document:window).addEventListener(ev,()=>{if(ev==='visibilitychange'&&document.visibilityState!=='hidden')return;saveAll();});
-});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAll();});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
 
-/* ─── Init ────────────────────────────────────────────────────── */
+/* ─── Init ───────────────────────────────────────────────── */
 function init(){
-  try{const prog=JSON.parse(localStorage.getItem(WKEY)||'{}');if(prog.lv)p5Lv=Math.min(prog.lv,LEVELS.length-1);}catch(e){}
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');
+    if(g.lv)p5Lv=Math.min(g.lv,LEVELS.length-1);
+    if(g.xp)xp=g.xp;
+    document.getElementById('xpNum').textContent=xp;
+  }catch(e){}
   buildQuiz();restoreQuiz();
-  p1Draw();p2Draw();p4RenderForest(3,false);p5Draw();
+  p1Draw();p2Draw();
+  p4Update();p5Draw();
   p2Mood('happy');
-  p4Update();
 }
 init();
-window.addEventListener('resize',()=>{if(curPhase===1)p1Draw();if(curPhase===2)p2Draw();if(curPhase===5)p5Draw();});
+window.addEventListener('resize',()=>{
+  if(cur===1)p1Draw();if(cur===2)p2Draw();if(cur===5)p5Draw();
+});
 </script>
 </body>
 </html>
