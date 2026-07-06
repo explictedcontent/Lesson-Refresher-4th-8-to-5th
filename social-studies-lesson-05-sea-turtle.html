@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Studies Day 5 — Sea Turtles</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:6px;align-items:center}
+.seg{flex:1;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s,transform .2s;cursor:pointer}
+.seg.done{background:var(--good)}
+.seg.active{background:var(--accent);transform:scaleY(1.4)}
+.phase-label{font-size:11px;color:var(--muted);white-space:nowrap;min-width:fit-content;margin-left:8px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:20px 16px 60px}
+.phase{display:none}
+.phase.active{display:block}
+h1{font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:12px;margin-top:24px}
+h3{font-size:1.05rem;font-weight:600;color:var(--warn);margin-bottom:8px}
+.phase-header{margin-bottom:24px}
+.phase-header .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.phase-header p{color:var(--muted);font-size:.95rem}
+
+/* Cards */
+.card{background:var(--panel);border-radius:var(--radius);padding:20px;margin-bottom:var(--gap);border:1px solid var(--line)}
+.card p{color:var(--muted);font-size:.95rem;line-height:1.65}
+
+/* True/False cards */
+.tf-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.tf-card{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:20px;cursor:pointer;transition:border-color .2s,background .2s;min-height:44px}
+.tf-card:hover{border-color:var(--accent2)}
+.tf-card.correct{border-color:var(--good);background:rgba(123,216,143,.08)}
+.tf-card.wrong{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tf-card .tf-statement{font-size:1rem;font-weight:600;margin-bottom:10px}
+.tf-btns{display:flex;gap:10px;margin-top:10px}
+.tf-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;min-height:44px;transition:opacity .2s}
+.tf-btn.true-btn{background:var(--accent2);color:#111}
+.tf-btn.false-btn{background:var(--accent);color:#fff}
+.tf-btn:disabled{opacity:.5;cursor:default}
+.tf-feedback{margin-top:10px;font-size:.875rem;padding:8px 12px;border-radius:6px;display:none}
+.tf-feedback.show{display:block}
+.tf-feedback.correct{background:rgba(123,216,143,.15);color:var(--good)}
+.tf-feedback.wrong{background:rgba(255,107,129,.15);color:var(--bad)}
+
+/* Reading passage */
+.reading-passage{background:var(--panel);border-radius:var(--radius);padding:24px;border:1px solid var(--line);line-height:1.8}
+.reading-passage p{margin-bottom:14px;color:#dce0f0}
+.reading-passage p:last-child{margin-bottom:0}
+.reading-passage strong{color:var(--warn)}
+.reading-passage em{color:var(--accent2)}
+.vocab-box{background:var(--panel2);border-left:3px solid var(--accent2);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.vocab-box span{font-weight:700;color:var(--accent2)}
+
+/* Match game */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:14px 12px;cursor:pointer;text-align:center;font-size:.875rem;line-height:1.4;min-height:70px;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;user-select:none}
+.match-item:hover:not(.matched):not(.locked){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.match-item.selected{border-color:var(--warn);background:rgba(255,209,102,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.7}
+.match-item.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.match-score{font-size:1rem;color:var(--muted);margin-bottom:14px}
+.match-score span{color:var(--accent2);font-weight:700}
+.col-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;text-align:center}
+
+/* Timeline */
+.timeline-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.tl-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:14px 16px;cursor:grab;display:flex;align-items:flex-start;gap:12px;min-height:44px;transition:border-color .2s,opacity .2s;user-select:none}
+.tl-item:active{cursor:grabbing;opacity:.85}
+.tl-item.dragging{opacity:.4;border-color:var(--accent)}
+.tl-item.over{border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.tl-item.correct-pos{border-color:var(--good);background:rgba(123,216,143,.08);cursor:default}
+.tl-item.wrong-pos{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tl-year{font-weight:700;color:var(--warn);min-width:42px;font-size:.95rem}
+.tl-text{font-size:.875rem;line-height:1.45;color:var(--ink)}
+.tl-handle{color:var(--muted);font-size:1.1rem;cursor:grab;flex-shrink:0}
+.tl-feedback{margin-top:12px;font-size:.9rem;padding:10px 14px;border-radius:8px;display:none}
+.tl-feedback.show{display:block}
+.tl-feedback.all-correct{background:rgba(123,216,143,.15);color:var(--good)}
+.tl-feedback.has-wrong{background:rgba(255,209,102,.12);color:var(--warn)}
+.tl-check-btn{background:var(--accent2);color:#111;border:none;border-radius:8px;padding:11px 22px;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:10px;min-height:44px}
+.tl-check-btn:hover{opacity:.88}
+
+/* Writing pad */
+.writing-wrap{position:relative}
+textarea{width:100%;min-height:200px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:var(--radius);padding:16px;font-size:1rem;line-height:1.7;resize:vertical;font-family:inherit;transition:border-color .2s}
+textarea:focus{outline:none;border-color:var(--accent2)}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;color:var(--muted)}
+.save-indicator{color:var(--good);font-weight:600;opacity:0;transition:opacity .4s}
+.save-indicator.show{opacity:1}
+
+/* Quiz */
+.quiz-progress{display:flex;gap:6px;margin-bottom:20px}
+.q-dot{width:28px;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s}
+.q-dot.answered-correct{background:var(--good)}
+.q-dot.answered-wrong{background:var(--bad)}
+.q-dot.current{background:var(--accent)}
+.quiz-q{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);margin-bottom:14px}
+.quiz-q .q-num{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.quiz-q .q-text{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:16px}
+.choice-btn{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:8px;font-size:.95rem;cursor:pointer;color:var(--ink);transition:border-color .2s,background .2s;min-height:44px;line-height:1.4}
+.choice-btn:hover:not(:disabled){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.12);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.choice-btn:disabled{cursor:default}
+.q-explanation{margin-top:12px;font-size:.875rem;padding:10px 14px;border-radius:8px;background:rgba(91,209,196,.1);color:var(--accent2);display:none}
+.q-explanation.show{display:block}
+.quiz-nav{display:flex;gap:10px;margin-top:6px}
+.quiz-nav button{flex:1;padding:12px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.q-prev-btn{background:var(--panel2);color:var(--ink)}
+.q-next-btn{background:var(--accent);color:#fff}
+.q-next-btn:disabled{opacity:.5;cursor:default}
+.quiz-result{text-align:center;padding:28px 20px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-top:16px;display:none}
+.quiz-result.show{display:block}
+.result-score{font-size:2.8rem;font-weight:800;color:var(--accent2);margin-bottom:8px}
+.result-msg{font-size:1rem;color:var(--muted);margin-bottom:16px}
+.retry-btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;min-height:44px}
+.retry-btn:hover{border-color:var(--accent)}
+
+/* Nav buttons */
+.nav-btns{display:flex;gap:10px;margin-top:28px}
+.nav-btn{flex:1;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;min-height:44px;transition:opacity .2s}
+.nav-btn:hover{opacity:.88}
+.btn-prev{background:var(--panel2);color:var(--ink);border:2px solid var(--line)}
+.btn-next{background:var(--accent);color:#fff}
+.btn-next.done{background:var(--good)}
+
+/* Utility */
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;margin:2px}
+.pill-crit{background:rgba(255,107,129,.2);color:var(--bad)}
+.pill-end{background:rgba(255,209,102,.2);color:var(--warn)}
+.pill-vuln{background:rgba(255,122,89,.2);color:var(--accent)}
+.facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.fact-tile{background:var(--panel2);border-radius:10px;padding:14px;text-align:center}
+.fact-tile .num{font-size:1.5rem;font-weight:800;color:var(--accent2)}
+.fact-tile .lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+@media(max-width:480px){.match-grid{grid-template-columns:1fr}.facts-grid{grid-template-columns:1fr}.match-item{min-height:56px}}
+</style>
+</head>
+<body>
+
+<div id="phase-bar">
+  <div class="seg" data-phase="0" title="Warm-Up"></div>
+  <div class="seg" data-phase="1" title="Reading"></div>
+  <div class="seg" data-phase="2" title="Map Match"></div>
+  <div class="seg" data-phase="3" title="Timeline"></div>
+  <div class="seg" data-phase="4" title="Writing"></div>
+  <div class="seg" data-phase="5" title="Quiz"></div>
+  <span class="phase-label" id="phase-label">Warm-Up</span>
+</div>
+
+<div class="container">
+
+<!-- PHASE 1: Warm-Up -->
+<div class="phase active" id="phase-0">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 1 of 6 &bull; 5 min</div>
+    <h1>🐢 Sea Turtle Warm-Up</h1>
+    <p>Tap TRUE or FALSE for each statement. You'll get instant feedback!</p>
+  </div>
+  <div class="tf-grid" id="tf-grid"></div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-next" onclick="goPhase(1)">Start Reading &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 2: Reading -->
+<div class="phase" id="phase-1">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 2 of 6 &bull; 10 min</div>
+    <h1>Core Reading: Sea Turtles Around the World</h1>
+    <p>Read carefully — the quiz and activities come from this passage.</p>
+  </div>
+  <div class="reading-passage">
+    <p>Sea turtles have swum Earth's oceans for more than <strong>100 million years</strong> — they shared the planet with dinosaurs! Today, <strong>seven species</strong> survive worldwide: the Green, Loggerhead, Leatherback, Hawksbill, Kemp's Ridley, Flatback, and Olive Ridley. Each species has a unique look and lifestyle, but all face serious threats from human activity.</p>
+
+    <p>The <strong>Leatherback</strong> is the largest sea turtle — it can weigh over 1,000 pounds and reach 7 feet long. Its name comes from its rubbery shell, which lacks hard scutes. Leatherbacks are champion travelers: one individual tracked by scientists swam <em>more than 10,000 miles round trip</em> from Canada all the way to Trinidad. They also cross the entire Pacific Ocean, migrating from Asia to California and back.</p>
+
+    <p>Not all sea turtles migrate so far, but they all return to the beach where they were born to lay eggs — sometimes after 20 or 30 years away. The most famous nesting place in the world is <strong>Tortuguero, Costa Rica</strong>, where tens of thousands of Green turtles come ashore each year. Sometimes hundreds of sea turtles nest on the same beach on the same night, creating a spectacular event called an <em>"arribada"</em> (Spanish for "arrival"). The world's largest Green turtle rookery is <strong>Raine Island, Australia</strong>, where over 60,000 turtles can nest in a single season. Other key nesting sites include <strong>Archie Carr National Wildlife Refuge</strong> in Florida, and important beaches in Malaysia and Japan.</p>
+
+    <div class="vocab-box"><span>Rookery:</span> A breeding colony — a place where animals gather to nest and raise young.</div>
+
+    <p>Protecting sea turtles requires cooperation between countries because these animals travel across international borders. In <strong>1973</strong>, world governments created <em>CITES</em> — the Convention on International Trade in Endangered Species. Today, <strong>183 countries</strong> have signed this treaty, agreeing not to buy or sell sea turtles or their products.</p>
+
+    <p>The <strong>IUCN Red List</strong> tracks how endangered each species is. Right now, the Kemp's Ridley and Hawksbill are <span class="pill pill-crit">Critically Endangered</span>. The Green turtle is <span class="pill pill-end">Endangered</span>. The Leatherback and Loggerhead are <span class="pill pill-vuln">Vulnerable</span>.</p>
+
+    <p>The Kemp's Ridley is the rarest sea turtle. In <strong>1985</strong>, scientists counted only about <strong>200 nests</strong> on the entire planet — the species was nearly extinct. Conservationists rallied: they protected nesting beaches in Mexico, required shrimp boats to use special escape hatches called <em>Turtle Excluder Devices (TEDs)</em>, and moved eggs to protected hatcheries. By <strong>2019</strong>, the count had risen to over <strong>9,000 nests</strong> per year — one of the greatest sea turtle recovery stories ever recorded.</p>
+
+    <p>The oldest marine turtle conservation organization in the world is the <strong>Sea Turtle Conservancy</strong>, founded in <strong>1959</strong> by Archie Carr in Florida. It pioneered tagging and tracking programs that taught us how far these animals travel.</p>
+
+    <p>Despite the progress, sea turtles still face many threats. <strong>Beach development</strong> destroys nesting habitat and bright lights confuse hatchlings that use moonlight to find the ocean. <strong>Plastic bags</strong> floating in the water look exactly like jellyfish — a favorite food — and turtles that eat them can choke or starve. <strong>Fishing bycatch</strong> accidentally catches turtles in nets and longlines. And <strong>climate change</strong> is warming beaches, which affects the sex of hatchlings — warmer sand produces more females, which could eventually skew the population.</p>
+
+    <div class="facts-grid">
+      <div class="fact-tile"><div class="num">7</div><div class="lbl">species worldwide</div></div>
+      <div class="fact-tile"><div class="num">183</div><div class="lbl">CITES nations</div></div>
+      <div class="fact-tile"><div class="num">10,000+</div><div class="lbl">miles Leatherback migrates</div></div>
+      <div class="fact-tile"><div class="num">1959</div><div class="lbl">Sea Turtle Conservancy founded</div></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(0)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(2)">Map Match Game &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 3: Map Match -->
+<div class="phase" id="phase-2">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 3 of 6 &bull; 10 min</div>
+    <h1>Geography Match Game</h1>
+    <p>Tap a location on the left, then tap the matching fact on the right. Wrong pairs will shake — keep trying!</p>
+  </div>
+  <div class="match-score">Matched: <span id="match-count">0</span> / 6</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+    <div class="col-label">Place / Treaty</div>
+    <div class="col-label">Fact</div>
+  </div>
+  <div class="match-grid" id="match-grid"></div>
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+    <button class="retry-btn" onclick="resetMatch()">Reset Game</button>
+    <span id="match-done-msg" style="color:var(--good);font-weight:700;display:none">All matched! Great work!</span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(1)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(3)">Conservation Timeline &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 4: Timeline -->
+<div class="phase" id="phase-3">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 4 of 6 &bull; 10 min</div>
+    <h1>Conservation Timeline</h1>
+    <p>Drag (or tap &uarr;/&darr; buttons) to put these events in the correct order from earliest to latest!</p>
+  </div>
+  <div class="timeline-list" id="tl-list"></div>
+  <button class="tl-check-btn" onclick="checkTimeline()">Check My Order</button>
+  <div class="tl-feedback" id="tl-feedback"></div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(2)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(4)">Writing Pad &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 5: Writing -->
+<div class="phase" id="phase-4">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 5 of 6 &bull; 5 min</div>
+    <h1>Writing Pad</h1>
+  </div>
+  <div class="card">
+    <h3>Writing Prompt</h3>
+    <p>Imagine you are a baby sea turtle hatching on a beach. Describe your journey from the nest to the ocean. What challenges do you face? What helps you find your way?</p>
+  </div>
+  <div class="writing-wrap">
+    <textarea id="writing-pad" placeholder="Start writing here..."></textarea>
+    <div class="writing-meta">
+      <span id="char-count">0 characters</span>
+      <span class="save-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(3)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(5)">Final Quiz &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 6: Quiz -->
+<div class="phase" id="phase-5">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 6 of 6 &bull; 5 min</div>
+    <h1>Final Quiz</h1>
+    <p>8 questions — one at a time. You can go back to review!</p>
+  </div>
+  <div class="quiz-progress" id="quiz-dots"></div>
+  <div id="quiz-area"></div>
+  <div class="quiz-result" id="quiz-result">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(4)">&larr; Back</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── Storage Keys ───────────────────────────────────────────
+const QAKEY = "ss-l5-qans";
+const QKEY  = "ss-l5-quiz";
+const WKEY  = "ss-l5-writing";
+
+// ─── logMistake ─────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Social Studies|Day 5: Sea Turtle|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Social Studies', day: 'Day 5', q: questionText, file: 'social-studies-lesson-05-sea-turtle.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── Phase navigation ───────────────────────────────────────
+let currentPhase = 0;
+const PHASE_NAMES = ['Warm-Up','Core Reading','Map Match','Timeline','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('active');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('active');
+  updatePhaseBar();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updatePhaseBar() {
+  document.querySelectorAll('.seg').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < currentPhase) s.classList.add('done');
+    if (i === currentPhase) s.classList.add('active');
+  });
+  document.getElementById('phase-label').textContent =
+    'Phase ' + (currentPhase + 1) + ': ' + PHASE_NAMES[currentPhase];
+}
+
+document.querySelectorAll('.seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+// ─── Phase 1: True/False ────────────────────────────────────
+const TF_DATA = [
+  {
+    statement: "Sea turtles have existed for more than 100 million years, living alongside dinosaurs.",
+    answer: true,
+    fact: "Correct! Sea turtles are ancient survivors — they outlived the dinosaurs by evolving excellent adaptations."
+  },
+  {
+    statement: "There are 10 different species of sea turtles living in the world's oceans today.",
+    answer: false,
+    fact: "There are exactly 7 species: Green, Loggerhead, Leatherback, Hawksbill, Kemp's Ridley, Flatback, and Olive Ridley."
+  },
+  {
+    statement: "Plastic bags in the ocean are dangerous because sea turtles mistake them for jellyfish.",
+    answer: true,
+    fact: "Exactly! Floating plastic bags look like jellyfish, a favorite turtle food. Eating them can cause turtles to choke or starve."
+  },
+  {
+    statement: "Sea turtles always nest on new beaches they find for the first time as adults.",
+    answer: false,
+    fact: "Sea turtles return to the same beach where they were born to lay their own eggs — sometimes after 20–30 years away!"
+  }
+];
+
+function buildTF() {
+  const grid = document.getElementById('tf-grid');
+  grid.innerHTML = '';
+  TF_DATA.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'tf-card';
+    div.id = 'tf-' + i;
+    div.innerHTML = `
+      <div class="tf-statement">${item.statement}</div>
+      <div class="tf-btns">
+        <button class="tf-btn true-btn" onclick="answerTF(${i}, true)">TRUE</button>
+        <button class="tf-btn false-btn" onclick="answerTF(${i}, false)">FALSE</button>
+      </div>
+      <div class="tf-feedback" id="tf-fb-${i}"></div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function answerTF(i, userAnswer) {
+  const item = TF_DATA[i];
+  const correct = (userAnswer === item.answer);
+  const card = document.getElementById('tf-' + i);
+  const fb = document.getElementById('tf-fb-' + i);
+  card.classList.add(correct ? 'correct' : 'wrong');
+  fb.textContent = (correct ? '✓ ' : '✗ ') + item.fact;
+  fb.className = 'tf-feedback show ' + (correct ? 'correct' : 'wrong');
+  card.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+}
+
+// ─── Phase 3: Match Game ────────────────────────────────────
+const MATCH_PAIRS = [
+  { left: 'Costa Rica', right: 'Tortuguero — most Green turtle nests in the world' },
+  { left: 'Australia', right: 'Raine Island — world\'s largest Green turtle rookery' },
+  { left: 'USA (Florida)', right: 'Archie Carr National Wildlife Refuge' },
+  { left: 'Atlantic Ocean', right: 'Leatherback\'s migration route from Canada to Trinidad' },
+  { left: 'Pacific Ocean', right: 'Leatherback migrates from Asia to California' },
+  { left: 'CITES', right: '183 countries protect sea turtles from trade' }
+];
+
+let matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+
+function buildMatch() {
+  const grid = document.getElementById('match-grid');
+  grid.innerHTML = '';
+  const rights = [...MATCH_PAIRS.map(p => p.right)].sort(() => Math.random() - .5);
+
+  MATCH_PAIRS.forEach((pair, i) => {
+    const lDiv = document.createElement('div');
+    lDiv.className = 'match-item';
+    lDiv.dataset.side = 'left';
+    lDiv.dataset.idx = i;
+    lDiv.textContent = pair.left;
+    lDiv.onclick = () => selectMatch(lDiv);
+    grid.appendChild(lDiv);
+
+    const rDiv = document.createElement('div');
+    rDiv.className = 'match-item';
+    rDiv.dataset.side = 'right';
+    rDiv.dataset.val = rights[i];
+    rDiv.textContent = rights[i];
+    rDiv.onclick = () => selectMatch(rDiv);
+    grid.appendChild(rDiv);
+  });
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+  document.getElementById('match-count').textContent = '0';
+  document.getElementById('match-done-msg').style.display = 'none';
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  const side = el.dataset.side;
+
+  if (side === 'left') {
+    document.querySelectorAll('.match-item[data-side="left"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedLeft === el) { matchState.selectedLeft = null; return; }
+    el.classList.add('selected');
+    matchState.selectedLeft = el;
+  } else {
+    document.querySelectorAll('.match-item[data-side="right"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedRight === el) { matchState.selectedRight = null; return; }
+    el.classList.add('selected');
+    matchState.selectedRight = el;
+  }
+
+  if (matchState.selectedLeft && matchState.selectedRight) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const lEl = matchState.selectedLeft;
+  const rEl = matchState.selectedRight;
+  const idx = parseInt(lEl.dataset.idx);
+  const correct = MATCH_PAIRS[idx].right === rEl.dataset.val;
+
+  if (correct) {
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(idx);
+    const cnt = matchState.matched.size;
+    document.getElementById('match-count').textContent = cnt;
+    if (cnt === MATCH_PAIRS.length) {
+      document.getElementById('match-done-msg').style.display = 'inline';
+    }
+  } else {
+    [lEl, rEl].forEach(e => {
+      e.classList.add('shake');
+      setTimeout(() => { e.classList.remove('shake', 'selected'); }, 400);
+    });
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+}
+
+function resetMatch() { buildMatch(); }
+
+// ─── Phase 4: Timeline ──────────────────────────────────────
+const TL_EVENTS = [
+  { year: 1959, text: 'Sea Turtle Conservancy founded — first marine turtle conservation organization' },
+  { year: 1973, text: 'CITES created; sea turtles added to international protection list' },
+  { year: 1985, text: "Kemp's Ridley at crisis point: only 200 nests recorded on the entire planet" },
+  { year: 1994, text: 'Turtle Excluder Devices (TEDs) required on US shrimp trawlers' },
+  { year: 2008, text: 'All 7 species officially listed as threatened or endangered globally' },
+  { year: 2019, text: "Kemp's Ridley recovery: 9,000+ nests recorded — a conservation success story!" }
+];
+
+let tlOrder = [];
+let dragSrc = null;
+
+function buildTimeline() {
+  tlOrder = [...TL_EVENTS].sort(() => Math.random() - .5);
+  renderTimeline();
+}
+
+function renderTimeline() {
+  const list = document.getElementById('tl-list');
+  list.innerHTML = '';
+  tlOrder.forEach((ev, i) => {
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    div.draggable = true;
+    div.dataset.i = i;
+    div.innerHTML = `
+      <span class="tl-handle">&#9776;</span>
+      <span class="tl-year">${ev.year}</span>
+      <span class="tl-text">${ev.text}</span>
+      <div style="margin-left:auto;display:flex;flex-direction:column;gap:4px">
+        <button onclick="tlMove(${i},-1)" style="background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:2px 8px;cursor:pointer;color:var(--ink);font-size:.8rem">&#9650;</button>
+        <button onclick="tlMove(${i},1)" style="background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:2px 8px;cursor:pointer;color:var(--ink);font-size:.8rem">&#9660;</button>
+      </div>
+    `;
+    div.addEventListener('dragstart', e => { dragSrc = i; div.classList.add('dragging'); });
+    div.addEventListener('dragend', () => { div.classList.remove('dragging'); });
+    div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('over'); });
+    div.addEventListener('dragleave', () => div.classList.remove('over'));
+    div.addEventListener('drop', e => {
+      e.preventDefault();
+      div.classList.remove('over');
+      if (dragSrc !== null && dragSrc !== i) {
+        const tmp = tlOrder[dragSrc];
+        tlOrder[dragSrc] = tlOrder[i];
+        tlOrder[i] = tmp;
+        renderTimeline();
+      }
+      dragSrc = null;
+    });
+    list.appendChild(div);
+  });
+  document.getElementById('tl-feedback').classList.remove('show');
+}
+
+function tlMove(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= tlOrder.length) return;
+  const tmp = tlOrder[i]; tlOrder[i] = tlOrder[j]; tlOrder[j] = tmp;
+  renderTimeline();
+}
+
+function checkTimeline() {
+  const correct = tlOrder.map((ev, i) => ev.year === TL_EVENTS[i].year);
+  const allRight = correct.every(Boolean);
+  const items = document.querySelectorAll('.tl-item');
+  items.forEach((el, i) => {
+    el.classList.remove('correct-pos', 'wrong-pos');
+    el.classList.add(correct[i] ? 'correct-pos' : 'wrong-pos');
+  });
+  const fb = document.getElementById('tl-feedback');
+  if (allRight) {
+    fb.textContent = '🎉 Perfect! You placed all 6 events in the right order!';
+    fb.className = 'tl-feedback show all-correct';
+  } else {
+    const n = correct.filter(Boolean).length;
+    fb.textContent = `${n} out of 6 correct. The wrong ones are highlighted in red — try rearranging them!`;
+    fb.className = 'tl-feedback show has-wrong';
+  }
+}
+
+// ─── Phase 5: Writing Pad ───────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateCharCount();
+  pad.addEventListener('input', () => {
+    updateCharCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(() => {
+      localStorage.setItem(WKEY, pad.value);
+      const ind = document.getElementById('save-indicator');
+      ind.classList.add('show');
+      setTimeout(() => ind.classList.remove('show'), 1800);
+    }, 300);
+  });
+}
+
+function updateCharCount() {
+  const len = document.getElementById('writing-pad').value.length;
+  document.getElementById('char-count').textContent = len + ' character' + (len !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const pad = document.getElementById('writing-pad');
+  if (pad) localStorage.setItem(WKEY, pad.value);
+}
+
+// ─── Phase 6: Quiz ──────────────────────────────────────────
+const QUIZ_DATA = [
+  {
+    q: 'How many species of sea turtles exist worldwide?',
+    choices: ['5', '6', '7', '9'],
+    correct: 2,
+    explanation: 'There are exactly 7 species: Green, Loggerhead, Leatherback, Hawksbill, Kemp\'s Ridley, Flatback, and Olive Ridley.'
+  },
+  {
+    q: 'Which sea turtle nesting site in Costa Rica is famous for mass nesting events called "arribadas"?',
+    choices: ['Raine Island', 'Tortuguero', 'Archie Carr NWR', 'Malpelo Island'],
+    correct: 1,
+    explanation: 'Tortuguero, Costa Rica is world-famous for Green turtle arribadas — hundreds of turtles nesting on the same night!'
+  },
+  {
+    q: 'What is the name of the international treaty signed by 183 countries to protect sea turtles?',
+    choices: ['IUCN Red List', 'Paris Agreement', 'CITES', 'Marine Protection Act'],
+    correct: 2,
+    explanation: 'CITES — the Convention on International Trade in Endangered Species — has been signed by 183 countries and bans trade in sea turtles.'
+  },
+  {
+    q: 'Which two sea turtle species are listed as Critically Endangered by the IUCN?',
+    choices: ["Green and Loggerhead", "Leatherback and Flatback", "Kemp's Ridley and Hawksbill", "Olive Ridley and Green"],
+    correct: 2,
+    explanation: "Kemp's Ridley and the Hawksbill are both Critically Endangered — the highest threat level before Extinct in the Wild."
+  },
+  {
+    q: 'Which sea turtle travels the longest distance in migration — over 10,000 miles round trip?',
+    choices: ['Green turtle', 'Loggerhead', "Kemp's Ridley", 'Leatherback'],
+    correct: 3,
+    explanation: 'The Leatherback is the champion migrator, crossing entire ocean basins — from Canada to Trinidad and from Asia to California.'
+  },
+  {
+    q: "In 1985, approximately how many Kemp's Ridley nests were recorded?",
+    choices: ['About 200', 'About 2,000', 'About 9,000', 'About 50,000'],
+    correct: 0,
+    explanation: "In 1985 only about 200 nests were recorded — the species was almost extinct. By 2019, conservation efforts brought that number to 9,000+!"
+  },
+  {
+    q: 'What is the biggest threat to sea turtles from plastic pollution?',
+    choices: [
+      'Plastic straws get caught in their flippers',
+      'Plastic bags look like jellyfish and turtles eat them',
+      'Plastic makes the water too warm for eggs',
+      'Plastic blocks beaches where turtles nest'
+    ],
+    correct: 1,
+    explanation: 'Floating plastic bags look exactly like jellyfish — a favorite turtle food. Turtles that eat them can choke, block their intestines, and starve.'
+  },
+  {
+    q: 'What year was the Sea Turtle Conservancy founded?',
+    choices: ['1945', '1959', '1973', '1985'],
+    correct: 1,
+    explanation: 'The Sea Turtle Conservancy was founded in 1959 by Archie Carr in Florida — it\'s the oldest marine turtle conservation organization in the world.'
+  }
+];
+
+let quizCurrent = 0;
+let quizAnswers = {};
+
+function buildQuiz() {
+  quizAnswers = {};
+  quizCurrent = 0;
+  renderQuizDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (typeof saved === 'object' && saved !== null) {
+      quizAnswers = saved;
+    }
+  } catch(e) { quizAnswers = {}; }
+  renderQuizDots();
+  renderQuestion();
+}
+
+function renderQuizDots() {
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  QUIZ_DATA.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot';
+    if (i === quizCurrent) d.classList.add('current');
+    else if (quizAnswers[i] !== undefined) {
+      d.classList.add(quizAnswers[i] === QUIZ_DATA[i].correct ? 'answered-correct' : 'answered-wrong');
+    }
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const area = document.getElementById('quiz-area');
+  const result = document.getElementById('quiz-result');
+  const allAnswered = Object.keys(quizAnswers).length === QUIZ_DATA.length;
+
+  if (allAnswered && quizCurrent >= QUIZ_DATA.length) {
+    area.innerHTML = '';
+    showQuizResult();
+    return;
+  }
+
+  result.classList.remove('show');
+  const qi = quizCurrent;
+  const item = QUIZ_DATA[qi];
+  const userAns = quizAnswers[qi];
+  const answered = userAns !== undefined;
+
+  let choicesHTML = item.choices.map((c, ci) => {
+    let cls = '';
+    if (answered) {
+      if (ci === item.correct) cls = 'correct';
+      else if (ci === userAns) cls = 'wrong';
+    }
+    return `<button class="choice-btn ${cls}" ${answered ? 'disabled' : ''} onclick="ansQ(${qi},${ci})">${c}</button>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="quiz-q">
+      <div class="q-num">Question ${qi + 1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${item.q}</div>
+      ${choicesHTML}
+      <div class="q-explanation ${answered ? 'show' : ''}" id="q-exp">
+        ${answered ? (userAns === item.correct ? '✓ Correct! ' : '✗ Not quite. ') + item.explanation : item.explanation}
+      </div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-nav btn q-prev-btn" onclick="qNav(-1)" ${qi === 0 ? 'disabled' : ''}>&larr; Prev</button>
+      <button class="quiz-nav btn q-next-btn" onclick="qNav(1)" ${!answered ? 'disabled' : ''}>${qi === QUIZ_DATA.length - 1 ? 'Finish' : 'Next &rarr;'}</button>
+    </div>
+  `;
+  renderQuizDots();
+}
+
+function ansQ(qi, choiceIdx) {
+  if (quizAnswers[qi] !== undefined) return;
+  quizAnswers[qi] = choiceIdx;
+  const correct = choiceIdx === QUIZ_DATA[qi].correct;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, QUIZ_DATA[qi].q, 'Final Quiz');
+  renderQuestion();
+  if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+    const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+    try { localStorage.setItem(QKEY, JSON.stringify({ score, total: QUIZ_DATA.length, date: Date.now() })); } catch(e) {}
+  }
+}
+
+function qNav(dir) {
+  quizCurrent = Math.max(0, Math.min(QUIZ_DATA.length, quizCurrent + dir));
+  if (quizCurrent >= QUIZ_DATA.length) { showQuizResult(); return; }
+  renderQuestion();
+}
+
+function showQuizResult() {
+  const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+  const pct = Math.round(score / QUIZ_DATA.length * 100);
+  document.getElementById('quiz-area').innerHTML = '';
+  const res = document.getElementById('quiz-result');
+  document.getElementById('result-score').textContent = score + ' / ' + QUIZ_DATA.length;
+  let msg = pct >= 88 ? 'Excellent! You really know your sea turtles!' :
+            pct >= 63 ? 'Good work! Review a few answers and try again.' :
+            'Keep studying — go back to the reading and try once more!';
+  document.getElementById('result-msg').textContent = msg + ' (' + pct + '%)';
+  res.classList.add('show');
+  renderQuizDots();
+}
+
+function retryQuiz() {
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── Save All ───────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── Init ───────────────────────────────────────────────────
+function init() {
+  buildTF();
+  buildMatch();
+  buildTimeline();
+  initWriting();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+init();
+</script>
+</body>
+</html>
