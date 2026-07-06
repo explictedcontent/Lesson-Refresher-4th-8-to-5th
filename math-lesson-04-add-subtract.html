@@ -394,5 +394,17 @@ SUBTRACT — borrow when the top digit is too small:
   updateHUD();
 })();
 </script>
+
+<script>
+/* auto-save: fires on every navigation/hide/unload */
+(function(){
+  function _tryS(){ if(typeof saveAll==='function') saveAll(); }
+  if(!window._autoSaveHooked){
+    window._autoSaveHooked=true;
+    document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') _tryS(); });
+    ['pagehide','beforeunload','blur'].forEach(function(ev){ window.addEventListener(ev,_tryS); });
+  }
+})();
+</script>
 </body>
 </html>

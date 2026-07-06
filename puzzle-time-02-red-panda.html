@@ -215,5 +215,17 @@ TOTAL=RIDDLES.length+SCRAM.length+PATS.length+TEASE.length;
 buildRiddles(); buildScramble(); buildPatterns(); buildTease(); updatePill();
 renderSteps(); selectPhase(0,false);
 </script>
+
+<script>
+/* auto-save: fires on every navigation/hide/unload */
+(function(){
+  function _tryS(){ if(typeof saveAll==='function') saveAll(); }
+  if(!window._autoSaveHooked){
+    window._autoSaveHooked=true;
+    document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') _tryS(); });
+    ['pagehide','beforeunload','blur'].forEach(function(ev){ window.addEventListener(ev,_tryS); });
+  }
+})();
+</script>
 </body>
 </html>

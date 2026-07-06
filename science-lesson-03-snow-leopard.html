@@ -282,5 +282,17 @@ function flushSave(){try{saveQuizResult(qAns.filter((v,i)=>v===QUIZ[i].a).length
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flushSave();});
 window.addEventListener("pagehide",flushSave);window.addEventListener("beforeunload",flushSave);
 </script>
+
+<script>
+/* auto-save: fires on every navigation/hide/unload */
+(function(){
+  function _tryS(){ if(typeof saveAll==='function') saveAll(); }
+  if(!window._autoSaveHooked){
+    window._autoSaveHooked=true;
+    document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') _tryS(); });
+    ['pagehide','beforeunload','blur'].forEach(function(ev){ window.addEventListener(ev,_tryS); });
+  }
+})();
+</script>
 </body>
 </html>
