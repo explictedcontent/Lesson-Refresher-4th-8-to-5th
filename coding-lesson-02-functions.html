@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 2 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn.purple{background:var(--purple);border-color:var(--purple);color:#0a0520}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+canvas{display:block;border-radius:14px;margin:0 auto 14px;max-width:100%;border:2px solid var(--line)}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+.move-btn{padding:11px 14px;border-radius:10px;background:var(--panel2);border:2px solid var(--line);font-size:15px;font-weight:800;cursor:pointer;transition:.15s;touch-action:manipulation;display:inline-flex;align-items:center;gap:6px}
+.move-btn.sel{border-color:var(--accent2);background:#003328;color:var(--accent2)}
+.move-btn:active{transform:scale(.93)}
+.fn-name-input{background:#08090f;border:2px solid var(--accent2);border-radius:10px;padding:10px 14px;font-family:'Courier New',monospace;font-size:17px;color:var(--accent2);font-weight:900;width:180px;outline:none}
+.fn-name-input::placeholder{color:#2a4040;font-weight:700}
+.slot{background:#08090f;border:2px dashed var(--line);border-radius:10px;padding:10px 16px;font-family:'Courier New',monospace;font-size:15px;color:var(--muted);min-height:44px;display:flex;align-items:center;gap:8px;margin:6px 0}
+.slot.filled{border-color:var(--good);color:var(--good)}
+.dial-row{display:flex;align-items:center;gap:12px;margin:12px 0;flex-wrap:wrap}
+.dial-row label{font-size:15px;font-weight:800;min-width:100px}
+input[type=range]{-webkit-appearance:none;height:10px;border-radius:5px;background:var(--line);outline:none;flex:1;min-width:120px;max-width:200px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--accent2);cursor:pointer;border:3px solid var(--bg)}
+.badge{border-radius:8px;padding:4px 11px;font-size:15px;font-weight:900;min-width:36px;text-align:center;background:var(--accent2);color:#001a16}
+.number-input{background:#08090f;border:2px solid var(--line);border-radius:10px;padding:9px 14px;font-size:18px;font-weight:900;color:var(--warn);width:80px;text-align:center;outline:none}
+.number-input:focus{border-color:var(--accent2)}
+.result-box{background:var(--panel2);border:2px solid var(--warn);border-radius:12px;padding:20px;text-align:center;margin:12px 0}
+.result-big{font-size:52px;font-weight:900;color:var(--good)}
+.result-label{font-size:14px;color:var(--muted);margin-top:4px}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 2</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🎯 NAME IT</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🔄 USE IT</div>
+  <div class="mtab" onclick="go(3)" id="tab3">📥 INPUTS</div>
+  <div class="mtab" onclick="go(4)" id="tab4">📤 OUTPUTS</div>
+  <div class="mtab" onclick="go(5)" id="tab5">💥 COMBO</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼⚡</div>
+    <h2 style="font-size:30px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 2: SUPERPOWERS</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:380px;margin:0 auto 20px">
+      You mastered commands in Level 1. Now you're going to give the panda <strong style="color:var(--ink)">SUPERPOWERS</strong> — named moves it can do on command, any time, anywhere.
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:380px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🗺️ Level 2 Missions</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🎯 <strong>Name It</strong> — create a named move</div>
+        <div>🔄 <strong>Use It</strong> — call it over and over</div>
+        <div>📥 <strong>Inputs</strong> — control how it runs</div>
+        <div>📤 <strong>Outputs</strong> — get something back</div>
+        <div>💥 <strong>Combo</strong> — chain everything together</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">ACTIVATE LEVEL 2 🔥</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — NAME IT (define a function) -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 1 of 5</div>
+    <div class="mission-title">🎯 Name Your Move</div>
+    <div class="mission-brief">A FUNCTION is a named block of code. You define it once, then use that name to run it anytime. Pick 3 moves and give your function a name!</div>
+  </div>
+
+  <canvas id="c1" style="background:#07090f"></canvas>
+
+  <div class="sec">Step 1 — Pick exactly 3 moves:</div>
+  <div class="btn-row" id="moveButtons">
+    <button class="move-btn" onclick="pickMove('spin')">🌀 Spin</button>
+    <button class="move-btn" onclick="pickMove('eat')">🎋 Eat</button>
+    <button class="move-btn" onclick="pickMove('wave')">👋 Wave</button>
+    <button class="move-btn" onclick="pickMove('jump')">🦘 Jump</button>
+    <button class="move-btn" onclick="pickMove('sleep')">💤 Nap</button>
+    <button class="move-btn" onclick="pickMove('dance')">💃 Dance</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin:10px 0">
+    <div class="slot" id="slot0">Move 1: <span style="color:var(--line)">empty</span></div>
+    <div class="slot" id="slot1">Move 2: <span style="color:var(--line)">empty</span></div>
+    <div class="slot" id="slot2">Move 3: <span style="color:var(--line)">empty</span></div>
+  </div>
+
+  <div class="sec">Step 2 — Name your function:</div>
+  <div class="btn-row">
+    <span style="font-family:'Courier New';font-size:15px;color:var(--fn)">function</span>
+    <input class="fn-name-input" id="fnName" type="text" maxlength="15" placeholder="myMove" oninput="updateCode1()">
+    <span style="font-family:'Courier New';font-size:15px;color:var(--ink)">() { ... }</span>
+  </div>
+
+  <div class="sec">Step 3 — Your function code:</div>
+  <div class="code-block" id="code1"><span class="cm">// Pick 3 moves and name your function!</span></div>
+
+  <div class="btn-row">
+    <button class="btn go" onclick="runFn1()">▶ RUN MY FUNCTION!</button>
+    <button class="btn ghost" onclick="clearFn1()">🗑️ Reset</button>
+  </div>
+
+  <div class="complete-banner" id="fn1Done">
+    <div style="font-size:48px;margin-bottom:8px">🎯</div>
+    <h3 style="color:var(--good);font-size:20px;margin-bottom:6px">FUNCTION CREATED!</h3>
+    <p style="color:var(--muted)">You just defined your first function. One name = 3 moves on command.</p>
+    <div style="font-size:16px;color:var(--warn);font-weight:900;margin-top:8px">+25 XP EARNED</div>
+  </div>
+
+  <div class="discovery">
+    A <strong style="color:#fff">FUNCTION</strong> is a named block of code you can run anytime just by saying its name.
+    Instead of writing those 3 moves every single time, you type the function name once.
+    Functions are how ALL apps avoid doing the same work over and over.
+  </div>
+
+  <div class="btn-row" style="justify-content:flex-end;margin-top:16px">
+    <button class="btn teal" onclick="go(2)">MISSION 2 ➡️</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — USE IT (calling multiple times) -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 2 of 5</div>
+    <div class="mission-title">🔄 Use It Multiple Times</div>
+    <div class="mission-brief">The real superpower: call your function 3 times and it does ALL its moves 3 times. 1 name = 9 actions!</div>
+  </div>
+
+  <canvas id="c2" style="background:#07090f"></canvas>
+
+  <div class="code-block" id="code2"><span class="cm">// Your function from Mission 1 loads here!</span></div>
+
+  <div class="sec">Watch what happens when you call it 3 times:</div>
+
+  <div class="btn-row">
+    <button class="btn fire" style="font-size:17px;padding:14px 22px" onclick="callFn(1)">CALL x1</button>
+    <button class="btn warn" style="font-size:17px;padding:14px 22px" onclick="callFn(3)">CALL x3 🔥</button>
+    <button class="btn purple" style="font-size:17px;padding:14px 22px" onclick="callFn(5)">CALL x5 💥</button>
+    <button class="btn ghost" onclick="clearC2()">🗑️</button>
+  </div>
+
+  <div style="background:#08090f;border-radius:10px;padding:12px 16px;margin:10px 0;font-size:14px;color:var(--muted)">
+    Total actions run: <strong style="color:var(--warn);font-size:18px" id="actionCount">0</strong>
+    (function calls × moves per call)
+  </div>
+
+  <div class="discovery">
+    Writing the same 3 commands 5 times = <strong style="color:#fff">15 lines of code</strong>.<br>
+    Calling a function 5 times = <strong style="color:var(--good)">5 lines of code</strong>.<br>
+    Functions make code shorter, cleaner, and easier to change. Edit the function once → it updates everywhere.
+  </div>
+
+  <div class="btn-row" style="justify-content:space-between;margin-top:16px">
+    <button class="btn ghost" onclick="go(1)">⬅️ Back</button>
+    <button class="btn teal" onclick="go2Complete()">MISSION 2 DONE ✅</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — INPUTS (parameters) -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 3 of 5</div>
+    <div class="mission-title">📥 Add an Input</div>
+    <div class="mission-brief">Sometimes you want to control HOW a function runs. An INPUT (called a parameter) lets you dial in the details.</div>
+  </div>
+
+  <canvas id="c3" style="background:#07090f"></canvas>
+
+  <div class="sec">🎮 How many bamboo stalks should the panda eat?</div>
+  <div class="dial-row">
+    <label>🎋 stalks:</label>
+    <input type="range" id="sCount" min="1" max="8" value="3" oninput="p3Update()">
+    <span class="badge" id="vCount">3</span>
+  </div>
+
+  <div class="code-block" id="code3"><span class="kw">function</span> <span class="fn">eatBamboo</span>(<span class="hl">count</span>) {
+  <span class="cm">// panda eats 'count' stalks</span>
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="hl" id="cCount">3</span>; i++) {
+    eatOneStal();
+  }
+}
+
+<span class="fn">eatBamboo</span>(<span class="hl" id="cCount2">3</span>); <span class="cm">// call it with input!</span></div>
+
+  <div class="btn-row">
+    <button class="btn go" onclick="runP3()">▶ EAT THAT BAMBOO!</button>
+  </div>
+
+  <div class="discovery">
+    The value inside the parentheses <span style="color:var(--warn);font-family:'Courier New'">eatBamboo(<strong>3</strong>)</span> is the INPUT.
+    Functions can have 0, 1, 2, or more inputs — each one controls how the function behaves.
+    Same function, different inputs → different results!
+  </div>
+
+  <div class="btn-row" style="justify-content:space-between;margin-top:16px">
+    <button class="btn ghost" onclick="go(2)">⬅️ Back</button>
+    <button class="btn teal" onclick="go3Complete()">MISSION 3 DONE ✅</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — OUTPUTS (return values) -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 4 of 5</div>
+    <div class="mission-title">📤 Get Something Back</div>
+    <div class="mission-brief">Functions can also GIVE YOU SOMETHING BACK — a calculated result. Enter wins and losses and watch the function calculate the panda's score!</div>
+  </div>
+
+  <div class="sec">🏆 Enter the panda's battle stats:</div>
+  <div class="btn-row" style="align-items:center;gap:16px;flex-wrap:wrap">
+    <div style="text-align:center">
+      <div style="font-size:12px;font-weight:900;color:var(--good);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">🏆 Wins</div>
+      <input class="number-input" type="number" id="wins" value="7" min="0" max="99" oninput="p4Calc()">
+    </div>
+    <div style="font-size:24px;color:var(--muted)">vs</div>
+    <div style="text-align:center">
+      <div style="font-size:12px;font-weight:900;color:var(--bad);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">💀 Losses</div>
+      <input class="number-input" type="number" id="losses" value="3" min="0" max="99" oninput="p4Calc()">
+    </div>
+  </div>
+
+  <div class="code-block" id="code4"><span class="kw">function</span> <span class="fn">calcScore</span>(wins, losses) {
+  <span class="kw">return</span> (wins × <span class="num">10</span>) - (losses × <span class="num">5</span>);
+}
+
+<span class="cm">// Call it:</span>
+<span class="kw">let</span> myScore = <span class="fn">calcScore</span>(<span class="hl" id="c4w">7</span>, <span class="hl" id="c4l">3</span>);
+<span class="cm">// myScore = ???</span></div>
+
+  <div class="result-box" id="p4Result">
+    <div class="result-big" id="scoreNum">55</div>
+    <div class="result-label">panda score</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:8px" id="scoreBreakdown">(<span id="scoreW">7</span> wins × 10) − (<span id="scoreL">3</span> losses × 5) = <span id="scoreTotal">55</span></div>
+  </div>
+
+  <div class="discovery">
+    The <strong style="color:#fff">return</strong> keyword sends a value BACK to whoever called the function.
+    You put in wins and losses → the function calculates → you get back the score.
+    Every calculator app, every game score system, every currency converter — they all use return values!
+  </div>
+
+  <div class="btn-row" style="justify-content:space-between;margin-top:16px">
+    <button class="btn ghost" onclick="go(3)">⬅️ Back</button>
+    <button class="btn teal" onclick="go4Complete()">MISSION 4 DONE ✅</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — THE COMBO CHALLENGE -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="border-color:var(--warn);background:linear-gradient(135deg,#1a1200,#1f1700)">
+    <div class="mission-tag" style="color:var(--warn)">⚠️ FINAL MISSION</div>
+    <div class="mission-title">💥 The Ultimate Combo</div>
+    <div class="mission-brief">Put it all together: define a function, use an input to control it, get a score back, and call it 3 times. This is how REAL apps are built!</div>
+  </div>
+
+  <canvas id="c5" style="background:#07090f;border-color:var(--warn)"></canvas>
+
+  <div class="sec">Your combo function uses everything:</div>
+  <div class="code-block"><span class="kw">function</span> <span class="fn">pandaCombo</span>(power) {
+  <span class="cm">// Uses: input (power), loop, if/else</span>
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; power; i++) {
+    panda.spin();
+  }
+  <span class="kw">if</span> (power &gt; <span class="num">3</span>) {
+    panda.eat(); <span class="cm">// bonus move!</span>
+  }
+  <span class="kw">return</span> power × <span class="num">10</span>; <span class="cm">// score</span>
+}
+
+<span class="cm">// Call it 3 times with different powers:</span>
+<span class="fn">pandaCombo</span>(<span class="num">2</span>);  <span class="cm">// → 20 pts</span>
+<span class="fn">pandaCombo</span>(<span class="num">4</span>);  <span class="cm">// → 40 pts, bonus eat!</span>
+<span class="fn">pandaCombo</span>(<span class="num">5</span>);  <span class="cm">// → 50 pts, bonus eat!</span></div>
+
+  <div class="sec">🎮 Set the power level:</div>
+  <div class="dial-row">
+    <label>⚡ Power:</label>
+    <input type="range" id="sPower" min="1" max="6" value="3" oninput="p5Update()">
+    <span class="badge" id="vPower">3</span>
+  </div>
+  <div style="font-size:14px;color:var(--muted);margin:6px 0" id="p5Predict">Predicted score: <strong style="color:var(--warn)">30</strong> pts. No bonus (need power &gt; 3).</div>
+
+  <div class="btn-row">
+    <button class="btn go" style="font-size:18px" onclick="runCombo(1)">▶ RUN ONCE</button>
+    <button class="btn fire" style="font-size:17px" onclick="runCombo(3)">💥 RUN x3!</button>
+    <button class="btn ghost" onclick="p5Clear()">🗑️</button>
+  </div>
+
+  <div style="background:#08090f;border-radius:10px;padding:12px 16px;margin:10px 0;font-size:14px;color:var(--muted)">
+    Total score: <strong style="color:var(--warn);font-size:20px" id="comboScore">0</strong> pts
+  </div>
+
+  <div class="complete-banner" id="comboWin">
+    <div style="font-size:56px;margin-bottom:8px">🏆</div>
+    <h3 style="color:var(--good);font-size:22px;margin-bottom:6px">COMBO COMPLETE!</h3>
+    <p style="color:var(--muted)">You used: functions + inputs + if/else + loops + return values. That's a REAL program.</p>
+    <div style="font-size:16px;color:var(--warn);font-weight:900;margin-top:8px">+50 XP EARNED 🔥</div>
+  </div>
+
+  <div class="discovery">
+    You just combined <strong style="color:#fff">functions</strong>, <strong style="color:#fff">inputs</strong>, <strong style="color:#fff">if/else</strong>, <strong style="color:#fff">loops</strong>, and <strong style="color:#fff">return values</strong> in ONE block of code.
+    That's exactly how game engines, apps, and websites work — lots of small functions, each doing one job, called together to create something awesome.
+  </div>
+
+  <div class="btn-row" style="justify-content:space-between;margin-top:16px">
+    <button class="btn ghost" onclick="go(4)">⬅️ Back</button>
+    <button class="btn teal" onclick="go(6)">BOSS TEST ➡️</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header" style="border-color:var(--warn);background:linear-gradient(135deg,#15100a,#1a1500)">
+    <div class="mission-tag" style="color:var(--warn)">👑 FINAL BOSS — LEVEL 2</div>
+    <div class="mission-title">The Boss Test</div>
+    <div class="mission-brief">10 rounds. Prove you know functions. +10 XP for every correct answer.</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+const QAKEY='coding-l2-qans',QKEY='coding-l2-quiz',WKEY='coding-l2-game';
+const PREFIX='Coding|Lesson 2: Functions|';
+let xp=0,cur=0;
+const CMD_E={spin:'🌀',eat:'🎋',wave:'👋',jump:'🦘',sleep:'💤',dance:'💃'};
+const CMD_L={spin:'SPIN',eat:'EAT',wave:'WAVE',jump:'JUMP',sleep:'NAP',dance:'DANCE'};
+
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+function go(n){
+  document.getElementById('sc'+cur).classList.remove('active');
+  document.getElementById('tab'+cur).classList.remove('active');
+  cur=n;
+  document.getElementById('sc'+n).classList.add('active');
+  const tab=document.getElementById('tab'+n);tab.classList.add('active');
+  tab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===1)c1Draw();if(n===2){c2Draw();loadFn2();}if(n===3)c3Draw();if(n===5)c5Draw();
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+function go2Complete(){showToast('🔄 Mission 2 Done! +20 XP');addXP(20);go(3);}
+function go3Complete(){showToast('📥 Mission 3 Done! +20 XP');addXP(20);go(4);}
+function go4Complete(){showToast('📤 Mission 4 Done! +20 XP');addXP(20);go(5);}
+
+/* ═══ SHARED CANVAS DRAW ══════════════════════════════════════ */
+function drawBg(ctx,w,h){
+  ctx.fillStyle='#07090f';ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#0a1a10';ctx.fillRect(0,h-26,w,26);
+  ctx.fillStyle='#143020';ctx.fillRect(0,h-28,w,4);
+  ctx.fillStyle='#ffffff33';
+  [[30,16],[80,28],[155,10],[240,22],[340,8],[430,24]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();});
+}
+function drawPanda(ctx,x,y,e){
+  ctx.font='46px serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(e||'🐼',x,y);
+}
+function cvSetup(id){
+  const cv=document.getElementById(id);const ctx=cv.getContext('2d');
+  cv.width=Math.min(480,window.innerWidth-32);cv.height=160;
+  return{cv,ctx,w:cv.width,h:cv.height};
+}
+
+/* ═══ MISSION 1 — NAME IT ════════════════════════════════════ */
+let m1Picks=[],m1Running=false,m1Timer=null,m1X=80,m1Frame=0,m1ActIdx=-1;
+
+function c1Draw(){
+  const {cv,ctx,w,h}=cvSetup('c1');drawBg(ctx,w,h);
+  const E={spin:'😵‍💫',eat:'😋',wave:'😊',jump:'🐼',sleep:'😴',dance:'💃',idle:'🐼',done:'🥳'};
+  const act=m1Picks[m1ActIdx]||'idle';
+  drawPanda(ctx,m1X,h-26,E[act]||'🐼');
+}
+function pickMove(m){
+  if(m1Picks.length>=3)return;
+  if(m1Picks.includes(m))return;
+  m1Picks.push(m);
+  document.querySelectorAll('.move-btn').forEach(b=>{if(b.textContent.toLowerCase().includes(CMD_L[m].toLowerCase()))b.classList.add('sel');});
+  const sl=document.getElementById('slot'+(m1Picks.length-1));
+  sl.className='slot filled';sl.innerHTML=`Move ${m1Picks.length}: <strong>${CMD_E[m]} ${CMD_L[m]}</strong>`;
+  updateCode1();
+}
+function updateCode1(){
+  const name=document.getElementById('fnName').value||'myMove';
+  const el=document.getElementById('code1');
+  if(!m1Picks.length){el.innerHTML='<span class="cm">// Pick 3 moves and name your function!</span>';return;}
+  const body=m1Picks.map(m=>`  panda.${m}(); <span class="cm">// ${CMD_E[m]}</span>`).join('\n');
+  el.innerHTML=`<span class="kw">function</span> <span class="fn">${name}</span>() {\n${body}\n}\n\n<span class="cm">// Call it like this:</span>\n<span class="fn">${name}</span>();`;
+}
+function clearFn1(){
+  m1Picks=[];m1Running=false;clearInterval(m1Timer);m1ActIdx=-1;m1X=80;m1Frame=0;
+  document.querySelectorAll('.move-btn').forEach(b=>b.classList.remove('sel'));
+  [0,1,2].forEach(i=>{const s=document.getElementById('slot'+i);s.className='slot';s.innerHTML=`Move ${i+1}: <span style="color:var(--line)">empty</span>`;});
+  document.getElementById('fn1Done').classList.remove('show');
+  updateCode1();c1Draw();
+}
+function runFn1(){
+  if(m1Running)return;
+  if(m1Picks.length<3){alert('Pick all 3 moves first!');return;}
+  m1Running=true;m1X=80;m1ActIdx=-1;m1Frame=0;
+  let step=0;
+  function next(){
+    if(step>=m1Picks.length){m1Running=false;m1ActIdx=-1;c1Draw();document.getElementById('fn1Done').classList.add('show');addXP(25);showToast('🎯 Function runs! +25 XP');return;}
+    m1ActIdx=step++;
+    let f=0;clearInterval(m1Timer);
+    m1Timer=setInterval(()=>{m1Frame++;f++;if(m1Picks[m1ActIdx]==='jump')m1X=Math.min(m1X+3,(document.getElementById('c1').width||480)*.7);c1Draw();if(f>20){clearInterval(m1Timer);setTimeout(next,150);}},33);
+  }
+  next();
+}
+
+/* ═══ MISSION 2 — USE IT ════════════════════════════════════ */
+let m2Calls=0,m2Running=false,m2X=60,m2Frame=0,m2ActIdx=-1,m2Timer=null;
+let m2Total=0;
+
+function c2Draw(){
+  const {cv,ctx,w,h}=cvSetup('c2');drawBg(ctx,w,h);
+  const E={spin:'😵‍💫',eat:'😋',wave:'😊',jump:'🐼',sleep:'😴',dance:'💃',idle:'🐼',done:'🥳'};
+  const act=m1Picks[m2ActIdx]||'idle';
+  const px=Math.max(50,Math.min(m2X,(document.getElementById('c2').width||480)-60));
+  drawPanda(ctx,px,h-26,E[act]||'🐼');
+}
+function loadFn2(){
+  const name=document.getElementById('fnName').value||'myMove';
+  const picks=m1Picks.length?m1Picks:['spin','eat','wave'];
+  const body=picks.map(m=>`  panda.${m}(); <span class="cm">// ${CMD_E[m]}</span>`).join('\n');
+  document.getElementById('code2').innerHTML=`<span class="kw">function</span> <span class="fn">${name}</span>() {\n${body}\n}\n\n<span class="cm">// Calling it multiple times:</span>\n<span class="fn">${name}</span>();  <span class="cm">// call 1</span>\n<span class="fn">${name}</span>();  <span class="cm">// call 2</span>\n<span class="fn">${name}</span>();  <span class="cm">// call 3</span>`;
+  c2Draw();
+}
+function clearC2(){m2Total=0;document.getElementById('actionCount').textContent='0';m2Running=false;clearInterval(m2Timer);m2X=60;m2ActIdx=-1;c2Draw();}
+function callFn(times){
+  if(m2Running)return;
+  const picks=m1Picks.length?m1Picks:['spin','eat','wave'];
+  m2Running=true;m2X=60;
+  let allMoves=[];
+  for(let t=0;t<times;t++) picks.forEach(m=>allMoves.push(m));
+  let step=0;
+  function next(){
+    if(step>=allMoves.length){m2Running=false;m2ActIdx=-1;m2Total+=allMoves.length;document.getElementById('actionCount').textContent=m2Total;c2Draw();addXP(5*times);showToast(`+${5*times} XP`);return;}
+    m2ActIdx=step%picks.length;step++;
+    let f=0;clearInterval(m2Timer);
+    m2Timer=setInterval(()=>{m2Frame++;f++;m2X=Math.min(m2X+2,(document.getElementById('c2').width||480)*.85);c2Draw();if(f>16){clearInterval(m2Timer);setTimeout(next,100);}},33);
+  }
+  next();
+}
+
+/* ═══ MISSION 3 — INPUTS ════════════════════════════════════ */
+let p3Running=false,p3Timer=null,p3Frame=0;
+
+function c3Draw(bamboo){
+  const {cv,ctx,w,h}=cvSetup('c3');drawBg(ctx,w,h);
+  const n=bamboo||0;
+  for(let i=0;i<n;i++){
+    const bx=40+(i*(w-80)/(Math.max(n-1,1)));
+    ctx.fillStyle='#1a5020';ctx.fillRect(bx-3,h-26-55,6,55);
+    ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText('🌿',bx,h-26-55);
+  }
+  drawPanda(ctx,w*0.15,h-26,'😋');
+}
+function p3Update(){
+  const n=parseInt(document.getElementById('sCount').value);
+  document.getElementById('vCount').textContent=n;
+  document.getElementById('cCount').textContent=n;
+  document.getElementById('cCount2').textContent=n;
+  c3Draw(n);
+}
+function runP3(){
+  if(p3Running)return;
+  const n=parseInt(document.getElementById('sCount').value);
+  p3Running=true;
+  const {cv,ctx,w,h}=cvSetup('c3');drawBg(ctx,w,h);drawPanda(ctx,w*0.15,h-26,'😋');
+  let i=0;
+  function next(){
+    if(i>=n){p3Running=false;addXP(10);showToast(`🎋 Ate ${n} stalks! +10 XP`);return;}
+    c3Draw(i+1);i++;setTimeout(next,200);
+  }
+  next();
+}
+
+/* ═══ MISSION 4 — OUTPUTS ════════════════════════════════════ */
+function p4Calc(){
+  const w=parseInt(document.getElementById('wins').value)||0;
+  const l=parseInt(document.getElementById('losses').value)||0;
+  const score=w*10-l*5;
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreW').textContent=w;
+  document.getElementById('scoreL').textContent=l;
+  document.getElementById('scoreTotal').textContent=score;
+  document.getElementById('c4w').textContent=w;
+  document.getElementById('c4l').textContent=l;
+}
+
+/* ═══ MISSION 5 — COMBO ════════════════════════════════════ */
+let comboTotal=0,c5Running=false,c5Timer=null,c5X=70,c5Frame=0;
+
+function c5Draw(act){
+  const {cv,ctx,w,h}=cvSetup('c5');drawBg(ctx,w,h);
+  const E={spin:'😵‍💫',eat:'😋',idle:'🐼',done:'🥳'};
+  const px=Math.max(50,Math.min(c5X,w-60));
+  drawPanda(ctx,px,h-26,E[act||'idle']||'🐼');
+  // Score display
+  ctx.font='bold 13px sans-serif';ctx.fillStyle='#ffcc00';ctx.textAlign='right';ctx.textBaseline='top';
+  ctx.fillText(`Score: ${comboTotal}`,w-8,4);
+}
+function p5Update(){
+  const n=parseInt(document.getElementById('sPower').value);
+  document.getElementById('vPower').textContent=n;
+  const score=n*10;const bonus=n>3;
+  document.getElementById('p5Predict').innerHTML=`Predicted score: <strong style="color:var(--warn)">${score}</strong> pts. ${bonus?'<strong style="color:var(--good)">BONUS eat move triggered!</strong>':'No bonus (need power > 3).'}`;
+}
+function p5Clear(){comboTotal=0;c5Running=false;clearInterval(c5Timer);c5X=70;c5Frame=0;document.getElementById('comboScore').textContent='0';document.getElementById('comboWin').classList.remove('show');c5Draw();}
+function runCombo(times){
+  if(c5Running)return;
+  const power=parseInt(document.getElementById('sPower').value);
+  c5Running=true;
+  let moves=[];
+  for(let t=0;t<times;t++){
+    for(let i=0;i<power;i++) moves.push('spin');
+    if(power>3) moves.push('eat');
+  }
+  let step=0;
+  function next(){
+    if(step>=moves.length){
+      c5Running=false;c5Draw('done');
+      const earned=power*10*times;comboTotal+=earned;
+      document.getElementById('comboScore').textContent=comboTotal;
+      if(comboTotal>=50){document.getElementById('comboWin').classList.add('show');addXP(50);showToast('💥 COMBO COMPLETE! +50 XP');}
+      return;
+    }
+    const act=moves[step++];
+    let f=0;clearInterval(c5Timer);
+    c5Timer=setInterval(()=>{c5Frame++;f++;c5X=Math.min(c5X+2,(document.getElementById('c5').width||480)*.88);c5Draw(act);if(f>14){clearInterval(c5Timer);setTimeout(next,100);}},33);
+  }
+  next();
+}
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"What is a FUNCTION in coding?",o:["A named block of code you can run anytime by using its name","A type of variable that stores numbers","A loop that repeats forever","A button on the keyboard"],a:0,e:"A function is a named block of code! You define it once with a name, then call that name to run it — from anywhere in your program."},
+  {q:"Why are functions useful?",o:["You write the code once and reuse it many times instead of repeating it","They make code run faster","They only work with numbers","They replace loops"],a:0,e:"Functions let you write code once and call it as many times as you need. Edit the function once → it updates everywhere it's used!"},
+  {q:"What is the word for the input value you pass INTO a function?",o:["A parameter (or argument)","A variable","A return","A loop counter"],a:0,e:"The values you pass into a function are called parameters (when defining) or arguments (when calling). They control how the function behaves."},
+  {q:"What does the 'return' keyword do?",o:["Sends a value back OUT of the function to the caller","Goes back to the beginning of the function","Stops the whole program","Creates a new variable"],a:0,e:"'return' sends a value back to whoever called the function. Like a vending machine: you put in money (input) and get a snack back (return value)!"},
+  {q:"function greet(name) { ... }\nHow do you CALL this function for 'Alex'?",o:["greet('Alex');","greet = 'Alex';","function('Alex');","call greet with Alex"],a:0,e:"To call a function with an argument, write the function name followed by the value in parentheses: greet('Alex')"},
+  {q:"You define a function called doTrick() with 4 moves inside.\nYou call doTrick() 5 times. How many total moves run?",o:["20 moves (4 × 5)","4 moves","5 moves","9 moves (4 + 5)"],a:0,e:"Each call to doTrick() runs all 4 moves inside it. 5 calls × 4 moves each = 20 total moves!"},
+  {q:"function add(a, b) { return a + b; }\nWhat does add(3, 7) give back?",o:["10","3","7","37"],a:0,e:"add(3, 7) passes 3 as 'a' and 7 as 'b'. The function returns a + b = 3 + 7 = 10."},
+  {q:"When should you create a function?",o:["When you're going to use the same block of code more than once","Only when making games","Only for math calculations","When you want to slow your program down"],a:0,e:"If you find yourself writing the same code more than once, that's the signal to put it in a function! Functions avoid repetition and make code easier to update."},
+  {q:"What's the DIFFERENCE between Level 1 (commands) and Level 2 (functions)?",o:["Functions have names and can be reused; commands just run once","Functions are harder than commands","There is no difference","Functions only work in games"],a:0,e:"In Level 1, you ran commands in a list. In Level 2, you NAMED blocks of commands as functions — so you can call that name anywhere, as many times as you want."},
+  {q:"A function that calculates a score has: inputs (wins, losses) and a return value (the score). This means:",o:["You put information IN and get a result BACK","The function only works once","You need a loop to call it","The inputs are variables outside the function"],a:0,e:"Functions with inputs AND return values are like machines: put data in → function processes it → result comes out. This is how calculators, search engines, and game scoring systems work!"}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 2',q:text,file:'coding-lesson-02-functions.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — FUNCTION MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({mission:cur,xp}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAll();});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');if(g.xp)xp=g.xp;document.getElementById('xpNum').textContent=xp;}catch(e){}
+  buildQuiz();restoreQuiz();
+  c1Draw();c3Draw(3);c5Draw();
+  p4Calc();p5Update();
+}
+init();
+window.addEventListener('resize',()=>{if(cur===1)c1Draw();if(cur===2)c2Draw();if(cur===3)c3Draw(parseInt(document.getElementById('sCount').value));if(cur===5)c5Draw();});
+</script>
+</body>
+</html>

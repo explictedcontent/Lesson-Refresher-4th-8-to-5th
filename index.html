@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 4 · Giant Panda 🐼 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 5 · Sea Turtle 🐢 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — Sea Turtle's World",topic:"Geography",time:"45 min",file:"social-studies-lesson-05-sea-turtle.html",desc:"7 species, Tortuguero & Raine Island nesting beaches, CITES conservation treaty, and Kemp's Ridley recovery story."},
+      {n:2,emoji:"🔬",title:"Science — Sea Turtle Biology",topic:"Science",time:"45 min",file:"science-lesson-05-sea-turtle.html",desc:"Temperature-dependent sex determination, magnetic navigation, leatherback anatomy, 100 million years on Earth."},
+      {n:3,emoji:"📖",title:"ELA — The Long Journey Home",topic:"Reading",time:"45 min",file:"ela-lesson-05-sea-turtle.html",desc:"Follow Luna the hatchling, learn 7 vocabulary words, compare sea turtle vs land turtle, and write."},
+      {n:4,emoji:"📐",title:"Math — Fractions & Measurement",topic:"Number",time:"45 min",file:"math-lesson-05-sea-turtle.html",desc:"Fractions, multi-step word problems using sea turtle data, elapsed time, and mental math challenges."},
+      {n:5,emoji:"💻",title:"Coding — Level 2: Superpowers (Functions)",topic:"Coding",time:"60 min",file:"coding-lesson-02-functions.html",desc:"Name a function, call it multiple times, use parameters and return values — Boss the Panda Level 2!"},
+    ]},
+    {label:"Day 4 · Giant Panda 🐼 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Giant Panda's World",topic:"Geography",time:"45 min",file:"social-studies-lesson-04-giant-panda.html",desc:"China's provinces, mountain ranges, conservation timeline, and geography match game."},
       {n:2,emoji:"🔬",title:"Science — Adaptations & Biology",topic:"Science",time:"45 min",file:"science-lesson-04-giant-panda.html",desc:"Pseudo-thumb, carnivore eating plants, food web builder, and panda biology deep dive."},
       {n:3,emoji:"📖",title:"ELA — Passage, Vocab & Writing",topic:"Reading",time:"45 min",file:"ela-lesson-04-giant-panda.html",desc:"Read about giant pandas, learn 7 vocabulary words, compare snow leopard vs panda, and write."},
@@ -176,6 +183,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 5 · Sea Turtle 🐢", items:[
+       {n:5,emoji:"🐢",title:"Fractions & Measurement",topic:"Number",time:"45 min",file:"math-lesson-05-sea-turtle.html",desc:"Fractions, multi-step problems using sea turtle data, elapsed time, and mental math challenges."},
+     ]},
      {label:"Day 4 · Giant Panda 🐼", items:[
        {n:4,emoji:"🐼",title:"Multi-Step & Division",topic:"Number",time:"45 min",file:"math-lesson-04-giant-panda.html",desc:"U-P-S-S strategy, 12 word problems using panda data, mental math challenges."},
      ]},
@@ -194,6 +204,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 5 · Sea Turtle 🐢", items:[
+       {n:5,emoji:"🐢",title:"Sea Turtle: Biology & Navigation",topic:"Science",time:"45 min",file:"science-lesson-05-sea-turtle.html",desc:"Temperature-dependent sex determination, magnetic navigation, leatherback anatomy, and 100 million years of evolution."},
+     ]},
      {label:"Day 4 · Giant Panda 🐼", items:[
        {n:4,emoji:"🐼",title:"Giant Panda: Adaptations & Biology",topic:"Science",time:"45 min",file:"science-lesson-04-giant-panda.html",desc:"Pseudo-thumb, carnivore eating bamboo, adaptation match, food web builder."},
      ]},
@@ -210,6 +223,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 5 · Sea Turtle 🐢", items:[
+       {n:5,emoji:"🐢",title:"Sea Turtle: The Long Journey Home",topic:"Reading",time:"45 min",file:"ela-lesson-05-sea-turtle.html",desc:"Follow Luna the hatchling, learn 7 vocabulary words (migration, instinct, carapace…), compare sea & land turtles, and write."},
+     ]},
      {label:"Day 4 · Giant Panda 🐼", items:[
        {n:4,emoji:"🐼",title:"Giant Panda: Passage, Vocab & Writing",topic:"Reading",time:"45 min",file:"ela-lesson-04-giant-panda.html",desc:"Read about giant pandas, learn 7 vocabulary words, compare snow leopard vs panda, and write."},
      ]},
@@ -222,6 +238,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 5 · Sea Turtle 🐢", items:[
+       {n:5,emoji:"🐢",title:"Sea Turtle's World (Global Oceans)",topic:"Geography",time:"45 min",file:"social-studies-lesson-05-sea-turtle.html",desc:"7 species, Tortuguero & Raine Island nesting beaches, CITES 183-country treaty, and Kemp's Ridley comeback."},
+     ]},
      {label:"Day 4 · Giant Panda 🐼", items:[
        {n:4,emoji:"🐼",title:"Giant Panda's World (China)",topic:"Geography",time:"45 min",file:"social-studies-lesson-04-giant-panda.html",desc:"China's provinces, mountain ranges, panda diplomacy, conservation timeline & geography match."},
      ]},
@@ -240,7 +259,8 @@ const SUBJECTS=[
   {key:"coding", emoji:"💻", name:"Coding",
    groups:[
      {label:"Beginner Coding", items:[
-       {n:1,emoji:"💻",title:"Intro to Programming",topic:"Coding",time:"60 min",file:"coding-lesson-01-intro.html",desc:"What is code? Variables, if statements, and loops — with a LIVE code editor that runs right on the page!"},
+       {n:1,emoji:"💻",title:"Intro to Programming",topic:"Coding",time:"60 min",file:"coding-lesson-01-intro.html",desc:"What is code? Variables, if statements, and loops — Boss the Panda Level 1!"},
+       {n:2,emoji:"⚡",title:"Level 2: Superpowers (Functions)",topic:"Coding",time:"60 min",file:"coding-lesson-02-functions.html",desc:"Name functions, call them multiple times, use parameters and return values — Boss the Panda Level 2!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",
