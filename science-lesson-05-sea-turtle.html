@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Day 5 — Sea Turtles</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+a{color:var(--accent2)}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;align-items:center}
+.ph-seg{flex:1;height:8px;border-radius:4px;background:var(--line);transition:background .3s,transform .2s;cursor:pointer;position:relative}
+.ph-seg.done{background:var(--good)}
+.ph-seg.active{background:var(--accent2);transform:scaleY(1.4)}
+.ph-label{font-size:11px;color:var(--muted);white-space:nowrap;margin-left:4px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+.phase-section{margin-bottom:48px;scroll-margin-top:60px}
+.phase-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.phase-meta{font-size:13px;color:var(--muted);margin-bottom:20px}
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;color:var(--accent2);border:1px solid var(--line)}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.card-sm{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+
+/* Flip cards — Phase 1 */
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.flip-card{height:130px;cursor:pointer;perspective:800px;border-radius:var(--radius)}
+.flip-inner{width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d;position:relative}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;border:2px solid var(--line)}
+.flip-front{background:var(--panel2);color:var(--ink);font-style:italic;font-size:15px}
+.flip-back{background:var(--panel);transform:rotateY(180deg);flex-direction:column;gap:8px}
+.flip-back .answer{font-weight:700;font-size:16px;color:var(--accent2)}
+.flip-back .explain{font-size:13px;color:var(--muted)}
+.flip-hint{position:absolute;bottom:8px;right:12px;font-size:11px;color:var(--accent);opacity:.8}
+
+/* Reading passage */
+.passage{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;line-height:1.8}
+.passage h3{color:var(--accent2);font-size:15px;margin:20px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+.passage h3:first-child{margin-top:0}
+.passage p{margin-bottom:12px;color:var(--ink)}
+.passage strong{color:var(--warn)}
+.passage .fact-pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--accent2);margin:2px 3px}
+
+/* Match game — Phase 3 */
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.match-wrap{grid-template-columns:1fr}}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-item{min-height:44px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);cursor:pointer;font-size:14px;transition:border-color .2s,background .2s,transform .15s;user-select:none;display:flex;align-items:center}
+.match-item:hover{border-color:var(--accent2)}
+.match-item.selected{border-color:var(--accent2);background:rgba(91,209,196,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.85}
+.match-item.wrong{animation:shake .35s}
+.match-score{font-size:15px;font-weight:600;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 22px;border-radius:8px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* Sequence — Phase 4 */
+.seq-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.seq-item{min-height:54px;padding:12px 16px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);cursor:grab;font-size:14px;display:flex;align-items:center;gap:12px;transition:border-color .2s,opacity .15s;user-select:none}
+.seq-item:active{cursor:grabbing;opacity:.8}
+.seq-item.dragging{opacity:.4}
+.seq-item.over{border-color:var(--accent2)}
+.seq-item .seq-num{min-width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--muted)}
+.seq-item.correct-pos .seq-num{background:var(--good);color:#14151d}
+.seq-item.wrong-pos .seq-num{background:var(--bad);color:#fff}
+.seq-check-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+
+/* Writing pad — Phase 5 */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:15px;font-family:inherit;line-height:1.7;padding:14px;resize:vertical;outline:none;transition:border-color .2s}
+.writing-area:focus{border-color:var(--accent2)}
+.writing-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:var(--muted)}
+.saved-indicator{color:var(--good);opacity:0;transition:opacity .3s}
+.saved-indicator.show{opacity:1}
+
+/* Quiz — Phase 6 */
+.progress-dots{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line);transition:background .2s}
+.dot.answered{background:var(--accent2)}
+.dot.current{background:var(--accent);transform:scale(1.25)}
+.dot.correct{background:var(--good)}
+.dot.incorrect{background:var(--bad)}
+.quiz-q{font-size:17px;font-weight:600;margin-bottom:16px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.opt-btn{min-height:44px;padding:11px 16px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:15px;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:10px}
+.opt-btn:hover:not(:disabled){border-color:var(--accent2)}
+.opt-btn.chosen{border-color:var(--accent2);background:rgba(91,209,196,.1)}
+.opt-btn.correct-ans{border-color:var(--good);background:rgba(123,216,143,.12)}
+.opt-btn.wrong-ans{border-color:var(--bad);background:rgba(255,107,129,.1)}
+.opt-btn:disabled{cursor:default}
+.opt-letter{min-width:26px;height:26px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.feedback-box{padding:12px 16px;border-radius:8px;margin-bottom:12px;font-size:14px;border-left:4px solid}
+.feedback-box.good{background:rgba(123,216,143,.1);border-color:var(--good);color:var(--good)}
+.feedback-box.bad{background:rgba(255,107,129,.1);border-color:var(--bad);color:var(--bad)}
+.quiz-nav{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.score-board{text-align:center;padding:32px 20px}
+.score-big{font-size:56px;font-weight:800;color:var(--accent2)}
+.score-msg{font-size:18px;color:var(--muted);margin-top:8px}
+.score-breakdown{margin-top:24px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.score-row{display:flex;gap:12px;align-items:flex-start;font-size:14px;padding:8px 12px;border-radius:8px;background:var(--panel2)}
+.score-row .icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* Misc */
+.divider{height:1px;background:var(--line);margin:24px 0}
+.tip-box{background:var(--panel2);border:1px solid var(--accent2);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+.tip-box strong{color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<!-- Phase progress bar -->
+<div id="phase-bar">
+  <div class="ph-seg active" id="seg-1" onclick="scrollToPhase(1)" title="Phase 1: Mystery Body Parts"></div>
+  <div class="ph-seg" id="seg-2" onclick="scrollToPhase(2)" title="Phase 2: Core Reading"></div>
+  <div class="ph-seg" id="seg-3" onclick="scrollToPhase(3)" title="Phase 3: Adaptation Match"></div>
+  <div class="ph-seg" id="seg-4" onclick="scrollToPhase(4)" title="Phase 4: Life Cycle"></div>
+  <div class="ph-seg" id="seg-5" onclick="scrollToPhase(5)" title="Phase 5: Writing Pad"></div>
+  <div class="ph-seg" id="seg-6" onclick="scrollToPhase(6)" title="Phase 6: Quiz"></div>
+  <span class="ph-label">🐢 Sea Turtle</span>
+</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:36px;padding-top:8px">
+    <div style="font-size:52px;margin-bottom:8px">🐢</div>
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">Sea Turtles</div>
+    <div style="color:var(--muted);font-size:14px;margin-top:4px">Science · Day 5 · Approx. 36 min</div>
+  </div>
+
+  <!-- ══════════════ PHASE 1 ══════════════ -->
+  <section class="phase-section" id="phase-1">
+    <div class="phase-title">
+      <span class="badge">Phase 1</span>
+      Mystery Body Parts
+    </div>
+    <div class="phase-meta">5 min · Tap each card to reveal what body part is being described</div>
+
+    <div class="flip-grid" id="flip-grid"></div>
+
+    <div class="tip-box" style="margin-top:16px">
+      <strong>Try first!</strong> Read the clue and guess before flipping. Sea turtles have amazing features that other animals don't share.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 2 ══════════════ -->
+  <section class="phase-section" id="phase-2">
+    <div class="phase-title">
+      <span class="badge">Phase 2</span>
+      Core Reading
+    </div>
+    <div class="phase-meta">10 min · Read carefully — quiz questions come from this passage</div>
+
+    <div class="passage">
+
+      <h3>Temperature-Dependent Sex Determination (TSD)</h3>
+      <p>Most animals have chromosomes that decide whether an embryo becomes male or female. Sea turtles are different. Their sex is decided by <strong>nest temperature</strong> during incubation. If the nest stays <strong>above 29°C (84°F)</strong>, more hatchlings will be female. <strong>Below 29°C</strong>, more will be male. At exactly <strong>29°C</strong> — called the <strong>"pivotal temperature"</strong> — roughly equal numbers of males and females hatch.</p>
+      <p>This creates a serious problem with climate change. As global temperatures rise, beach sand heats up, pushing nest temperatures higher. Scientists monitoring Florida beaches have found ratios as extreme as <strong>99% female</strong> in some years. Without enough males, populations cannot reproduce and will eventually collapse.</p>
+
+      <h3>Magnetic Navigation</h3>
+      <p>How does a turtle find the same tiny beach across thousands of miles of open ocean — sometimes 30 years later? The answer is <strong>magnetite crystals</strong> — tiny magnetic particles in brain cells that work like a built-in compass. These crystals detect Earth's magnetic field lines, giving turtles information about both their <strong>latitude</strong> (north-south position) and <strong>longitude</strong> (east-west position).</p>
+      <p>Every beach has a slightly different magnetic "address" in Earth's field. Female turtles memorize their birth beach's magnetic signature as hatchlings, then use that memory as adults to navigate back to nest. Researchers have confirmed turtles return to within a few miles of their exact hatch site.</p>
+
+      <h3>Leatherback Sea Turtle: The Record-Breaker</h3>
+      <p>The leatherback is the most extreme of all sea turtles. It is the <strong>only sea turtle without a hard bony shell</strong> — instead, it has thick, rubbery leathery skin over a mosaic of tiny bones. This flexible body allows it to reach depths of <strong>3,937 feet (1,200 m)</strong> — the deepest dive of any reptile — without cracking under pressure.</p>
+      <p>Leatherbacks are also the <strong>largest reptiles by weight</strong>, reaching up to <strong>2,000 lbs (900 kg)</strong>. Unlike almost all reptiles, which are ectotherms (cold-blooded), leatherbacks can <strong>partially regulate their own body temperature</strong> through their large size and special circulation. This lets them survive in cold waters from the Arctic all the way to the tropics.</p>
+
+      <h3>The Green Sea Turtle's Surprising Name</h3>
+      <p>The green sea turtle is NOT named for the color of its shell — its shell is brownish. It is named for the <strong>green-colored fat</strong> beneath its skin. The fat turns green because green turtles are the <strong>only sea turtles that graze on plants as adults</strong>, eating large amounts of seagrass and algae. The chlorophyll in these plants tints their fat green.</p>
+
+      <h3>Phototaxis: Following the Light</h3>
+      <p>Hatchlings are born with a behavior called <strong>phototaxis</strong> — they automatically move toward the <strong>brightest light</strong> they can see. In nature, that's the reflection of moonlight and starlight on the ocean surface. But on developed beaches, streetlights, parking lots, and houses are brighter. Disoriented hatchlings crawl toward roads and lights instead of the sea, where they die from dehydration, predators, or cars.</p>
+
+      <h3>Breathing and Diving</h3>
+      <p>Sea turtles are <strong>air-breathing reptiles</strong> — they must surface to breathe. But they can hold their breath for impressive lengths of time: <strong>up to 7 hours while resting</strong> on the sea floor (their heart slows to just one beat per minute!), and about <strong>45 minutes while actively swimming</strong>.</p>
+
+      <h3>Ancient Survivors</h3>
+      <p>Sea turtles have roamed Earth's oceans for <strong>over 100 million years</strong> — they watched dinosaurs come and go. They survived the asteroid impact that wiped out most life on Earth 66 million years ago. Today, six of the seven sea turtle species are threatened or endangered, mostly due to <strong>human activity</strong>: plastic pollution, fishing nets, coastal development, and climate change.</p>
+
+      <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="fact-pill">🌡️ Pivotal temp: 29°C</span>
+        <span class="fact-pill">🧲 Magnetite navigation</span>
+        <span class="fact-pill">🫁 7 hrs breath-hold</span>
+        <span class="fact-pill">⚖️ Leatherback: 2,000 lbs</span>
+        <span class="fact-pill">🌊 Deepest dive: 3,937 ft</span>
+        <span class="fact-pill">🕰️ 100 million years old</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 3 ══════════════ -->
+  <section class="phase-section" id="phase-3">
+    <div class="phase-title">
+      <span class="badge">Phase 3</span>
+      Adaptation Match
+    </div>
+    <div class="phase-meta">8 min · Tap an adaptation on the left, then tap its purpose on the right</div>
+
+    <div class="match-wrap">
+      <div class="match-col" id="match-left"></div>
+      <div class="match-col" id="match-right"></div>
+    </div>
+    <div class="match-score" id="match-score"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-muted" id="retry-btn" onclick="retryWrong()" style="display:none">Retry unmatched</button>
+      <button class="btn btn-muted" onclick="resetMatch()">Reset all</button>
+    </div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Tip:</strong> If you get one wrong, the "Retry unmatched" button will appear so you can try again without starting over.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 4 ══════════════ -->
+  <section class="phase-section" id="phase-4">
+    <div class="phase-title">
+      <span class="badge">Phase 4</span>
+      Life Cycle Sequencing
+    </div>
+    <div class="phase-meta">8 min · Drag or tap to put the 7 life cycle stages in the correct order</div>
+
+    <div class="seq-list" id="seq-list"></div>
+    <div class="seq-check-row">
+      <button class="btn btn-accent" onclick="checkSeq()">Check Order</button>
+      <button class="btn btn-muted" onclick="shuffleSeq()">Shuffle Again</button>
+      <span id="seq-msg" style="font-size:14px;color:var(--muted)"></span>
+    </div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Tip:</strong> On mobile, tap an item to select it (it highlights), then tap where you want it to go. On desktop, you can also drag.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 5 ══════════════ -->
+  <section class="phase-section" id="phase-5">
+    <div class="phase-title">
+      <span class="badge">Phase 5</span>
+      Writing Pad
+    </div>
+    <div class="phase-meta">5 min · Write 3–5 sentences</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--accent2)">Your prompt:</div>
+      <p style="font-size:15px;line-height:1.7">Choose <strong>ONE</strong> sea turtle adaptation: magnetic navigation, temperature-dependent sex determination, salt glands, or holding their breath.</p>
+      <p style="font-size:15px;line-height:1.7;margin-top:8px">In your answer, explain: <strong>(1)</strong> What is it? <strong>(2)</strong> How does it help the turtle survive? <strong>(3)</strong> What would happen if the turtle <em>didn't</em> have this adaptation?</p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here…" oninput="onWritingInput()"></textarea>
+    <div class="writing-footer">
+      <span id="char-count">0 characters</span>
+      <span class="saved-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 6 ══════════════ -->
+  <section class="phase-section" id="phase-6">
+    <div class="phase-title">
+      <span class="badge">Phase 6</span>
+      Quiz
+    </div>
+    <div class="phase-meta">5 min · 8 questions · One at a time</div>
+
+    <div class="progress-dots" id="q-dots"></div>
+    <div id="quiz-body"></div>
+  </section>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// ── Storage keys ──────────────────────────────────────────────
+const QAKEY = 'science-l5-qans';
+const QKEY  = 'science-l5-quiz';
+const WKEY  = 'science-l5-writing';
+
+// ── logMistake ────────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Science|Day 5: Sea Turtle|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Science', day: 'Day 5', q: questionText, file: 'science-lesson-05-sea-turtle.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ── Phase 1 Data ──────────────────────────────────────────────
+const flipCards = [
+  {
+    clue: '"I steer through water like wings on a plane"',
+    answer: 'Front Flippers',
+    explain: 'Streamlined for long-distance swimming, they act like wings to generate lift and steering — not just paddles.'
+  },
+  {
+    clue: '"I\'m made of 60 bones fused together — but I\'m not a backpack"',
+    answer: 'Carapace (Upper Shell)',
+    explain: 'The shell is part of the turtle\'s skeleton — ribs and spine fused together. It cannot be removed.'
+  },
+  {
+    clue: '"I drip liquid while laying eggs — but not tears of sadness"',
+    answer: 'Salt Glands Near Eyes',
+    explain: 'These glands remove excess salt from ocean water. The liquid they secrete looks like tears but is purely functional.'
+  },
+  {
+    clue: '"I can tell North from South without a compass"',
+    answer: 'Magnetic Sensing Cells',
+    explain: 'Magnetite crystals in brain cells detect Earth\'s magnetic field lines, giving turtles built-in GPS for ocean navigation.'
+  },
+  {
+    clue: '"I decide if you\'re a boy or a girl — but I\'m just the temperature"',
+    answer: 'Nest Temperature (TSD)',
+    explain: 'Temperature-Dependent Sex Determination: above 29°C = more females, below 29°C = more males. No chromosomes needed!'
+  }
+];
+
+function buildFlipCards() {
+  const grid = document.getElementById('flip-grid');
+  flipCards.forEach((fc, i) => {
+    grid.innerHTML += `
+      <div class="flip-card" id="fc-${i}" onclick="flipCard(${i})" role="button" tabindex="0" aria-label="Flip card ${i+1}" onkeydown="if(event.key==='Enter'||event.key===' ')flipCard(${i})">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span>${fc.clue}</span>
+            <span class="flip-hint">tap to reveal</span>
+          </div>
+          <div class="flip-back">
+            <span class="answer">${fc.answer}</span>
+            <span class="explain">${fc.explain}</span>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function flipCard(i) {
+  document.getElementById('fc-'+i).classList.toggle('flipped');
+}
+
+// ── Phase 3: Match Game ───────────────────────────────────────
+const matchPairs = [
+  { left: 'Streamlined shell', right: 'Reduces drag for fast swimming' },
+  { left: 'Front flippers like paddles', right: 'Power through ocean currents' },
+  { left: 'Temperature-Dependent Sex Determination', right: 'Produces ratio of males to females' },
+  { left: 'Magnetic sensing', right: 'Navigate back to birth beach across entire oceans' },
+  { left: 'Salt glands by eyes', right: 'Remove extra salt from seawater' },
+  { left: 'Ability to hold breath 7 hours', right: 'Rest on sea floor without surfacing' },
+  { left: "Leatherback's leathery skin", right: 'Allows deep diving without shell pressure' }
+];
+
+let matchState = {
+  selectedLeft: null,
+  selectedRight: null,
+  matched: new Set(),
+  score: 0
+};
+
+function buildMatch() {
+  const leftCol = document.getElementById('match-left');
+  const rightCol = document.getElementById('match-right');
+  leftCol.innerHTML = '';
+  rightCol.innerHTML = '';
+
+  const rightOrder = shuffle([...Array(matchPairs.length).keys()]);
+
+  matchPairs.forEach((p, i) => {
+    leftCol.innerHTML += `<div class="match-item" id="ml-${i}" onclick="selectLeft(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectLeft(${i})">${p.left}</div>`;
+  });
+  rightOrder.forEach(i => {
+    rightCol.innerHTML += `<div class="match-item" id="mr-${i}" onclick="selectRight(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectRight(${i})">${matchPairs[i].right}</div>`;
+  });
+}
+
+function selectLeft(i) {
+  if (matchState.matched.has(i)) return;
+  // deselect previous
+  if (matchState.selectedLeft !== null) {
+    const prev = document.getElementById('ml-'+matchState.selectedLeft);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedLeft = i;
+  document.getElementById('ml-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function selectRight(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedRight !== null) {
+    const prev = document.getElementById('mr-'+matchState.selectedRight);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedRight = i;
+  document.getElementById('mr-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function tryMatch() {
+  const { selectedLeft: l, selectedRight: r } = matchState;
+  if (l === null || r === null) return;
+
+  if (l === r) {
+    // correct
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(l);
+    matchState.score++;
+    matchState.selectedLeft = null;
+    matchState.selectedRight = null;
+    updateMatchScore();
+  } else {
+    // wrong
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.add('wrong'); rEl.classList.add('wrong');
+    setTimeout(() => {
+      lEl.classList.remove('wrong','selected');
+      rEl.classList.remove('wrong','selected');
+      matchState.selectedLeft = null;
+      matchState.selectedRight = null;
+      document.getElementById('retry-btn').style.display = 'inline-flex';
+    }, 400);
+  }
+}
+
+function updateMatchScore() {
+  const total = matchPairs.length;
+  const s = matchState.score;
+  const el = document.getElementById('match-score');
+  if (s === total) {
+    el.innerHTML = `<span style="color:var(--good)">🎉 All ${total} pairs matched! Great work!</span>`;
+    document.getElementById('retry-btn').style.display = 'none';
+    markPhaseDone(3);
+  } else {
+    el.textContent = `${s} / ${total} matched`;
+  }
+}
+
+function retryWrong() {
+  if (matchState.selectedLeft !== null) {
+    const lEl = document.getElementById('ml-'+matchState.selectedLeft);
+    if (lEl) lEl.classList.remove('selected');
+  }
+  if (matchState.selectedRight !== null) {
+    const rEl = document.getElementById('mr-'+matchState.selectedRight);
+    if (rEl) rEl.classList.remove('selected');
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+  document.getElementById('retry-btn').style.display = 'none';
+}
+
+function resetMatch() {
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set(), score: 0 };
+  document.getElementById('match-score').textContent = '';
+  document.getElementById('retry-btn').style.display = 'none';
+  buildMatch();
+}
+
+// ── Phase 4: Life Cycle Sequencing ───────────────────────────
+const seqItems = [
+  { id: 'A', text: 'Female digs nest on beach at night, lays 80–120 eggs, covers them with sand' },
+  { id: 'B', text: 'Eggs incubate for 45–70 days; nest temperature determines hatchlings\' sex' },
+  { id: 'C', text: 'Hatchlings emerge as a group (safety in numbers!) and race to the ocean' },
+  { id: 'D', text: 'Young turtles drift in ocean currents for years ("lost years" — scientists rarely see them)' },
+  { id: 'E', text: 'Juvenile turtles feed and grow in coastal waters for 10–30 years' },
+  { id: 'F', text: 'Adult female returns to EXACT birth beach using magnetic navigation to nest' },
+  { id: 'G', text: 'Turtles can live 80–100 years, nesting every 2–5 years' }
+];
+const correctSeqOrder = ['A','B','C','D','E','F','G'];
+let currentSeq = [];
+let dragSrc = null;
+let tapSelected = null;
+
+function buildSeq() {
+  currentSeq = shuffle([...seqItems]);
+  renderSeq();
+}
+
+function shuffleSeq() {
+  currentSeq = shuffle([...seqItems]);
+  tapSelected = null;
+  document.getElementById('seq-msg').textContent = '';
+  renderSeq();
+}
+
+function renderSeq() {
+  const list = document.getElementById('seq-list');
+  list.innerHTML = '';
+  currentSeq.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'seq-item';
+    div.id = 'si-' + idx;
+    div.draggable = true;
+    div.dataset.idx = idx;
+    div.innerHTML = `<span class="seq-num">${idx+1}</span><span>${item.text}</span>`;
+    div.addEventListener('dragstart', onDragStart);
+    div.addEventListener('dragover', onDragOver);
+    div.addEventListener('drop', onDrop);
+    div.addEventListener('dragend', onDragEnd);
+    div.addEventListener('click', onSeqTap);
+    list.appendChild(div);
+  });
+}
+
+function onDragStart(e) {
+  dragSrc = +e.currentTarget.dataset.idx;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('over'));
+  e.currentTarget.classList.add('over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  const target = +e.currentTarget.dataset.idx;
+  if (dragSrc !== null && dragSrc !== target) {
+    swapSeq(dragSrc, target);
+  }
+  document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('over','dragging'));
+  dragSrc = null;
+}
+function onDragEnd() {
+  document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('dragging','over'));
+  dragSrc = null;
+}
+function onSeqTap(e) {
+  const idx = +e.currentTarget.dataset.idx;
+  if (tapSelected === null) {
+    tapSelected = idx;
+    e.currentTarget.classList.add('selected');
+  } else {
+    if (tapSelected !== idx) {
+      swapSeq(tapSelected, idx);
+    }
+    document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('selected'));
+    tapSelected = null;
+  }
+}
+function swapSeq(a, b) {
+  [currentSeq[a], currentSeq[b]] = [currentSeq[b], currentSeq[a]];
+  renderSeq();
+  document.getElementById('seq-msg').textContent = '';
+}
+
+function checkSeq() {
+  const correct = currentSeq.map(i => i.id).join('') === correctSeqOrder.join('');
+  const items = document.querySelectorAll('.seq-item');
+  currentSeq.forEach((item, idx) => {
+    const el = items[idx];
+    el.classList.remove('correct-pos','wrong-pos');
+    if (item.id === correctSeqOrder[idx]) {
+      el.classList.add('correct-pos');
+    } else {
+      el.classList.add('wrong-pos');
+    }
+  });
+  const msg = document.getElementById('seq-msg');
+  if (correct) {
+    msg.innerHTML = '<span style="color:var(--good)">🎉 Perfect order!</span>';
+    markPhaseDone(4);
+  } else {
+    const numRight = currentSeq.filter((item, idx) => item.id === correctSeqOrder[idx]).length;
+    msg.innerHTML = `<span style="color:var(--warn)">${numRight}/7 in correct position — keep adjusting!</span>`;
+  }
+}
+
+// ── Phase 5: Writing Pad ──────────────────────────────────────
+let writeTimer = null;
+
+function onWritingInput() {
+  const txt = document.getElementById('writing-pad').value;
+  document.getElementById('char-count').textContent = txt.length + ' character' + (txt.length !== 1 ? 's' : '');
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(saveWriting, 300);
+}
+
+function saveWriting() {
+  try {
+    localStorage.setItem(WKEY, document.getElementById('writing-pad').value);
+    const ind = document.getElementById('save-indicator');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 1500);
+  } catch(e) {}
+}
+
+function restoreWriting() {
+  try {
+    const saved = localStorage.getItem(WKEY);
+    if (saved) {
+      document.getElementById('writing-pad').value = saved;
+      document.getElementById('char-count').textContent = saved.length + ' character' + (saved.length !== 1 ? 's' : '');
+    }
+  } catch(e) {}
+}
+
+// ── Phase 6: Quiz ─────────────────────────────────────────────
+const questions = [
+  {
+    q: 'What determines whether a sea turtle egg will hatch as male or female?',
+    opts: ['The size of the egg', 'Nest temperature (TSD)', 'The mother\'s age', 'The depth the eggs are buried'],
+    ans: 1,
+    explain: 'Temperature-Dependent Sex Determination (TSD): above 29°C makes more females, below 29°C makes more males.'
+  },
+  {
+    q: 'How do sea turtles navigate back to the exact beach where they were born?',
+    opts: ['They follow ocean currents', 'They use their sense of smell', 'They detect Earth\'s magnetic field', 'They follow other turtles'],
+    ans: 2,
+    explain: 'Magnetite crystals in brain cells detect Earth\'s unique magnetic field lines at each beach location.'
+  },
+  {
+    q: 'What does "phototaxis" cause hatchlings to do?',
+    opts: ['Dig deeper into the sand', 'Move toward the brightest light (usually the ocean)', 'Hide from predators', 'Follow their mother into the water'],
+    ans: 1,
+    explain: 'Phototaxis = movement toward light. Normally that\'s moonlight on the ocean, but beach lights can redirect hatchlings the wrong way.'
+  },
+  {
+    q: 'Why is the green sea turtle named "green"?',
+    opts: ['Its shell is bright green', 'Its skin is greenish', 'Its fat is green from eating seagrass', 'Its eggs have a green tint'],
+    ans: 2,
+    explain: 'Green turtles eat seagrass and algae as adults. The chlorophyll tints their fat green — not their shell color!'
+  },
+  {
+    q: 'What is unusual about the leatherback sea turtle\'s shell?',
+    opts: ['It is invisible underwater', 'It glows in the dark', 'It has no hard bony shell — just thick leathery skin', 'It changes color with temperature'],
+    ans: 2,
+    explain: 'Leatherbacks have a mosaic of tiny bones under flexible, rubbery skin. This allows them to dive to extreme depths without cracking.'
+  },
+  {
+    q: 'How does climate change threaten sea turtle sex ratios?',
+    opts: ['Colder water reduces egg fertility', 'Warmer nests produce more females, imbalancing populations', 'Rising seas flood all nesting beaches', 'Increased storms destroy eggs before hatching'],
+    ans: 1,
+    explain: 'Warmer sand pushes nest temps above the 29°C pivotal point, creating extreme female-heavy ratios — some beaches see 99% female hatchlings.'
+  },
+  {
+    q: 'How long can a sea turtle hold its breath while resting?',
+    opts: ['About 10 minutes', 'Up to 45 minutes', 'Up to 7 hours', 'Up to 3 days'],
+    ans: 2,
+    explain: 'Resting turtles can slow their heart rate to one beat per minute and hold their breath for up to 7 hours on the sea floor.'
+  },
+  {
+    q: 'Sea turtles have existed on Earth for approximately how long?',
+    opts: ['About 10,000 years', 'About 1 million years', 'About 10 million years', 'Over 100 million years — since the dinosaurs'],
+    ans: 3,
+    explain: 'Sea turtles are ancient survivors — they lived alongside dinosaurs and survived the mass extinction 66 million years ago.'
+  }
+];
+
+let quizState = {
+  current: 0,
+  answers: {}, // idx -> chosen option index
+  locked: {}   // idx -> true when answered
+};
+
+function buildQuiz() {
+  quizState = { current: 0, answers: {}, locked: {} };
+  renderDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || 'null');
+    if (!saved) return;
+    // Check if final score saved
+    const finalScore = localStorage.getItem(QKEY);
+    if (finalScore !== null) {
+      quizState.answers = saved.answers || {};
+      quizState.locked = saved.locked || {};
+      quizState.current = saved.current !== undefined ? saved.current : 0;
+      showScore();
+      return;
+    }
+    quizState.answers = saved.answers || {};
+    quizState.locked = saved.locked || {};
+    quizState.current = saved.current !== undefined ? saved.current : 0;
+    renderDots();
+    renderQuestion();
+  } catch(e) {}
+}
+
+function saveQAns() {
+  try {
+    localStorage.setItem(QAKEY, JSON.stringify({
+      answers: quizState.answers,
+      locked: quizState.locked,
+      current: quizState.current
+    }));
+  } catch(e) {}
+}
+
+function renderDots() {
+  const dots = document.getElementById('q-dots');
+  dots.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (quizState.locked[i]) {
+      d.classList.add(quizState.answers[i] === questions[i].ans ? 'correct' : 'incorrect');
+    } else if (i === quizState.current) {
+      d.classList.add('current');
+    } else if (quizState.answers[i] !== undefined) {
+      d.classList.add('answered');
+    }
+    d.title = 'Question ' + (i+1);
+    d.onclick = () => { quizState.current = i; renderDots(); renderQuestion(); };
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const qb = document.getElementById('quiz-body');
+  const qi = quizState.current;
+  const q = questions[qi];
+  const locked = quizState.locked[qi];
+  const chosen = quizState.answers[qi];
+  const letters = ['A','B','C','D'];
+
+  let optsHTML = '';
+  q.opts.forEach((opt, oi) => {
+    let cls = 'opt-btn';
+    if (locked) {
+      if (oi === q.ans) cls += ' correct-ans';
+      else if (oi === chosen && oi !== q.ans) cls += ' wrong-ans';
+    } else if (oi === chosen) {
+      cls += ' chosen';
+    }
+    optsHTML += `<button class="${cls}" ${locked ? 'disabled' : ''} onclick="ansQ(${qi},${oi})">
+      <span class="opt-letter">${letters[oi]}</span>${opt}
+    </button>`;
+  });
+
+  let feedbackHTML = '';
+  if (locked) {
+    const correct = chosen === q.ans;
+    feedbackHTML = `<div class="feedback-box ${correct ? 'good' : 'bad'}">
+      ${correct ? '✓ Correct!' : '✗ Not quite.'} ${q.explain}
+    </div>`;
+  }
+
+  const isLast = qi === questions.length - 1;
+  const allDone = Object.keys(quizState.locked).length === questions.length;
+
+  qb.innerHTML = `
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Question ${qi+1} of ${questions.length}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHTML}</div>
+      ${feedbackHTML}
+      <div class="quiz-nav">
+        ${qi > 0 ? `<button class="btn btn-muted" onclick="navQ(${qi-1})">← Back</button>` : ''}
+        ${locked && !isLast ? `<button class="btn btn-accent" onclick="navQ(${qi+1})">Next →</button>` : ''}
+        ${allDone ? `<button class="btn btn-accent" onclick="showScore()">See Score 🎯</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function ansQ(qi, chosen) {
+  if (quizState.locked[qi]) return;
+  quizState.answers[qi] = chosen;
+  quizState.locked[qi] = true;
+  const correct = chosen === questions[qi].ans;
+  saveQAns();
+  logMistake(correct, questions[qi].q, 'Q' + (qi+1));
+  renderDots();
+  renderQuestion();
+}
+
+function navQ(qi) {
+  quizState.current = qi;
+  renderDots();
+  renderQuestion();
+}
+
+function showScore() {
+  let score = 0;
+  questions.forEach((q, i) => { if (quizState.answers[i] === q.ans) score++; });
+  try { localStorage.setItem(QKEY, score); } catch(e) {}
+
+  const pct = Math.round(score / questions.length * 100);
+  let msg = pct >= 88 ? '🌟 Excellent work!' : pct >= 63 ? '👍 Good job — review the ones you missed.' : '📖 Review the reading and try again.';
+  const letters = ['A','B','C','D'];
+
+  let breakdown = '';
+  questions.forEach((q, i) => {
+    const correct = quizState.answers[i] === q.ans;
+    breakdown += `<div class="score-row">
+      <span class="icon">${correct ? '✅' : '❌'}</span>
+      <div>
+        <div style="font-weight:600">${q.q}</div>
+        ${!correct ? `<div style="color:var(--bad);margin-top:2px">Your answer: ${letters[quizState.answers[i]] || '?'}) ${quizState.answers[i] !== undefined ? q.opts[quizState.answers[i]] : 'Not answered'}</div>` : ''}
+        <div style="color:var(--good);margin-top:2px">Correct: ${letters[q.ans]}) ${q.opts[q.ans]}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="score-board">
+      <div class="score-big">${score}/${questions.length}</div>
+      <div class="score-msg">${pct}% · ${msg}</div>
+      <div class="score-breakdown">${breakdown}</div>
+      <button class="btn btn-muted" style="margin-top:20px" onclick="resetQuiz()">Retake Quiz</button>
+    </div>`;
+  document.getElementById('q-dots').innerHTML = '';
+  markPhaseDone(6);
+}
+
+function resetQuiz() {
+  try { localStorage.removeItem(QKEY); localStorage.removeItem(QAKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ── Phase progress bar ────────────────────────────────────────
+function markPhaseDone(n) {
+  const seg = document.getElementById('seg-'+n);
+  if (seg) { seg.classList.remove('active'); seg.classList.add('done'); }
+}
+
+function scrollToPhase(n) {
+  const el = document.getElementById('phase-'+n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Intersection observer to update active phase
+function setupPhaseObserver() {
+  const phases = [1,2,3,4,5,6];
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        const n = parseInt(id.replace('phase-',''));
+        phases.forEach(p => {
+          const seg = document.getElementById('seg-'+p);
+          if (!seg) return;
+          if (p === n && !seg.classList.contains('done')) {
+            seg.classList.add('active');
+          } else if (p !== n) {
+            seg.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  phases.forEach(n => {
+    const el = document.getElementById('phase-'+n);
+    if (el) observer.observe(el);
+  });
+}
+
+// ── Auto-save ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  saveQAns();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ── Helpers ───────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── init ──────────────────────────────────────────────────────
+function init() {
+  buildFlipCards();
+  buildMatch();
+  buildSeq();
+  restoreWriting();
+  buildQuiz();
+  restoreQuiz();
+  setupPhaseObserver();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
