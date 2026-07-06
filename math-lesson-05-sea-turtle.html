@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 5 — Fractions & Measurement</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .turtle-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* STRATEGY CARD */
+.strategy-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+@media(max-width:500px){.strategy-grid{grid-template-columns:1fr}}
+.strategy-item{
+  background:var(--panel2);border-radius:10px;padding:14px 16px;
+  border-left:4px solid var(--accent2);
+}
+.strategy-item .letter{font-size:26px;font-weight:700;color:var(--accent2);line-height:1}
+.strategy-item .label{font-weight:700;font-size:14px;margin:4px 0 2px;color:var(--ink)}
+.strategy-item .desc{font-size:13px;color:var(--muted)}
+.worked-example{
+  background:var(--panel2);border-radius:var(--radius);padding:18px 20px;
+  border:1px solid var(--line);
+}
+.worked-example h3{font-size:15px;color:var(--warn);margin-bottom:10px}
+.worked-step{
+  display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);
+  font-size:14px;
+}
+.worked-step:last-child{border-bottom:none}
+.step-lbl{
+  min-width:24px;height:24px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:17px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-input.correct-border{border-color:var(--good)}
+.wp-input.wrong-border{border-color:var(--bad)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* MENTAL MATH */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:18px;font-weight:700;margin-bottom:10px;min-height:28px}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;font-weight:600;
+  min-height:40px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.selected{border-color:var(--accent);background:rgba(255,122,89,.1)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.quiz-submit-row{text-align:center;margin-top:20px}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* PROGRESS DOTS */
+.phase-progress{
+  display:flex;gap:8px;align-items:center;justify-content:center;
+  padding:10px 0;margin-bottom:8px;
+}
+.prog-dot{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.prog-dot.filled{background:var(--accent2)}
+
+/* COMPLETE CHECK */
+.complete-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:20px;background:rgba(123,216,143,.15);
+  color:var(--good);font-size:13px;font-weight:600;margin-left:auto;
+}
+
+/* UTILITY */
+.hidden{display:none!important}
+.mt8{margin-top:8px}
+.mt16{margin-top:16px}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Strategy</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Problems I</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems II</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Mental Math</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="turtle-icon">🐢</div>
+  <h1>Math Day 5 — Fractions &amp; Measurement</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Sea Turtle Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick problems — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — STRATEGY REVIEW
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🧠 Phase 2 — Strategy Review <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">Use the U-P-S-S strategy for every word problem.</p>
+
+  <div class="strategy-grid">
+    <div class="strategy-item">
+      <div class="letter">U</div>
+      <div class="label">Understand</div>
+      <div class="desc">What do I know? What am I finding? Underline key numbers and the question.</div>
+    </div>
+    <div class="strategy-item">
+      <div class="letter">P</div>
+      <div class="label">Plan</div>
+      <div class="desc">Which operation(s) do I need? Should I draw a picture or diagram?</div>
+    </div>
+    <div class="strategy-item">
+      <div class="letter">S</div>
+      <div class="label">Solve</div>
+      <div class="desc">Show all your work, step by step. Write each calculation clearly.</div>
+    </div>
+    <div class="strategy-item">
+      <div class="letter">S</div>
+      <div class="label">Show / Check</div>
+      <div class="desc">Does my answer make sense? Re-read the question and check it fits.</div>
+    </div>
+  </div>
+
+  <div class="worked-example">
+    <h3>📋 Worked Example (clean numbers)</h3>
+    <p style="font-size:15px;color:var(--ink);margin-bottom:14px;line-height:1.7">
+      A store sold 240 items. One-third were returned. How many items were <em>kept</em>?
+    </p>
+    <div class="worked-step">
+      <span class="step-lbl">U</span>
+      <span>Know: 240 items sold, 1/3 returned. Find: items kept.</span>
+    </div>
+    <div class="worked-step">
+      <span class="step-lbl">P</span>
+      <span>Find 1/3 of 240, then subtract from 240. Or find 2/3 directly.</span>
+    </div>
+    <div class="worked-step">
+      <span class="step-lbl">S</span>
+      <span><span class="math">240 ÷ 3 = 80</span> returned &nbsp;→&nbsp; <span class="math">240 − 80 = 160</span> kept.</span>
+    </div>
+    <div class="worked-step">
+      <span class="step-lbl">S</span>
+      <span>Check: 80 + 160 = 240 ✓. Makes sense!</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — WORD PROBLEMS SET 1
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>🌊 Phase 3 — Word Problems Set 1 <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems — fractions and basic operations. Type your answer, then reveal the solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Set 1 complete! Nice work.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS SET 2
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🔬 Phase 4 — Word Problems Set 2 <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 harder multi-step problems. Take your time!</p>
+
+  <div class="wp-card" id="wp2-container">
+    <div class="wp-q-num" id="wp2-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp2-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp2-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp2-reveal" onclick="revealWP(2)">Show Solution</button>
+      <button class="btn btn-teal" id="wp2-next" onclick="wpNext(2)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp2-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp2-dots"></div>
+      <span class="wp-counter" id="wp2-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp2-done">✓ Set 2 complete! Excellent work!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — MENTAL MATH CHALLENGE
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Mental Math Challenge <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 speed problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Mental Math complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Your score is saved automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="quiz-submit-row">
+    <button class="btn btn-accent" id="quiz-submit-btn" onclick="submitQuiz()" style="font-size:16px;padding:12px 32px">Submit Quiz</button>
+  </div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l5-qans";
+const QKEY  = "math-l5-quiz";
+
+function saveAll() {
+  // Triggered on visibility/blur/unload
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 5: Fractions & Measurement|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 5', q: questionText, file: 'math-lesson-05-sea-turtle.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+const phaseEls = [null, 'phase1','phase2','phase3','phase4','phase5','phase6'];
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "3/4 + 1/4 = ?",
+    choices: ["1/2", "1 whole", "1 and 1/4", "3/8"],
+    correct: 1,
+    explain: "3/4 + 1/4 = 4/4 = 1 whole. When the top numbers add to equal the bottom, you have one whole!"
+  },
+  {
+    q: "12 ÷ 4 = ?",
+    choices: ["2", "4", "3", "8"],
+    correct: 2,
+    explain: "12 ÷ 4 = 3. Think: 4 × 3 = 12. ✓"
+  },
+  {
+    q: "What is 1/2 of 120?",
+    choices: ["40", "60", "80", "50"],
+    correct: 1,
+    explain: "1/2 of 120 = 120 ÷ 2 = 60."
+  },
+  {
+    q: "Round 3,847 to the nearest hundred.",
+    choices: ["3,900", "3,800", "4,000", "3,850"],
+    correct: 1,
+    explain: "3,847 → look at the tens digit (4). It's less than 5, so round down: 3,800."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS DATA
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A loggerhead sea turtle lays <strong>4 nests</strong> each season. Each nest has <strong>120 eggs</strong>. How many eggs total does she lay in one season?",
+    solution: [
+      {label:"Plan", text:"Multiply: 4 nests × 120 eggs per nest"},
+      {label:"Solve", math:"4 × 120 = 480 eggs"},
+      {label:"Answer", text:"She lays 480 eggs in one season."},
+      {label:"Check", text:"120 + 120 + 120 + 120 = 480 ✓"}
+    ]
+  },
+  {
+    text: "Of the <strong>480 eggs</strong> laid, <strong>1/4 are infertile</strong> and won't hatch. How many eggs will hatch?",
+    solution: [
+      {label:"Plan", text:"Find 1/4 of 480 (infertile), then subtract. Or find 3/4 directly."},
+      {label:"Solve", math:"480 ÷ 4 = 120 infertile eggs"},
+      {label:"Solve", math:"480 − 120 = 360 eggs will hatch"},
+      {label:"Check", text:"3/4 × 480 = 360 ✓"}
+    ]
+  },
+  {
+    text: "Scientists tracked a green sea turtle migration of <strong>1,400 miles</strong>. The turtle swam <strong>175 miles each week</strong>. How many weeks did the migration take?",
+    solution: [
+      {label:"Plan", text:"Divide total miles by miles per week."},
+      {label:"Solve", math:"1,400 ÷ 175 = 8 weeks"},
+      {label:"Check", text:"175 × 8 = 1,400 ✓"}
+    ]
+  },
+  {
+    text: "A leatherback sea turtle weighs <strong>1,500 pounds</strong>. A loggerhead weighs <strong>250 pounds</strong>. How many times heavier is the leatherback than the loggerhead?",
+    solution: [
+      {label:"Plan", text:"Divide to compare: leatherback ÷ loggerhead."},
+      {label:"Solve", math:"1,500 ÷ 250 = 6"},
+      {label:"Answer", text:"The leatherback is 6 times heavier than the loggerhead."},
+      {label:"Check", text:"250 × 6 = 1,500 ✓"}
+    ]
+  },
+  {
+    text: "A beach has <strong>5 sea turtle nests</strong>. Each nest has <strong>96 eggs</strong>. Only <strong>1/8 of all eggs</strong> survive to adulthood. How many adult turtles will result?",
+    solution: [
+      {label:"Step 1", math:"5 × 96 = 480 total eggs"},
+      {label:"Step 2", math:"480 ÷ 8 = 60 adult turtles"},
+      {label:"Answer", text:"60 adult turtles will result."},
+      {label:"Check", text:"1/8 of 480 = 60 ✓"}
+    ]
+  },
+  {
+    text: "A sea turtle conservation center rescued <strong>36 turtles</strong>. <strong>2/3 were released</strong> back to the ocean after treatment. How many turtles are still at the center?",
+    solution: [
+      {label:"Step 1", math:"36 ÷ 3 = 12 (one third)"},
+      {label:"Step 2", math:"12 × 2 = 24 released (two thirds)"},
+      {label:"Step 3", math:"36 − 24 = 12 still at the center"},
+      {label:"Check", text:"24 + 12 = 36 ✓"}
+    ]
+  }
+];
+
+const wp2Data = [
+  {
+    text: "A leatherback swims <strong>70 miles per day</strong> on migration. It travels for <strong>3 weeks</strong> before stopping to rest. How many miles has it traveled?",
+    solution: [
+      {label:"Step 1", math:"3 weeks × 7 days = 21 days"},
+      {label:"Step 2", math:"70 × 21 = 1,470 miles"},
+      {label:"Check", text:"70 × 20 = 1,400; 70 × 1 = 70; total = 1,470 ✓"}
+    ]
+  },
+  {
+    text: "A nesting beach recorded these nest counts:<br><strong>Mon: 12 &nbsp; Tue: 18 &nbsp; Wed: 15 &nbsp; Thu: 21 &nbsp; Fri: 9</strong><br>What is the average (mean) number of nests per day?",
+    solution: [
+      {label:"Step 1", math:"12 + 18 + 15 + 21 + 9 = 75 total nests"},
+      {label:"Step 2", math:"75 ÷ 5 = 15 nests per day"},
+      {label:"Answer", text:"The mean is 15 nests per day."},
+      {label:"Check", text:"5 × 15 = 75 ✓"}
+    ]
+  },
+  {
+    text: "Sea turtle eggs incubate for <strong>60 days</strong>. If eggs were laid on <strong>June 5th</strong>, what date will they hatch?",
+    solution: [
+      {label:"Step 1", text:"Count remaining days in June: June has 30 days. June 5 + 25 more days = June 30."},
+      {label:"Step 2", math:"60 − 25 = 35 more days needed in July/August"},
+      {label:"Step 3", text:"July has 31 days. 35 − 31 = 4 more days into August."},
+      {label:"Answer", math:"Hatch date: August 4th"},
+      {label:"Check", text:"June: 25 days + July: 31 days + Aug: 4 days = 60 days ✓"}
+    ]
+  },
+  {
+    text: "A conservation team counted <strong>7 species</strong> of sea turtles. Of these, <strong>2 are Critically Endangered</strong>, 2 are Endangered, and 3 are Vulnerable. What fraction of all species are Critically Endangered? Write in simplest form.",
+    solution: [
+      {label:"Plan", text:"Part ÷ Whole = fraction. Is it already simplified?"},
+      {label:"Solve", math:"2 out of 7 = 2/7"},
+      {label:"Simplify", text:"GCF of 2 and 7 is 1, so 2/7 is already in simplest form."},
+      {label:"Answer", text:"2/7 of species are Critically Endangered."}
+    ]
+  },
+  {
+    text: "In 1985, there were <strong>200</strong> Kemp's Ridley turtle nests. By 2019, there were <strong>9,000</strong> nests. How many MORE nests were there in 2019 than 1985? By what factor did the number increase?",
+    solution: [
+      {label:"Part A", math:"9,000 − 200 = 8,800 more nests"},
+      {label:"Part B", math:"9,000 ÷ 200 = 45 times as many"},
+      {label:"Answer", text:"8,800 more nests; the number increased by a factor of 45."},
+      {label:"Check", text:"200 × 45 = 9,000 ✓"}
+    ]
+  },
+  {
+    text: "A sea turtle lives <strong>80 years</strong>. It first nests at age <strong>25</strong> and nests every <strong>3 years</strong>. How many nesting seasons will it have in its lifetime?",
+    solution: [
+      {label:"Step 1", math:"80 − 25 = 55 years of potential nesting"},
+      {label:"Step 2", math:"55 ÷ 3 = 18 remainder 1"},
+      {label:"Step 3", text:"It nests at 25, 28, 31 … up to 79. The last nesting is at age 25 + 18×3 = 79."},
+      {label:"Answer", text:"19 nesting seasons (at ages 25, 28, 31 … 79). Count includes the first season!"},
+      {label:"Check", text:"Ages: 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79 = 19 seasons ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() },
+  2: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = set === 1 ? wp1Data : wp2Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    if (idx < 5) nextBtn.style.display = '';
+    else {
+      nextBtn.style.display = '';
+      nextBtn.textContent = 'Finish Set ' + set + ' ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  const pfx = 'wp' + set;
+  state.revealed.add(state.idx);
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.classList.add('show');
+  document.getElementById(pfx + '-reveal').style.display = 'none';
+
+  const nextBtn = document.getElementById(pfx + '-next');
+  nextBtn.style.display = '';
+  if (state.idx < 5) {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = () => wpNext(set);
+  } else {
+    nextBtn.textContent = 'Finish Set ' + set + ' ✓';
+    nextBtn.onclick = () => finishWP(set);
+  }
+  renderWP(set); // refresh dots
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg' + (set + 2)).classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — MENTAL MATH
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"6 × 7 = ?",        choices:[35,42,48,54], correct:1 },
+  { q:"144 ÷ 12 = ?",     choices:[11,13,12,10], correct:2 },
+  { q:"3/4 of 80 = ?",    choices:[40,70,55,60], correct:3 },
+  { q:"250 × 4 = ?",      choices:[900,1000,1100,800], correct:1 },
+  { q:"1,200 ÷ 6 = ?",    choices:[250,150,200,300], correct:2 },
+  { q:"25% of 200 = ?",   choices:[25,100,75,50], correct:3 },
+  { q:"5² = ?",           choices:[10,20,25,30], correct:2 },
+  { q:"999 + 1,001 = ?",  choices:[1999,2001,2000,2100], correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    // highlight correct
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "A turtle lays 3 nests, each with 80 eggs. How many total eggs?",
+    opts: ["200", "240", "280", "320"],
+    correct: 1,
+    explain: "3 × 80 = 240 eggs."
+  },
+  {
+    q: "2/3 of 120 = ?",
+    opts: ["80", "60", "40", "90"],
+    correct: 0,
+    explain: "120 ÷ 3 = 40; 40 × 2 = 80."
+  },
+  {
+    q: "A turtle swims 50 miles/day for 2 weeks. Total miles?",
+    opts: ["600", "750", "700", "650"],
+    correct: 2,
+    explain: "2 weeks = 14 days; 50 × 14 = 700 miles."
+  },
+  {
+    q: "Which fraction equals 1/2?",
+    opts: ["2/3", "4/6", "3/6", "2/5"],
+    correct: 2,
+    explain: "3/6 = 1/2 (divide both by 3)."
+  },
+  {
+    q: "480 eggs; 1/4 are infertile. How many fertile eggs will hatch?",
+    opts: ["240", "120", "480", "360"],
+    correct: 3,
+    explain: "480 ÷ 4 = 120 infertile; 480 − 120 = 360 fertile."
+  },
+  {
+    q: "9,000 ÷ 200 = ?",
+    opts: ["40", "45", "50", "55"],
+    correct: 1,
+    explain: "9,000 ÷ 200 = 45."
+  },
+  {
+    q: "What is the average (mean) of 10, 20, 30?",
+    opts: ["15", "25", "30", "20"],
+    correct: 3,
+    explain: "10 + 20 + 30 = 60; 60 ÷ 3 = 20."
+  },
+  {
+    q: "A turtle hatches in 60 days starting June 10. What is the hatch date?",
+    opts: ["August 9", "August 4", "July 31", "August 10"],
+    correct: 0,
+    explain: "June: 20 days remaining (June 10→June 30); July: 31 days = 51 days; need 9 more into August → August 9."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizSubmitted = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => selectQuizOpt(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function selectQuizOpt(qi, oi) {
+  if (quizSubmitted) return;
+  // Deselect previous
+  if (quizAnswers[qi] !== null) {
+    const prev = document.getElementById('qopt-' + qi + '-' + quizAnswers[qi]);
+    if (prev) prev.classList.remove('selected');
+  }
+  quizAnswers[qi] = oi;
+  const btn = document.getElementById('qopt-' + qi + '-' + oi);
+  if (btn) btn.classList.add('selected');
+  saveQuizState();
+}
+
+function submitQuiz() {
+  if (quizSubmitted) return;
+  quizSubmitted = true;
+  let score = 0;
+
+  quizData.forEach((item, i) => {
+    const chosen = quizAnswers[i];
+    const correct = chosen === item.correct;
+    if (correct) score++;
+
+    // Style buttons
+    const optsEl = document.getElementById('quiz-opts-' + i);
+    const btns = optsEl.querySelectorAll('.quiz-opt');
+    btns.forEach((btn, oi) => {
+      btn.disabled = true;
+      btn.classList.remove('selected');
+      if (oi === item.correct) btn.classList.add('correct');
+      else if (oi === chosen && !correct) btn.classList.add('wrong');
+    });
+
+    // Feedback
+    const fb = document.getElementById('quiz-fb-' + i);
+    fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+    fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+    logMistake(correct, item.q, 'Q' + (i+1));
+  });
+
+  // Save score
+  try { localStorage.setItem(QKEY, JSON.stringify({score, total:8, ts:Date.now()})); } catch(e){}
+
+  // Show score card
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = score;
+  let msg = '', sub = '';
+  if (score === 8) { msg = 'Perfect score! Outstanding!'; sub = 'You nailed every question. '; }
+  else if (score >= 6) { msg = 'Great job!'; sub = 'You\'ve got this material down solid.'; }
+  else if (score >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the word problems and try the quiz again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+
+  document.getElementById('quiz-submit-btn').disabled = true;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  if (quizSubmitted) return;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      ans.forEach((choice, i) => {
+        if (choice !== null) selectQuizOpt(i, choice);
+      });
+    }
+    const done = localStorage.getItem(QKEY);
+    if (done) {
+      const d = JSON.parse(done);
+      // Don't auto-resubmit; just restore selections
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderWP(1);
+  renderWP(2);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

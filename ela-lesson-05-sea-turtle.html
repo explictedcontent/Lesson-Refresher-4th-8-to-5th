@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELA Day 5 — Sea Turtle 🐢</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.65;min-height:100vh;}
+a{color:var(--accent2);text-decoration:none;}
+h1{font-size:1.7rem;font-weight:800;color:var(--accent);}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:8px;}
+h3{font-size:1.05rem;font-weight:600;}
+p{margin-bottom:.8em;}
+strong{color:var(--warn);}
+
+/* LAYOUT */
+#app{max-width:780px;margin:0 auto;padding:0 0 80px;}
+
+/* PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+}
+.pb-seg{
+  flex:1;min-width:60px;height:8px;border-radius:4px;
+  background:var(--line);cursor:pointer;transition:background .3s;
+  position:relative;
+}
+.pb-seg.done{background:var(--good);}
+.pb-seg.active{background:var(--accent2);}
+.pb-seg:hover::after{
+  content:attr(data-label);position:absolute;top:14px;left:50%;
+  transform:translateX(-50%);background:var(--panel2);
+  color:var(--ink);font-size:.72rem;padding:2px 7px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;z-index:200;
+}
+#pb-title{font-size:.8rem;color:var(--muted);width:100%;text-align:center;margin-top:2px;}
+
+/* HEADER */
+#hero{padding:28px 16px 16px;text-align:center;}
+#hero .day-badge{display:inline-block;background:var(--panel2);color:var(--accent2);
+  border-radius:20px;padding:3px 14px;font-size:.8rem;font-weight:700;margin-bottom:8px;}
+#hero p{color:var(--muted);font-size:.95rem;}
+
+/* PHASE SECTIONS */
+.phase{padding:0 16px;display:none;}
+.phase.visible{display:block;}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-top:4px;}
+.phase-num{width:36px;height:36px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.phase-title{font-size:1.1rem;font-weight:700;}
+.phase-time{font-size:.8rem;color:var(--muted);margin-left:auto;}
+
+/* CARDS */
+.card{background:var(--panel);border-radius:var(--radius);padding:18px;margin-bottom:12px;border:1px solid var(--line);}
+
+/* FACT CARDS */
+.fact-card{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+.fact-card.revealed{border-color:var(--accent2);}
+.fact-front{padding:18px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:60px;}
+.fact-icon{font-size:1.6rem;flex-shrink:0;}
+.fact-hint{color:var(--muted);font-size:.88rem;margin-left:auto;flex-shrink:0;}
+.fact-body{display:none;padding:0 18px 18px;}
+.fact-card.revealed .fact-body{display:block;}
+.fact-text{color:var(--ink);font-size:.97rem;margin-bottom:12px;}
+.fact-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.fact-btn{border:none;border-radius:8px;padding:8px 16px;font-size:.88rem;cursor:pointer;
+  background:var(--panel2);color:var(--ink);transition:background .2s;min-height:44px;}
+.fact-btn:hover{background:var(--line);}
+.fact-btn.knew{background:var(--good);color:#111;}
+.fact-btn.new{background:var(--accent2);color:#111;}
+
+/* READING PASSAGE */
+.passage{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);line-height:1.8;}
+.passage h3{color:var(--accent2);font-size:1.15rem;margin-bottom:14px;}
+.vocab-word{background:rgba(91,209,196,.15);color:var(--accent2);border-radius:4px;
+  padding:1px 5px;font-weight:600;cursor:help;position:relative;border-bottom:1px dashed var(--accent2);}
+.vocab-word:hover::after{
+  content:attr(data-def);position:absolute;bottom:calc(100%+4px);left:50%;
+  transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent2);
+  color:var(--ink);font-size:.78rem;padding:5px 9px;border-radius:7px;
+  white-space:normal;max-width:220px;text-align:center;pointer-events:none;z-index:50;
+  font-weight:400;line-height:1.4;
+}
+
+/* COMPREHENSION ACCORDION */
+.accord-item{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:10px;overflow:hidden;}
+.accord-q{padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:.97rem;min-height:54px;}
+.accord-arrow{margin-left:auto;color:var(--muted);transition:transform .3s;flex-shrink:0;}
+.accord-item.open .accord-arrow{transform:rotate(90deg);}
+.accord-a{display:none;padding:0 18px 16px;color:var(--muted);font-size:.93rem;line-height:1.65;}
+.accord-item.open .accord-a{display:block;}
+
+/* VOCABULARY MATCH */
+.vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.vocab-tile{
+  background:var(--panel2);border-radius:10px;padding:14px;min-height:54px;
+  border:2px solid var(--line);cursor:pointer;text-align:center;
+  font-size:.9rem;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;line-height:1.4;
+}
+.vocab-tile:hover:not(.matched):not(.selected){border-color:var(--muted);}
+.vocab-tile.selected{border-color:var(--accent);background:rgba(255,122,89,.12);}
+.vocab-tile.matched{border-color:var(--good);background:rgba(123,216,143,.12);
+  color:var(--good);pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease;}
+.vocab-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:8px;}
+
+/* COMPARE & CONTRAST */
+.cc-card{background:var(--panel);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--line);}
+.cc-stmt{font-size:.97rem;margin-bottom:12px;font-weight:500;}
+.cc-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.cc-btn{flex:1;min-width:80px;min-height:44px;border:2px solid var(--line);border-radius:8px;
+  background:transparent;color:var(--ink);cursor:pointer;font-size:.82rem;font-weight:600;
+  transition:all .2s;padding:6px 4px;}
+.cc-btn:hover:not(:disabled){border-color:var(--muted);}
+.cc-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good);}
+.cc-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad);}
+.cc-feedback{font-size:.82rem;margin-top:8px;min-height:20px;}
+.cc-retry{background:var(--panel2);border:1px solid var(--line);border-radius:7px;
+  padding:5px 12px;font-size:.82rem;color:var(--muted);cursor:pointer;margin-top:6px;min-height:34px;}
+.cc-retry:hover{border-color:var(--muted);}
+
+/* WRITING PAD */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:2px solid var(--line);
+  border-radius:var(--radius);padding:16px;color:var(--ink);font-size:.97rem;
+  line-height:1.7;resize:vertical;font-family:inherit;outline:none;
+  transition:border-color .2s;}
+.writing-area:focus{border-color:var(--accent2);}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;
+  margin-top:8px;font-size:.82rem;color:var(--muted);}
+.save-indicator{color:var(--good);font-size:.8rem;opacity:0;transition:opacity .4s;}
+.save-indicator.show{opacity:1;}
+
+/* QUIZ */
+.quiz-progress{display:flex;gap:6px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+.q-dot{width:14px;height:14px;border-radius:50%;background:var(--line);transition:background .3s;}
+.q-dot.active{background:var(--accent);}
+.q-dot.correct{background:var(--good);}
+.q-dot.wrong{background:var(--bad);}
+.quiz-q{font-size:1.05rem;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;}
+.quiz-opt{
+  background:var(--panel2);border:2px solid var(--line);border-radius:10px;
+  padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);
+  font-size:.95rem;min-height:54px;transition:border-color .2s,background .2s;
+  width:100%;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--muted);}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.12);}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);}
+.quiz-feedback{min-height:28px;font-size:.88rem;margin-top:10px;padding:6px 10px;
+  border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(123,216,143,.1);color:var(--good);}
+.quiz-feedback.wrong{background:rgba(255,107,129,.1);color:var(--bad);}
+.quiz-next{margin-top:14px;background:var(--accent);border:none;border-radius:10px;
+  padding:12px 28px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;
+  min-height:48px;display:none;}
+.quiz-next:hover{background:#e8693e;}
+.quiz-result{text-align:center;padding:24px 0;}
+.quiz-result .score-big{font-size:3rem;font-weight:800;color:var(--accent2);}
+.quiz-result .score-label{color:var(--muted);margin-top:4px;}
+.quiz-result .score-msg{margin-top:14px;font-size:1rem;}
+
+/* NAV BUTTONS */
+.phase-nav{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+.btn-primary{background:var(--accent);border:none;border-radius:10px;
+  padding:12px 26px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;min-height:48px;}
+.btn-primary:hover{background:#e8693e;}
+.btn-ghost{background:transparent;border:2px solid var(--line);border-radius:10px;
+  padding:10px 20px;color:var(--muted);font-size:.95rem;cursor:pointer;min-height:48px;}
+.btn-ghost:hover{border-color:var(--muted);color:var(--ink);}
+
+/* UTILITY */
+.divider{height:1px;background:var(--line);margin:20px 0;}
+.tag{display:inline-block;border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:700;}
+.tag-phase{background:rgba(91,209,196,.15);color:var(--accent2);}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .vocab-grid{grid-template-columns:1fr;}
+  .cc-btns{flex-direction:column;}
+  h1{font-size:1.35rem;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PHASE BAR -->
+  <div id="phase-bar">
+    <div class="pb-seg" data-phase="1" data-label="Warm-Up"></div>
+    <div class="pb-seg" data-phase="2" data-label="Reading"></div>
+    <div class="pb-seg" data-phase="3" data-label="Comprehension"></div>
+    <div class="pb-seg" data-phase="4" data-label="Vocabulary"></div>
+    <div class="pb-seg" data-phase="5" data-label="Compare &amp; Contrast"></div>
+    <div class="pb-seg" data-phase="6" data-label="Writing"></div>
+    <div class="pb-seg" data-phase="7" data-label="Quiz"></div>
+    <div id="pb-title">Phase 1 — Warm-Up</div>
+  </div>
+
+  <!-- HERO -->
+  <div id="hero">
+    <div class="day-badge">ELA · Day 5</div>
+    <h1>🐢 Sea Turtle</h1>
+    <p>Reading · Vocabulary · Writing · Quiz</p>
+  </div>
+
+  <!-- ======================== PHASE 1 ======================== -->
+  <section class="phase visible" id="phase-1">
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div>
+        <div class="phase-title">Warm-Up Fact Cards</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+      <div class="phase-time">4 cards</div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each card to reveal the fact, then tell us what you thought!</p>
+
+    <div class="fact-card" id="fc-1">
+      <div class="fact-front" onclick="revealFact('fc-1')">
+        <span class="fact-icon">🦕</span>
+        <span style="font-weight:600;">Ancient Survivors</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Sea turtles have been on Earth for over <strong>100 million years</strong> — they swam past T-Rex while dinosaurs still roamed the land!</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-1')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-1')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-2">
+      <div class="fact-front" onclick="revealFact('fc-2')">
+        <span class="fact-icon">🌙</span>
+        <span style="font-weight:600;">Night Navigation</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Baby sea turtles find the ocean at night by crawling toward the <strong>BRIGHTEST light on the horizon</strong>. Naturally, that's the moon's reflection on the sea — but artificial lights from buildings can dangerously confuse them!</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-2')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-2')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-3">
+      <div class="fact-front" onclick="revealFact('fc-3')">
+        <span class="fact-icon">🏖️</span>
+        <span style="font-weight:600;">Born to Return</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">A female sea turtle returns to the <strong>EXACT beach where she was born</strong> — possibly <strong>30 years</strong> later — to lay her own eggs. Scientists believe she uses Earth's magnetic field as a map!</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-3')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-3')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-4">
+      <div class="fact-front" onclick="revealFact('fc-4')">
+        <span class="fact-icon">😢</span>
+        <span style="font-weight:600;">Not Really Crying</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Sea turtles don't actually cry — those big "tears" you see when a female is nesting are from <strong>salt glands</strong> near their eyes that flush out excess ocean salt. It's like a built-in water filter!</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-4')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-4')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-primary" onclick="goPhase(2)">Next: Reading →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 2 ======================== -->
+  <section class="phase" id="phase-2">
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <div>
+        <div class="phase-title">Reading Passage</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="passage">
+      <h3>The Long Journey Home</h3>
+      <p>Luna's world was warm, dark, and perfectly still — just a smooth oval shell pressed snug against eighty brothers and sisters beneath two feet of soft, sun-heated sand. She had been sleeping like that for almost two months, curled inside her egg on a Florida beach, waiting.</p>
+
+      <p>Then one night, something changed. A <span class="vocab-word" data-def="a young animal that has just hatched from an egg">hatchling</span> beside her tapped against its shell. Then another. All at once, as if a silent alarm had rung, the whole <span class="vocab-word" data-def="a batch of eggs laid at one time in a nest">clutch</span> cracked open together. Eighty tiny turtles — each no bigger than a cookie — scrambled upward through the sand in a squirming, kicking team. Safety in numbers: even if a ghost crab snatched one or two, most of the <span class="vocab-word" data-def="young animals that have just hatched from eggs">hatchlings</span> would make it.</p>
+
+      <p>Luna burst through the surface and felt cool night air for the first time. The beach was silver with moonlight. <span class="vocab-word" data-def="a behavior an animal is born knowing, without being taught">Instinct</span> — not thought, not memory, not anyone's instructions — told her exactly what to do. She turned toward the brightest glow on the horizon: the moon shimmering on the Atlantic Ocean, and she ran.</p>
+
+      <p>The first wave hit her like a wall and rolled her backward up the sand. She scrambled again. The second wave knocked her sideways. On the third try, she clawed forward with her tiny flippers, dove under the white foam, and suddenly the ocean took her in. The spinning and tumbling stopped. She was weightless. She was home.</p>
+
+      <p>For the next several years, Luna drifted in the great ocean current called the North Atlantic Gyre — a slow, spinning river of warm water that circled the ocean like a cradle. Scientists call this time the "lost years" because for decades, no one knew where young sea turtles went. Luna ate jellyfish, dodged sharks, and grew. Her small, soft shell hardened into a beautiful <span class="vocab-word" data-def="the hard upper shell of a turtle or other shelled animal">carapace</span>, olive-green and smooth, shaped like the blade of an oar.</p>
+
+      <p>Not every danger wore fins. Sometimes Luna surfaced and found herself tangled in the mesh of a fishing net — not meant for her, but deadly all the same. She was lucky; she found a gap and escaped. Many sea turtles are not so fortunate. This is part of why sea turtles are <span class="vocab-word" data-def="at serious risk of going extinct if nothing changes">endangered</span> today.</p>
+
+      <p>Thirty years passed. Luna was now a full-grown loggerhead, five feet long and four hundred pounds. Then one morning, deep in the middle of the Atlantic, something tugged at a feeling she had never noticed before — a quiet pull in her brain, like a compass needle swinging north. It was <span class="vocab-word" data-def="finding your way from one place to another">navigation</span> by Earth's magnetic field. Every beach on Earth has a unique magnetic "address," and Luna's brain had been storing hers since before she hatched. The signal said: go west. Go home.</p>
+
+      <p>Her <span class="vocab-word" data-def="a long journey from one place to another, usually to feed or reproduce">migration</span> across the Atlantic took months. She swam past cargo ships and coral reefs, under hurricanes and starry skies. One October night, her flippers finally touched warm, familiar sand. She crawled up the same beach where she had hatched. She dug a deep hole with her back flippers, laid over a hundred eggs, covered them gently, and slipped back into the surf.</p>
+
+      <p>Somewhere beneath the sand, eighty small heartbeats began to tick. The cycle had begun again.</p>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(1)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(3)">Next: Comprehension →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 3 ======================== -->
+  <section class="phase" id="phase-3">
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <div>
+        <div class="phase-title">Comprehension Check</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each question to reveal the answer. Think about your answer first!</p>
+
+    <div class="accord-item" id="acc-1">
+      <div class="accord-q" onclick="toggleAccord('acc-1')">
+        <span>1.</span> Why do hatchlings emerge from the nest all at once?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Safety in numbers — many hatchlings at once means predators can't eat them all, so more survive. The chaos of eighty turtles gives each individual a better chance.</div>
+    </div>
+
+    <div class="accord-item" id="acc-2">
+      <div class="accord-q" onclick="toggleAccord('acc-2')">
+        <span>2.</span> How does Luna find her way back to her birth beach 30 years later?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Sea turtles have magnetic sensing cells that detect Earth's magnetic field. Each beach has a unique magnetic "address," and Luna's brain stored that address before she even hatched.</div>
+    </div>
+
+    <div class="accord-item" id="acc-3">
+      <div class="accord-q" onclick="toggleAccord('acc-3')">
+        <span>3.</span> What does the word <em>migration</em> mean in the passage?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a"><strong>Migration</strong> means traveling a long distance from one place to another, usually to feed or to breed. Luna's migration was her long swim across the Atlantic Ocean to return home.</div>
+    </div>
+
+    <div class="accord-item" id="acc-4">
+      <div class="accord-q" onclick="toggleAccord('acc-4')">
+        <span>4.</span> What human-made danger does Luna face during her ocean years?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Fishing nets — Luna gets tangled in nets that were meant to catch fish, not turtles. This is called "bycatch." She escapes, but many sea turtles are not so lucky, which is one reason they are endangered.</div>
+    </div>
+
+    <div class="accord-item" id="acc-5">
+      <div class="accord-q" onclick="toggleAccord('acc-5')">
+        <span>5.</span> Why is Luna's journey called a "cycle"?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Because she hatched on that beach, traveled the ocean for decades, and returned to the exact same beach to lay her own eggs — completing a loop that repeats generation after generation. The last line of the passage ("The cycle had begun again") signals this.</div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(2)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(4)">Next: Vocabulary →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 4 ======================== -->
+  <section class="phase" id="phase-4">
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <div>
+        <div class="phase-title">Vocabulary Match</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap a <strong style="color:var(--accent);">word</strong>, then tap its <strong style="color:var(--accent2);">definition</strong>. Match all 7 pairs!</p>
+
+    <div class="vocab-grid" id="vocab-grid"></div>
+    <div class="vocab-score" id="vocab-score">0 / 7 matched</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(3)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(5)">Next: Compare &amp; Contrast →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 5 ======================== -->
+  <section class="phase" id="phase-5">
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <div>
+        <div class="phase-title">Compare &amp; Contrast</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">For each statement, decide: is it about 🌊 Sea Turtles, 🌿 Land Turtles, or 🤝 Both?</p>
+
+    <div id="cc-container"></div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(4)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(6)">Next: Writing →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 6 ======================== -->
+  <section class="phase" id="phase-6">
+    <div class="phase-header">
+      <div class="phase-num">6</div>
+      <div>
+        <div class="phase-title">Writing Pad</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--warn);">✏️ Your Writing Prompt</h3>
+      <p style="font-size:.95rem;line-height:1.7;">Write a short paragraph <strong>(at least 5 sentences)</strong> from the point of view of a sea turtle egg. What do you "know" before you hatch? What is your hatching day like? Use at least <strong>3 vocabulary words</strong> from today's lesson.</p>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:0;">Vocabulary words: <em>migration, instinct, carapace, hatchling, navigation, endangered, clutch</em></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here… Remember: at least 5 sentences and 3 vocab words!"></textarea>
+    <div class="writing-meta">
+      <span id="word-count" style="color:var(--muted);">0 words</span>
+      <span class="save-indicator" id="save-indicator">✓ Saved</span>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(5)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(7)">Next: Quiz →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 7 ======================== -->
+  <section class="phase" id="phase-7">
+    <div class="phase-header">
+      <div class="phase-num">7</div>
+      <div>
+        <div class="phase-title">Quiz</div>
+        <span class="tag tag-phase">3 min</span>
+      </div>
+    </div>
+
+    <div class="quiz-progress" id="quiz-dots"></div>
+    <div id="quiz-body"></div>
+
+    <div class="phase-nav" style="margin-top:16px;">
+      <button class="btn-ghost" onclick="goPhase(6)">← Back</button>
+    </div>
+  </section>
+
+</div><!-- #app -->
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────
+const QAKEY = "ela-l5-qans";
+const QKEY  = "ela-l5-quiz";
+const WKEY  = "ela-l5-writing";
+
+// ─── MISTAKE LOGGER ───────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'ELA|Day 5: Sea Turtle|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'ELA', day: 'Day 5', q: questionText, file: 'ela-lesson-05-sea-turtle.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── PHASE NAV ────────────────────────────────────────────────
+let currentPhase = 1;
+const PHASE_LABELS = ['','Warm-Up','Reading','Comprehension','Vocabulary','Compare & Contrast','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('visible');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('visible');
+  document.getElementById('phase-' + n).scrollIntoView({behavior:'smooth', block:'start'});
+  updatePhaseBar();
+  if (n === 7) { buildQuiz(); restoreQuiz(); }
+}
+
+function updatePhaseBar() {
+  const segs = document.querySelectorAll('.pb-seg');
+  segs.forEach(s => {
+    const p = parseInt(s.dataset.phase);
+    s.classList.remove('active','done');
+    if (p === currentPhase) s.classList.add('active');
+    else if (p < currentPhase) s.classList.add('done');
+  });
+  document.getElementById('pb-title').textContent = 'Phase ' + currentPhase + ' — ' + PHASE_LABELS[currentPhase];
+}
+
+document.querySelectorAll('.pb-seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+updatePhaseBar();
+
+// ─── PHASE 1: FACT CARDS ─────────────────────────────────────
+function revealFact(id) {
+  document.getElementById(id).classList.add('revealed');
+}
+function reactFact(btn, type, id) {
+  const card = document.getElementById(id);
+  card.querySelectorAll('.fact-btn').forEach(b => { b.classList.remove('knew','new'); });
+  btn.classList.add(type);
+}
+
+// ─── PHASE 3: ACCORDION ───────────────────────────────────────
+function toggleAccord(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ─── PHASE 4: VOCABULARY MATCH ────────────────────────────────
+const vocabPairs = [
+  { word: 'migration',  def: 'a long journey from one place to another, usually to feed or reproduce' },
+  { word: 'instinct',   def: 'a behavior an animal is born knowing, without being taught' },
+  { word: 'carapace',   def: 'the hard upper shell of a turtle or other shelled animal' },
+  { word: 'hatchling',  def: 'a young animal that has just hatched from an egg' },
+  { word: 'navigation', def: 'finding your way from one place to another' },
+  { word: 'endangered', def: 'at serious risk of going extinct if nothing changes' },
+  { word: 'clutch',     def: 'a batch of eggs laid at one time in a nest' },
+];
+
+let vocabSelected = null;
+let vocabMatched = 0;
+
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildVocab() {
+  const grid = document.getElementById('vocab-grid');
+  if (grid.children.length > 0) return; // already built
+
+  const words = shuffleArr(vocabPairs.map(p => ({ text: p.word, type: 'word', pair: p.word })));
+  const defs  = shuffleArr(vocabPairs.map(p => ({ text: p.def,  type: 'def',  pair: p.word })));
+
+  // interleave: left column = words, right column = defs
+  const all = [];
+  for (let i = 0; i < words.length; i++) {
+    all.push(words[i]);
+    all.push(defs[i]);
+  }
+
+  grid.innerHTML = '';
+  all.forEach((item, idx) => {
+    const tile = document.createElement('div');
+    tile.className = 'vocab-tile';
+    tile.dataset.type = item.type;
+    tile.dataset.pair = item.pair;
+    tile.dataset.idx  = idx;
+    tile.textContent = item.text;
+    tile.addEventListener('click', () => vocabClick(tile));
+    grid.appendChild(tile);
+  });
+}
+
+function vocabClick(tile) {
+  if (tile.classList.contains('matched') || tile.classList.contains('selected')) return;
+
+  if (!vocabSelected) {
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  const prev = vocabSelected;
+
+  // Same type — swap selection
+  if (prev.dataset.type === tile.dataset.type) {
+    prev.classList.remove('selected');
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  // Check match
+  if (prev.dataset.pair === tile.dataset.pair) {
+    prev.classList.remove('selected');
+    prev.classList.add('matched');
+    tile.classList.add('matched');
+    vocabSelected = null;
+    vocabMatched++;
+    document.getElementById('vocab-score').textContent = vocabMatched + ' / 7 matched';
+    if (vocabMatched === 7) {
+      document.getElementById('vocab-score').style.color = 'var(--good)';
+      document.getElementById('vocab-score').textContent = '🎉 All 7 matched! Great job!';
+    }
+  } else {
+    // Wrong
+    [prev, tile].forEach(t => {
+      t.classList.add('shake');
+      t.addEventListener('animationend', () => t.classList.remove('shake'), {once:true});
+    });
+    prev.classList.remove('selected');
+    vocabSelected = null;
+  }
+}
+
+// Build vocab when entering phase 4
+const origGoPhase = goPhase;
+// We'll hook into phase transitions via a wrapper
+
+// ─── PHASE 5: COMPARE & CONTRAST ──────────────────────────────
+const ccItems = [
+  { stmt: 'Has a streamlined, flat shell for moving through water', answer: 'sea', explain: 'Sea turtles evolved flat, hydrodynamic shells to slice through the ocean easily.' },
+  { stmt: 'Has a rounded, dome-shaped shell for protection on land', answer: 'land', explain: 'Land turtles have high-domed shells that protect them from predators on land.' },
+  { stmt: 'Lays eggs in sand on a beach', answer: 'both', explain: 'Many land turtle species also bury their eggs in soil or sand to incubate them.' },
+  { stmt: 'Cannot pull head and legs completely inside shell', answer: 'sea', explain: "Sea turtles' shells are too flat and streamlined — they can't fully retract for protection." },
+  { stmt: 'Breathes air with lungs', answer: 'both', explain: 'All turtles and tortoises are reptiles that breathe air, even when living in or near water.' },
+  { stmt: 'Migrates thousands of miles across oceans', answer: 'sea', explain: 'Sea turtles are famous long-distance ocean travelers; land turtles stay close to home.' },
+  { stmt: 'Spends most of its life in water', answer: 'sea', explain: 'Sea turtles return to land only to nest; land turtles spend most time on dry land.' },
+  { stmt: 'Is a reptile with scales', answer: 'both', explain: 'Both are reptiles in the order Testudines, and both have scaly skin.' },
+  { stmt: 'Walks slowly on land due to heavy shell', answer: 'land', explain: 'Land turtles are known for their slow walk; sea turtles are graceful in water but awkward on land.' },
+  { stmt: 'Uses flippers instead of legs', answer: 'sea', explain: "Sea turtles evolved flippers for swimming; land turtles have stubby, clawed legs for walking." },
+];
+
+function buildCC() {
+  const container = document.getElementById('cc-container');
+  if (container.children.length > 0) return;
+
+  ccItems.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'cc-card';
+    card.id = 'cc-' + i;
+    card.innerHTML = `
+      <div class="cc-stmt">${i+1}. ${item.stmt}</div>
+      <div class="cc-btns">
+        <button class="cc-btn" data-ans="sea" onclick="ansCC(${i},'sea')">🌊 Sea Turtle</button>
+        <button class="cc-btn" data-ans="both" onclick="ansCC(${i},'both')">🤝 Both</button>
+        <button class="cc-btn" data-ans="land" onclick="ansCC(${i},'land')">🌿 Land Turtle</button>
+      </div>
+      <div class="cc-feedback" id="ccf-${i}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function ansCC(i, choice) {
+  const item = ccItems[i];
+  const card = document.getElementById('cc-' + i);
+  const feedback = document.getElementById('ccf-' + i);
+  const btns = card.querySelectorAll('.cc-btn');
+
+  const correct = (choice === item.answer);
+  btns.forEach(b => {
+    b.disabled = true;
+    if (b.dataset.ans === item.answer) b.classList.add('correct');
+    else if (b.dataset.ans === choice && !correct) b.classList.add('wrong');
+  });
+
+  if (correct) {
+    feedback.style.color = 'var(--good)';
+    feedback.textContent = '✓ Correct! ' + item.explain;
+  } else {
+    feedback.style.color = 'var(--bad)';
+    feedback.innerHTML = '✗ Not quite. ' + item.explain +
+      ` <br><button class="cc-retry" onclick="retryCC(${i})">Try again ↺</button>`;
+  }
+}
+
+function retryCC(i) {
+  const card = document.getElementById('cc-' + i);
+  const feedback = document.getElementById('ccf-' + i);
+  const btns = card.querySelectorAll('.cc-btn');
+  btns.forEach(b => { b.disabled = false; b.classList.remove('correct','wrong'); });
+  feedback.textContent = '';
+}
+
+// ─── PHASE 6: WRITING PAD ─────────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(saveWriting, 300);
+  });
+}
+
+function updateWordCount() {
+  const val = document.getElementById('writing-pad').value.trim();
+  const words = val ? val.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = words + ' word' + (words !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const val = document.getElementById('writing-pad').value;
+  localStorage.setItem(WKEY, val);
+  const ind = document.getElementById('save-indicator');
+  ind.classList.add('show');
+  setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+// ─── PHASE 7: QUIZ ────────────────────────────────────────────
+const quizData = [
+  {
+    q: 'What does "migration" mean?',
+    opts: [
+      'Moving quickly to escape a predator',
+      'A long journey to a different place, usually to feed or breed',
+      'The ability to find your way using the stars',
+      'Sleeping through cold months of the year',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'A "clutch" of sea turtle eggs means:',
+    opts: [
+      'A single egg laid by one turtle',
+      'The leathery outer coating of an egg',
+      'A batch of eggs laid together in one nest',
+      'The underground chamber where eggs are stored',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'What is an "instinct"?',
+    opts: [
+      'A special skill learned from parents',
+      'A behavior an animal is born knowing — no teaching needed',
+      'A magnetic sense used for navigation',
+      'A feeling of hunger or thirst',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'In the passage, how does Luna find her way home after 30 years?',
+    opts: [
+      'She follows the North Star at night',
+      'She smells the familiar sand from far away',
+      'She follows other older sea turtles',
+      'Using Earth\'s magnetic field — magnetic navigation',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'What is the word for the hard upper shell of a turtle?',
+    opts: ['Plastron', 'Carapace', 'Exoskeleton', 'Mantle'],
+    correct: 1,
+  },
+  {
+    q: 'A sea turtle is "endangered." This means:',
+    opts: [
+      'It lives in a dangerous place',
+      'It is very large and scary',
+      'It is at serious risk of going extinct',
+      'It is protected by its shell',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'How is a sea turtle DIFFERENT from a land turtle?',
+    opts: [
+      'Sea turtles breathe water; land turtles breathe air',
+      'Sea turtles are reptiles; land turtles are amphibians',
+      'Sea turtles have flat streamlined shells and flippers; can\'t fully retract into shell',
+      'Sea turtles lay eggs; land turtles give birth to live young',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'Why do baby sea turtles all hatch and emerge at the same time?',
+    opts: [
+      'The temperature tells them the exact moment',
+      'The mother signals them from the ocean',
+      'Safety in numbers — predators can\'t catch all of them',
+      'They need group body heat to break out of the sand',
+    ],
+    correct: 2,
+  },
+];
+
+let quizBuilt = false;
+let quizAnswers = {};
+let quizCurrent = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  if (quizBuilt) return;
+  quizBuilt = true;
+
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  quizData.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot-' + i;
+    dots.appendChild(d);
+  });
+
+  renderQuestion(0);
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (!saved || !Object.keys(saved).length) return;
+    quizAnswers = saved;
+
+    // Find last unanswered or last answered
+    let lastAnswered = -1;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] !== undefined) lastAnswered = i;
+    }
+
+    if (lastAnswered < 0) return;
+
+    // Replay all answered questions to update dots
+    for (let i = 0; i <= lastAnswered; i++) {
+      if (quizAnswers[i] !== undefined) {
+        const correct = quizAnswers[i] === quizData[i].correct;
+        const dot = document.getElementById('dot-' + i);
+        if (dot) {
+          dot.classList.remove('active');
+          dot.classList.add(correct ? 'correct' : 'wrong');
+        }
+      }
+    }
+
+    // Check if all answered
+    if (Object.keys(quizAnswers).length >= quizData.length) {
+      const savedResult = localStorage.getItem(QKEY);
+      if (savedResult) {
+        showQuizResult(JSON.parse(savedResult));
+        quizDone = true;
+        return;
+      }
+    }
+
+    // Go to next unanswered
+    let nextQ = 0;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] === undefined) { nextQ = i; break; }
+    }
+    quizCurrent = nextQ;
+    const dot = document.getElementById('dot-' + nextQ);
+    if (dot) { dot.classList.remove('correct','wrong'); dot.classList.add('active'); }
+    renderQuestion(nextQ);
+  } catch(e) {}
+}
+
+function renderQuestion(idx) {
+  const body = document.getElementById('quiz-body');
+  const q = quizData[idx];
+
+  body.innerHTML = `
+    <div class="quiz-q">${idx + 1}. ${q.q}</div>
+    <div class="quiz-opts" id="qopts-${idx}">
+      ${q.opts.map((o, oi) => `
+        <button class="quiz-opt" data-oi="${oi}" onclick="ansQ(${idx},${oi})">${o}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb-${idx}"></div>
+    <button class="quiz-next" id="qnext-${idx}" onclick="nextQuestion(${idx})">${idx < quizData.length - 1 ? 'Next Question →' : 'See Results 🎉'}</button>
+  `;
+}
+
+function ansQ(qIdx, optIdx) {
+  if (quizAnswers[qIdx] !== undefined) return; // already answered
+
+  const q = quizData[qIdx];
+  const correct = (optIdx === q.correct);
+
+  quizAnswers[qIdx] = optIdx;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, q.q, 'Main Quiz Q' + (qIdx + 1));
+
+  // Style options
+  const opts = document.querySelectorAll(`#qopts-${qIdx} .quiz-opt`);
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === optIdx && !correct) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById('qfb-' + qIdx);
+  fb.classList.add('show', correct ? 'correct' : 'wrong');
+  fb.textContent = correct ? '✓ Correct!' : '✗ The correct answer was: ' + q.opts[q.correct];
+
+  // Update dot
+  const dot = document.getElementById('dot-' + qIdx);
+  dot.classList.remove('active');
+  dot.classList.add(correct ? 'correct' : 'wrong');
+
+  // Show next button
+  document.getElementById('qnext-' + qIdx).style.display = 'inline-block';
+}
+
+function nextQuestion(fromIdx) {
+  const next = fromIdx + 1;
+  if (next >= quizData.length) {
+    finishQuiz();
+    return;
+  }
+  quizCurrent = next;
+  document.getElementById('dot-' + next).classList.add('active');
+  renderQuestion(next);
+}
+
+function finishQuiz() {
+  let score = 0;
+  quizData.forEach((q, i) => { if (quizAnswers[i] === q.correct) score++; });
+  const result = { score, total: quizData.length, pct: Math.round(score / quizData.length * 100) };
+  try { localStorage.setItem(QKEY, JSON.stringify(result)); } catch(e) {}
+  showQuizResult(result);
+}
+
+function showQuizResult(result) {
+  const body = document.getElementById('quiz-body');
+  let msg = '';
+  if (result.pct >= 90) msg = 'Amazing work! You\'re a sea turtle expert! 🐢🌟';
+  else if (result.pct >= 75) msg = 'Great job! You learned a lot today! 🌊';
+  else if (result.pct >= 60) msg = 'Good effort! Review the passage to strengthen your answers. 📖';
+  else msg = 'Keep going — re-read the passage and try again! You\'ve got this! 💪';
+
+  body.innerHTML = `
+    <div class="quiz-result">
+      <div class="score-big">${result.score} / ${result.total}</div>
+      <div class="score-label">${result.pct}% correct</div>
+      <div class="score-msg">${msg}</div>
+      ${result.pct < 100 ? `<button class="btn-primary" style="margin-top:20px;" onclick="retakeQuiz()">Retake Quiz ↺</button>` : ''}
+    </div>
+  `;
+}
+
+function retakeQuiz() {
+  quizAnswers = {};
+  quizBuilt = false;
+  quizDone = false;
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── SAVE ALL ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── PHASE TRANSITION HOOKS ───────────────────────────────────
+// Override goPhase to build phase content lazily
+const _goPhase = goPhase;
+goPhase = function(n) {
+  _goPhase(n);
+  if (n === 4) buildVocab();
+  if (n === 5) buildCC();
+  if (n === 6 || n === 1) { /* writing already initialized */ }
+};
+
+// ─── INIT ─────────────────────────────────────────────────────
+initWriting();
+</script>
+</body>
+</html>
