@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 3 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn.purple{background:var(--purple);border-color:var(--purple);color:#0a0520}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+canvas{display:block;border-radius:14px;margin:0 auto 14px;max-width:100%;border:2px solid var(--line)}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+.item-btn{padding:12px 15px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:24px;cursor:pointer;transition:.15s;touch-action:manipulation}
+.item-btn:active{transform:scale(.9)}
+.stash-view{display:flex;gap:8px;flex-wrap:wrap;background:#08090f;border:2px solid var(--line);border-radius:12px;padding:12px;min-height:64px;margin:10px 0;align-items:center}
+.stash-slot{width:52px;height:52px;border-radius:10px;background:var(--panel2);border:2px solid var(--accent2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px;position:relative;animation:fadeIn .3s}
+.stash-slot .idx{position:absolute;top:-9px;left:-6px;background:var(--warn);color:#140e00;border-radius:6px;font-size:10px;font-weight:900;padding:1px 5px}
+.stash-slot.hot{border-color:var(--warn);box-shadow:0 0 0 3px #ffcc0044;transform:scale(1.12)}
+.stash-empty{color:var(--line);font-size:14px;font-weight:700;font-style:italic}
+.idx-btn{width:52px;height:52px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:20px;font-weight:900;color:var(--warn);cursor:pointer;transition:.15s;touch-action:manipulation}
+.idx-btn:active{transform:scale(.9)}
+.idx-btn.sel{border-color:var(--warn);background:#1f1a00}
+.result-box{background:var(--panel2);border:2px solid var(--warn);border-radius:12px;padding:20px;text-align:center;margin:12px 0}
+.result-big{font-size:52px;font-weight:900;color:var(--good)}
+.result-label{font-size:14px;color:var(--muted);margin-top:4px}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 3</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🎒 BUILD IT</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🎯 GRAB IT</div>
+  <div class="mtab" onclick="go(3)" id="tab3">🔁 LOOP IT</div>
+  <div class="mtab" onclick="go(4)" id="tab4">➕ STACK IT</div>
+  <div class="mtab" onclick="go(5)" id="tab5">💥 COMBO</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼🎒</div>
+    <h2 style="font-size:30px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 3: THE STASH</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:380px;margin:0 auto 20px">
+      Level 1: commands. Level 2: superpowers. Now the panda needs a <strong style="color:var(--ink)">STASH</strong> — one container that holds a whole collection of stuff. Coders call it a <strong style="color:var(--accent2)">LIST</strong>.
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:380px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🗺️ Level 3 Missions</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🎒 <strong>Build It</strong> — pack a stash of items</div>
+        <div>🎯 <strong>Grab It</strong> — pull out exactly the one you want</div>
+        <div>🔁 <strong>Loop It</strong> — run through the whole stash</div>
+        <div>➕ <strong>Stack It</strong> — add & remove on the fly</div>
+        <div>💥 <strong>Combo</strong> — the snack machine</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">ACTIVATE LEVEL 3 🔥</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — BUILD IT -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 1 of 5</div>
+    <div class="mission-title">🎒 Pack the Stash</div>
+    <div class="mission-brief">A LIST holds many things in ONE variable, in order. Tap items to pack them into the panda's stash — watch the code build itself. Pack at least 4!</div>
+  </div>
+
+  <canvas id="c1" style="background:#07090f"></canvas>
+
+  <div class="sec">Tap to pack:</div>
+  <div class="btn-row">
+    <button class="item-btn" onclick="pack('🎋')">🎋</button>
+    <button class="item-btn" onclick="pack('🍎')">🍎</button>
+    <button class="item-btn" onclick="pack('🥕')">🥕</button>
+    <button class="item-btn" onclick="pack('🍪')">🍪</button>
+    <button class="item-btn" onclick="pack('🧃')">🧃</button>
+    <button class="item-btn" onclick="pack('🍉')">🍉</button>
+  </div>
+
+  <div class="sec">The stash (each slot has a number!):</div>
+  <div class="stash-view" id="stash1"><span class="stash-empty">empty — tap items above</span></div>
+
+  <div class="sec">The code you're writing:</div>
+  <div class="code-block" id="code1"><span class="cm">// Tap items to build your list!</span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    One variable — <strong style="color:var(--accent2)">stash</strong> — is holding ALL of those items at once. That's a list! And notice: the first slot is number <span class="hl">0</span>, not 1. Lists always start counting at ZERO.
+  </div>
+
+  <div class="btn-row">
+    <button class="btn ghost" onclick="clearStash1()">↺ Empty stash</button>
+    <button class="btn go" id="m1go" style="display:none" onclick="m1Complete()">MISSION COMPLETE ✔</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — GRAB IT -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 2 of 5</div>
+    <div class="mission-title">🎯 Grab Exactly One</div>
+    <div class="mission-brief">Every slot in a list has a number called an INDEX — starting at 0. Type the index, the panda grabs THAT item. Careful: slot 1 is the SECOND item!</div>
+  </div>
+
+  <canvas id="c2" style="background:#07090f"></canvas>
+
+  <div class="sec">The stash:</div>
+  <div class="stash-view" id="stash2"></div>
+
+  <div class="sec">Pick an index to grab:</div>
+  <div class="btn-row" id="idxRow"></div>
+
+  <div class="code-block" id="code2"><span class="cm">// Pick an index above</span></div>
+
+  <div class="result-box" style="display:none" id="grabResult">
+    <div class="result-big" id="grabbed">?</div>
+    <div class="result-label" id="grabbedLbl"></div>
+  </div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    <strong style="color:var(--accent2)">stash[2]</strong> doesn't mean "the 2nd item" — it means "the item in slot 2," which is the THIRD one, because counting starts at 0. Every coder on Earth has been tricked by this at least once. Now you won't be!
+  </div>
+
+  <div class="complete-banner" id="m2done">
+    <div style="font-size:34px">🎯</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">You grabbed from 3 different slots!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go2Complete()">NEXT MISSION →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — LOOP IT -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 3 of 5</div>
+    <div class="mission-title">🔁 Eat the WHOLE Stash</div>
+    <div class="mission-brief">Grabbing one at a time is slow. A LOOP visits every item in the list automatically — first to last — no matter how long it is. Hit RUN and watch.</div>
+  </div>
+
+  <canvas id="c3" style="background:#07090f"></canvas>
+
+  <div class="sec">The code:</div>
+  <div class="code-block"><span class="kw">for</span> (<span class="kw">let</span> item <span class="kw">of</span> stash) {
+  panda.eat(item);  <span class="cm">// runs once for EVERY item</span>
+}</div>
+
+  <div class="btn-row">
+    <button class="btn fire" onclick="runLoop3()">▶ RUN THE LOOP</button>
+    <button class="btn ghost" onclick="reset3()">↺ Reset</button>
+  </div>
+
+  <div class="result-box" style="display:none" id="loopResult">
+    <div class="result-big" id="loopCount">0</div>
+    <div class="result-label">items eaten by ONE loop — you wrote 3 lines of code, not <span id="loopLines">8</span>!</div>
+  </div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    The loop ran once per item — automatically. If the stash had 1,000 items, the SAME 3 lines would eat all 1,000. Loops + lists are how programs handle playlists, photo galleries, and game inventories.
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">🔁</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Whole stash devoured!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go3Complete()">NEXT MISSION →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — STACK IT -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 4 of 5</div>
+    <div class="mission-title">➕ Stack It & Snack It</div>
+    <div class="mission-brief">Lists aren't frozen — you can ADD to the end with .push() and REMOVE the last one with .pop(). Get the stash to EXACTLY 5 items to complete the mission.</div>
+  </div>
+
+  <canvas id="c4" style="background:#07090f"></canvas>
+
+  <div class="sec">The stash — target: exactly 5 items:</div>
+  <div class="stash-view" id="stash4"></div>
+  <div style="text-align:center;font-size:15px;font-weight:900;margin:8px 0">length = <span style="color:var(--warn);font-size:22px" id="len4">0</span></div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn teal" onclick="push4()">➕ stash.push(🍪)</button>
+    <button class="btn fire" onclick="pop4()">➖ stash.pop()</button>
+  </div>
+
+  <div class="code-block" id="code4"><span class="cm">// push() adds to the END. pop() removes from the END.</span></div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    <strong style="color:var(--accent2)">.push()</strong> and <strong style="color:var(--accent2)">.pop()</strong> work on the END of the list — like a stack of pancakes. The list's <span class="hl">length</span> updates itself every time. You never have to count!
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">➕</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Exactly 5! Stack mastered.</div>
+    <button class="btn go" style="margin-top:10px" onclick="go4Complete()">NEXT MISSION →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — COMBO -->
+<div class="screen" id="sc5">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 5 of 5</div>
+    <div class="mission-title">💥 The Snack Machine</div>
+    <div class="mission-brief">EVERYTHING together: build a list, loop through it, score points per snack. Different snacks = different points. Score 100+ to win. Choose wisely!</div>
+  </div>
+
+  <canvas id="c5" style="background:#07090f"></canvas>
+
+  <div class="sec">Point values:</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;font-size:14px;font-weight:800">
+    <span style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 10px">🎋 = 10 pts</span>
+    <span style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 10px">🍎 = 15 pts</span>
+    <span style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 10px">🍪 = 25 pts</span>
+  </div>
+
+  <div class="sec">Build your snack list (max 6):</div>
+  <div class="btn-row">
+    <button class="item-btn" onclick="pack5('🎋')">🎋</button>
+    <button class="item-btn" onclick="pack5('🍎')">🍎</button>
+    <button class="item-btn" onclick="pack5('🍪')">🍪</button>
+  </div>
+  <div class="stash-view" id="stash5"><span class="stash-empty">empty</span></div>
+
+  <div class="code-block" id="code5"><span class="cm">// Build a list, then run the machine!</span></div>
+
+  <div class="btn-row">
+    <button class="btn fire" onclick="runCombo5()">▶ RUN THE MACHINE</button>
+    <button class="btn ghost" onclick="clear5()">↺ Clear</button>
+  </div>
+
+  <div class="result-box" style="display:none" id="comboBox">
+    <div class="result-big" id="comboPts">0</div>
+    <div class="result-label">total points</div>
+  </div>
+
+  <div class="complete-banner" id="comboWin">
+    <div style="font-size:34px">💥</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">100+ POINTS — MACHINE MASTERED!</div>
+    <p style="margin-top:6px">You just used a list, a loop, indexes, and scoring — that's a real program.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Lists</div>
+    <div class="mission-brief">10 rounds. +10 XP per correct answer. Prove you own Level 3.</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l3-qans', QKEY='coding-l3-quiz', WKEY='coding-l3-game';
+const PREFIX='Coding|Lesson 3: Lists|';
+let xp=0, cur=0;
+
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800);}
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===1)c1Draw();if(n===2){setup2();c2Draw();}if(n===3){setup3();c3Draw();}if(n===4){c4Draw();render4();}if(n===5){c5Draw();render5();}
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+function go2Complete(){showToast('🎯 Mission 2 Done! +20 XP');addXP(20);go(3);}
+function go3Complete(){showToast('🔁 Mission 3 Done! +20 XP');addXP(20);go(4);}
+function go4Complete(){showToast('➕ Mission 4 Done! +20 XP');addXP(20);go(5);}
+
+/* ═══ SHARED CANVAS ═══════════════════════════════════════ */
+function drawBg(ctx,w,h){
+  ctx.fillStyle='#07090f';ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#0a1a10';ctx.fillRect(0,h-26,w,26);
+  ctx.fillStyle='#143020';ctx.fillRect(0,h-28,w,4);
+  ctx.fillStyle='#ffffff33';
+  [[30,16],[80,28],[155,10],[240,22],[340,8],[430,24]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();});
+}
+function drawPanda(ctx,x,y,e){
+  ctx.font='46px serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(e||'🐼',x,y);
+}
+function cvSetup(id){
+  const cv=document.getElementById(id);const ctx=cv.getContext('2d');
+  cv.width=Math.min(480,window.innerWidth-32);cv.height=160;
+  return{cv,ctx,w:cv.width,h:cv.height};
+}
+function drawStashRow(ctx,items,w,h,hotIdx){
+  items.forEach((it,i)=>{
+    const bx=36+i*54;
+    ctx.font=(i===hotIdx?'30px':'22px')+' serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.fillText(it,bx,34);
+    ctx.font='bold 10px sans-serif';ctx.fillStyle=i===hotIdx?'#ffcc00':'#586070';
+    ctx.fillText(String(i),bx,46);
+    ctx.fillStyle='#f4f5fb';
+  });
+}
+
+/* ═══ MISSION 1 — BUILD IT ════════════════════════════════ */
+let stash=[];
+
+function c1Draw(hot){
+  const {ctx,w,h}=cvSetup('c1');drawBg(ctx,w,h);
+  drawStashRow(ctx,stash,w,h,hot===undefined?-1:hot);
+  drawPanda(ctx,w*0.5,h-26,stash.length>=4?'🥳':'🐼');
+}
+function renderStash(elId,items,hot){
+  const el=document.getElementById(elId);
+  if(!items.length){el.innerHTML='<span class="stash-empty">empty — tap items above</span>';return;}
+  el.innerHTML=items.map((it,i)=>`<div class="stash-slot${i===hot?' hot':''}"><span class="idx">${i}</span>${it}</div>`).join('');
+}
+function updateCode1(){
+  const el=document.getElementById('code1');
+  if(!stash.length){el.innerHTML='<span class="cm">// Tap items to build your list!</span>';return;}
+  el.innerHTML=`<span class="kw">let</span> stash = [${stash.map(s=>`<span class="str">'${s}'</span>`).join(', ')}];\n\n<span class="cm">// ${stash.length} item${stash.length>1?'s':''}, slots 0 to ${stash.length-1}</span>`;
+}
+function pack(item){
+  if(stash.length>=6){showToast('Stash is full! (6 max)');return;}
+  stash.push(item);
+  renderStash('stash1',stash,stash.length-1);
+  updateCode1();c1Draw(stash.length-1);
+  if(stash.length===4){
+    document.getElementById('disc1').style.display='block';
+    document.getElementById('m1go').style.display='inline-flex';
+    addXP(25);showToast('🎒 Stash packed! +25 XP');
+  }
+}
+function clearStash1(){stash=[];renderStash('stash1',stash);updateCode1();c1Draw();document.getElementById('disc1').style.display='none';document.getElementById('m1go').style.display='none';}
+function m1Complete(){go(2);}
+
+/* ═══ MISSION 2 — GRAB IT ═════════════════════════════════ */
+let grabbedSet={};
+
+function ensureStash(){if(stash.length<4)stash=['🎋','🍎','🥕','🍪'];}
+function setup2(){
+  ensureStash();
+  renderStash('stash2',stash);
+  document.getElementById('idxRow').innerHTML=stash.map((_,i)=>`<button class="idx-btn" id="ib${i}" onclick="grab(${i})">${i}</button>`).join('');
+}
+function c2Draw(hot){
+  const {ctx,w,h}=cvSetup('c2');drawBg(ctx,w,h);
+  drawStashRow(ctx,stash,w,h,hot===undefined?-1:hot);
+  drawPanda(ctx,w*0.5,h-26,hot!==undefined&&hot>=0?'😋':'🐼');
+}
+function grab(i){
+  document.querySelectorAll('.idx-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('ib'+i).classList.add('sel');
+  renderStash('stash2',stash,i);
+  c2Draw(i);
+  document.getElementById('code2').innerHTML=`stash[<span class="num">${i}</span>]  <span class="cm">// slot ${i} = the ${['1st','2nd','3rd','4th','5th','6th'][i]} item</span>`;
+  const rb=document.getElementById('grabResult');rb.style.display='block';
+  document.getElementById('grabbed').textContent=stash[i];
+  document.getElementById('grabbedLbl').textContent=`stash[${i}] gave back ${stash[i]}`;
+  grabbedSet[i]=1;
+  document.getElementById('disc2').style.display='block';
+  if(Object.keys(grabbedSet).length===1){addXP(10);showToast('+10 XP');}
+  if(Object.keys(grabbedSet).length>=3){document.getElementById('m2done').classList.add('show');}
+}
+
+/* ═══ MISSION 3 — LOOP IT ═════════════════════════════════ */
+let l3Running=false,l3Timer=null;
+
+function setup3(){ensureStash();document.getElementById('loopLines').textContent=stash.length*1+5;}
+function c3Draw(hot,eaten){
+  const {ctx,w,h}=cvSetup('c3');drawBg(ctx,w,h);
+  const left=stash.filter((_,i)=>!(eaten&&i<eaten));
+  const items=eaten===undefined?stash:stash.slice(eaten);
+  items.forEach((it,i)=>{
+    const bx=36+(i+(eaten||0))*54;
+    ctx.font=(i===0&&hot?'30px':'22px')+' serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.fillText(it,bx,34);
+  });
+  drawPanda(ctx,w*0.5,h-26,hot?'😋':'🐼');
+}
+function reset3(){l3Running=false;clearInterval(l3Timer);document.getElementById('loopResult').style.display='none';document.getElementById('disc3').style.display='none';document.getElementById('m3done').classList.remove('show');c3Draw();}
+function runLoop3(){
+  if(l3Running)return;
+  ensureStash();l3Running=true;
+  let i=0;
+  function next(){
+    if(i>=stash.length){
+      l3Running=false;
+      document.getElementById('loopResult').style.display='block';
+      document.getElementById('loopCount').textContent=stash.length;
+      document.getElementById('disc3').style.display='block';
+      document.getElementById('m3done').classList.add('show');
+      addXP(25);showToast('🔁 Loop complete! +25 XP');
+      return;
+    }
+    c3Draw(true,i);i++;
+    setTimeout(next,450);
+  }
+  next();
+}
+
+/* ═══ MISSION 4 — STACK IT ════════════════════════════════ */
+let stack4=['🎋','🍎'];
+let m4won=false;
+
+function c4Draw(){
+  const {ctx,w,h}=cvSetup('c4');drawBg(ctx,w,h);
+  drawStashRow(ctx,stack4,w,h,-1);
+  drawPanda(ctx,w*0.5,h-26,stack4.length===5?'🥳':'🐼');
+}
+function render4(){
+  renderStash('stash4',stack4,stack4.length-1);
+  document.getElementById('len4').textContent=stack4.length;
+  if(stack4.length===5&&!m4won){
+    m4won=true;
+    document.getElementById('disc4').style.display='block';
+    document.getElementById('m4done').classList.add('show');
+    addXP(25);showToast('➕ Exactly 5! +25 XP');
+  }
+}
+function push4(){
+  if(stack4.length>=6){showToast('Full! Try .pop()');return;}
+  stack4.push('🍪');
+  document.getElementById('code4').innerHTML=`stash.<span class="fn">push</span>(<span class="str">'🍪'</span>);  <span class="cm">// added to the END — length is now ${stack4.length}</span>`;
+  c4Draw();render4();
+}
+function pop4(){
+  if(!stack4.length){showToast('Stash is empty!');return;}
+  const gone=stack4.pop();
+  document.getElementById('code4').innerHTML=`stash.<span class="fn">pop</span>();  <span class="cm">// removed ${gone} from the END — length is now ${stack4.length}</span>`;
+  c4Draw();render4();
+}
+
+/* ═══ MISSION 5 — COMBO ═══════════════════════════════════ */
+const PTS={'🎋':10,'🍎':15,'🍪':25};
+let snacks=[],c5Running=false;
+
+function c5Draw(hot){
+  const {ctx,w,h}=cvSetup('c5');drawBg(ctx,w,h);
+  drawStashRow(ctx,snacks,w,h,hot===undefined?-1:hot);
+  drawPanda(ctx,w*0.5,h-26,c5Running?'😋':'🐼');
+}
+function render5(){renderStash('stash5',snacks);updateCode5();}
+function updateCode5(){
+  const el=document.getElementById('code5');
+  if(!snacks.length){el.innerHTML='<span class="cm">// Build a list, then run the machine!</span>';return;}
+  el.innerHTML=`<span class="kw">let</span> snacks = [${snacks.map(s=>`<span class="str">'${s}'</span>`).join(', ')}];\n<span class="kw">let</span> points = <span class="num">0</span>;\n\n<span class="kw">for</span> (<span class="kw">let</span> s <span class="kw">of</span> snacks) {\n  points = points + value(s);\n}`;
+}
+function pack5(item){
+  if(snacks.length>=6){showToast('6 snacks max!');return;}
+  snacks.push(item);render5();c5Draw(snacks.length-1);
+}
+function clear5(){snacks=[];c5Running=false;render5();c5Draw();document.getElementById('comboBox').style.display='none';document.getElementById('comboWin').classList.remove('show');}
+function runCombo5(){
+  if(c5Running)return;
+  if(!snacks.length){showToast('Pack some snacks first!');return;}
+  c5Running=true;
+  let i=0,pts=0;
+  document.getElementById('comboBox').style.display='block';
+  function next(){
+    if(i>=snacks.length){
+      c5Running=false;c5Draw();
+      if(pts>=100){document.getElementById('comboWin').classList.add('show');addXP(50);showToast('💥 100+ POINTS! +50 XP');}
+      else{showToast(`${pts} pts — need 100+. Add better snacks!`);}
+      return;
+    }
+    pts+=PTS[snacks[i]]||0;
+    document.getElementById('comboPts').textContent=pts;
+    c5Draw(i);i++;
+    setTimeout(next,420);
+  }
+  next();
+}
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"What is a LIST in coding?",o:["One variable that holds many items in order","A type of loop","A single number","A function with no name"],a:0,e:"A list is ONE variable holding a whole ordered collection — like a backpack holding many items with numbered slots."},
+  {q:"let stash = ['🎋','🍎','🥕'];\nWhat is stash[0]?",o:["🎋","🍎","🥕","Nothing — 0 is empty"],a:0,e:"Lists start counting at ZERO! stash[0] is the FIRST item: 🎋."},
+  {q:"let stash = ['🎋','🍎','🥕'];\nWhat is stash[2]?",o:["🥕","🍎","🎋","Error"],a:0,e:"Slot 0 = 🎋, slot 1 = 🍎, slot 2 = 🥕. Index 2 is the THIRD item because counting starts at 0."},
+  {q:"What number is the FIRST slot of every list?",o:["0","1","-1","It depends on the list"],a:0,e:"Always 0! This trips up every new coder. First item = index 0, second item = index 1, and so on."},
+  {q:"What does stash.push('🍪') do?",o:["Adds 🍪 to the END of the list","Removes 🍪 from the list","Puts 🍪 at the start","Deletes the whole list"],a:0,e:".push() adds a new item to the END of a list, and the length grows by 1."},
+  {q:"What does stash.pop() do?",o:["Removes the LAST item","Removes the FIRST item","Adds a random item","Empties the whole list"],a:0,e:".pop() removes the item at the END of the list — the most recently pushed one."},
+  {q:"let stash = ['🎋','🍎','🥕','🍪'];\nWhat is stash.length?",o:["4","3","5","0"],a:0,e:"Length counts the ITEMS (4 of them). Careful: the last INDEX is 3, but the LENGTH is 4."},
+  {q:"for (let item of stash) { panda.eat(item); }\nIf stash has 6 items, how many times does panda.eat run?",o:["6","1","0","36"],a:0,e:"The loop runs the code once per item. 6 items = 6 times. 1,000 items = 1,000 times — same 3 lines of code!"},
+  {q:"Why are loops + lists so powerful together?",o:["The same short code works no matter how many items the list has","Loops make lists shorter","Lists only work inside loops","They make the code colorful"],a:0,e:"Write the loop once and it handles ANY size list — 3 items or 3 million. That's how apps show your playlists, photos, and messages."},
+  {q:"A list starts with 3 items. You push() twice and pop() once. How many items now?",o:["4","5","3","2"],a:0,e:"3 + 2 pushed = 5, then 1 popped = 4. Push adds, pop removes — the length tracks it all automatically."}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 3',q:text,file:'coding-lesson-03-lists.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — LIST LEGEND UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({mission:cur,xp}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAll();});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');if(g.xp)xp=g.xp;document.getElementById('xpNum').textContent=xp;}catch(e){}
+  buildQuiz();restoreQuiz();
+  c1Draw();
+}
+init();
+window.addEventListener('resize',()=>{if(cur===1)c1Draw();if(cur===2)c2Draw();if(cur===3)c3Draw();if(cur===4)c4Draw();if(cur===5)c5Draw();});
+</script>
+</body>
+</html>

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Studies Day 6 — Octopus</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:6px;align-items:center}
+.seg{flex:1;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s,transform .2s;cursor:pointer}
+.seg.done{background:var(--good)}
+.seg.active{background:var(--accent);transform:scaleY(1.4)}
+.phase-label{font-size:11px;color:var(--muted);white-space:nowrap;min-width:fit-content;margin-left:8px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:20px 16px 60px}
+.phase{display:none}
+.phase.active{display:block}
+h1{font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:12px;margin-top:24px}
+h3{font-size:1.05rem;font-weight:600;color:var(--warn);margin-bottom:8px}
+.phase-header{margin-bottom:24px}
+.phase-header .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.phase-header p{color:var(--muted);font-size:.95rem}
+
+/* Cards */
+.card{background:var(--panel);border-radius:var(--radius);padding:20px;margin-bottom:var(--gap);border:1px solid var(--line)}
+.card p{color:var(--muted);font-size:.95rem;line-height:1.65}
+
+/* True/False cards */
+.tf-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.tf-card{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:20px;cursor:pointer;transition:border-color .2s,background .2s;min-height:44px}
+.tf-card:hover{border-color:var(--accent2)}
+.tf-card.correct{border-color:var(--good);background:rgba(123,216,143,.08)}
+.tf-card.wrong{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tf-card .tf-statement{font-size:1rem;font-weight:600;margin-bottom:10px}
+.tf-btns{display:flex;gap:10px;margin-top:10px}
+.tf-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;min-height:44px;transition:opacity .2s}
+.tf-btn.true-btn{background:var(--accent2);color:#111}
+.tf-btn.false-btn{background:var(--accent);color:#fff}
+.tf-btn:disabled{opacity:.5;cursor:default}
+.tf-feedback{margin-top:10px;font-size:.875rem;padding:8px 12px;border-radius:6px;display:none}
+.tf-feedback.show{display:block}
+.tf-feedback.correct{background:rgba(123,216,143,.15);color:var(--good)}
+.tf-feedback.wrong{background:rgba(255,107,129,.15);color:var(--bad)}
+
+/* Reading passage */
+.reading-passage{background:var(--panel);border-radius:var(--radius);padding:24px;border:1px solid var(--line);line-height:1.8}
+.reading-passage p{margin-bottom:14px;color:#dce0f0}
+.reading-passage p:last-child{margin-bottom:0}
+.reading-passage strong{color:var(--warn)}
+.reading-passage em{color:var(--accent2)}
+.vocab-box{background:var(--panel2);border-left:3px solid var(--accent2);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.vocab-box span{font-weight:700;color:var(--accent2)}
+.facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.fact-tile{background:var(--panel2);border-radius:10px;padding:14px;text-align:center}
+.fact-tile .num{font-size:1.5rem;font-weight:800;color:var(--accent2)}
+.fact-tile .lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+
+/* Match game */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:14px 12px;cursor:pointer;text-align:center;font-size:.875rem;line-height:1.4;min-height:70px;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;user-select:none}
+.match-item:hover:not(.matched){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.match-item.selected{border-color:var(--warn);background:rgba(255,209,102,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.7}
+.match-item.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.match-score{font-size:1rem;color:var(--muted);margin-bottom:14px}
+.match-score span{color:var(--accent2);font-weight:700}
+.col-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;text-align:center}
+
+/* Zone sorter */
+.sort-pool{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;min-height:60px;background:var(--panel);border:1px dashed var(--line);border-radius:var(--radius);padding:14px}
+.sort-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;font-size:.875rem;line-height:1.4;min-height:44px;display:flex;align-items:center;transition:border-color .2s,background .2s;user-select:none}
+.sort-item:hover:not(.placed){border-color:var(--accent2)}
+.sort-item.selected{border-color:var(--warn);background:rgba(255,209,102,.12)}
+.sort-item.shake{animation:shake .35s}
+.sort-item.placed{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;font-size:.8rem;min-height:40px}
+.zone{border:2px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;cursor:pointer;transition:border-color .2s,background .2s;min-height:80px}
+.zone:hover{border-color:var(--accent2)}
+.zone.zone-target{border-color:var(--warn);background:rgba(255,209,102,.06)}
+.zone.shake{animation:shake .35s}
+.zone-title{font-weight:700;font-size:1rem;margin-bottom:2px}
+.zone-depth{font-size:.78rem;color:var(--muted);margin-bottom:8px}
+.zone-sunlight{background:linear-gradient(180deg,rgba(91,209,196,.14),rgba(91,209,196,.04))}
+.zone-sunlight .zone-title{color:var(--warn)}
+.zone-twilight{background:linear-gradient(180deg,rgba(91,120,209,.14),rgba(91,120,209,.04))}
+.zone-twilight .zone-title{color:var(--accent2)}
+.zone-midnight{background:linear-gradient(180deg,rgba(30,33,48,.9),rgba(20,21,29,.9))}
+.zone-midnight .zone-title{color:var(--muted)}
+.zone-items{display:flex;flex-wrap:wrap;gap:8px}
+.sort-msg{font-size:1rem;color:var(--muted);margin-bottom:14px}
+.sort-msg span{color:var(--accent2);font-weight:700}
+
+/* Writing pad */
+.writing-wrap{position:relative}
+textarea{width:100%;min-height:200px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:var(--radius);padding:16px;font-size:1rem;line-height:1.7;resize:vertical;font-family:inherit;transition:border-color .2s}
+textarea:focus{outline:none;border-color:var(--accent2)}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;color:var(--muted)}
+.save-indicator{color:var(--good);font-weight:600;opacity:0;transition:opacity .4s}
+.save-indicator.show{opacity:1}
+
+/* Quiz */
+.quiz-progress{display:flex;gap:6px;margin-bottom:20px}
+.q-dot{width:28px;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s}
+.q-dot.answered-correct{background:var(--good)}
+.q-dot.answered-wrong{background:var(--bad)}
+.q-dot.current{background:var(--accent)}
+.quiz-q{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);margin-bottom:14px}
+.quiz-q .q-num{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.quiz-q .q-text{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:16px}
+.choice-btn{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:8px;font-size:.95rem;cursor:pointer;color:var(--ink);transition:border-color .2s,background .2s;min-height:44px;line-height:1.4}
+.choice-btn:hover:not(:disabled){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.12);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.choice-btn:disabled{cursor:default}
+.q-explanation{margin-top:12px;font-size:.875rem;padding:10px 14px;border-radius:8px;background:rgba(91,209,196,.1);color:var(--accent2);display:none}
+.q-explanation.show{display:block}
+.quiz-nav{display:flex;gap:10px;margin-top:6px}
+.quiz-nav button{flex:1;padding:12px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.q-prev-btn{background:var(--panel2);color:var(--ink)}
+.q-next-btn{background:var(--accent);color:#fff}
+.q-next-btn:disabled{opacity:.5;cursor:default}
+.quiz-result{text-align:center;padding:28px 20px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-top:16px;display:none}
+.quiz-result.show{display:block}
+.result-score{font-size:2.8rem;font-weight:800;color:var(--accent2);margin-bottom:8px}
+.result-msg{font-size:1rem;color:var(--muted);margin-bottom:16px}
+.retry-btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;min-height:44px}
+.retry-btn:hover{border-color:var(--accent)}
+
+/* Nav buttons */
+.nav-btns{display:flex;gap:10px;margin-top:28px}
+.nav-btn{flex:1;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;min-height:44px;transition:opacity .2s}
+.nav-btn:hover{opacity:.88}
+.btn-prev{background:var(--panel2);color:var(--ink);border:2px solid var(--line)}
+.btn-next{background:var(--accent);color:#fff}
+@media(max-width:480px){.match-grid{grid-template-columns:1fr}.facts-grid{grid-template-columns:1fr}.match-item{min-height:56px}}
+</style>
+</head>
+<body>
+
+<div id="phase-bar">
+  <div class="seg" data-phase="0" title="Warm-Up"></div>
+  <div class="seg" data-phase="1" title="Reading"></div>
+  <div class="seg" data-phase="2" title="Map Match"></div>
+  <div class="seg" data-phase="3" title="Zone Sorter"></div>
+  <div class="seg" data-phase="4" title="Writing"></div>
+  <div class="seg" data-phase="5" title="Quiz"></div>
+  <span class="phase-label" id="phase-label">Warm-Up</span>
+</div>
+
+<div class="container">
+
+<!-- PHASE 1: Warm-Up -->
+<div class="phase active" id="phase-0">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 1 of 6 &bull; 5 min</div>
+    <h1>🐙 Octopus Warm-Up</h1>
+    <p>Tap TRUE or FALSE for each statement. You'll get instant feedback!</p>
+  </div>
+  <div class="tf-grid" id="tf-grid"></div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-next" onclick="goPhase(1)">Start Reading &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 2: Reading -->
+<div class="phase" id="phase-1">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 2 of 6 &bull; 10 min</div>
+    <h1>Core Reading: The Octopus's World</h1>
+    <p>Read carefully — the quiz and activities come from this passage.</p>
+  </div>
+  <div class="reading-passage">
+    <p>If you dropped a submarine into any ocean on Earth — the <strong>Pacific, Atlantic, Indian, Arctic, or Southern</strong> — you could find an octopus. Octopuses live in <em>every ocean</em>, from warm tropical coral reefs to the freezing waters near the poles. Most make their <strong>habitat</strong> on the shallow <strong>continental shelf</strong>, the underwater edge of a continent, where food is easy to find.</p>
+
+    <div class="vocab-box"><span>Habitat:</span> the natural home of an animal. &nbsp; <span>Continental shelf:</span> the shallow, underwater edge of a continent. &nbsp; <span>Hemisphere:</span> one half of the Earth. &nbsp; <span>Aquaculture:</span> farming animals or plants in water.</div>
+
+    <p>The biggest of them all is the <strong>giant Pacific octopus</strong>, which can weigh over <strong>100 pounds</strong>! It lives along the North Pacific rim — the coastal waters of <strong>Japan, Alaska, British Columbia, and California</strong>. That range stretches across the entire northern Pacific Ocean, in the Northern <em>Hemisphere</em>. The <strong>common octopus</strong> lives in the <strong>Mediterranean Sea</strong> and the Atlantic Ocean, where scientists have studied its remarkable intelligence since the days of ancient Greece. And in <strong>1998</strong>, divers off <strong>Indonesia</strong> discovered the amazing <strong>mimic octopus</strong>, which impersonates lionfish, sea snakes, and flatfish to fool predators!</p>
+
+    <p>The ocean is divided into depth zones. Most octopuses live in the <strong>sunlight zone</strong> (0–650 feet) and the <strong>twilight zone</strong> (650–3,300 feet). But the ghostly <strong>dumbo octopus</strong>, named for its ear-like fins, lives about <strong>13,000 feet</strong> down in the pitch-black <strong>midnight zone</strong> — deeper than almost any other octopus.</p>
+
+    <p>Octopuses matter to people, too. For thousands of years, octopus has been an important part of the food and culture of <strong>Japan, Korea, Spain, Greece, and Italy</strong>. And one octopus became world-famous: in <strong>2016</strong>, <strong>Inky the octopus</strong> escaped from the National Aquarium of New Zealand. He squeezed out of his tank, slid across the floor, and slipped down a <em>drain pipe</em> that led straight back to the sea. Nobody ever saw him again!</p>
+
+    <p>Today, octopuses face threats from <strong>overfishing</strong> and <strong>habitat loss</strong>. When the world's first octopus farm was proposed — a kind of <em>aquaculture</em> — it sparked a worldwide debate: how should such intelligent animals be treated? Scientists, chefs, and kids around the world are still discussing that question.</p>
+
+    <div class="facts-grid">
+      <div class="fact-tile"><div class="num">5</div><div class="lbl">oceans where octopuses live</div></div>
+      <div class="fact-tile"><div class="num">100+</div><div class="lbl">pounds — giant Pacific octopus</div></div>
+      <div class="fact-tile"><div class="num">13,000</div><div class="lbl">feet deep — dumbo octopus</div></div>
+      <div class="fact-tile"><div class="num">2016</div><div class="lbl">Inky's great escape</div></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(0)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(2)">Ocean Map Match &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 3: Ocean Map Match -->
+<div class="phase" id="phase-2">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 3 of 6 &bull; 8 min</div>
+    <h1>Ocean Map Match</h1>
+    <p>Tap a place on the left, then tap the matching fact on the right. Wrong pairs will shake — keep trying!</p>
+  </div>
+  <div class="match-score">Matched: <span id="match-count">0</span> / 6</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+    <div class="col-label">Place</div>
+    <div class="col-label">Fact</div>
+  </div>
+  <div class="match-grid" id="match-grid"></div>
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+    <button class="retry-btn" onclick="resetMatch()">Reset Game</button>
+    <span id="match-done-msg" style="color:var(--good);font-weight:700;display:none">All matched! Great work!</span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(1)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(3)">Ocean Zones Sorter &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 4: Ocean Zones Sorter -->
+<div class="phase" id="phase-3">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 4 of 6 &bull; 8 min</div>
+    <h1>Ocean Zones Sorter</h1>
+    <p>Tap a sea creature card, then tap the ocean zone where it belongs. Wrong zone = shake — try again!</p>
+  </div>
+  <div class="sort-msg">Sorted: <span id="sort-count">0</span> / 6</div>
+  <div class="sort-pool" id="sort-pool"></div>
+  <div class="zone zone-sunlight" id="zone-sunlight" onclick="tapZone('sunlight')">
+    <div class="zone-title">☀️ Sunlight Zone</div>
+    <div class="zone-depth">0 – 650 feet &bull; bright, warm, full of life</div>
+    <div class="zone-items" id="zone-items-sunlight"></div>
+  </div>
+  <div class="zone zone-twilight" id="zone-twilight" onclick="tapZone('twilight')">
+    <div class="zone-title">🌆 Twilight Zone</div>
+    <div class="zone-depth">650 – 3,300 feet &bull; dim blue light fades to dark</div>
+    <div class="zone-items" id="zone-items-twilight"></div>
+  </div>
+  <div class="zone zone-midnight" id="zone-midnight" onclick="tapZone('midnight')">
+    <div class="zone-title">🌑 Midnight Zone</div>
+    <div class="zone-depth">3,300+ feet &bull; total darkness, crushing pressure</div>
+    <div class="zone-items" id="zone-items-midnight"></div>
+  </div>
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+    <button class="retry-btn" onclick="resetSort()">Reset Sorter</button>
+    <span id="sort-done-msg" style="color:var(--good);font-weight:700;display:none">All 6 sorted! You know your zones!</span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(2)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(4)">Writing Pad &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 5: Writing -->
+<div class="phase" id="phase-4">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 5 of 6 &bull; 5 min</div>
+    <h1>Writing Pad</h1>
+  </div>
+  <div class="card">
+    <h3>Writing Prompt</h3>
+    <p>You're a news reporter covering Inky the octopus's great escape from the aquarium. Write your news report! (At least 5 sentences — include WHO, WHAT, WHERE, WHEN, and HOW.)</p>
+  </div>
+  <div class="writing-wrap">
+    <textarea id="writing-pad" placeholder="BREAKING NEWS: Start your report here..."></textarea>
+    <div class="writing-meta">
+      <span id="word-count">0 words</span>
+      <span class="save-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(3)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(5)">Final Quiz &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 6: Quiz -->
+<div class="phase" id="phase-5">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 6 of 6 &bull; 5 min</div>
+    <h1>Final Quiz</h1>
+    <p>8 questions — one at a time. You can go back to review!</p>
+  </div>
+  <div class="quiz-progress" id="quiz-dots"></div>
+  <div id="quiz-area"></div>
+  <div class="quiz-result" id="quiz-result">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(4)">&larr; Back</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── Storage Keys ───────────────────────────────────────────
+const QAKEY = "social-l6-qans";
+const QKEY  = "social-l6-quiz";
+const WKEY  = "social-l6-writing";
+
+// ─── logMistake ─────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Social Studies|Day 6: Octopus|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Social Studies', day: 'Day 6', q: questionText, file: 'social-studies-lesson-06-octopus.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── Phase navigation ───────────────────────────────────────
+let currentPhase = 0;
+const PHASE_NAMES = ['Warm-Up','Core Reading','Map Match','Zone Sorter','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('active');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('active');
+  updatePhaseBar();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updatePhaseBar() {
+  document.querySelectorAll('.seg').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < currentPhase) s.classList.add('done');
+    if (i === currentPhase) s.classList.add('active');
+  });
+  document.getElementById('phase-label').textContent =
+    'Phase ' + (currentPhase + 1) + ': ' + PHASE_NAMES[currentPhase];
+}
+
+document.querySelectorAll('.seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+// ─── Phase 1: True/False ────────────────────────────────────
+const TF_DATA = [
+  {
+    statement: "Octopuses live in every ocean on Earth.",
+    answer: true,
+    fact: "Correct! From tropical coral reefs to freezing polar waters, octopuses live in the Pacific, Atlantic, Indian, Arctic, and Southern Oceans."
+  },
+  {
+    statement: "The giant Pacific octopus lives near Japan, Alaska, and California.",
+    answer: true,
+    fact: "Right! The giant Pacific octopus lives along the North Pacific rim — Japan, Alaska, British Columbia, and California."
+  },
+  {
+    statement: "An octopus once escaped from a New Zealand aquarium and made it back to the ocean.",
+    answer: true,
+    fact: "True story! In 2016, Inky the octopus escaped the National Aquarium of New Zealand — he went down a drain pipe straight to the sea!"
+  },
+  {
+    statement: "Octopuses can survive on land for days.",
+    answer: false,
+    fact: "Nope! Octopuses breathe with gills, so they can only leave the water for a few minutes at a time."
+  }
+];
+
+function buildTF() {
+  const grid = document.getElementById('tf-grid');
+  grid.innerHTML = '';
+  TF_DATA.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'tf-card';
+    div.id = 'tf-' + i;
+    div.innerHTML = `
+      <div class="tf-statement">${item.statement}</div>
+      <div class="tf-btns">
+        <button class="tf-btn true-btn" onclick="answerTF(${i}, true)">TRUE</button>
+        <button class="tf-btn false-btn" onclick="answerTF(${i}, false)">FALSE</button>
+      </div>
+      <div class="tf-feedback" id="tf-fb-${i}"></div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function answerTF(i, userAnswer) {
+  const item = TF_DATA[i];
+  const correct = (userAnswer === item.answer);
+  const card = document.getElementById('tf-' + i);
+  const fb = document.getElementById('tf-fb-' + i);
+  card.classList.add(correct ? 'correct' : 'wrong');
+  fb.textContent = (correct ? '✓ ' : '✗ ') + item.fact;
+  fb.className = 'tf-feedback show ' + (correct ? 'correct' : 'wrong');
+  card.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+}
+
+// ─── Phase 3: Ocean Map Match ───────────────────────────────
+const MATCH_PAIRS = [
+  { left: 'Pacific Ocean', right: 'Home of the giant Pacific octopus, the world\'s largest' },
+  { left: 'Indonesia', right: 'Where the mimic octopus was discovered in 1998' },
+  { left: 'Mediterranean Sea', right: 'Where the common octopus has been studied since ancient Greece' },
+  { left: 'New Zealand', right: 'Where Inky escaped an aquarium through a drain pipe' },
+  { left: 'Japan & Korea', right: 'Countries where octopus has been part of food culture for centuries' },
+  { left: 'Midnight zone (13,000 ft)', right: 'Where the deep-sea dumbo octopus lives' }
+];
+
+let matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+
+function buildMatch() {
+  const grid = document.getElementById('match-grid');
+  grid.innerHTML = '';
+  const rights = [...MATCH_PAIRS.map(p => p.right)].sort(() => Math.random() - .5);
+
+  MATCH_PAIRS.forEach((pair, i) => {
+    const lDiv = document.createElement('div');
+    lDiv.className = 'match-item';
+    lDiv.dataset.side = 'left';
+    lDiv.dataset.idx = i;
+    lDiv.textContent = pair.left;
+    lDiv.onclick = () => selectMatch(lDiv);
+    grid.appendChild(lDiv);
+
+    const rDiv = document.createElement('div');
+    rDiv.className = 'match-item';
+    rDiv.dataset.side = 'right';
+    rDiv.dataset.val = rights[i];
+    rDiv.textContent = rights[i];
+    rDiv.onclick = () => selectMatch(rDiv);
+    grid.appendChild(rDiv);
+  });
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+  document.getElementById('match-count').textContent = '0';
+  document.getElementById('match-done-msg').style.display = 'none';
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  const side = el.dataset.side;
+
+  if (side === 'left') {
+    document.querySelectorAll('.match-item[data-side="left"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedLeft === el) { matchState.selectedLeft = null; return; }
+    el.classList.add('selected');
+    matchState.selectedLeft = el;
+  } else {
+    document.querySelectorAll('.match-item[data-side="right"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedRight === el) { matchState.selectedRight = null; return; }
+    el.classList.add('selected');
+    matchState.selectedRight = el;
+  }
+
+  if (matchState.selectedLeft && matchState.selectedRight) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const lEl = matchState.selectedLeft;
+  const rEl = matchState.selectedRight;
+  const idx = parseInt(lEl.dataset.idx);
+  const correct = MATCH_PAIRS[idx].right === rEl.dataset.val;
+
+  if (correct) {
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(idx);
+    const cnt = matchState.matched.size;
+    document.getElementById('match-count').textContent = cnt;
+    if (cnt === MATCH_PAIRS.length) {
+      document.getElementById('match-done-msg').style.display = 'inline';
+    }
+  } else {
+    [lEl, rEl].forEach(e => {
+      e.classList.add('shake');
+      setTimeout(() => { e.classList.remove('shake', 'selected'); }, 400);
+    });
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+}
+
+function resetMatch() { buildMatch(); }
+
+// ─── Phase 4: Ocean Zones Sorter ────────────────────────────
+const SORT_ITEMS = [
+  { text: 'Common octopus hunting on a coral reef', zone: 'sunlight' },
+  { text: 'Kelp forests where giant Pacific octopuses den', zone: 'sunlight' },
+  { text: 'Vampire squid drifting in darkness', zone: 'midnight' },
+  { text: 'Dumbo octopus flapping its ear-like fins', zone: 'midnight' },
+  { text: 'Glass octopus, nearly transparent', zone: 'twilight' },
+  { text: 'Bigfin squid with 20-foot arms', zone: 'midnight' }
+];
+
+let sortSelected = null;
+let sortPlaced = 0;
+
+function buildSort() {
+  const pool = document.getElementById('sort-pool');
+  pool.innerHTML = '';
+  ['sunlight','twilight','midnight'].forEach(z => {
+    document.getElementById('zone-items-' + z).innerHTML = '';
+  });
+  const shuffled = [...SORT_ITEMS].sort(() => Math.random() - .5);
+  shuffled.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'sort-item';
+    div.textContent = item.text;
+    div.dataset.zone = item.zone;
+    div.onclick = (e) => { e.stopPropagation(); selectSort(div); };
+    pool.appendChild(div);
+  });
+  sortSelected = null;
+  sortPlaced = 0;
+  document.getElementById('sort-count').textContent = '0';
+  document.getElementById('sort-done-msg').style.display = 'none';
+  updateZoneHighlight();
+}
+
+function selectSort(el) {
+  if (el.classList.contains('placed')) return;
+  if (sortSelected === el) {
+    el.classList.remove('selected');
+    sortSelected = null;
+  } else {
+    if (sortSelected) sortSelected.classList.remove('selected');
+    el.classList.add('selected');
+    sortSelected = el;
+  }
+  updateZoneHighlight();
+}
+
+function updateZoneHighlight() {
+  document.querySelectorAll('.zone').forEach(z => {
+    z.classList.toggle('zone-target', !!sortSelected);
+  });
+}
+
+function tapZone(zoneName) {
+  if (!sortSelected) return;
+  const el = sortSelected;
+  if (el.dataset.zone === zoneName) {
+    el.classList.remove('selected');
+    el.classList.add('placed');
+    el.onclick = null;
+    document.getElementById('zone-items-' + zoneName).appendChild(el);
+    sortSelected = null;
+    sortPlaced++;
+    document.getElementById('sort-count').textContent = sortPlaced;
+    if (sortPlaced === SORT_ITEMS.length) {
+      document.getElementById('sort-done-msg').style.display = 'inline';
+    }
+    updateZoneHighlight();
+  } else {
+    const zoneEl = document.getElementById('zone-' + zoneName);
+    el.classList.add('shake');
+    zoneEl.classList.add('shake');
+    setTimeout(() => {
+      el.classList.remove('shake');
+      zoneEl.classList.remove('shake');
+    }, 400);
+  }
+}
+
+function resetSort() { buildSort(); }
+
+// ─── Phase 5: Writing Pad ───────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(() => {
+      localStorage.setItem(WKEY, pad.value);
+      const ind = document.getElementById('save-indicator');
+      ind.classList.add('show');
+      setTimeout(() => ind.classList.remove('show'), 1800);
+    }, 300);
+  });
+}
+
+function updateWordCount() {
+  const txt = document.getElementById('writing-pad').value.trim();
+  const n = txt ? txt.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = n + ' word' + (n !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const pad = document.getElementById('writing-pad');
+  if (pad) localStorage.setItem(WKEY, pad.value);
+}
+
+// ─── Phase 6: Quiz ──────────────────────────────────────────
+const QUIZ_DATA = [
+  {
+    q: 'Octopuses live in:',
+    choices: ['Only the Pacific Ocean', 'Only warm tropical waters', 'Every ocean on Earth', 'Only near coral reefs'],
+    correct: 2,
+    explanation: 'Octopuses live in every ocean — Pacific, Atlantic, Indian, Arctic, and Southern — from tropical reefs to polar waters.'
+  },
+  {
+    q: 'The giant Pacific octopus lives near:',
+    choices: ['The Mediterranean Sea and Greece', 'Japan, Alaska, and the west coast of North America', 'The Indian Ocean near Australia', 'The Arctic Ocean near Greenland'],
+    correct: 1,
+    explanation: 'The giant Pacific octopus lives along the North Pacific rim — Japan, Alaska, British Columbia, and California. It can weigh over 100 pounds!'
+  },
+  {
+    q: 'The mimic octopus was discovered near:',
+    choices: ['New Zealand', 'Spain', 'Indonesia', 'California'],
+    correct: 2,
+    explanation: 'The mimic octopus was discovered in 1998 off Indonesia — it impersonates lionfish, sea snakes, and flatfish!'
+  },
+  {
+    q: 'Inky the octopus famously:',
+    choices: ['Learned to open jars on TV', 'Escaped an aquarium through a drain pipe to the ocean', 'Predicted World Cup winners', 'Grew to over 200 pounds'],
+    correct: 1,
+    explanation: 'In 2016, Inky escaped the National Aquarium of New Zealand through a drain pipe that led straight back to the sea.'
+  },
+  {
+    q: 'The dumbo octopus lives in which ocean zone?',
+    choices: ['Sunlight zone — near the surface', 'Twilight zone — dim light', 'Midnight zone — very deep', 'Tide pools along the shore'],
+    correct: 2,
+    explanation: 'The dumbo octopus lives about 13,000 feet down in the midnight zone, where there is no light at all.'
+  },
+  {
+    q: 'Octopus has been part of food culture for centuries in:',
+    choices: ['Canada and Russia', 'Japan, Korea, and Mediterranean countries', 'Egypt and Saudi Arabia', 'Switzerland and Austria'],
+    correct: 1,
+    explanation: 'Octopus has been important in the food and culture of Japan, Korea, Spain, Greece, and Italy for thousands of years.'
+  },
+  {
+    q: 'Which ocean zone gets the most light?',
+    choices: ['Midnight zone', 'Twilight zone', 'Sunlight zone', 'They all get equal light'],
+    correct: 2,
+    explanation: 'The sunlight zone (0–650 feet) gets the most light. Below it, the twilight zone is dim, and the midnight zone is totally dark.'
+  },
+  {
+    q: 'What is one threat octopuses face?',
+    choices: ['Too much sunlight', 'Overfishing', 'Freshwater floods', 'Too many aquariums'],
+    correct: 1,
+    explanation: 'Overfishing and habitat loss threaten octopuses. The first octopus farm proposal even sparked a worldwide debate about how smart animals should be treated.'
+  }
+];
+
+let quizCurrent = 0;
+let quizAnswers = {};
+
+function buildQuiz() {
+  quizAnswers = {};
+  quizCurrent = 0;
+  renderQuizDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (typeof saved === 'object' && saved !== null) {
+      quizAnswers = saved;
+    }
+  } catch(e) { quizAnswers = {}; }
+  renderQuizDots();
+  renderQuestion();
+}
+
+function renderQuizDots() {
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  QUIZ_DATA.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot';
+    if (i === quizCurrent) d.classList.add('current');
+    else if (quizAnswers[i] !== undefined) {
+      d.classList.add(quizAnswers[i] === QUIZ_DATA[i].correct ? 'answered-correct' : 'answered-wrong');
+    }
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const area = document.getElementById('quiz-area');
+  const result = document.getElementById('quiz-result');
+  const allAnswered = Object.keys(quizAnswers).length === QUIZ_DATA.length;
+
+  if (allAnswered && quizCurrent >= QUIZ_DATA.length) {
+    area.innerHTML = '';
+    showQuizResult();
+    return;
+  }
+
+  result.classList.remove('show');
+  const qi = quizCurrent;
+  const item = QUIZ_DATA[qi];
+  const userAns = quizAnswers[qi];
+  const answered = userAns !== undefined;
+
+  let choicesHTML = item.choices.map((c, ci) => {
+    let cls = '';
+    if (answered) {
+      if (ci === item.correct) cls = 'correct';
+      else if (ci === userAns) cls = 'wrong';
+    }
+    return `<button class="choice-btn ${cls}" ${answered ? 'disabled' : ''} onclick="ansQ(${qi},${ci})">${c}</button>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="quiz-q">
+      <div class="q-num">Question ${qi + 1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${item.q}</div>
+      ${choicesHTML}
+      <div class="q-explanation ${answered ? 'show' : ''}" id="q-exp">
+        ${answered ? (userAns === item.correct ? '✓ Correct! ' : '✗ Not quite. ') + item.explanation : item.explanation}
+      </div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-nav btn q-prev-btn" onclick="qNav(-1)" ${qi === 0 ? 'disabled' : ''}>&larr; Prev</button>
+      <button class="quiz-nav btn q-next-btn" onclick="qNav(1)" ${!answered ? 'disabled' : ''}>${qi === QUIZ_DATA.length - 1 ? 'Finish' : 'Next &rarr;'}</button>
+    </div>
+  `;
+  renderQuizDots();
+}
+
+function ansQ(qi, choiceIdx) {
+  if (quizAnswers[qi] !== undefined) return;
+  quizAnswers[qi] = choiceIdx;
+  const correct = choiceIdx === QUIZ_DATA[qi].correct;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, QUIZ_DATA[qi].q, 'Final Quiz');
+  renderQuestion();
+  if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+    const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+    try { localStorage.setItem(QKEY, JSON.stringify({ score, total: QUIZ_DATA.length, date: Date.now() })); } catch(e) {}
+  }
+}
+
+function qNav(dir) {
+  quizCurrent = Math.max(0, Math.min(QUIZ_DATA.length, quizCurrent + dir));
+  if (quizCurrent >= QUIZ_DATA.length) { showQuizResult(); return; }
+  renderQuestion();
+}
+
+function showQuizResult() {
+  const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+  const pct = Math.round(score / QUIZ_DATA.length * 100);
+  document.getElementById('quiz-area').innerHTML = '';
+  const res = document.getElementById('quiz-result');
+  document.getElementById('result-score').textContent = score + ' / ' + QUIZ_DATA.length;
+  let msg = pct >= 88 ? 'Excellent! You really know the octopus\'s world!' :
+            pct >= 63 ? 'Good work! Review a few answers and try again.' :
+            'Keep studying — go back to the reading and try once more!';
+  document.getElementById('result-msg').textContent = msg + ' (' + pct + '%)';
+  res.classList.add('show');
+  renderQuizDots();
+}
+
+function retryQuiz() {
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── Save All ───────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── Init ───────────────────────────────────────────────────
+function init() {
+  buildTF();
+  buildMatch();
+  buildSort();
+  initWriting();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+init();
+</script>
+</body>
+</html>
