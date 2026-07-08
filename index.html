@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 6 · Octopus 🐙 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 7 · Axolotl 🦎 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — The Water Monster of Mexico City",topic:"Geography",time:"45 min",file:"social-studies-lesson-07-axolotl.html",desc:"Aztec legends, Lake Xochimilco, floating gardens, and why the axolotl is on Mexico's money."},
+      {n:2,emoji:"🔬",title:"Science — The Animal That Rebuilds Itself",topic:"Science",time:"45 min",file:"science-lesson-07-axolotl.html",desc:"Regrow a leg, a heart, even brain parts! Neoteny, blastemas, and a regeneration lab simulator."},
+      {n:3,emoji:"📖",title:"ELA — Axo and the Missing Leg",topic:"Reading",time:"45 min",file:"ela-lesson-07-axolotl.html",desc:"A story about resilience, 7 vocab words, story elements (character/setting/plot), and writing."},
+      {n:4,emoji:"📐",title:"Math — Geometry: Angles, Perimeter & Area",topic:"Geometry",time:"45 min",file:"math-lesson-07-axolotl.html",desc:"Angle types, perimeter & area with visual diagrams, refuge tank word problems, shape speed round."},
+      {n:5,emoji:"💻",title:"Coding — Level 4: Battle Mode (Random)",topic:"Coding",time:"60 min",file:"coding-lesson-04-random.html",desc:"Dice rolls, critical hits, and a full panda-vs-tiger BOSS FIGHT powered by random numbers!"},
+    ]},
+    {label:"Day 6 · Octopus 🐙 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — The Octopus's World",topic:"Geography",time:"45 min",file:"social-studies-lesson-06-octopus.html",desc:"Octopuses in every ocean, ocean zones, the mimic octopus of Indonesia, and Inky's famous aquarium escape."},
       {n:2,emoji:"🔬",title:"Science — The Ocean's Superhero",topic:"Science",time:"45 min",file:"science-lesson-06-octopus.html",desc:"3 hearts, blue blood, 9 brains, camouflage cells, jet propulsion — plus a design-your-own-defense simulator."},
       {n:3,emoji:"📖",title:"ELA — The Great Escape of Professor Eight",topic:"Reading",time:"45 min",file:"ela-lesson-06-octopus.html",desc:"A clever octopus plans her escape! 7 vocab words, fact vs. opinion, and a security-guard incident report."},
@@ -190,6 +197,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 7 · Axolotl 🦎", items:[
+       {n:7,emoji:"🦎",title:"Geometry: Angles, Perimeter & Area",topic:"Geometry",time:"45 min",file:"math-lesson-07-axolotl.html",desc:"Angle types with diagrams, perimeter & area practice, refuge tank word problems, shape speed round."},
+     ]},
      {label:"Day 6 · Octopus 🐙", items:[
        {n:6,emoji:"🐙",title:"Decimals & Money",topic:"Number",time:"45 min",file:"math-lesson-06-octopus.html",desc:"Decimal place value, octopus word problems, aquarium money math, and a decimal speed round."},
      ]},
@@ -214,6 +224,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 7 · Axolotl 🦎", items:[
+       {n:7,emoji:"🦎",title:"Axolotl: The Animal That Rebuilds Itself",topic:"Science",time:"45 min",file:"science-lesson-07-axolotl.html",desc:"Regeneration, neoteny, blastemas, triple breathing, and a regeneration lab step-sequencer."},
+     ]},
      {label:"Day 6 · Octopus 🐙", items:[
        {n:6,emoji:"🐙",title:"Octopus: The Ocean's Superhero",topic:"Science",time:"45 min",file:"science-lesson-06-octopus.html",desc:"3 hearts, blue blood, 9 brains, chromatophore camouflage, jet propulsion, and a defense simulator."},
      ]},
@@ -236,6 +249,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 7 · Axolotl 🦎", items:[
+       {n:7,emoji:"🦎",title:"Axolotl: Axo and the Missing Leg",topic:"Reading",time:"45 min",file:"ela-lesson-07-axolotl.html",desc:"A resilience story with dialogue, 7 vocab words, story elements game, and a personal writing prompt."},
+     ]},
      {label:"Day 6 · Octopus 🐙", items:[
        {n:6,emoji:"🐙",title:"Octopus: The Great Escape of Professor Eight",topic:"Reading",time:"45 min",file:"ela-lesson-06-octopus.html",desc:"A genius octopus plans her escape! 7 vocab words, fact vs. opinion, and an incident-report writing prompt."},
      ]},
@@ -254,6 +270,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 7 · Axolotl 🦎", items:[
+       {n:7,emoji:"🦎",title:"The Water Monster of Mexico City",topic:"Geography",time:"45 min",file:"social-studies-lesson-07-axolotl.html",desc:"Aztec legends, Tenochtitlan, chinampa floating gardens, Lake Xochimilco, and axolotl conservation."},
+     ]},
      {label:"Day 6 · Octopus 🐙", items:[
        {n:6,emoji:"🐙",title:"The Octopus's World (Every Ocean)",topic:"Geography",time:"45 min",file:"social-studies-lesson-06-octopus.html",desc:"Octopuses in every ocean, ocean zones sorter, the mimic octopus of Indonesia, and Inky's famous escape."},
      ]},
@@ -281,6 +300,7 @@ const SUBJECTS=[
        {n:1,emoji:"💻",title:"Intro to Programming",topic:"Coding",time:"60 min",file:"coding-lesson-01-intro.html",desc:"What is code? Variables, if statements, and loops — Boss the Panda Level 1!"},
        {n:2,emoji:"⚡",title:"Level 2: Superpowers (Functions)",topic:"Coding",time:"60 min",file:"coding-lesson-02-functions.html",desc:"Name functions, call them multiple times, use parameters and return values — Boss the Panda Level 2!"},
        {n:3,emoji:"🎒",title:"Level 3: The Stash (Lists)",topic:"Coding",time:"60 min",file:"coding-lesson-03-lists.html",desc:"Pack a stash, grab by index, loop the whole thing, push & pop — Boss the Panda Level 3!"},
+       {n:4,emoji:"⚔️",title:"Level 4: Battle Mode (Random)",topic:"Coding",time:"60 min",file:"coding-lesson-04-random.html",desc:"Dice rolls, fairness proofs, critical hits, and a full boss fight — Boss the Panda Level 4!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

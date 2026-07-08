@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 4 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn.purple{background:var(--purple);border-color:var(--purple);color:#0a0520}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+canvas{display:block;border-radius:14px;margin:0 auto 14px;max-width:100%;border:2px solid var(--line)}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+.dice-box{font-size:64px;text-align:center;margin:14px 0;min-height:80px;transition:.2s}
+.dice-box.rolling{animation:diceShake .1s infinite}
+@keyframes diceShake{0%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}100%{transform:rotate(-8deg)}}
+.result-box{background:var(--panel2);border:2px solid var(--warn);border-radius:12px;padding:20px;text-align:center;margin:12px 0}
+.result-big{font-size:52px;font-weight:900;color:var(--good)}
+.result-label{font-size:14px;color:var(--muted);margin-top:4px}
+.hp-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.hp-name{font-size:15px;font-weight:900;min-width:82px}
+.hp-track{flex:1;height:22px;background:#08090f;border:2px solid var(--line);border-radius:11px;overflow:hidden}
+.hp-fill{height:100%;border-radius:8px;transition:width .4s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:11px;font-weight:900;color:#021008}
+.hp-fill.panda{background:linear-gradient(90deg,#39e07a,#00e5c8)}
+.hp-fill.boss{background:linear-gradient(90deg,#ff5533,#ff4466)}
+.battle-log{background:#08090f;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:14px;line-height:1.8;max-height:150px;overflow-y:auto;font-family:'Courier New',monospace}
+.battle-log .crit{color:var(--warn);font-weight:900}
+.battle-log .hit{color:var(--accent2)}
+.battle-log .miss{color:var(--muted)}
+.tally{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.tally-cell{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:8px 0;text-align:center;flex:1;min-width:44px}
+.tally-cell .tn{font-size:18px;font-weight:900;color:var(--warn)}
+.tally-cell .tc{font-size:16px;font-weight:900;color:var(--accent2)}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 4</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🎲 THE DICE</div>
+  <div class="mtab" onclick="go(2)" id="tab2">📊 PROOF</div>
+  <div class="mtab" onclick="go(3)" id="tab3">⚔️ DAMAGE</div>
+  <div class="mtab" onclick="go(4)" id="tab4">💥 CRITS</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🏆 BOSS FIGHT</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼⚔️</div>
+    <h2 style="font-size:30px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 4: BATTLE MODE</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:380px;margin:0 auto 20px">
+      Commands. Superpowers. The Stash. Now for the secret ingredient of EVERY great game: <strong style="color:var(--ink)">RANDOMNESS</strong>. Dice rolls, critical hits, surprise attacks — today the panda goes to battle.
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:380px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🗺️ Level 4 Missions</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🎲 <strong>The Dice</strong> — make the computer roll</div>
+        <div>📊 <strong>Proof</strong> — is it REALLY random?</div>
+        <div>⚔️ <strong>Damage</strong> — random numbers = attack power</div>
+        <div>💥 <strong>Crits</strong> — if-statements meet randomness</div>
+        <div>🏆 <strong>Boss Fight</strong> — the full battle, your code</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">ENTER BATTLE MODE 🔥</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — THE DICE -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 1 of 5</div>
+    <div class="mission-title">🎲 Make the Computer Roll</div>
+    <div class="mission-brief">Computers can pick a number NOBODY can predict — not even the programmer. That's what random() does. Roll the dice 5 times and watch: can you guess the next one? (You can't. That's the point!)</div>
+  </div>
+
+  <div class="code-block"><span class="kw">let</span> roll = random(<span class="num">1</span>, <span class="num">6</span>);  <span class="cm">// pick 1,2,3,4,5 or 6 — surprise me!</span></div>
+
+  <div class="dice-box" id="diceFace">🎲</div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn fire xl" onclick="rollDice()">🎲 ROLL!</button>
+  </div>
+  <div style="text-align:center;font-size:14px;color:var(--muted)">Rolls so far: <span id="rollHistory" style="color:var(--warn);font-weight:900;font-size:17px;letter-spacing:.15em"></span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    Every roll is a surprise — even to the computer's programmer! <strong style="color:var(--accent2)">random(1, 6)</strong> means "pick any whole number from 1 to 6." Random numbers power dice games, shuffled playlists, loot drops, and every "critical hit" in every game you've ever played.
+  </div>
+
+  <div class="complete-banner" id="m1done">
+    <div style="font-size:34px">🎲</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">5 rolls — did you predict ANY of them?</div>
+    <button class="btn go" style="margin-top:10px" onclick="go1Complete()">NEXT MISSION →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — PROOF -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 2 of 5</div>
+    <div class="mission-title">📊 Prove It's Fair</div>
+    <div class="mission-brief">If the dice are REALLY random, every number should come up about the same amount... eventually. Let's roll 100 times in one click (that's a LOOP doing the work) and count what happens.</div>
+  </div>
+
+  <div class="code-block"><span class="kw">let</span> counts = [<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>];  <span class="cm">// a LIST! (Level 3 skills)</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < <span class="num">100</span>; i++) {   <span class="cm">// a LOOP! (Level 1 skills)</span>
+  <span class="kw">let</span> roll = random(<span class="num">1</span>, <span class="num">6</span>);
+  counts[roll - <span class="num">1</span>] = counts[roll - <span class="num">1</span>] + <span class="num">1</span>;
+}</div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn fire" onclick="roll100()">▶ ROLL 100 TIMES</button>
+    <button class="btn ghost" onclick="resetTally()">↺ Reset</button>
+  </div>
+
+  <div class="sec">The tally:</div>
+  <div class="tally" id="tally"></div>
+  <div style="text-align:center;font-size:14px;color:var(--muted)">Total rolls: <span id="totalRolls" style="color:var(--warn);font-weight:900">0</span></div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    No number "wins" forever — with enough rolls they all land around the same count (~16 each per 100). That's what FAIR randomness looks like. Casinos, game designers, and scientists all check randomness exactly this way: roll a LOT and count.
+  </div>
+
+  <div class="complete-banner" id="m2done">
+    <div style="font-size:34px">📊</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">300 rolls tallied — fairness proven!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go2Complete()">NEXT MISSION →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — DAMAGE -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 3 of 5</div>
+    <div class="mission-title">⚔️ Random = Damage</div>
+    <div class="mission-brief">In games, attacks don't always hit the same — that would be boring! Attack power = a random number. Land 3 attacks on the training dummy and watch the damage change every time.</div>
+  </div>
+
+  <canvas id="c3" style="background:#07090f"></canvas>
+
+  <div class="code-block"><span class="kw">function</span> <span class="fn">attack</span>() {
+  <span class="kw">let</span> damage = random(<span class="num">5</span>, <span class="num">20</span>);   <span class="cm">// 5 to 20 — you never know!</span>
+  <span class="kw">return</span> damage;
+}</div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn fire xl" onclick="doAttack()">⚔️ ATTACK!</button>
+  </div>
+
+  <div class="battle-log" id="log3"><span class="miss">The training dummy awaits...</span></div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    Same button, different damage every time — because <strong style="color:var(--accent2)">random(5, 20)</strong> picks a new number per attack. This tiny trick is why games feel alive: same move, always a little different. It's a FUNCTION (Level 2) with RANDOMNESS (Level 4) inside!
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">⚔️</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">3 hits — every one different!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go3Complete()">NEXT MISSION →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — CRITS -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 4 of 5</div>
+    <div class="mission-title">💥 Critical Hits</div>
+    <div class="mission-brief">Here's the magic combo: random + IF. Roll the crit die — if it lands on 6, your damage DOUBLES with a golden CRIT! Get 2 crits to complete the mission. (Each roll has a 1-in-6 chance...)</div>
+  </div>
+
+  <div class="code-block"><span class="kw">let</span> damage = random(<span class="num">5</span>, <span class="num">20</span>);
+<span class="kw">let</span> critRoll = random(<span class="num">1</span>, <span class="num">6</span>);
+
+<span class="kw">if</span> (critRoll === <span class="num">6</span>) {        <span class="cm">// Level 1 skill: if-statements!</span>
+  damage = damage * <span class="num">2</span>;      <span class="cm">// 💥 CRITICAL HIT — double damage!</span>
+}</div>
+
+  <div class="dice-box" id="critDice">🎲</div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn warn xl" onclick="critAttack()">💥 CRIT ATTACK!</button>
+  </div>
+
+  <div class="battle-log" id="log4"><span class="miss">Roll a 6 on the crit die for DOUBLE damage...</span></div>
+  <div style="text-align:center;font-size:14px;color:var(--muted)">Crits landed: <span id="critCount" style="color:var(--warn);font-weight:900;font-size:17px">0</span> / 2</div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    <strong style="color:var(--accent2)">if (critRoll === 6)</strong> — one line decides whether the hit is normal or LEGENDARY. Random numbers + if-statements = loot drops, shiny Pokémon, enchantment rolls... basically every exciting surprise in every game ever made.
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">💥</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">DOUBLE CRIT! You've mastered the combo.</div>
+    <button class="btn go" style="margin-top:10px" onclick="go4Complete()">FINAL MISSION →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — BOSS FIGHT -->
+<div class="screen" id="sc5">
+  <div class="mission-header">
+    <div class="mission-tag">Mission 5 of 5</div>
+    <div class="mission-title">🏆 The Boss Fight</div>
+    <div class="mission-brief">Everything you've built — functions, randomness, if-statements — powers this battle. The panda vs. the Grumpy Tiger Boss. You call the moves. First to 0 HP loses. Win to complete Level 4!</div>
+  </div>
+
+  <canvas id="c5" style="background:#07090f"></canvas>
+
+  <div class="hp-row"><div class="hp-name">🐼 Panda</div><div class="hp-track"><div class="hp-fill panda" id="hpPanda" style="width:100%">100</div></div></div>
+  <div class="hp-row"><div class="hp-name">🐯 Boss</div><div class="hp-track"><div class="hp-fill boss" id="hpBoss" style="width:100%">100</div></div></div>
+
+  <div class="sec">Your move — each has a different random range:</div>
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn fire" id="mv1" onclick="playerMove('swipe')">🐾 Swipe<br><small style="font-weight:700">random(8-14)</small></button>
+    <button class="btn warn" id="mv2" onclick="playerMove('bamboo')">🎋 Bamboo Bash<br><small style="font-weight:700">random(2-24)</small></button>
+    <button class="btn teal" id="mv3" onclick="playerMove('heal')">💚 Heal<br><small style="font-weight:700">random(6-12)</small></button>
+  </div>
+
+  <div class="battle-log" id="log5"><span class="miss">The Grumpy Tiger Boss appears! Choose your move...</span></div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn ghost" onclick="resetBattle()">↺ New battle</button>
+  </div>
+
+  <div class="discovery" style="margin-top:14px">
+    <strong>Strategy corner:</strong> Swipe is steady (8–14). Bamboo Bash is a gamble (2–24!). Heal gives back 6–12 HP. Randomness means no battle ever plays the same — which move you pick WHEN is the strategy. That's game design!
+  </div>
+
+  <div class="complete-banner" id="m5done">
+    <div style="font-size:34px">🏆</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">BOSS DEFEATED! LEVEL 4 COMPLETE!</div>
+    <p style="margin-top:6px">Functions + lists + loops + ifs + randomness = you just played a game engine YOU understand line by line.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Randomness</div>
+    <div class="mission-brief">10 rounds. +10 XP per correct answer. Prove you own Level 4.</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l4-qans', QKEY='coding-l4-quiz', WKEY='coding-l4-game';
+const PREFIX='Coding|Lesson 4: Random|';
+let xp=0, cur=0;
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800);}
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===2)drawTally();if(n===3)c3Draw();if(n===5)c5Draw();
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+function go1Complete(){showToast('🎲 Mission 1 Done! +20 XP');addXP(20);go(2);}
+function go2Complete(){showToast('📊 Mission 2 Done! +20 XP');addXP(20);go(3);}
+function go3Complete(){showToast('⚔️ Mission 3 Done! +20 XP');addXP(20);go(4);}
+function go4Complete(){showToast('💥 Mission 4 Done! +20 XP');addXP(20);go(5);}
+
+/* ═══ SHARED CANVAS ═══════════════════════════════════════ */
+function drawBg(ctx,w,h){
+  ctx.fillStyle='#07090f';ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#0a1a10';ctx.fillRect(0,h-26,w,26);
+  ctx.fillStyle='#143020';ctx.fillRect(0,h-28,w,4);
+  ctx.fillStyle='#ffffff33';
+  [[30,16],[80,28],[155,10],[240,22],[340,8],[430,24]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();});
+}
+function cvSetup(id){
+  const cv=document.getElementById(id);const ctx=cv.getContext('2d');
+  cv.width=Math.min(480,window.innerWidth-32);cv.height=160;
+  return{cv,ctx,w:cv.width,h:cv.height};
+}
+
+/* ═══ MISSION 1 — THE DICE ════════════════════════════════ */
+const DICE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+let rolls=[];
+let diceRolling=false;
+
+function rollDice(){
+  if(diceRolling)return;
+  diceRolling=true;
+  const box=document.getElementById('diceFace');
+  box.classList.add('rolling');
+  let ticks=0;
+  const spin=setInterval(()=>{
+    box.textContent=DICE[rnd(0,5)];
+    if(++ticks>10){
+      clearInterval(spin);box.classList.remove('rolling');
+      const v=rnd(1,6);
+      box.textContent=DICE[v-1];
+      rolls.push(v);
+      document.getElementById('rollHistory').textContent=rolls.join('  ');
+      diceRolling=false;
+      if(rolls.length===1){addXP(10);showToast('+10 XP');}
+      if(rolls.length>=5){
+        document.getElementById('disc1').style.display='block';
+        document.getElementById('m1done').classList.add('show');
+        if(rolls.length===5){addXP(15);showToast('🎲 5 rolls! +15 XP');}
+      }
+    }
+  },70);
+}
+
+/* ═══ MISSION 2 — PROOF ═══════════════════════════════════ */
+let tallyCounts=[0,0,0,0,0,0];
+let batches=0;
+
+function drawTally(){
+  const total=tallyCounts.reduce((a,b)=>a+b,0);
+  document.getElementById('tally').innerHTML=tallyCounts.map((c,i)=>
+    `<div class="tally-cell"><div class="tn">${DICE[i]}</div><div class="tc">${c}</div></div>`).join('');
+  document.getElementById('totalRolls').textContent=total;
+}
+function roll100(){
+  for(let i=0;i<100;i++){const r=rnd(1,6);tallyCounts[r-1]++;}
+  batches++;
+  drawTally();
+  addXP(10);showToast('+100 rolls! +10 XP');
+  if(batches>=3){
+    document.getElementById('disc2').style.display='block';
+    document.getElementById('m2done').classList.add('show');
+  }
+}
+function resetTally(){tallyCounts=[0,0,0,0,0,0];batches=0;drawTally();document.getElementById('disc2').style.display='none';document.getElementById('m2done').classList.remove('show');}
+
+/* ═══ MISSION 3 — DAMAGE ══════════════════════════════════ */
+let hits=[];
+let dummyShake=0;
+
+function c3Draw(){
+  const {ctx,w,h}=cvSetup('c3');drawBg(ctx,w,h);
+  ctx.font='46px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText('🐼',w*0.25,h-26);
+  const dx=w*0.72+(dummyShake?rnd(-6,6):0);
+  ctx.fillText('🎯',dx,h-26);
+  if(hits.length){
+    ctx.font='bold 15px sans-serif';ctx.fillStyle='#ffcc00';
+    ctx.fillText('-'+hits[hits.length-1],dx,h-86);
+  }
+}
+function doAttack(){
+  const dmg=rnd(5,20);
+  hits.push(dmg);
+  dummyShake=1;c3Draw();setTimeout(()=>{dummyShake=0;c3Draw();},250);
+  const log=document.getElementById('log3');
+  log.innerHTML=hits.map((d,i)=>`<div class="hit">⚔️ Attack ${i+1}: <b>${d} damage!</b>${d>=17?' <span class="crit">HUGE!</span>':d<=7?' <span class="miss">(weak hit)</span>':''}</div>`).join('');
+  log.scrollTop=log.scrollHeight;
+  addXP(8);showToast(`⚔️ ${dmg} damage! +8 XP`);
+  if(hits.length>=3){
+    document.getElementById('disc3').style.display='block';
+    document.getElementById('m3done').classList.add('show');
+  }
+}
+
+/* ═══ MISSION 4 — CRITS ═══════════════════════════════════ */
+let crits=0,critRolling=false;
+
+function critAttack(){
+  if(critRolling)return;
+  critRolling=true;
+  const box=document.getElementById('critDice');
+  box.classList.add('rolling');
+  let ticks=0;
+  const spin=setInterval(()=>{
+    box.textContent=DICE[rnd(0,5)];
+    if(++ticks>9){
+      clearInterval(spin);box.classList.remove('rolling');critRolling=false;
+      let dmg=rnd(5,20);
+      const cr=rnd(1,6);
+      box.textContent=DICE[cr-1];
+      const log=document.getElementById('log4');
+      if(cr===6){
+        dmg*=2;crits++;
+        log.innerHTML+=`<div class="crit">💥💥 CRIT DIE = 6 → CRITICAL HIT! ${dmg/2} × 2 = ${dmg} DAMAGE!</div>`;
+        addXP(20);showToast('💥 CRIT! +20 XP');
+      }else{
+        log.innerHTML+=`<div class="hit">🎲 Crit die = ${cr} (need 6) → normal hit: ${dmg} damage</div>`;
+        addXP(5);
+      }
+      log.scrollTop=log.scrollHeight;
+      document.getElementById('critCount').textContent=Math.min(crits,2);
+      if(crits>=2){
+        document.getElementById('disc4').style.display='block';
+        document.getElementById('m4done').classList.add('show');
+      }
+    }
+  },70);
+}
+
+/* ═══ MISSION 5 — BOSS FIGHT ══════════════════════════════ */
+let pHP=100,bHP=100,battleOver=false,battleAnim=0;
+
+function c5Draw(){
+  const {ctx,w,h}=cvSetup('c5');drawBg(ctx,w,h);
+  ctx.font='46px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(pHP>0?'🐼':'😵',w*0.25+(battleAnim===1?14:0),h-26);
+  ctx.font='52px serif';
+  ctx.fillText(bHP>0?'🐯':'💀',w*0.72+(battleAnim===2?-14:0),h-26);
+  if(battleOver&&bHP<=0){
+    ctx.font='bold 22px sans-serif';ctx.fillStyle='#ffcc00';
+    ctx.fillText('🏆 VICTORY! 🏆',w/2,40);
+  }
+}
+function setHP(){
+  const p=document.getElementById('hpPanda'),b=document.getElementById('hpBoss');
+  p.style.width=Math.max(pHP,0)+'%';p.textContent=Math.max(pHP,0);
+  b.style.width=Math.max(bHP,0)+'%';b.textContent=Math.max(bHP,0);
+}
+function blog(html){const l=document.getElementById('log5');l.innerHTML+='<div>'+html+'</div>';l.scrollTop=l.scrollHeight;}
+function playerMove(mv){
+  if(battleOver)return;
+  let txt='';
+  if(mv==='swipe'){const d=rnd(8,14);bHP-=d;txt=`🐾 Swipe hits for <b class="hit">${d}</b>!`;}
+  else if(mv==='bamboo'){const d=rnd(2,24);bHP-=d;txt=d>=18?`🎋 Bamboo Bash SMASHES for <b class="crit">${d}</b>!!`:d<=5?`🎋 Bamboo Bash flops... only <b class="miss">${d}</b>.`:`🎋 Bamboo Bash hits for <b class="hit">${d}</b>.`;}
+  else{const g=rnd(6,12);pHP=Math.min(100,pHP+g);txt=`💚 Panda heals <b class="hit">+${g}</b> HP!`;}
+  battleAnim=1;setHP();c5Draw();blog(txt);
+  if(bHP<=0){winBattle();return;}
+  setTimeout(bossTurn,600);
+}
+function bossTurn(){
+  if(battleOver)return;
+  battleAnim=2;
+  const roll=rnd(1,6);
+  let d;
+  if(roll===6){d=rnd(15,22);blog(`🐯 <span class="crit">BOSS CRIT!</span> Tiger pounce for <b class="crit">${d}</b>!`);}
+  else{d=rnd(5,12);blog(`🐯 Tiger claws for <b>${d}</b>.`);}
+  pHP-=d;setHP();c5Draw();
+  if(pHP<=0){battleOver=true;blog('<span class="miss">😵 The panda is down... tap New battle to retry!</span>');c5Draw();}
+  setTimeout(()=>{battleAnim=0;c5Draw();},350);
+}
+function winBattle(){
+  battleOver=true;setHP();c5Draw();
+  blog('<span class="crit">🏆 THE BOSS FALLS! VICTORY!</span>');
+  document.getElementById('m5done').classList.add('show');
+  addXP(60);showToast('🏆 BOSS DEFEATED! +60 XP');
+}
+function resetBattle(){
+  pHP=100;bHP=100;battleOver=false;battleAnim=0;setHP();c5Draw();
+  document.getElementById('log5').innerHTML='<span class="miss">The Grumpy Tiger Boss appears! Choose your move...</span>';
+  document.getElementById('m5done').classList.remove('show');
+}
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"What does random(1, 6) do?",o:["Picks a surprise whole number from 1 to 6","Always picks 6","Counts from 1 to 6","Adds 1 + 6"],a:0,e:"random(1, 6) picks any whole number from 1 to 6 — and nobody, not even the programmer, knows which one it will be!"},
+  {q:"Why do games use random numbers?",o:["So the same action feels different every time — surprises keep it exciting","To make the game slower","To save memory","Random numbers are easier to type"],a:0,e:"Without randomness, every attack would do the same damage and every game would play identically. Random = surprise = fun!"},
+  {q:"let damage = random(5, 20);\nWhich damage value is IMPOSSIBLE?",o:["25","5","20","13"],a:0,e:"random(5, 20) only picks numbers from 5 up to 20. It can never give 25 — that's outside the range."},
+  {q:"if (critRoll === 6) { damage = damage * 2; }\nWhat happens when critRoll is 6?",o:["The damage doubles","The damage becomes 6","Nothing happens","The game ends"],a:0,e:"The if-statement checks: is critRoll exactly 6? If yes, damage × 2 — a critical hit!"},
+  {q:"You roll random(1, 6). What are the chances of getting a 6?",o:["1 out of 6","Half the time","Every time","Never"],a:0,e:"Six possible numbers, each equally likely — so a 6 comes up about 1 in every 6 rolls. That's why crits feel special!"},
+  {q:"You rolled a 6 three times in a row. What are the chances the NEXT roll is a 6?",o:["Still 1 out of 6 — the dice don't remember","Almost zero — 6 is 'used up'","100% — it's on a streak","2 out of 6"],a:0,e:"Each roll is independent — the dice have NO memory. Past rolls never change future chances. (This trips up adults constantly!)"},
+  {q:"To roll a die 100 times, the smartest tool is:",o:["A loop","100 copy-pasted lines","100 different variables","A bigger die"],a:0,e:"A loop runs the same code 100 times automatically — that's Level 1 skills powering Level 4!"},
+  {q:"If a die is FAIR and you roll it 600 times, about how many 3s should you expect?",o:["About 100","Exactly 600","About 300","About 6"],a:0,e:"With 6 equally likely numbers, each should appear about 1/6 of the time: 600 ÷ 6 = about 100. That's how we PROVE randomness is fair."},
+  {q:"In the boss fight, Bamboo Bash was random(2, 24) and Swipe was random(8, 14). Which statement is TRUE?",o:["Bamboo Bash is riskier — it can hit harder OR much weaker","Bamboo Bash is always stronger","Swipe is always stronger","They always do the same damage"],a:0,e:"Bamboo Bash has a WIDER range: its best (24) beats Swipe's best (14), but its worst (2) is way below Swipe's worst (8). Wide range = high risk, high reward!"},
+  {q:"Loot drops, shuffled songs, enemy spawns, and critical hits all use:",o:["Random numbers + if-statements","Only lists","Only functions","Magic"],a:0,e:"Random picks the surprise, if-statements decide what happens because of it. You now know the secret behind every game's excitement!"}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 4',q:text,file:'coding-lesson-04-random.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — RNG MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({mission:cur,xp}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAll();});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');if(g.xp)xp=g.xp;document.getElementById('xpNum').textContent=xp;}catch(e){}
+  buildQuiz();restoreQuiz();
+  drawTally();setHP();
+}
+init();
+window.addEventListener('resize',()=>{if(cur===3)c3Draw();if(cur===5)c5Draw();});
+</script>
+</body>
+</html>

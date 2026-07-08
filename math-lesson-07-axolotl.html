@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 7 — Geometry</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.angle-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.angle-type{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:12px;text-align:center;
+}
+.angle-type .at-name{font-weight:700;color:var(--accent2);font-size:15px;margin-top:6px}
+.angle-type .at-rule{font-size:13px;color:var(--muted)}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+.teach-svg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.teach-svg-row{grid-template-columns:1fr}}
+.teach-svg-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:12px;text-align:center;
+}
+.teach-svg-box .tsb-label{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
+.teach-svg-box .tsb-label .hl{color:var(--warn);font-weight:700}
+
+/* ANGLE GAME */
+.angle-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:8px}
+.ag-svg-wrap{display:flex;justify-content:center;margin-bottom:12px}
+.ag-svg-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.ag-prompt{text-align:center;font-size:16px;font-weight:600;margin-bottom:14px}
+.ag-choices{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:480px;margin:0 auto 12px}
+@media(max-width:520px){.ag-choices{grid-template-columns:1fr 1fr}}
+.ag-btn{
+  min-height:48px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;font-weight:700;
+  transition:border-color .12s,background .12s;
+}
+.ag-btn:hover:not(:disabled){border-color:var(--accent2)}
+.ag-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.ag-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.ag-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:460px;margin:0 auto;
+}
+.ag-feedback.show{display:block}
+.ag-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.ag-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.ag-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* PERIMETER/AREA PRACTICE */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.pa-svg-wrap{display:flex;justify-content:center;margin-bottom:12px}
+.pa-svg-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.pa-prompt{text-align:center;font-size:17px;font-weight:600;margin-bottom:12px}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:140px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:460px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:17px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Angles</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Perim &amp; Area</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🦎</div>
+  <h1>Math Day 7 — Geometry</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Axolotl Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick shape questions — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — ANGLES
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>📐 Phase 2 — Know Your Angles <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">An angle is measured in degrees (°). There are 4 kinds you need to know.</p>
+
+  <div class="teach-card">
+    <h3>📋 The Four Angle Types</h3>
+    <div class="angle-types" id="angle-types"></div>
+    <div class="teach-note">
+      Memory trick: <span class="hl">a-CUTE</span> angle is small and cute (less than 90°).
+      A <span class="hl">RIGHT</span> angle makes a perfect corner, exactly 90° — like the corner of a book.
+      <span class="hl">OBTUSE</span> angles are wide open (more than 90° but less than 180°).
+      A <span class="hl">STRAIGHT</span> angle opens all the way flat — exactly 180°, a straight line.
+    </div>
+  </div>
+
+  <div class="angle-game">
+    <span class="ag-label" id="ag-label">Angle 1 of 6</span>
+    <div class="ag-svg-wrap" id="ag-svg"></div>
+    <div class="ag-prompt">What kind of angle is this?</div>
+    <div class="ag-choices" id="ag-choices"></div>
+    <div class="ag-feedback" id="ag-feedback"></div>
+    <div class="ag-nav">
+      <span class="warmup-progress" id="ag-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="ag-next" onclick="agNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="ag-done">✓ Angle expert! You can spot them all.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — PERIMETER & AREA
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>📏 Phase 3 — Perimeter &amp; Area <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">Perimeter goes AROUND. Area COVERS. Learn both, then practice.</p>
+
+  <div class="teach-card">
+    <h3>📋 Two Big Ideas</h3>
+    <div class="teach-svg-row">
+      <div class="teach-svg-box">
+        <svg width="220" height="150" viewBox="0 0 220 150" role="img" aria-label="Rectangle with perimeter highlighted">
+          <rect x="40" y="35" width="140" height="80" fill="none" stroke="#ff7a59" stroke-width="4" stroke-dasharray="10 6"/>
+          <text x="110" y="24" fill="#ffd166" font-size="14" text-anchor="middle" font-weight="700">5</text>
+          <text x="110" y="134" fill="#ffd166" font-size="14" text-anchor="middle" font-weight="700">5</text>
+          <text x="24" y="80" fill="#ffd166" font-size="14" text-anchor="middle" font-weight="700">3</text>
+          <text x="196" y="80" fill="#ffd166" font-size="14" text-anchor="middle" font-weight="700">3</text>
+        </svg>
+        <div class="tsb-label"><span class="hl">PERIMETER</span> = distance around, like a fence around a yard.<br>Add ALL the sides: 5 + 3 + 5 + 3 = <span class="hl">16 units</span></div>
+      </div>
+      <div class="teach-svg-box">
+        <svg width="220" height="150" viewBox="0 0 220 150" role="img" aria-label="Rectangle filled with unit square tiles">
+          <rect x="40" y="35" width="140" height="84" fill="rgba(91,209,196,.18)" stroke="#5bd1c4" stroke-width="3"/>
+          <line x1="68" y1="35" x2="68" y2="119" stroke="#5bd1c4" stroke-width="1"/>
+          <line x1="96" y1="35" x2="96" y2="119" stroke="#5bd1c4" stroke-width="1"/>
+          <line x1="124" y1="35" x2="124" y2="119" stroke="#5bd1c4" stroke-width="1"/>
+          <line x1="152" y1="35" x2="152" y2="119" stroke="#5bd1c4" stroke-width="1"/>
+          <line x1="40" y1="63" x2="180" y2="63" stroke="#5bd1c4" stroke-width="1"/>
+          <line x1="40" y1="91" x2="180" y2="91" stroke="#5bd1c4" stroke-width="1"/>
+          <text x="110" y="24" fill="#ffd166" font-size="14" text-anchor="middle" font-weight="700">5</text>
+          <text x="24" y="82" fill="#ffd166" font-size="14" text-anchor="middle" font-weight="700">3</text>
+        </svg>
+        <div class="tsb-label"><span class="hl">AREA</span> = space covered, like tiles covering a floor.<br>Length × width: 5 × 3 = <span class="hl">15 square units</span></div>
+      </div>
+    </div>
+    <div class="teach-note">
+      <span class="hl">Perimeter</span> is measured in plain units (feet, meters).
+      <span class="hl">Area</span> is measured in SQUARE units (square feet, square meters) — because you're counting little squares!
+      For a square, all 4 sides are equal, so perimeter = 4 × side and area = side × side.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="pa-label">Problem 1 of 5</span>
+    <div class="pa-svg-wrap" id="pa-svg"></div>
+    <div class="pa-prompt" id="pa-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="pa-input" type="text" inputmode="numeric" placeholder="?" autocomplete="off">
+      <button class="btn btn-accent" id="pa-check" onclick="checkPA()">Check</button>
+    </div>
+    <div class="pa-feedback" id="pa-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="pa-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="pa-next" onclick="paNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="pa-done">✓ Perimeter &amp; area mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🌊 Phase 4 — Word Problems at the Canals <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 geometry problems from the axolotl canals of Xochimilco. Type your answer, then reveal the step-by-step solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Great geometry thinking.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SHAPE SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Shape Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 speed problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l7-qans";
+const QKEY  = "math-l7-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 7: Geometry|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 7', q: questionText, file: 'math-lesson-07-axolotl.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// SVG HELPERS (clean shapes only)
+// ═══════════════════════════════════════════════════════════
+// Draw an angle: vertex with one ray going right, one ray rotated
+// counter-clockwise by `deg`. Includes an arc marker (square for 90°).
+function angleSVG(deg, size, color, showLabel) {
+  size = size || 200;
+  color = color || '#5bd1c4';
+  const cx = size * 0.28, cy = size * 0.68, r = size * 0.55;
+  const rad = deg * Math.PI / 180;
+  const x2 = cx + r * Math.cos(rad);
+  const y2 = cy - r * Math.sin(rad);
+  let marker = '';
+  if (deg === 90) {
+    const s = size * 0.11;
+    marker = `<path d="M ${cx + s} ${cy} L ${cx + s} ${cy - s} L ${cx} ${cy - s}" fill="none" stroke="#ffd166" stroke-width="2.5"/>`;
+  } else if (deg < 180) {
+    const ar = size * 0.14;
+    const ax = cx + ar, ay = cy;
+    const bx = cx + ar * Math.cos(rad), by = cy - ar * Math.sin(rad);
+    const large = deg > 180 ? 1 : 0;
+    marker = `<path d="M ${ax} ${ay} A ${ar} ${ar} 0 ${large} 0 ${bx} ${by}" fill="none" stroke="#ffd166" stroke-width="2.5"/>`;
+  } else {
+    // straight angle: half-circle arc
+    const ar = size * 0.12;
+    marker = `<path d="M ${cx + ar} ${cy} A ${ar} ${ar} 0 0 0 ${cx - ar} ${cy}" fill="none" stroke="#ffd166" stroke-width="2.5"/>`;
+  }
+  const label = showLabel ? `<text x="${cx + size*0.24}" y="${cy - size*0.24}" fill="#ffd166" font-size="${size*0.09}" font-weight="700">${deg}°</text>` : '';
+  return `<svg width="${size}" height="${size*0.8}" viewBox="0 0 ${size} ${size*0.8}" role="img" aria-label="An angle drawing">
+    <line x1="${cx}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="${color}" stroke-width="4" stroke-linecap="round"/>
+    <line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="4.5" fill="${color}"/>
+    ${marker}${label}
+  </svg>`;
+}
+
+// Draw a labeled rectangle (w x h in "units", scaled to fit).
+function rectSVG(w, h, isSquare) {
+  const maxW = 260, maxH = 150;
+  const scale = Math.min((maxW - 60) / w, (maxH - 50) / h);
+  const rw = w * scale, rh = h * scale;
+  const x = (maxW - rw) / 2 + 6, y = (maxH - rh) / 2 + 6;
+  const sideLabel = isSquare
+    ? `<text x="${x + rw/2}" y="${y - 10}" fill="#ffd166" font-size="16" text-anchor="middle" font-weight="700">${w}</text>`
+    : `<text x="${x + rw/2}" y="${y - 10}" fill="#ffd166" font-size="16" text-anchor="middle" font-weight="700">${w}</text>
+       <text x="${x - 14}" y="${y + rh/2 + 5}" fill="#ffd166" font-size="16" text-anchor="middle" font-weight="700">${h}</text>`;
+  return `<svg width="${maxW}" height="${maxH + 12}" viewBox="0 0 ${maxW} ${maxH + 12}" role="img" aria-label="A ${w} by ${h} ${isSquare ? 'square' : 'rectangle'}">
+    <rect x="${x}" y="${y}" width="${rw}" height="${rh}" fill="rgba(91,209,196,.12)" stroke="#5bd1c4" stroke-width="3" rx="2"/>
+    ${sideLabel}
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean shapes)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "How many degrees are in a right angle?",
+    choices: ["45°", "90°", "180°", "360°"],
+    correct: 1,
+    explain: "A right angle is exactly 90° — a perfect square corner, like the corner of a piece of paper."
+  },
+  {
+    q: "A triangle has how many sides?",
+    choices: ["2", "3", "4", "5"],
+    correct: 1,
+    explain: "TRI means three — a triangle has 3 sides and 3 angles."
+  },
+  {
+    q: "Which shape has 4 equal sides and 4 right angles?",
+    choices: ["Triangle", "Circle", "Square", "Pentagon"],
+    correct: 2,
+    explain: "A square has 4 equal sides and 4 perfect 90° corners."
+  },
+  {
+    q: "The distance AROUND a shape is called:",
+    choices: ["Area", "Volume", "Angle", "Perimeter"],
+    correct: 3,
+    explain: "Perimeter is the distance around the outside — like walking the fence line of a yard."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — ANGLE TYPES TEACHING + GAME (clean shapes)
+// ═══════════════════════════════════════════════════════════
+const angleTypes = [
+  { name: "ACUTE",    rule: "less than 90°",   demo: 50 },
+  { name: "RIGHT",    rule: "exactly 90°",     demo: 90 },
+  { name: "OBTUSE",   rule: "more than 90°",   demo: 130 },
+  { name: "STRAIGHT", rule: "exactly 180°",    demo: 180 }
+];
+
+function buildAngleTeach() {
+  const wrap = document.getElementById('angle-types');
+  wrap.innerHTML = '';
+  angleTypes.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'angle-type';
+    div.innerHTML = angleSVG(t.demo, 120, '#5bd1c4', true) +
+      '<div class="at-name">' + t.name + '</div>' +
+      '<div class="at-rule">' + t.rule + '</div>';
+    wrap.appendChild(div);
+  });
+}
+
+const agAngles = [
+  { deg: 30,  type: 0 },
+  { deg: 90,  type: 1 },
+  { deg: 120, type: 2 },
+  { deg: 180, type: 3 },
+  { deg: 60,  type: 0 },
+  { deg: 145, type: 2 }
+];
+const agNames = ["ACUTE", "RIGHT", "OBTUSE", "STRAIGHT"];
+const agWhy = [
+  "is less than 90°, so it's acute — small and cute!",
+  "is exactly 90° — a perfect square corner. Right angle!",
+  "is more than 90° but less than 180° — wide open. Obtuse!",
+  "is exactly 180° — a completely flat, straight line."
+];
+
+let agIdx = 0;
+let agCorrect = 0;
+let agAnswered = false;
+
+function renderAG() {
+  const item = agAngles[agIdx];
+  document.getElementById('ag-label').textContent = 'Angle ' + (agIdx+1) + ' of 6';
+  document.getElementById('ag-svg').innerHTML = angleSVG(item.deg, 220, '#5bd1c4', false);
+  const fb = document.getElementById('ag-feedback');
+  fb.className = 'ag-feedback';
+  fb.textContent = '';
+  document.getElementById('ag-next').classList.add('hidden');
+  agAnswered = false;
+
+  const choicesEl = document.getElementById('ag-choices');
+  choicesEl.innerHTML = '';
+  agNames.forEach((name, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ag-btn';
+    btn.textContent = name;
+    btn.onclick = () => answerAG(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('ag-progress').textContent = agCorrect + ' / 6 correct so far';
+}
+
+function answerAG(idx) {
+  if (agAnswered) return;
+  agAnswered = true;
+  const item = agAngles[agIdx];
+  const btns = document.querySelectorAll('#ag-choices .ag-btn');
+  const fb = document.getElementById('ag-feedback');
+  const correct = idx === item.type;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.type) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  // Reveal the degree measure
+  document.getElementById('ag-svg').innerHTML = angleSVG(item.deg, 220, '#5bd1c4', true);
+  if (correct) {
+    agCorrect++;
+    fb.className = 'ag-feedback show ok';
+    fb.textContent = '✓ Yes! This angle is ' + item.deg + '° — it ' + agWhy[item.type];
+  } else {
+    fb.className = 'ag-feedback show no';
+    fb.textContent = '✗ This angle is ' + item.deg + '°. It ' + agWhy[item.type];
+  }
+  document.getElementById('ag-progress').textContent = agCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('ag-next');
+  nextBtn.classList.remove('hidden');
+  if (agIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishAG;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = agNext;
+  }
+}
+
+function agNext() {
+  agIdx++;
+  if (agIdx < 6) renderAG();
+}
+
+function finishAG() {
+  document.getElementById('ag-done').classList.add('show');
+  document.getElementById('ag-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — PERIMETER & AREA PRACTICE (clean shapes)
+// ═══════════════════════════════════════════════════════════
+const paProblems = [
+  { w: 8, h: 3, square: false, ask: "perimeter", answer: 22,
+    hint: "Add all four sides: 8 + 3 + 8 + 3 = 22 units." },
+  { w: 8, h: 3, square: false, ask: "area", answer: 24,
+    hint: "Multiply length × width: 8 × 3 = 24 square units." },
+  { w: 6, h: 6, square: true, ask: "perimeter", answer: 24,
+    hint: "A square has 4 equal sides: 6 + 6 + 6 + 6 = 24 units (or 4 × 6)." },
+  { w: 6, h: 6, square: true, ask: "area", answer: 36,
+    hint: "Side × side: 6 × 6 = 36 square units." },
+  { w: 12, h: 5, square: false, ask: "area", answer: 60,
+    hint: "Length × width: 12 × 5 = 60 square units." }
+];
+
+let paIdx = 0;
+let paCorrect = 0;
+let paAnswered = false;
+
+function renderPA() {
+  const p = paProblems[paIdx];
+  document.getElementById('pa-label').textContent = 'Problem ' + (paIdx+1) + ' of 5';
+  document.getElementById('pa-svg').innerHTML = rectSVG(p.w, p.h, p.square);
+  const shapeName = p.square ? 'square (side ' + p.w + ')' : p.w + ' × ' + p.h + ' rectangle';
+  const unit = p.ask === 'area' ? 'square units' : 'units';
+  document.getElementById('pa-prompt').innerHTML =
+    'What is the <span class="hl">' + p.ask.toUpperCase() + '</span> of this ' + shapeName + '? <span style="color:var(--muted);font-size:13px">(in ' + unit + ')</span>';
+  const inp = document.getElementById('pa-input');
+  inp.value = '';
+  inp.className = 'pa-input';
+  inp.disabled = false;
+  const fb = document.getElementById('pa-feedback');
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  document.getElementById('pa-check').disabled = false;
+  document.getElementById('pa-next').classList.add('hidden');
+  paAnswered = false;
+  document.getElementById('pa-progress').textContent = paCorrect + ' / 5 correct so far';
+}
+
+function checkPA() {
+  if (paAnswered) return;
+  const p = paProblems[paIdx];
+  const inp = document.getElementById('pa-input');
+  const raw = inp.value.trim().replace(/[^\d.]/g, '');
+  if (raw === '') { inp.focus(); return; }
+  paAnswered = true;
+  const val = parseFloat(raw);
+  const correct = val === p.answer;
+  const fb = document.getElementById('pa-feedback');
+  const unit = p.ask === 'area' ? 'square units' : 'units';
+  inp.disabled = true;
+  document.getElementById('pa-check').disabled = true;
+  if (correct) {
+    paCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.answer + ' ' + unit + '. ' + p.hint;
+  }
+  document.getElementById('pa-progress').textContent = paCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('pa-next');
+  nextBtn.classList.remove('hidden');
+  if (paIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishPA;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = paNext;
+  }
+}
+
+function paNext() {
+  paIdx++;
+  if (paIdx < 5) renderPA();
+}
+
+function finishPA() {
+  document.getElementById('pa-done').classList.add('show');
+  document.getElementById('pa-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (axolotl data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A scientist builds a rectangular axolotl refuge tank <strong>6 feet long</strong> and <strong>4 feet wide</strong>. What is the <strong>perimeter</strong> of the tank?",
+    solution: [
+      {label:"Plan", text:"Perimeter = add ALL four sides of the rectangle."},
+      {label:"Solve", math:"6 + 4 + 6 + 4 = 20 feet"},
+      {label:"Answer", text:"The perimeter of the tank is 20 feet."},
+      {label:"Check", text:"Shortcut: 2 × (6 + 4) = 2 × 10 = 20 ✓"}
+    ]
+  },
+  {
+    text: "The same <strong>6 ft × 4 ft</strong> tank needs a mesh cover for the top. What <strong>area</strong> must the cover be?",
+    solution: [
+      {label:"Plan", text:"Area of a rectangle = length × width."},
+      {label:"Solve", math:"6 × 4 = 24 square feet"},
+      {label:"Answer", text:"The cover must be 24 square feet."},
+      {label:"Check", text:"Picture 4 rows of 6 tiles: 6 + 6 + 6 + 6 = 24 ✓"}
+    ]
+  },
+  {
+    text: "A chinampa (floating garden plot) is a rectangle <strong>30 meters long</strong> and <strong>10 meters wide</strong>. A farmer walks all the way around it. How far does he walk?",
+    solution: [
+      {label:"Plan", text:"Walking all the way around = the PERIMETER. Add all four sides."},
+      {label:"Solve", math:"30 + 10 + 30 + 10 = 80 meters"},
+      {label:"Answer", text:"He walks 80 meters."},
+      {label:"Check", text:"Shortcut: 2 × (30 + 10) = 2 × 40 = 80 ✓"}
+    ]
+  },
+  {
+    text: "That same <strong>30 m × 10 m</strong> chinampa is planted with flowers. What is the <strong>planting area</strong>?",
+    solution: [
+      {label:"Plan", text:"Area covered by flowers = length × width."},
+      {label:"Solve", math:"30 × 10 = 300 square meters"},
+      {label:"Answer", text:"The planting area is 300 square meters."},
+      {label:"Check", text:"3 × 1 = 3, then add the two zeros: 300 ✓"}
+    ]
+  },
+  {
+    text: "A canal refuge section is a rectangle with an <strong>area of 48 square meters</strong>. If it is <strong>8 meters long</strong>, how <strong>wide</strong> is it?",
+    solution: [
+      {label:"Plan", text:"Area = length × width, so width = area ÷ length. Work backwards!"},
+      {label:"Solve", math:"48 ÷ 8 = 6 meters"},
+      {label:"Answer", text:"The refuge section is 6 meters wide."},
+      {label:"Check", text:"8 × 6 = 48 square meters ✓"}
+    ]
+  },
+  {
+    text: "A square observation deck beside the canal has a <strong>perimeter of 36 feet</strong>. How long is <strong>each side</strong>?",
+    solution: [
+      {label:"Plan", text:"A square has 4 EQUAL sides, so each side = perimeter ÷ 4."},
+      {label:"Solve", math:"36 ÷ 4 = 9 feet"},
+      {label:"Answer", text:"Each side of the deck is 9 feet long."},
+      {label:"Check", text:"9 + 9 + 9 + 9 = 36 ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SHAPE SPEED ROUND (clean shapes)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"An angle of 45° is:", choices:["Acute","Right","Obtuse","Straight"], correct:0 },
+  { q:"An angle of 170° is:", choices:["Acute","Right","Obtuse","Straight"], correct:2 },
+  { q:"Perimeter of a 5 × 2 rectangle?", choices:["10","14","7","12"], correct:1 },
+  { q:"Area of a 5 × 2 rectangle?", choices:["14","7","10","25"], correct:2 },
+  { q:"Perimeter of a square with side 7?", choices:["14","49","21","28"], correct:3 },
+  { q:"Area of a square with side 9?", choices:["81","36","18","90"], correct:0 },
+  { q:"A triangle with a 90° angle is called:", choices:["An acute triangle","A right triangle","An obtuse triangle","A square"], correct:1 },
+  { q:"How many degrees in a straight line?", choices:["90°","100°","180°","360°"], correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "An angle smaller than 90° is:",
+    opts: ["Acute", "Right", "Obtuse", "Straight"],
+    correct: 0,
+    explain: "Angles less than 90° are acute — small and cute!"
+  },
+  {
+    q: "Area of a 7 × 4 rectangle?",
+    opts: ["22 square units", "11 square units", "28 square units", "24 square units"],
+    correct: 2,
+    explain: "Area = length × width: 7 × 4 = 28 square units."
+  },
+  {
+    q: "Perimeter of a 7 × 4 rectangle?",
+    opts: ["28 units", "22 units", "11 units", "24 units"],
+    correct: 1,
+    explain: "Add all four sides: 7 + 4 + 7 + 4 = 22 units."
+  },
+  {
+    q: "A tank is 5 ft × 3 ft. Its perimeter is:",
+    opts: ["15 feet", "8 feet", "18 feet", "16 feet"],
+    correct: 3,
+    explain: "5 + 3 + 5 + 3 = 16 feet. (Shortcut: 2 × (5 + 3) = 16)"
+  },
+  {
+    q: "A rectangle has area 40 and length 8. Its width is:",
+    opts: ["32", "5", "48", "4"],
+    correct: 1,
+    explain: "Width = area ÷ length: 40 ÷ 8 = 5. Check: 8 × 5 = 40 ✓"
+  },
+  {
+    q: "A square has perimeter 20. Each side is:",
+    opts: ["4", "10", "5", "16"],
+    correct: 2,
+    explain: "A square has 4 equal sides: 20 ÷ 4 = 5. Check: 5 + 5 + 5 + 5 = 20 ✓"
+  },
+  {
+    q: "An angle of exactly 90° is:",
+    opts: ["An acute angle", "A right angle", "An obtuse angle", "A straight angle"],
+    correct: 1,
+    explain: "Exactly 90° is a right angle — a perfect square corner."
+  },
+  {
+    q: "Which unit is used for AREA?",
+    opts: ["Meters", "Degrees", "Square meters", "Feet"],
+    correct: 2,
+    explain: "Area counts little squares, so it's measured in SQUARE units like square meters."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Angles, perimeter, AND area — you nailed them all.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your geometry skills are looking sharp.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the angle chart and perimeter/area practice, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  buildAngleTeach();
+  renderAG();
+  renderPA();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+
+  document.getElementById('pa-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPA();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
