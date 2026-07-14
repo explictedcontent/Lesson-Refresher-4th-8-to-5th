@@ -58,6 +58,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Level 2 (`coding-lesson-02-functions.html`): define functions, call them, parameters, return values
 - Level 3 (`coding-lesson-03-lists.html`): lists/arrays — build, index access, loop, push/pop
 - Level 4 (`coding-lesson-04-random.html`): random numbers — dice, fairness, crits, boss fight
+- Level 5 (`coding-lesson-05-objects.html`): objects/properties — build a character sheet, read/change stats, squad of objects
 
 ## Day themes (completed)
 - Day 2: Red Panda 🐾
@@ -66,11 +67,12 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Day 5: Sea Turtle 🐢
 - Day 6: Octopus 🐙
 - Day 7: Axolotl 🦎
+- Day 8: Peregrine Falcon 🦅
 
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 1838KB, 48 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 2052KB, 53 lessons)
 Uses inline injection (not iframe) for iOS Safari compatibility.
 
 ## Committing

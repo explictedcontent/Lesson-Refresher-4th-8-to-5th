@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 8 — Rate & Speed</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* RATE FORMULA BOXES */
+.rate-formulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.rate-formula{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.rate-formula .rf-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.rate-formula .rf-eq{font-size:15px;color:var(--warn);font-weight:700}
+
+/* TRIANGLE DIAGRAM */
+.tri-wrap{display:flex;justify-content:center;margin:6px 0 4px}
+.tri-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+
+/* ALGORITHM WORKED EXAMPLE */
+.algo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.algo-row{grid-template-columns:1fr}}
+.algo-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px;
+}
+.algo-box .ab-title{font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px}
+.algo-work{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:16px;line-height:1.7;white-space:pre;color:var(--ink);
+  background:var(--panel2);border-radius:8px;padding:10px 12px;overflow-x:auto;
+}
+.algo-work .hl{color:var(--warn);font-weight:700}
+.algo-step{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* INPUT PRACTICE GAME (rate + multiply/divide) */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:14px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:150px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:500px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Rate &amp; Speed</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. × &amp; ÷</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🦅</div>
+  <h1>Math Day 8 — Rate & Speed</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Peregrine Falcon Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick math questions — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — RATE & SPEED
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🚀 Phase 2 — Rate & Speed <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">A RATE tells how much of one thing happens in each unit of another — like miles in each hour.</p>
+
+  <div class="teach-card">
+    <h3>📋 The Distance–Speed–Time Triangle</h3>
+    <div class="tri-wrap">
+      <svg width="240" height="180" viewBox="0 0 240 180" role="img" aria-label="Distance over speed times time triangle">
+        <polygon points="120,20 30,160 210,160" fill="none" stroke="#5bd1c4" stroke-width="3"/>
+        <line x1="30" y1="90" x2="210" y2="90" stroke="#5bd1c4" stroke-width="2"/>
+        <line x1="120" y1="90" x2="120" y2="160" stroke="#5bd1c4" stroke-width="2"/>
+        <text x="120" y="70" fill="#ffd166" font-size="22" text-anchor="middle" font-weight="700">D</text>
+        <text x="80" y="138" fill="#ffd166" font-size="22" text-anchor="middle" font-weight="700">S</text>
+        <text x="160" y="138" fill="#ffd166" font-size="22" text-anchor="middle" font-weight="700">T</text>
+        <text x="228" y="86" fill="#a7adc4" font-size="11" text-anchor="end">Distance</text>
+        <text x="76" y="176" fill="#a7adc4" font-size="11" text-anchor="middle">Speed</text>
+        <text x="164" y="176" fill="#a7adc4" font-size="11" text-anchor="middle">Time</text>
+      </svg>
+    </div>
+    <div class="rate-formulas">
+      <div class="rate-formula">
+        <div class="rf-name">Find SPEED</div>
+        <div class="rf-eq">speed = distance ÷ time</div>
+      </div>
+      <div class="rate-formula">
+        <div class="rf-name">Find DISTANCE</div>
+        <div class="rf-eq">distance = speed × time</div>
+      </div>
+      <div class="rate-formula">
+        <div class="rf-name">Find TIME</div>
+        <div class="rf-eq">time = distance ÷ speed</div>
+      </div>
+    </div>
+    <div class="teach-note">
+      Cover the letter you want to find in the triangle. <span class="hl">D</span> is on top, so
+      <span class="hl">S</span> and <span class="hl">T</span> sit side by side underneath.
+      Cover <span class="hl">D</span> → you see S next to T → multiply: <span class="hl">D = S × T</span>.
+      Cover <span class="hl">S</span> → you see D over T → divide: <span class="hl">S = D ÷ T</span>.
+      Cover <span class="hl">T</span> → you see D over S → divide: <span class="hl">T = D ÷ S</span>.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="rt-label">Problem 1 of 6</span>
+    <div class="pa-prompt" id="rt-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="rt-input" type="text" inputmode="numeric" placeholder="?" autocomplete="off">
+      <button class="btn btn-accent" id="rt-check" onclick="checkRT()">Check</button>
+    </div>
+    <div class="pa-feedback" id="rt-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="rt-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="rt-next" onclick="rtNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="rt-done">✓ Rate & speed mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — MULTIPLY & DIVIDE
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>✖️ Phase 3 — Multiply & Divide <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">The standard algorithm lets you multiply and divide BIG numbers, one place at a time.</p>
+
+  <div class="teach-card">
+    <h3>📋 Two Worked Examples</h3>
+    <div class="algo-row">
+      <div class="algo-box">
+        <div class="ab-title">2-digit × 2-digit: 34 × 12</div>
+        <div class="algo-work">   3 4
+ ×  1 2
+ ------
+   6 8   <span class="hl">← 34 × 2</span>
+ 3 4 0   <span class="hl">← 34 × 10</span>
+ ------
+ 4 0 8</div>
+        <div class="algo-step">Multiply by the ones digit (2), then the tens digit (10). Add a 0 in the tens row, then add both lines: 68 + 340 = <span style="color:var(--warn);font-weight:700">408</span>.</div>
+      </div>
+      <div class="algo-box">
+        <div class="ab-title">Long division: 156 ÷ 6</div>
+        <div class="algo-work">    2 6
+   -----
+ 6 ) 1 5 6
+    -1 2
+    ----
+      3 6
+     -3 6
+     ----
+        0</div>
+        <div class="algo-step">6 goes into 15 two times (12), remainder 3. Bring down the 6 → 36. 6 goes into 36 six times. Answer: <span style="color:var(--warn);font-weight:700">26</span>, no remainder.</div>
+      </div>
+    </div>
+    <div class="teach-note">
+      For multiplication, <span class="hl">line up the places</span> and always add a 0 when you multiply by the tens digit.
+      For division, work <span class="hl">left to right</span>: divide, multiply, subtract, bring down — then repeat.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="md-label">Problem 1 of 5</span>
+    <div class="pa-prompt" id="md-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="md-input" type="text" inputmode="numeric" placeholder="?" autocomplete="off">
+      <button class="btn btn-accent" id="md-check" onclick="checkMD()">Check</button>
+    </div>
+    <div class="pa-feedback" id="md-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="md-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="md-next" onclick="mdNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="md-done">✓ Multi-digit multiply & divide mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🦅 Phase 4 — Falcon Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems about the fastest animal on Earth. Type your answer, then reveal the step-by-step solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Great rate thinking.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 speed problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l8-qans";
+const QKEY  = "math-l8-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 8: Rate & Speed|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 8', q: questionText, file: 'math-lesson-08-falcon.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "6 × 8 = ?",
+    choices: ["42", "48", "54", "56"],
+    correct: 1,
+    explain: "6 × 8 = 48. (Think 6 eights: 8, 16, 24, 32, 40, 48.)"
+  },
+  {
+    q: "240 ÷ 4 = ?",
+    choices: ["40", "60", "80", "24"],
+    correct: 1,
+    explain: "240 ÷ 4 = 60. (Because 4 × 60 = 240.)"
+  },
+  {
+    q: "12 × 10 = ?",
+    choices: ["112", "120", "1200", "22"],
+    correct: 1,
+    explain: "Multiplying by 10 adds a zero: 12 × 10 = 120."
+  },
+  {
+    q: "If you go 50 miles each hour for 3 hours, how far do you travel?",
+    choices: ["53 miles", "100 miles", "150 miles", "15 miles"],
+    correct: 2,
+    explain: "Distance = speed × time: 50 × 3 = 150 miles."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — RATE & SPEED PRACTICE (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const rtProblems = [
+  { prompt: '60 miles in 2 hours = ? <span class="hl">miles per hour</span>', answer: 30, unit: 'mph',
+    hint: 'Speed = distance ÷ time: 60 ÷ 2 = 30 mph.' },
+  { prompt: '40 mph for 3 hours = ? <span class="hl">miles</span>', answer: 120, unit: 'miles',
+    hint: 'Distance = speed × time: 40 × 3 = 120 miles.' },
+  { prompt: '100 miles at 25 mph = ? <span class="hl">hours</span>', answer: 4, unit: 'hours',
+    hint: 'Time = distance ÷ speed: 100 ÷ 25 = 4 hours.' },
+  { prompt: '200 miles in 4 hours = ? <span class="hl">mph</span>', answer: 50, unit: 'mph',
+    hint: 'Speed = distance ÷ time: 200 ÷ 4 = 50 mph.' },
+  { prompt: '15 mph for 6 hours = ? <span class="hl">miles</span>', answer: 90, unit: 'miles',
+    hint: 'Distance = speed × time: 15 × 6 = 90 miles.' },
+  { prompt: '300 miles at 60 mph = ? <span class="hl">hours</span>', answer: 5, unit: 'hours',
+    hint: 'Time = distance ÷ speed: 300 ÷ 60 = 5 hours.' }
+];
+
+let rtIdx = 0, rtCorrect = 0, rtAnswered = false;
+
+function renderRT() {
+  const p = rtProblems[rtIdx];
+  document.getElementById('rt-label').textContent = 'Problem ' + (rtIdx+1) + ' of 6';
+  document.getElementById('rt-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('rt-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('rt-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('rt-check').disabled = false;
+  document.getElementById('rt-next').classList.add('hidden');
+  rtAnswered = false;
+  document.getElementById('rt-progress').textContent = rtCorrect + ' / 6 correct so far';
+}
+
+function checkRT() {
+  if (rtAnswered) return;
+  const p = rtProblems[rtIdx];
+  const inp = document.getElementById('rt-input');
+  const raw = inp.value.trim().replace(/[^\d.]/g, '');
+  if (raw === '') { inp.focus(); return; }
+  rtAnswered = true;
+  const val = parseFloat(raw);
+  const correct = val === p.answer;
+  const fb = document.getElementById('rt-feedback');
+  inp.disabled = true;
+  document.getElementById('rt-check').disabled = true;
+  if (correct) {
+    rtCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.answer + ' ' + p.unit + '. ' + p.hint;
+  }
+  document.getElementById('rt-progress').textContent = rtCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('rt-next');
+  nextBtn.classList.remove('hidden');
+  if (rtIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishRT;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = rtNext;
+  }
+}
+
+function rtNext() {
+  rtIdx++;
+  if (rtIdx < 6) renderRT();
+}
+
+function finishRT() {
+  document.getElementById('rt-done').classList.add('show');
+  document.getElementById('rt-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — MULTIPLY & DIVIDE PRACTICE (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const mdProblems = [
+  { prompt: '23 × 4 = ?', answer: 92,
+    hint: '20 × 4 = 80, and 3 × 4 = 12. 80 + 12 = 92.' },
+  { prompt: '34 × 12 = ?', answer: 408,
+    hint: '34 × 2 = 68, and 34 × 10 = 340. 68 + 340 = 408.' },
+  { prompt: '156 ÷ 6 = ?', answer: 26,
+    hint: '6 into 15 is 2 (12, remainder 3). Bring down 6 → 36. 6 into 36 is 6. Answer 26.' },
+  { prompt: '45 × 20 = ?', answer: 900,
+    hint: '45 × 2 = 90, then add a zero for the 20: 900.' },
+  { prompt: '288 ÷ 8 = ?', answer: 36,
+    hint: '8 into 28 is 3 (24, remainder 4). Bring down 8 → 48. 8 into 48 is 6. Answer 36.' }
+];
+
+let mdIdx = 0, mdCorrect = 0, mdAnswered = false;
+
+function renderMD() {
+  const p = mdProblems[mdIdx];
+  document.getElementById('md-label').textContent = 'Problem ' + (mdIdx+1) + ' of 5';
+  document.getElementById('md-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('md-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('md-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('md-check').disabled = false;
+  document.getElementById('md-next').classList.add('hidden');
+  mdAnswered = false;
+  document.getElementById('md-progress').textContent = mdCorrect + ' / 5 correct so far';
+}
+
+function checkMD() {
+  if (mdAnswered) return;
+  const p = mdProblems[mdIdx];
+  const inp = document.getElementById('md-input');
+  const raw = inp.value.trim().replace(/[^\d.]/g, '');
+  if (raw === '') { inp.focus(); return; }
+  mdAnswered = true;
+  const val = parseFloat(raw);
+  const correct = val === p.answer;
+  const fb = document.getElementById('md-feedback');
+  inp.disabled = true;
+  document.getElementById('md-check').disabled = true;
+  if (correct) {
+    mdCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.answer + '. ' + p.hint;
+  }
+  document.getElementById('md-progress').textContent = mdCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('md-next');
+  nextBtn.classList.remove('hidden');
+  if (mdIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishMD;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = mdNext;
+  }
+}
+
+function mdNext() {
+  mdIdx++;
+  if (mdIdx < 5) renderMD();
+}
+
+function finishMD() {
+  document.getElementById('md-done').classList.add('show');
+  document.getElementById('md-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (falcon data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A peregrine falcon dives at <strong>240 miles per hour</strong>. How far would it travel in <strong>2 hours</strong> at that speed?",
+    solution: [
+      {label:"Plan", text:"Distance = speed × time."},
+      {label:"Solve", math:"240 × 2 = 480 miles"},
+      {label:"Answer", text:"It would travel 480 miles."},
+      {label:"Check", text:"240 + 240 = 480 ✓"}
+    ]
+  },
+  {
+    text: "A migrating falcon flies <strong>3,000 miles</strong> over <strong>15 days</strong>, the same distance each day. How many <strong>miles per day</strong> is that?",
+    solution: [
+      {label:"Plan", text:"A 'per day' rate means divide the total by the number of days."},
+      {label:"Solve", math:"3,000 ÷ 15 = 200 miles per day"},
+      {label:"Answer", text:"It flies 200 miles each day."},
+      {label:"Check", text:"200 × 15 = 3,000 ✓"}
+    ]
+  },
+  {
+    text: "A falcon's dive covers <strong>1,200 feet</strong> in <strong>6 seconds</strong>. How many <strong>feet per second</strong> is that?",
+    solution: [
+      {label:"Plan", text:"Speed = distance ÷ time. Here time is in seconds."},
+      {label:"Solve", math:"1,200 ÷ 6 = 200 feet per second"},
+      {label:"Answer", text:"It dives 200 feet each second."},
+      {label:"Check", text:"200 × 6 = 1,200 ✓"}
+    ]
+  },
+  {
+    text: "A peregrine flies <strong>45 miles per hour</strong> in normal flight. How far does it fly in <strong>8 hours</strong>?",
+    solution: [
+      {label:"Plan", text:"Distance = speed × time."},
+      {label:"Solve", math:"45 × 8 = 360 miles"},
+      {label:"Answer", text:"It flies 360 miles."},
+      {label:"Check", text:"40 × 8 = 320, plus 5 × 8 = 40, so 320 + 40 = 360 ✓"}
+    ]
+  },
+  {
+    text: "A falcon migrates <strong>7,750 miles</strong> one way. A <strong>round trip</strong> is twice that. How long is the round trip?",
+    solution: [
+      {label:"Plan", text:"Round trip = one way distance × 2."},
+      {label:"Solve", math:"7,750 × 2 = 15,500 miles"},
+      {label:"Answer", text:"The round trip is 15,500 miles."},
+      {label:"Check", text:"7,750 + 7,750 = 15,500 ✓"}
+    ]
+  },
+  {
+    text: "A falcon eats <strong>2 pigeons</strong> each day. How many pigeons does it eat in the <strong>28 days</strong> of February?",
+    solution: [
+      {label:"Plan", text:"Total = pigeons per day × number of days."},
+      {label:"Solve", math:"2 × 28 = 56 pigeons"},
+      {label:"Answer", text:"It eats 56 pigeons in February."},
+      {label:"Check", text:"28 + 28 = 56 ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"7 × 6 = ?", choices:["42","48","36","49"], correct:0 },
+  { q:"120 ÷ 4 = ?", choices:["40","24","30","60"], correct:2 },
+  { q:"25 × 4 = ?", choices:["75","100","90","125"], correct:1 },
+  { q:"90 miles in 3 hours = ? mph", choices:["27","45","30","60"], correct:2 },
+  { q:"50 mph × 2 hours = ? miles", choices:["100","52","25","150"], correct:0 },
+  { q:"144 ÷ 12 = ?", choices:["14","11","24","12"], correct:3 },
+  { q:"15 × 6 = ?", choices:["90","75","96","65"], correct:0 },
+  { q:"500 ÷ 5 = ?", choices:["50","95","100","150"], correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "A falcon dives 240 mph for 2 hours. How far does it travel?",
+    opts: ["120 miles", "480 miles", "242 miles", "360 miles"],
+    correct: 1,
+    explain: "Distance = speed × time: 240 × 2 = 480 miles."
+  },
+  {
+    q: "60 miles in 3 hours = ? mph",
+    opts: ["30 mph", "20 mph", "180 mph", "63 mph"],
+    correct: 1,
+    explain: "Speed = distance ÷ time: 60 ÷ 3 = 20 mph."
+  },
+  {
+    q: "34 × 11 = ?",
+    opts: ["374", "340", "44", "384"],
+    correct: 0,
+    explain: "34 × 10 = 340, plus 34 × 1 = 34. 340 + 34 = 374."
+  },
+  {
+    q: "3,000 miles in 15 days = ? miles per day",
+    opts: ["150", "300", "200", "20"],
+    correct: 2,
+    explain: "3,000 ÷ 15 = 200 miles per day. Check: 200 × 15 = 3,000."
+  },
+  {
+    q: "Speed = distance ÷ ____ ?",
+    opts: ["Distance", "Time", "Miles", "Speed"],
+    correct: 1,
+    explain: "Speed = distance ÷ time. Cover S in the triangle and you see D over T."
+  },
+  {
+    q: "240 ÷ 8 = ?",
+    opts: ["32", "28", "30", "24"],
+    correct: 2,
+    explain: "8 × 30 = 240, so 240 ÷ 8 = 30."
+  },
+  {
+    q: "A bird flies 40 mph for 5 hours. How far does it fly?",
+    opts: ["45 miles", "8 miles", "200 miles", "160 miles"],
+    correct: 2,
+    explain: "Distance = speed × time: 40 × 5 = 200 miles."
+  },
+  {
+    q: "1,200 feet in 6 seconds = ? feet per second",
+    opts: ["200", "120", "600", "20"],
+    correct: 0,
+    explain: "Speed = distance ÷ time: 1,200 ÷ 6 = 200 feet per second."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Rate, speed, AND multi-digit math — you nailed them all.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your rate and multiplication skills are flying high.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the triangle and the worked examples, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderRT();
+  renderMD();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+
+  document.getElementById('rt-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkRT();
+  });
+  document.getElementById('md-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkMD();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
