@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 8 · Peregrine Falcon 🦅 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 9 · Emperor Penguin 🐧 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — The Continent at the Bottom of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-09-penguin.html",desc:"Antarctica: the frozen desert no country owns, the Antarctic Treaty, and legendary polar explorers."},
+      {n:2,emoji:"🔬",title:"Science — Built for the Deep Freeze",topic:"Science",time:"45 min",file:"science-lesson-09-penguin.html",desc:"Blubber, feather layers, the huddle, record-breaking dives, and the dads who guard eggs all winter."},
+      {n:3,emoji:"📖",title:"ELA — The Long Night",topic:"Reading",time:"45 min",file:"ela-lesson-09-penguin.html",desc:"Tumi guards his egg through the polar winter. 7 vocab words, context clues, and a perseverance theme."},
+      {n:4,emoji:"📐",title:"Math — Negative Numbers & Integers",topic:"Number",time:"45 min",file:"math-lesson-09-penguin.html",desc:"Number line, comparing integers, adding & subtracting negatives, and Antarctic temperature problems."},
+      {n:5,emoji:"💻",title:"Coding — Level 6: BUILD YOUR OWN GAME",topic:"Coding",time:"60 min",file:"coding-lesson-06-build-a-game.html",desc:"The capstone! Build a real arcade game piece by piece, then PLAY the game you made. 🕹️"},
+    ]},
+    {label:"Day 8 · Peregrine Falcon 🦅 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — The World's Fastest Traveler",topic:"Geography",time:"45 min",file:"social-studies-lesson-08-falcon.html",desc:"Six-continent range, epic migrations, the DDT crisis, and one of history's greatest conservation comebacks."},
       {n:2,emoji:"🔬",title:"Science — Built for Speed",topic:"Science",time:"45 min",file:"science-lesson-08-falcon.html",desc:"The 240 mph stoop, streamlined flight, nostril baffles, super vision — plus a dive physics simulator."},
       {n:3,emoji:"📖",title:"ELA — The Skyscraper Falcon",topic:"Reading",time:"45 min",file:"ela-lesson-08-falcon.html",desc:"Pip's first flight! 7 vocab words, figurative language (simile/metaphor/onomatopoeia), and writing."},
@@ -204,6 +211,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 9 · Emperor Penguin 🐧", items:[
+       {n:9,emoji:"🐧",title:"Negative Numbers & Integers",topic:"Number",time:"45 min",file:"math-lesson-09-penguin.html",desc:"Number line, comparing integers, adding & subtracting negatives, and Antarctic temperature problems."},
+     ]},
      {label:"Day 8 · Peregrine Falcon 🦅", items:[
        {n:8,emoji:"🦅",title:"Rate, Speed & Multiplication",topic:"Number",time:"45 min",file:"math-lesson-08-falcon.html",desc:"Speed = distance ÷ time, multi-digit multiply & divide, falcon speed word problems, speed round."},
      ]},
@@ -234,6 +244,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 9 · Emperor Penguin 🐧", items:[
+       {n:9,emoji:"🐧",title:"Penguin: Built for the Deep Freeze",topic:"Science",time:"45 min",file:"science-lesson-09-penguin.html",desc:"Blubber, feather layers, counter-current heat, the huddle, record dives, and a winter survival sequencer."},
+     ]},
      {label:"Day 8 · Peregrine Falcon 🦅", items:[
        {n:8,emoji:"🦅",title:"Falcon: Built for Speed",topic:"Science",time:"45 min",file:"science-lesson-08-falcon.html",desc:"The 240 mph stoop, streamlined flight, nostril baffles, super vision, and a dive physics simulator."},
      ]},
@@ -262,6 +275,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 9 · Emperor Penguin 🐧", items:[
+       {n:9,emoji:"🐧",title:"Penguin: The Long Night",topic:"Reading",time:"45 min",file:"ela-lesson-09-penguin.html",desc:"Tumi guards his egg through the polar winter. 7 vocab words, context clues, and a perseverance theme."},
+     ]},
      {label:"Day 8 · Peregrine Falcon 🦅", items:[
        {n:8,emoji:"🦅",title:"Falcon: The Skyscraper Falcon",topic:"Reading",time:"45 min",file:"ela-lesson-08-falcon.html",desc:"Pip's first flight! A courage story, 7 vocab words, figurative language game, and personal writing."},
      ]},
@@ -286,6 +302,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 9 · Emperor Penguin 🐧", items:[
+       {n:9,emoji:"🐧",title:"The Continent at the Bottom of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-09-penguin.html",desc:"Antarctica: the frozen desert no country owns, the Antarctic Treaty, research stations, and polar explorers."},
+     ]},
      {label:"Day 8 · Peregrine Falcon 🦅", items:[
        {n:8,emoji:"🦅",title:"The World's Fastest Traveler",topic:"Geography",time:"45 min",file:"social-studies-lesson-08-falcon.html",desc:"Six-continent range, epic migrations, the DDT crisis, and a legendary conservation comeback story."},
      ]},
@@ -321,6 +340,7 @@ const SUBJECTS=[
        {n:3,emoji:"🎒",title:"Level 3: The Stash (Lists)",topic:"Coding",time:"60 min",file:"coding-lesson-03-lists.html",desc:"Pack a stash, grab by index, loop the whole thing, push & pop — Boss the Panda Level 3!"},
        {n:4,emoji:"⚔️",title:"Level 4: Battle Mode (Random)",topic:"Coding",time:"60 min",file:"coding-lesson-04-random.html",desc:"Dice rolls, fairness proofs, critical hits, and a full boss fight — Boss the Panda Level 4!"},
        {n:5,emoji:"📋",title:"Level 5: The Character Sheet (Objects)",topic:"Coding",time:"60 min",file:"coding-lesson-05-objects.html",desc:"Objects & properties — build a hero's stats, read them, change them, level up a squad — Boss the Panda Level 5!"},
+       {n:6,emoji:"🕹️",title:"Level 6: Build Your Own Game",topic:"Coding",time:"60 min",file:"coding-lesson-06-build-a-game.html",desc:"The capstone! Build a real arcade game piece by piece — catcher, drops, controls, rules — then PLAY the game you made!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

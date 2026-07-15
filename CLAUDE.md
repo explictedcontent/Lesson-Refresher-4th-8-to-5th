@@ -59,6 +59,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Level 3 (`coding-lesson-03-lists.html`): lists/arrays — build, index access, loop, push/pop
 - Level 4 (`coding-lesson-04-random.html`): random numbers — dice, fairness, crits, boss fight
 - Level 5 (`coding-lesson-05-objects.html`): objects/properties — build a character sheet, read/change stats, squad of objects
+- Level 6 (`coding-lesson-06-build-a-game.html`): CAPSTONE — build a real playable arcade game (Bamboo Catcher) piece by piece, then play it. Most interactive yet.
 
 ## Day themes (completed)
 - Day 2: Red Panda 🐾
@@ -68,11 +69,12 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Day 6: Octopus 🐙
 - Day 7: Axolotl 🦎
 - Day 8: Peregrine Falcon 🦅
+- Day 9: Emperor Penguin 🐧
 
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 2052KB, 53 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 2275KB, 58 lessons)
 Uses inline injection (not iframe) for iOS Safari compatibility.
 
 ## Committing

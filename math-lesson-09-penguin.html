@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 9 — Negative Numbers</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700}
+
+/* NUMBER LINE SVG */
+.nl-wrap{margin:6px 0 4px;overflow-x:auto}
+.nl-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:block;margin:0 auto}
+
+/* ALGORITHM WORKED EXAMPLE */
+.algo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.algo-row{grid-template-columns:1fr}}
+.algo-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px;
+}
+.algo-box .ab-title{font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px}
+.algo-work{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:16px;line-height:1.7;white-space:pre-wrap;color:var(--ink);
+  background:var(--panel2);border-radius:8px;padding:10px 12px;overflow-x:auto;
+}
+.algo-work .hl{color:var(--warn);font-weight:700}
+.algo-step{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* INPUT PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:14px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:150px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:500px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Number Line</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. + &amp; −</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🐧</div>
+  <h1>Math Day 9 — Negative Numbers</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Emperor Penguin Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick questions — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — NUMBER LINE
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🧭 Phase 2 — The Number Line <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">Integers are the whole numbers plus their negatives — and zero right in the middle.</p>
+
+  <div class="teach-card">
+    <h3>📋 Positive, Negative &amp; Zero</h3>
+    <div class="nl-wrap">
+      <svg width="660" height="96" viewBox="0 0 660 96" role="img" aria-label="Number line from negative ten to ten">
+        <line x1="20" y1="48" x2="640" y2="48" stroke="#5bd1c4" stroke-width="3"/>
+        <!-- arrowheads -->
+        <polygon points="20,48 34,41 34,55" fill="#5bd1c4"/>
+        <polygon points="640,48 626,41 626,55" fill="#5bd1c4"/>
+        <!-- ticks + labels generated inline -->
+        <g stroke="#a7adc4" stroke-width="2">
+          <line x1="50"  y1="40" x2="50"  y2="56"/>
+          <line x1="80"  y1="40" x2="80"  y2="56"/>
+          <line x1="110" y1="40" x2="110" y2="56"/>
+          <line x1="140" y1="40" x2="140" y2="56"/>
+          <line x1="170" y1="40" x2="170" y2="56"/>
+          <line x1="200" y1="40" x2="200" y2="56"/>
+          <line x1="230" y1="40" x2="230" y2="56"/>
+          <line x1="260" y1="40" x2="260" y2="56"/>
+          <line x1="290" y1="40" x2="290" y2="56"/>
+          <line x1="320" y1="40" x2="320" y2="56"/>
+          <line x1="380" y1="40" x2="380" y2="56"/>
+          <line x1="410" y1="40" x2="410" y2="56"/>
+          <line x1="440" y1="40" x2="440" y2="56"/>
+          <line x1="470" y1="40" x2="470" y2="56"/>
+          <line x1="500" y1="40" x2="500" y2="56"/>
+          <line x1="530" y1="40" x2="530" y2="56"/>
+          <line x1="560" y1="40" x2="560" y2="56"/>
+          <line x1="590" y1="40" x2="590" y2="56"/>
+          <line x1="620" y1="40" x2="620" y2="56"/>
+        </g>
+        <!-- zero highlight -->
+        <circle cx="350" cy="48" r="10" fill="#ff7a59"/>
+        <line x1="350" y1="36" x2="350" y2="60" stroke="#ff7a59" stroke-width="3"/>
+        <g font-size="12" text-anchor="middle" fill="#ff6b81" font-weight="700">
+          <text x="50"  y="78">−10</text>
+          <text x="80"  y="78">−9</text>
+          <text x="110" y="78">−8</text>
+          <text x="140" y="78">−7</text>
+          <text x="170" y="78">−6</text>
+          <text x="200" y="78">−5</text>
+          <text x="230" y="78">−4</text>
+          <text x="260" y="78">−3</text>
+          <text x="290" y="78">−2</text>
+          <text x="320" y="78">−1</text>
+        </g>
+        <text x="350" y="80" font-size="13" text-anchor="middle" fill="#ff7a59" font-weight="700">0</text>
+        <g font-size="12" text-anchor="middle" fill="#7bd88f" font-weight="700">
+          <text x="380" y="78">1</text>
+          <text x="410" y="78">2</text>
+          <text x="440" y="78">3</text>
+          <text x="470" y="78">4</text>
+          <text x="500" y="78">5</text>
+          <text x="530" y="78">6</text>
+          <text x="560" y="78">7</text>
+          <text x="590" y="78">8</text>
+          <text x="620" y="78">9</text>
+        </g>
+        <text x="185" y="20" font-size="12" text-anchor="middle" fill="#ff6b81">← smaller (less)</text>
+        <text x="505" y="20" font-size="12" text-anchor="middle" fill="#7bd88f">greater (more) →</text>
+      </svg>
+    </div>
+    <div class="concept-row">
+      <div class="concept-box">
+        <div class="cb-name">Positive</div>
+        <div class="cb-eq">right of zero</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Zero</div>
+        <div class="cb-eq">in the middle</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Negative</div>
+        <div class="cb-eq">left of zero</div>
+      </div>
+    </div>
+    <div class="teach-note">
+      Farther <span class="hl">RIGHT</span> always means a bigger number. Farther <span class="hl">LEFT</span> always means a smaller number.
+      With negatives it feels backwards: as the digit gets bigger, the number gets <span class="hl">smaller</span>.
+      That's why <span class="hl">−9 &lt; −2</span> — negative nine is farther left, so it's less. Any negative is always less than 0, and 0 is always less than any positive.
+    </div>
+  </div>
+
+  <div class="warmup-card" id="nl-container">
+    <div class="warmup-q">
+      <span class="q-num" id="nl-q-label">Question 1 of 6</span>
+      <span id="nl-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="nl-choices"></div>
+    <div class="warmup-feedback" id="nl-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="nl-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="nl-next" onclick="nlNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="nl-done">✓ Number line mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — INTEGER ADD & SUBTRACT
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>➕ Phase 3 — Adding &amp; Subtracting <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">Use the number line: adding moves you RIGHT, subtracting moves you LEFT — even across zero.</p>
+
+  <div class="teach-card">
+    <h3>📋 Two Worked Examples</h3>
+    <div class="algo-row">
+      <div class="algo-box">
+        <div class="ab-title">Adding: −3 + 5 = ?</div>
+        <div class="algo-work">Start at <span class="hl">−3</span>
+Move <span class="hl">RIGHT 5</span> (because we add 5)
+−3 → −2 → −1 → 0 → 1 → <span class="hl">2</span></div>
+        <div class="algo-step">You started below zero and moved right past it. Landing spot: <span style="color:var(--warn);font-weight:700">2</span>.</div>
+      </div>
+      <div class="algo-box">
+        <div class="ab-title">Subtracting: 4 − 7 = ?</div>
+        <div class="algo-work">Start at <span class="hl">4</span>
+Move <span class="hl">LEFT 7</span> (because we subtract 7)
+4 → 3 → 2 → 1 → 0 → −1 → −2 → <span class="hl">−3</span></div>
+        <div class="algo-step">You started above zero and moved left through it into the negatives: <span style="color:var(--warn);font-weight:700">−3</span>.</div>
+      </div>
+    </div>
+    <div class="teach-note">
+      <span class="hl">Add → move right.</span> <span class="hl">Subtract → move left.</span>
+      Adding a negative, like −2 + (−4), is the same as moving <span class="hl">left</span> again, so it goes even lower: −6.
+      Type answers with a minus sign for negatives, like <span class="hl">−7</span>.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="ia-label">Problem 1 of 5</span>
+    <div class="pa-prompt" id="ia-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="ia-input" type="text" inputmode="text" placeholder="?" autocomplete="off">
+      <button class="btn btn-accent" id="ia-check" onclick="checkIA()">Check</button>
+    </div>
+    <div class="pa-feedback" id="ia-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="ia-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="ia-next" onclick="iaNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="ia-done">✓ Integer add &amp; subtract mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🐧 Phase 4 — Penguin Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems from freezing Antarctica. Type your answer, then reveal the step-by-step solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Great cold-weather math.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 speed problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l9-qans";
+const QKEY  = "math-l9-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 9: Negative Numbers|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 9', q: questionText, file: 'math-lesson-09-penguin.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// Helper: parse a typed integer answer (allows a minus sign)
+function parseSignedInt(raw) {
+  const cleaned = String(raw).trim().replace(/[^0-9\-]/g, '');
+  if (cleaned === '' || cleaned === '-') return null;
+  const v = parseInt(cleaned, 10);
+  return isNaN(v) ? null : v;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "Which is colder: −10 or −20?",
+    choices: ["−10", "−20"],
+    correct: 1,
+    explain: "−20 is colder. It sits farther left on the number line, so it's the smaller number."
+  },
+  {
+    q: "What number is 5 less than 2?",
+    choices: ["7", "−3", "3", "−7"],
+    correct: 1,
+    explain: "Start at 2 and move left 5: 2 → 1 → 0 → −1 → −2 → −3. Answer: −3."
+  },
+  {
+    q: "On a number line, which is farther LEFT: −8 or −3?",
+    choices: ["−8", "−3"],
+    correct: 0,
+    explain: "−8 is farther left because it's the smaller number (bigger negative digit = smaller value)."
+  },
+  {
+    q: "Which is greater: −1 or 0?",
+    choices: ["−1", "0"],
+    correct: 1,
+    explain: "0 is greater. Every negative number is less than zero, so 0 wins."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — NUMBER LINE PRACTICE (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const nlQs = [
+  {
+    q: "Which is greater: −4 or −9?",
+    choices: ["−4", "−9"],
+    correct: 0,
+    explain: "−4 is greater. It's closer to zero (farther right), so it's the bigger number."
+  },
+  {
+    q: "What is 3 less than 1?",
+    choices: ["4", "−2", "2", "−3"],
+    correct: 1,
+    explain: "Start at 1, move left 3: 1 → 0 → −1 → −2. Answer: −2."
+  },
+  {
+    q: "Which is smaller: −15 or −6?",
+    choices: ["−15", "−6"],
+    correct: 0,
+    explain: "−15 is smaller — it's farther left on the number line."
+  },
+  {
+    q: "Which is the SMALLEST of −3, −8, and 2?",
+    choices: ["−3", "−8", "2"],
+    correct: 1,
+    explain: "−8 is the smallest — it's farthest left. Order least to greatest: −8, −3, 2."
+  },
+  {
+    q: "What number is 4 to the LEFT of 2 on a number line?",
+    choices: ["6", "−2", "−4", "2"],
+    correct: 1,
+    explain: "Move left 4 from 2: 2 → 1 → 0 → −1 → −2. Answer: −2."
+  },
+  {
+    q: "Which is greater: 0 or −5?",
+    choices: ["0", "−5"],
+    correct: 0,
+    explain: "0 is greater. Any negative number is less than zero."
+  }
+];
+
+let nlIdx = 0, nlCorrect = 0, nlAnswered = false;
+
+function renderNL() {
+  const q = nlQs[nlIdx];
+  document.getElementById('nl-q-label').textContent = 'Question ' + (nlIdx+1) + ' of 6';
+  document.getElementById('nl-q-text').textContent = q.q;
+  const fb = document.getElementById('nl-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('nl-next').classList.add('hidden');
+  nlAnswered = false;
+
+  const choicesEl = document.getElementById('nl-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerNL(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('nl-progress').textContent = nlCorrect + ' / 6 correct so far';
+}
+
+function answerNL(idx) {
+  if (nlAnswered) return;
+  nlAnswered = true;
+  const q = nlQs[nlIdx];
+  const btns = document.querySelectorAll('#nl-choices .choice-btn');
+  const fb = document.getElementById('nl-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    nlCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('nl-progress').textContent = nlCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('nl-next');
+  nextBtn.classList.remove('hidden');
+  if (nlIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishNL;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = nlNext;
+  }
+}
+
+function nlNext() {
+  nlIdx++;
+  if (nlIdx < 6) renderNL();
+}
+
+function finishNL() {
+  document.getElementById('nl-done').classList.add('show');
+  document.getElementById('nl-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — INTEGER ADD & SUBTRACT (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const iaProblems = [
+  { prompt: '−5 + 8 = ?', answer: 3,
+    hint: 'Start at −5, move right 8: you pass zero and land on 3.' },
+  { prompt: '3 − 10 = ?', answer: -7,
+    hint: 'Start at 3, move left 10: 3 → 0 is 3 steps, then 7 more left to −7.' },
+  { prompt: '−2 + (−4) = ?', answer: -6,
+    hint: 'Adding a negative moves left. Start at −2, move left 4 → −6.' },
+  { prompt: '6 − 9 = ?', answer: -3,
+    hint: 'Start at 6, move left 9: 6 → 0 is 6 steps, then 3 more left to −3.' },
+  { prompt: '−10 + 15 = ?', answer: 5,
+    hint: 'Start at −10, move right 15: 10 steps reach 0, then 5 more right to 5.' }
+];
+
+let iaIdx = 0, iaCorrect = 0, iaAnswered = false;
+
+function renderIA() {
+  const p = iaProblems[iaIdx];
+  document.getElementById('ia-label').textContent = 'Problem ' + (iaIdx+1) + ' of 5';
+  document.getElementById('ia-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('ia-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('ia-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('ia-check').disabled = false;
+  document.getElementById('ia-next').classList.add('hidden');
+  iaAnswered = false;
+  document.getElementById('ia-progress').textContent = iaCorrect + ' / 5 correct so far';
+}
+
+function checkIA() {
+  if (iaAnswered) return;
+  const p = iaProblems[iaIdx];
+  const inp = document.getElementById('ia-input');
+  const val = parseSignedInt(inp.value);
+  if (val === null) { inp.focus(); return; }
+  iaAnswered = true;
+  const correct = val === p.answer;
+  const fb = document.getElementById('ia-feedback');
+  inp.disabled = true;
+  document.getElementById('ia-check').disabled = true;
+  if (correct) {
+    iaCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.answer + '. ' + p.hint;
+  }
+  document.getElementById('ia-progress').textContent = iaCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('ia-next');
+  nextBtn.classList.remove('hidden');
+  if (iaIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishIA;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = iaNext;
+  }
+}
+
+function iaNext() {
+  iaIdx++;
+  if (iaIdx < 5) renderIA();
+}
+
+function finishIA() {
+  document.getElementById('ia-done').classList.add('show');
+  document.getElementById('ia-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (penguin data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "At noon the Antarctic research station reads <strong>−12°C</strong>. By midnight it has dropped <strong>8 degrees</strong>. What is the temperature at midnight?",
+    solution: [
+      {label:"Plan", text:"'Dropped' means it got colder, so we subtract (move left)."},
+      {label:"Solve", math:"−12 − 8 = −20"},
+      {label:"Answer", text:"It is −20°C at midnight."},
+      {label:"Check", text:"Starting at −12 and moving 8 more below zero lands on −20 ✓"}
+    ]
+  },
+  {
+    text: "In the morning it was <strong>−25°C</strong>. By afternoon the sun warmed it up by <strong>10 degrees</strong>. What is the afternoon temperature?",
+    solution: [
+      {label:"Plan", text:"'Warmed up' means it got warmer, so we add (move right)."},
+      {label:"Solve", math:"−25 + 10 = −15"},
+      {label:"Answer", text:"It is −15°C in the afternoon."},
+      {label:"Check", text:"−25 moved 10 to the right is −15 — still below zero ✓"}
+    ]
+  },
+  {
+    text: "The air temperature is <strong>−30°C</strong>. A penguin's huddle center is <strong>20 degrees warmer</strong> than the air. What is the temperature in the huddle center?",
+    solution: [
+      {label:"Plan", text:"'Warmer' means add 20 (move right)."},
+      {label:"Solve", math:"−30 + 20 = −10"},
+      {label:"Answer", text:"The huddle center is −10°C."},
+      {label:"Check", text:"From −30, moving right 20 reaches −10 ✓"}
+    ]
+  },
+  {
+    text: "Monday's low was <strong>−18°C</strong> and Tuesday's low was <strong>−24°C</strong>. How many degrees COLDER was Tuesday?",
+    solution: [
+      {label:"Plan", text:"Find the gap between the two temperatures on the number line."},
+      {label:"Solve", math:"−24 is 6 below −18, so the difference is 6"},
+      {label:"Answer", text:"Tuesday was 6 degrees colder."},
+      {label:"Check", text:"−18 − 6 = −24 ✓"}
+    ]
+  },
+  {
+    text: "A penguin dives to a spot where the water is <strong>4°C</strong>, then the surface air is <strong>−20°C</strong>. What is the difference between the water and the air temperatures?",
+    solution: [
+      {label:"Plan", text:"Count the distance from −20 up to 4 on the number line."},
+      {label:"Solve", math:"−20 up to 0 is 20, then 0 up to 4 is 4, so 20 + 4 = 24"},
+      {label:"Answer", text:"The difference is 24 degrees."},
+      {label:"Check", text:"4 − (−20) = 4 + 20 = 24 ✓"}
+    ]
+  },
+  {
+    text: "At 6pm it was <strong>−8°C</strong>. The temperature then fell <strong>5 degrees each hour</strong> for <strong>3 hours</strong>. What is the temperature at 9pm?",
+    solution: [
+      {label:"Plan", text:"First find the total drop, then subtract it from −8."},
+      {label:"Solve", math:"5 × 3 = 15 degree drop; −8 − 15 = −23"},
+      {label:"Answer", text:"It is −23°C at 9pm."},
+      {label:"Check", text:"From −8, going down 15 more lands on −23 ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"Which is smaller: −7 or −2?", choices:["−7","−2"], correct:0 },
+  { q:"−3 + 5 = ?", choices:["8","−8","2","−2"], correct:2 },
+  { q:"2 − 6 = ?", choices:["4","−4","8","−8"], correct:1 },
+  { q:"Which is greater: −1 or −10?", choices:["−1","−10"], correct:0 },
+  { q:"−5 + (−5) = ?", choices:["0","−10","10","−25"], correct:1 },
+  { q:"0 − 4 = ?", choices:["4","−4","0","−40"], correct:1 },
+  { q:"−8 + 8 = ?", choices:["0","−16","16","8"], correct:0 },
+  { q:"Which is coldest: −12, −3, or −20?", choices:["−12","−3","−20"], correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "Which temperature is colder: −15°C or −9°C?",
+    opts: ["−15°C", "−9°C", "They are equal", "Neither"],
+    correct: 0,
+    explain: "−15°C is colder — it sits farther left on the number line, so it's the smaller number."
+  },
+  {
+    q: "−6 + 10 = ?",
+    opts: ["16", "−16", "4", "−4"],
+    correct: 2,
+    explain: "Start at −6, move right 10: you pass zero and land on 4."
+  },
+  {
+    q: "It's −12°C and drops 8 degrees. What is the new temperature?",
+    opts: ["−4°C", "−20°C", "−96°C", "4°C"],
+    correct: 1,
+    explain: "Dropping means subtract: −12 − 8 = −20°C."
+  },
+  {
+    q: "Which is greater: −2 or −20?",
+    opts: ["−2", "−20", "They are equal", "Can't tell"],
+    correct: 0,
+    explain: "−2 is greater — it's closer to zero (farther right)."
+  },
+  {
+    q: "5 − 9 = ?",
+    opts: ["4", "−4", "14", "−14"],
+    correct: 1,
+    explain: "Start at 5, move left 9: 5 → 0 is 5 steps, then 4 more left to −4."
+  },
+  {
+    q: "On a number line, negatives are on which side of zero?",
+    opts: ["The right", "The left", "The top", "Both sides"],
+    correct: 1,
+    explain: "Negatives are always to the LEFT of zero; positives are to the right."
+  },
+  {
+    q: "−18°C warms up 10 degrees. What is the new temperature?",
+    opts: ["−28°C", "−8°C", "8°C", "28°C"],
+    correct: 1,
+    explain: "Warming means add: −18 + 10 = −8°C."
+  },
+  {
+    q: "The difference between 4°C and −6°C is:",
+    opts: ["2 degrees", "10 degrees", "24 degrees", "6 degrees"],
+    correct: 1,
+    explain: "From −6 up to 0 is 6, then 0 up to 4 is 4: 6 + 4 = 10 degrees."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Number line, comparing, AND integer math — you nailed them all.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your negative-number skills are ice cold — in the best way.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the number line and the worked examples, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderNL();
+  renderIA();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+
+  document.getElementById('ia-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkIA();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

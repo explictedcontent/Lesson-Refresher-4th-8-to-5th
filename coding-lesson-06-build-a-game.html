@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 6 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn.purple{background:var(--purple);border-color:var(--purple);color:#0a0520}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+canvas{display:block;border-radius:14px;margin:0 auto 12px;max-width:100%;border:2px solid var(--line);touch-action:none}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+.pick{padding:12px 15px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:28px;cursor:pointer;transition:.15s;touch-action:manipulation}
+.pick.sel{border-color:var(--accent2);background:#003328;box-shadow:0 0 0 3px #00e5c833}
+.pick:active{transform:scale(.9)}
+.picker{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.ctrl-btn{width:76px;height:60px;border-radius:14px;background:var(--panel2);border:2px solid var(--accent2);font-size:26px;font-weight:900;color:var(--accent2);cursor:pointer;touch-action:manipulation;user-select:none}
+.ctrl-btn:active{transform:scale(.92);background:#003328}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:900;font-size:16px;margin:4px auto 8px;max-width:480px}
+.hud .sc{color:var(--good)}.hud .lv{color:var(--bad)}
+input[type=range]{-webkit-appearance:none;height:10px;border-radius:5px;background:var(--line);outline:none;flex:1;min-width:120px;max-width:200px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--accent2);cursor:pointer;border:3px solid var(--bg)}
+.dial-row{display:flex;align-items:center;gap:12px;margin:12px 0;flex-wrap:wrap}
+.badge{border-radius:8px;padding:4px 11px;font-size:15px;font-weight:900;min-width:36px;text-align:center;background:var(--accent2);color:#001a16}
+.stepper{display:flex;align-items:center;gap:10px}
+.step-btn{width:44px;height:44px;border-radius:10px;background:var(--panel2);border:2px solid var(--line);font-size:22px;font-weight:900;color:var(--warn);cursor:pointer;touch-action:manipulation}
+.step-btn:active{transform:scale(.9)}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 6</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🧺 THE CATCHER</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🎋 THE DROPS</div>
+  <div class="mtab" onclick="go(3)" id="tab3">🎮 CONTROLS</div>
+  <div class="mtab" onclick="go(4)" id="tab4">🏆 RULES</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🕹️ PLAY IT!</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼🎮</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 6: BUILD YOUR OWN GAME</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      This is the big one. You've learned variables, functions, lists, random, and objects. Now you'll <strong style="color:var(--ink)">put it ALL together and build a REAL game</strong> — piece by piece — then play the game <em>you</em> made.
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: BAMBOO CATCHER</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🧺 <strong>The Catcher</strong> — an object with your hero</div>
+        <div>🎋 <strong>The Drops</strong> — falling items using random</div>
+        <div>🎮 <strong>Controls</strong> — move with a function</div>
+        <div>🏆 <strong>Rules</strong> — score &amp; lives with if-statements</div>
+        <div>🕹️ <strong>PLAY IT</strong> — your finished game, for real!</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — THE CATCHER -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">🧺 Build Your Catcher</div>
+    <div class="mission-brief">Every game needs a player. Yours is an OBJECT (Level 5!) with a look and a position. Pick your hero — it appears in your game instantly. This is a REAL piece of your game.</div>
+  </div>
+
+  <canvas id="c1"></canvas>
+
+  <div class="sec">Pick your catcher:</div>
+  <div class="picker" id="catcherPick">
+    <button class="pick" onclick="pickCatcher('🧺')">🧺</button>
+    <button class="pick" onclick="pickCatcher('🐼')">🐼</button>
+    <button class="pick" onclick="pickCatcher('🦊')">🦊</button>
+    <button class="pick" onclick="pickCatcher('🐸')">🐸</button>
+    <button class="pick" onclick="pickCatcher('🤖')">🤖</button>
+    <button class="pick" onclick="pickCatcher('👽')">👽</button>
+  </div>
+
+  <div class="sec">Your game code so far:</div>
+  <div class="code-block" id="code1"><span class="cm">// Pick a catcher above!</span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    Your catcher is an <strong style="color:var(--accent2)">object</strong> with properties: what it looks like (<span class="prop" style="font-family:monospace">emoji</span>) and where it is (<span class="prop" style="font-family:monospace">x</span>). That drawing on the canvas? That's your object, on screen, right now. You're building a real game.
+  </div>
+
+  <div class="btn-row">
+    <button class="btn go" id="m1go" style="display:none" onclick="go(2)">NEXT: THE DROPS →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — THE DROPS -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">🎋 Make Things Fall</div>
+    <div class="mission-brief">A catch game needs stuff to catch! Pick a GOOD item (points) and a BAD item (avoid it). They fall from random spots (Level 4!). Tap TEST DROP to see your drops fall.</div>
+  </div>
+
+  <canvas id="c2"></canvas>
+
+  <div class="sec">Pick the GOOD item (catch these for points):</div>
+  <div class="picker" id="goodPick">
+    <button class="pick" onclick="pickGood('🎋')">🎋</button>
+    <button class="pick" onclick="pickGood('⭐')">⭐</button>
+    <button class="pick" onclick="pickGood('🍎')">🍎</button>
+    <button class="pick" onclick="pickGood('💎')">💎</button>
+  </div>
+  <div class="sec">Pick the BAD item (avoid these!):</div>
+  <div class="picker" id="badPick">
+    <button class="pick" onclick="pickBad('💣')">💣</button>
+    <button class="pick" onclick="pickBad('🪨')">🪨</button>
+    <button class="pick" onclick="pickBad('👟')">👟</button>
+    <button class="pick" onclick="pickBad('🌵')">🌵</button>
+  </div>
+
+  <div class="sec">How fast do they fall?</div>
+  <div class="dial-row">
+    <span style="font-weight:800;min-width:64px">Speed:</span>
+    <input type="range" id="speed" min="2" max="7" value="3" oninput="updateSpeed()">
+    <span class="badge" id="speedVal">3</span>
+  </div>
+
+  <div class="code-block" id="code2"><span class="cm">// Pick a good item and a bad item!</span></div>
+
+  <div class="btn-row">
+    <button class="btn fire" onclick="testDrop()">🎋 TEST DROP</button>
+    <button class="btn go" id="m2go" style="display:none" onclick="go(3)">NEXT: CONTROLS →</button>
+  </div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    Each drop picks a <strong style="color:var(--accent2)">random</strong> spot to fall from — so the game is different every time. The good and bad items are stored in your game object. You just added the challenge!
+  </div>
+</div>
+
+<!-- SCREEN 3 — CONTROLS -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">🎮 Add the Controls</div>
+    <div class="mission-brief">A game you can't control isn't a game! A FUNCTION (Level 2!) moves your catcher. Try the buttons below — OR drag your finger on the game. Move left AND right to continue.</div>
+  </div>
+
+  <canvas id="c3"></canvas>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="ctrl-btn" onmousedown="move3(-1)" ontouchstart="event.preventDefault();move3(-1)">◀</button>
+    <button class="ctrl-btn" onmousedown="move3(1)" ontouchstart="event.preventDefault();move3(1)">▶</button>
+  </div>
+  <p style="text-align:center">👆 Tap the arrows, or drag on the game. On a keyboard, the ← → arrow keys work too!</p>
+
+  <div class="code-block"><span class="kw">function</span> <span class="fn">moveCatcher</span>(direction) {
+  catcher.<span class="prop">x</span> = catcher.<span class="prop">x</span> + direction * <span class="num">20</span>;
+}</div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    That function changes your catcher's <span class="prop" style="font-family:monospace">x</span> property — moving it. Buttons, touch, and keys all call the SAME function. That's why one function can power every control at once.
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">🎮</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Controls online — you can move!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: THE RULES →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — RULES -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">🏆 Set the Rules</div>
+    <div class="mission-brief">Rules turn moving pictures into a GAME. IF you catch a good item → score up. IF you catch a bad item → lose a life. You choose the score needed to WIN!</div>
+  </div>
+
+  <div class="code-block"><span class="kw">if</span> (caught === game.<span class="prop">good</span>) {
+  game.<span class="prop">score</span> = game.<span class="prop">score</span> + <span class="num">1</span>;   <span class="cm">// nice catch!</span>
+}
+<span class="kw">if</span> (caught === game.<span class="prop">bad</span>) {
+  game.<span class="prop">lives</span> = game.<span class="prop">lives</span> - <span class="num">1</span>;  <span class="cm">// ouch!</span>
+}</div>
+
+  <div class="sec">You start with <span style="color:var(--bad);font-weight:900">3 lives ❤️</span>. How many points to WIN?</div>
+  <div class="stepper">
+    <button class="step-btn" onclick="changeTarget(-1)">−</button>
+    <span class="badge" id="targetVal" style="font-size:20px;min-width:52px">10</span>
+    <button class="step-btn" onclick="changeTarget(1)">+</button>
+    <span style="font-size:14px;color:var(--muted)">points to win</span>
+  </div>
+
+  <div class="code-block" id="code4"></div>
+
+  <div class="discovery">
+    IF-statements are the RULES of every game: if you touch the coin, score up; if you hit the spike, game over. You just wrote the rules of YOUR game — and picked how hard it is to win.
+  </div>
+
+  <div class="btn-row">
+    <button class="btn go xl pulse" onclick="startBuiltGame()">🕹️ PLAY MY GAME! →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — PLAY IT -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished Game</div>
+    <div class="mission-title">🕹️ BAMBOO CATCHER</div>
+    <div class="mission-brief">You BUILT this. Catch the good items, dodge the bad ones. Drag on the game, tap the arrows, or use ← → keys. Hit your target score to win!</div>
+  </div>
+
+  <div class="hud">
+    <span class="sc">⭐ Score: <span id="gScore">0</span> / <span id="gTarget">10</span></span>
+    <span class="lv">❤️ Lives: <span id="gLives">3</span></span>
+  </div>
+
+  <canvas id="cGame"></canvas>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="ctrl-btn" id="leftBtn">◀</button>
+    <button class="ctrl-btn" id="rightBtn">▶</button>
+  </div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn fire" id="startBtn" onclick="playGame()">▶ START</button>
+    <button class="btn ghost" onclick="resetGame()">↺ Reset</button>
+  </div>
+
+  <div class="complete-banner" id="winBanner">
+    <div style="font-size:40px">🏆</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">YOU WON YOUR OWN GAME!</div>
+    <p style="margin-top:6px">You just built and beat a real game using variables, objects, random, functions, loops, and if-statements — everything from all 6 levels. You're a game developer now.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE FINAL BOSS TEST</button>
+  </div>
+  <div class="complete-banner" id="loseBanner" style="border-color:var(--bad)">
+    <div style="font-size:40px">💥</div>
+    <div style="font-weight:900;font-size:20px;color:var(--bad)">Out of lives! Your game got you.</div>
+    <p style="margin-top:6px">That means it's a REAL game — it can actually be lost! Tap Reset and try again, or tweak your build.</p>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: The Whole Journey</div>
+    <div class="mission-brief">10 rounds covering EVERYTHING you learned across all 6 levels. +10 XP each. Finish strong!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l6-qans', QKEY='coding-l6-quiz', WKEY='coding-l6-game';
+const PREFIX='Coding|Lesson 6: Build a Game|';
+let xp=0, cur=0;
+
+/* the game the kid is building — one shared object */
+let game={ catcher:'🧺', good:'🎋', bad:'💣', speed:3, target:10, x:0.5, score:0, lives:3 };
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800);}
+function go(n){
+  cur=n;
+  stopLoop();
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===1)c1Draw();
+  if(n===2){updateSpeed();c2Draw();}
+  if(n===3){c3X=0.5;c3Draw();}
+  if(n===5)setupGame();
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+
+/* ═══ CANVAS HELPERS ══════════════════════════════════════ */
+function drawSky(ctx,w,h){
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#0a1226');g.addColorStop(1,'#0f1e14');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#0a2016';ctx.fillRect(0,h-22,w,22);
+  ctx.fillStyle='#143020';ctx.fillRect(0,h-24,w,3);
+  ctx.fillStyle='#ffffff22';
+  [[40,20],[110,40],[200,16],[300,34],[400,22],[450,46]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x%w,y,1.3,0,7);ctx.fill();});
+}
+function cvSetup(id,tall){
+  const cv=document.getElementById(id);const ctx=cv.getContext('2d');
+  cv.width=Math.min(480,window.innerWidth-32);cv.height=tall?300:170;
+  return{cv,ctx,w:cv.width,h:cv.height};
+}
+function drawCatcher(ctx,emoji,xFrac,h,w){
+  const px=Math.max(26,Math.min(w-26,xFrac*w));
+  ctx.font='40px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(emoji,px,h-20);
+  return px;
+}
+
+/* ═══ STEP 1 — THE CATCHER ════════════════════════════════ */
+function c1Draw(){
+  const {ctx,w,h}=cvSetup('c1');drawSky(ctx,w,h);
+  drawCatcher(ctx,game.catcher,0.5,h,w);
+}
+function pickCatcher(e){
+  game.catcher=e;
+  document.querySelectorAll('#catcherPick .pick').forEach(b=>b.classList.toggle('sel',b.textContent===e));
+  document.getElementById('code1').innerHTML=`<span class="kw">let</span> catcher = {\n  <span class="prop">emoji</span>: <span class="str">'${e}'</span>,\n  <span class="prop">x</span>: <span class="num">240</span>   <span class="cm">// middle of the screen</span>\n};`;
+  document.getElementById('disc1').style.display='block';
+  c1Draw();
+  if(document.getElementById('m1go').style.display==='none'){
+    document.getElementById('m1go').style.display='inline-flex';
+    addXP(20);showToast('🧺 Catcher built! +20 XP');
+  }
+}
+
+/* ═══ STEP 2 — THE DROPS ══════════════════════════════════ */
+let c2Drops=[],c2Timer=null;
+function updateSpeed(){game.speed=parseInt(document.getElementById('speed').value);document.getElementById('speedVal').textContent=game.speed;}
+function updateCode2(){
+  if(document.getElementById('code2'))
+  document.getElementById('code2').innerHTML=`<span class="kw">let</span> game = {\n  <span class="prop">good</span>: <span class="str">'${game.good}'</span>,   <span class="cm">// catch for points</span>\n  <span class="prop">bad</span>:  <span class="str">'${game.bad}'</span>,   <span class="cm">// avoid!</span>\n  <span class="prop">speed</span>: <span class="num">${game.speed}</span>\n};\n\n<span class="kw">let</span> dropX = random(<span class="num">0</span>, <span class="num">480</span>);  <span class="cm">// random spot!</span>`;
+}
+function pickGood(e){game.good=e;document.querySelectorAll('#goodPick .pick').forEach(b=>b.classList.toggle('sel',b.textContent===e));checkStep2();}
+function pickBad(e){game.bad=e;document.querySelectorAll('#badPick .pick').forEach(b=>b.classList.toggle('sel',b.textContent===e));checkStep2();}
+function checkStep2(){
+  updateCode2();
+  document.getElementById('disc2').style.display='block';
+  if(document.getElementById('m2go').style.display==='none'){
+    document.getElementById('m2go').style.display='inline-flex';
+    addXP(20);showToast('🎋 Drops added! +20 XP');
+  }
+}
+function c2Draw(){
+  const {ctx,w,h}=cvSetup('c2');drawSky(ctx,w,h);
+  c2Drops.forEach(d=>{ctx.font='26px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(d.e,d.x*w,d.y);});
+  drawCatcher(ctx,game.catcher,0.5,h,w);
+}
+function testDrop(){
+  if(c2Timer)return;
+  c2Drops=[];
+  for(let i=0;i<5;i++) c2Drops.push({e:Math.random()<0.6?game.good:game.bad,x:Math.random()*0.85+0.07,y:-rnd(0,140)});
+  c2Timer=setInterval(()=>{
+    let live=false;
+    c2Drops.forEach(d=>{d.y+=game.speed;if(d.y<170)live=true;});
+    c2Draw();
+    if(!live){clearInterval(c2Timer);c2Timer=null;}
+  },33);
+}
+
+/* ═══ STEP 3 — CONTROLS ═══════════════════════════════════ */
+let c3X=0.5,c3Moved={left:false,right:false};
+function c3Draw(){
+  const {ctx,w,h}=cvSetup('c3');drawSky(ctx,w,h);
+  drawCatcher(ctx,game.catcher,c3X,h,w);
+}
+function move3(dir){
+  c3X=Math.max(0.06,Math.min(0.94,c3X+dir*0.08));
+  c3Draw();
+  if(dir<0)c3Moved.left=true;if(dir>0)c3Moved.right=true;
+  document.getElementById('disc3').style.display='block';
+  if(c3Moved.left&&c3Moved.right&&document.getElementById('m3done').className.indexOf('show')<0){
+    document.getElementById('m3done').classList.add('show');
+    addXP(20);showToast('🎮 Controls work! +20 XP');
+  }
+}
+/* drag on the step-3 canvas */
+(function(){
+  const cv=document.getElementById('c3');
+  function drag(e){
+    const r=cv.getBoundingClientRect();
+    const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    c3X=Math.max(0.06,Math.min(0.94,cx/r.width));
+    c3Draw();c3Moved.left=true;c3Moved.right=true;
+    document.getElementById('disc3').style.display='block';
+    const b=document.getElementById('m3done');if(b&&b.className.indexOf('show')<0){b.classList.add('show');addXP(20);showToast('🎮 Controls work! +20 XP');}
+  }
+  cv.addEventListener('touchmove',e=>{e.preventDefault();drag(e);},{passive:false});
+  cv.addEventListener('mousemove',e=>{if(e.buttons)drag(e);});
+})();
+
+/* ═══ STEP 4 — RULES ══════════════════════════════════════ */
+function updateCode4(){
+  document.getElementById('code4').innerHTML=`<span class="kw">let</span> game = {\n  <span class="prop">score</span>: <span class="num">0</span>,\n  <span class="prop">lives</span>: <span class="num">3</span>,\n  <span class="prop">target</span>: <span class="num">${game.target}</span>   <span class="cm">// points to win!</span>\n};`;
+}
+function changeTarget(d){
+  game.target=Math.max(5,Math.min(20,game.target+d));
+  document.getElementById('targetVal').textContent=game.target;
+  updateCode4();
+}
+function startBuiltGame(){addXP(20);showToast('🏆 Rules set! +20 XP');go(5);}
+
+/* ═══ STEP 5 — THE PLAYABLE GAME ══════════════════════════ */
+let gDrops=[],gLoop=null,gFrame=0,gRunning=false,gOver=false;
+let gx=0.5; // catcher position 0..1
+let heldDir=0;
+
+function stopLoop(){if(gLoop){clearInterval(gLoop);gLoop=null;}gRunning=false;if(c2Timer){clearInterval(c2Timer);c2Timer=null;}}
+function setupGame(){
+  updateCode4();
+  game.score=0;game.lives=3;gx=0.5;gDrops=[];gFrame=0;gOver=false;gRunning=false;
+  document.getElementById('gTarget').textContent=game.target;
+  document.getElementById('gScore').textContent=0;
+  document.getElementById('gLives').textContent=3;
+  document.getElementById('winBanner').classList.remove('show');
+  document.getElementById('loseBanner').classList.remove('show');
+  document.getElementById('startBtn').textContent='▶ START';
+  gDraw();
+}
+function gDraw(){
+  const {ctx,w,h}=cvSetup('cGame',true);drawSky(ctx,w,h);
+  gDrops.forEach(d=>{ctx.font='28px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(d.e,d.x*w,d.y);});
+  ctx.font='44px serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(game.catcher,Math.max(28,Math.min(w-28,gx*w)),h-18);
+}
+function playGame(){
+  if(gRunning)return;
+  if(gOver)setupGame();
+  gRunning=true;gOver=false;
+  document.getElementById('startBtn').textContent='▶ Playing...';
+  gLoop=setInterval(gTick,33);
+}
+function gTick(){
+  const {w,h}=cvSetup('cGame',true);
+  gFrame++;
+  // move catcher if a button is held
+  if(heldDir)gx=Math.max(0.06,Math.min(0.94,gx+heldDir*0.035));
+  // spawn a new drop every so often (faster as speed rises)
+  const spawnEvery=Math.max(14,34-game.speed*3);
+  if(gFrame%spawnEvery===0){
+    gDrops.push({e:Math.random()<0.65?game.good:game.bad,x:Math.random()*0.85+0.07,y:-20,good:false});
+    gDrops[gDrops.length-1].good=(gDrops[gDrops.length-1].e===game.good);
+  }
+  const catchY=h-40, cxPix=gx;
+  for(let i=gDrops.length-1;i>=0;i--){
+    const d=gDrops[i];
+    d.y+=game.speed;
+    // caught? near the catcher row and within reach
+    if(d.y>=catchY && d.y<=h-8){
+      if(Math.abs(d.x-cxPix)<0.11){
+        if(d.good){game.score++;document.getElementById('gScore').textContent=game.score;showToast('+1 ⭐');}
+        else{game.lives--;document.getElementById('gLives').textContent=game.lives;showToast('💥 -1 life');}
+        gDrops.splice(i,1);continue;
+      }
+    }
+    if(d.y>h+20)gDrops.splice(i,1); // missed, gone
+  }
+  gDraw();
+  if(game.score>=game.target)return endGame(true);
+  if(game.lives<=0)return endGame(false);
+}
+function endGame(won){
+  stopLoop();gOver=true;
+  document.getElementById('startBtn').textContent='▶ START';
+  if(won){document.getElementById('winBanner').classList.add('show');addXP(60);showToast('🏆 YOU WON! +60 XP');}
+  else{document.getElementById('loseBanner').classList.add('show');}
+}
+function resetGame(){stopLoop();setupGame();}
+
+/* controls: hold-to-move buttons, drag, and arrow keys */
+(function(){
+  function hold(id,dir){
+    const b=document.getElementById(id);if(!b)return;
+    const on=e=>{e.preventDefault();heldDir=dir;};
+    const off=()=>{heldDir=0;};
+    b.addEventListener('mousedown',on);b.addEventListener('touchstart',on,{passive:false});
+    b.addEventListener('mouseup',off);b.addEventListener('mouseleave',off);
+    b.addEventListener('touchend',off);b.addEventListener('touchcancel',off);
+  }
+  hold('leftBtn',-1);hold('rightBtn',1);
+  // drag on game canvas
+  const cv=document.getElementById('cGame');
+  function drag(e){
+    const r=cv.getBoundingClientRect();
+    const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    gx=Math.max(0.06,Math.min(0.94,cx/r.width));
+    if(!gRunning)gDraw();
+  }
+  cv.addEventListener('touchmove',e=>{e.preventDefault();drag(e);},{passive:false});
+  cv.addEventListener('mousemove',e=>{if(e.buttons)drag(e);});
+  // keyboard
+  document.addEventListener('keydown',e=>{
+    if(cur!==5)return;
+    if(e.key==='ArrowLeft'){heldDir=-1;}
+    if(e.key==='ArrowRight'){heldDir=1;}
+  });
+  document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight')heldDir=0;});
+})();
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"Your catcher stores its look and position together. That's a:",o:["Object (Level 5)","Loop","Random number","A single variable"],a:0,e:"An object bundles related data — the catcher's emoji and its x position — into one package. That's exactly what you built in Step 1!"},
+  {q:"Each falling item starts at a spot chosen by random(0, 480). Why?",o:["So the game is different and surprising every time","To make the game slower","Because objects need it","So items always fall in the same place"],a:0,e:"Random spawn spots mean no two games are the same — the surprise is what makes it fun. That's Level 4 in action."},
+  {q:"moveCatcher(direction) changes catcher.x. What kind of code is moveCatcher?",o:["A function","A list","An object","A random number"],a:0,e:"It's a function (Level 2) — a named block you can call from a button, a touch, or a key. One function, many controls."},
+  {q:"if (caught === game.good) { game.score = game.score + 1; }\nWhen does the score go up?",o:["When the caught item is the good item","Every frame","Only when you lose","Never"],a:0,e:"The if-statement checks the rule: IF the caught item matches the good item, add a point. If-statements are the rules of the game."},
+  {q:"The game keeps checking, moving, and drawing over and over, many times a second. That repeating cycle is called:",o:["The game loop","A single if-statement","A list","An object property"],a:0,e:"Games run a loop that repeats ~30 times a second: move everything, check the rules, redraw. Your Bamboo Catcher runs on a game loop."},
+  {q:"game.lives starts at 3 and does game.lives = game.lives - 1 when you catch a bad item. After 3 bad catches, lives is:",o:["0","3","-3","1"],a:0,e:"3 → 2 → 1 → 0. When lives hits 0, the game ends. You're reading and changing an object property, just like Level 5."},
+  {q:"All the falling items are stored together so the loop can check each one. They're kept in a:",o:["List (Level 3)","Single number","Function","Random roll"],a:0,e:"A list holds all the drops, and one loop marches through every item to move it and check for a catch. Lists + loops, together."},
+  {q:"You picked the good item, the bad item, the speed, and the win score. Those choices are stored as:",o:["Properties on the game object","Random numbers","Separate games","Nothing — they're not saved"],a:0,e:"game.good, game.bad, game.speed, game.target — every choice you made is a property on your game object that the code reads while you play."},
+  {q:"Which of these did your finished game use?",o:["Variables, objects, lists, random, functions, AND if-statements","Only if-statements","Only random numbers","Only objects"],a:0,e:"Your game combined EVERYTHING from all 6 levels. That's how real games are built — many simple ideas working together."},
+  {q:"What's the best way to make your game harder?",o:["Raise the speed or the target score","Delete the catcher","Remove all the drops","Turn off the loop"],a:0,e:"Higher speed = faster drops; higher target = more catches needed. You already have the dials to tune your own difficulty. That's game design!"}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 6',q:text,file:'coding-lesson-06-build-a-game.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — GAME DEVELOPER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You built a real game and mastered all 6 levels. 🎮🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({mission:cur,xp,build:{catcher:game.catcher,good:game.good,bad:game.bad,speed:game.speed,target:game.target}}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stopLoop();saveAll();}});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');if(g.xp)xp=g.xp;document.getElementById('xpNum').textContent=xp;
+    if(g.build){game.catcher=g.build.catcher||game.catcher;game.good=g.build.good||game.good;game.bad=g.build.bad||game.bad;game.speed=g.build.speed||game.speed;game.target=g.build.target||game.target;}
+  }catch(e){}
+  buildQuiz();restoreQuiz();
+  c1Draw();
+}
+init();
+window.addEventListener('resize',()=>{if(cur===1)c1Draw();if(cur===2)c2Draw();if(cur===3)c3Draw();if(cur===5)gDraw();});
+</script>
+</body>
+</html>
