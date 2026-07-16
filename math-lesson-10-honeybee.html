@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 10 — Data &amp; Graphs</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700}
+
+/* GRAPH SVG */
+.gr-wrap{margin:6px 0 4px;overflow-x:auto}
+.gr-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:block;margin:0 auto}
+
+/* TALLY TABLE */
+.tally-table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:15px}
+.tally-table th,.tally-table td{border:1px solid var(--line);padding:10px 12px;text-align:center}
+.tally-table th{background:var(--panel);color:var(--accent2);font-size:13px}
+.tally-table td{background:var(--panel)}
+.tally-table .tally-marks{color:var(--warn);font-weight:700;letter-spacing:2px;font-family:ui-monospace,monospace}
+
+/* CONCEPT / WORKED EXAMPLE */
+.algo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.algo-row{grid-template-columns:1fr}}
+.algo-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px;
+}
+.algo-box .ab-title{font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px}
+.algo-work{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:16px;line-height:1.7;white-space:pre-wrap;color:var(--ink);
+  background:var(--panel2);border-radius:8px;padding:10px 12px;overflow-x:auto;
+}
+.algo-work .hl{color:var(--warn);font-weight:700}
+.algo-step{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* INPUT PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:14px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:150px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:500px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Bar Graph</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Line Plot</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🐝</div>
+  <h1>Math Day 10 — Data &amp; Graphs</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Honeybee Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick questions — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — READING A BAR GRAPH
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>📊 Phase 2 — Reading a Bar Graph <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">A bar graph turns numbers into bars. Taller bar = more. Always read the side axis to find the amount.</p>
+
+  <div class="teach-card">
+    <h3>📋 How a Bar Graph Works</h3>
+    <div class="gr-wrap">
+      <svg width="440" height="300" viewBox="0 0 440 300" role="img" aria-label="Bar graph titled Books Read showing Monday 3, Tuesday 5, Wednesday 2, Thursday 6">
+        <text x="220" y="24" font-size="16" text-anchor="middle" fill="#f4f5fb" font-weight="700">Books Read</text>
+        <!-- Y axis -->
+        <line x1="70" y1="50" x2="70" y2="250" stroke="#a7adc4" stroke-width="2"/>
+        <!-- X axis -->
+        <line x1="70" y1="250" x2="410" y2="250" stroke="#a7adc4" stroke-width="2"/>
+        <!-- Y gridlines + labels 0..6 (30px per unit) -->
+        <g font-size="12" fill="#a7adc4" text-anchor="end">
+          <line x1="70" y1="250" x2="410" y2="250" stroke="#2e3347" stroke-width="1"/>
+          <text x="62" y="254">0</text>
+          <line x1="70" y1="220" x2="410" y2="220" stroke="#2e3347" stroke-width="1"/>
+          <text x="62" y="224">1</text>
+          <line x1="70" y1="190" x2="410" y2="190" stroke="#2e3347" stroke-width="1"/>
+          <text x="62" y="194">2</text>
+          <line x1="70" y1="160" x2="410" y2="160" stroke="#2e3347" stroke-width="1"/>
+          <text x="62" y="164">3</text>
+          <line x1="70" y1="130" x2="410" y2="130" stroke="#2e3347" stroke-width="1"/>
+          <text x="62" y="134">4</text>
+          <line x1="70" y1="100" x2="410" y2="100" stroke="#2e3347" stroke-width="1"/>
+          <text x="62" y="104">5</text>
+          <line x1="70" y1="70" x2="410" y2="70" stroke="#2e3347" stroke-width="1"/>
+          <text x="62" y="74">6</text>
+        </g>
+        <!-- Bars: value*30 tall, base at y=250 -->
+        <!-- Mon 3 -> 90 tall, top y=160 -->
+        <rect x="95" y="160" width="52" height="90" fill="#5bd1c4"/>
+        <!-- Tue 5 -> 150 tall, top y=100 -->
+        <rect x="167" y="100" width="52" height="150" fill="#ff7a59"/>
+        <!-- Wed 2 -> 60 tall, top y=190 -->
+        <rect x="239" y="190" width="52" height="60" fill="#5bd1c4"/>
+        <!-- Thu 6 -> 180 tall, top y=70 -->
+        <rect x="311" y="70" width="52" height="180" fill="#ff7a59"/>
+        <!-- Value labels on top of bars -->
+        <g font-size="13" text-anchor="middle" fill="#ffd166" font-weight="700">
+          <text x="121" y="152">3</text>
+          <text x="193" y="92">5</text>
+          <text x="265" y="182">2</text>
+          <text x="337" y="62">6</text>
+        </g>
+        <!-- X labels -->
+        <g font-size="12" text-anchor="middle" fill="#f4f5fb">
+          <text x="121" y="268">Mon</text>
+          <text x="193" y="268">Tue</text>
+          <text x="265" y="268">Wed</text>
+          <text x="337" y="268">Thu</text>
+        </g>
+        <text x="240" y="290" font-size="12" text-anchor="middle" fill="#a7adc4">Day of the week</text>
+      </svg>
+    </div>
+    <div class="teach-note">
+      To read a bar: find its top, then slide your finger <span class="hl">left to the number axis</span>. Thursday's bar reaches
+      <span class="hl">6</span>, so 6 books were read Thursday. The <span class="hl">tallest</span> bar is the most; the
+      <span class="hl">shortest</span> bar is the fewest. To compare two days, look at the <span class="hl">difference</span> in their heights.
+    </div>
+  </div>
+
+  <div class="warmup-card" id="bg-container">
+    <div class="warmup-q">
+      <span class="q-num" id="bg-q-label">Question 1 of 6</span>
+      <span id="bg-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="bg-choices"></div>
+    <div class="warmup-feedback" id="bg-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="bg-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="bg-next" onclick="bgNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="bg-done">✓ Bar graph mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — TALLY CHARTS & LINE PLOTS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>📈 Phase 3 — Tally Charts &amp; Line Plots <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">A tally chart counts things quickly. A line plot stacks an X for each answer above a number line.</p>
+
+  <div class="teach-card">
+    <h3>📋 The Same Data, Two Ways</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">A class was asked: "How many pets do you have?" Here are the results as a tally chart:</p>
+    <table class="tally-table">
+      <thead>
+        <tr><th>Number of Pets</th><th>Tally</th><th>Count</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td class="tally-marks">||</td><td>2</td></tr>
+        <tr><td>1</td><td class="tally-marks">||||&nbsp;</td><td>5</td></tr>
+        <tr><td>2</td><td class="tally-marks">|||</td><td>3</td></tr>
+        <tr><td>3</td><td class="tally-marks">|</td><td>1</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:14px;color:var(--muted);margin:14px 0 8px">And the same counts drawn as a line plot — one X per person:</p>
+    <div class="gr-wrap">
+      <svg width="420" height="220" viewBox="0 0 420 220" role="img" aria-label="Line plot of number of pets: zero has 2 X, one has 5 X, two has 3 X, three has 1 X">
+        <text x="210" y="22" font-size="15" text-anchor="middle" fill="#f4f5fb" font-weight="700">Number of Pets</text>
+        <!-- number line -->
+        <line x1="60" y1="180" x2="360" y2="180" stroke="#5bd1c4" stroke-width="3"/>
+        <!-- ticks at 0,1,2,3 spaced 80px starting x=90 -->
+        <g stroke="#a7adc4" stroke-width="2">
+          <line x1="90" y1="174" x2="90" y2="186"/>
+          <line x1="170" y1="174" x2="170" y2="186"/>
+          <line x1="250" y1="174" x2="250" y2="186"/>
+          <line x1="330" y1="174" x2="330" y2="186"/>
+        </g>
+        <g font-size="14" text-anchor="middle" fill="#f4f5fb" font-weight="700">
+          <text x="90" y="204">0</text>
+          <text x="170" y="204">1</text>
+          <text x="250" y="204">2</text>
+          <text x="330" y="204">3</text>
+        </g>
+        <!-- X marks stack upward, each 26px tall, bottom X centered ~ y=162 -->
+        <g font-size="20" text-anchor="middle" fill="#ff7a59" font-weight="700">
+          <!-- 0: 2 X -->
+          <text x="90" y="168">✕</text>
+          <text x="90" y="142">✕</text>
+          <!-- 1: 5 X -->
+          <text x="170" y="168">✕</text>
+          <text x="170" y="142">✕</text>
+          <text x="170" y="116">✕</text>
+          <text x="170" y="90">✕</text>
+          <text x="170" y="64">✕</text>
+          <!-- 2: 3 X -->
+          <text x="250" y="168">✕</text>
+          <text x="250" y="142">✕</text>
+          <text x="250" y="116">✕</text>
+          <!-- 3: 1 X -->
+          <text x="330" y="168">✕</text>
+        </g>
+      </svg>
+    </div>
+    <div class="concept-row">
+      <div class="concept-box">
+        <div class="cb-name">Mode</div>
+        <div class="cb-eq">most common value</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Range</div>
+        <div class="cb-eq">biggest − smallest</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Total</div>
+        <div class="cb-eq">add all counts</div>
+      </div>
+    </div>
+    <div class="teach-note">
+      The tallest stack is above <span class="hl">1</span>, so 1 pet is the <span class="hl">MODE</span> (most common).
+      The values that appear go from 0 up to 3, so the <span class="hl">RANGE</span> is <span class="hl">3 − 0 = 3</span>.
+      Add every count (2 + 5 + 3 + 1) to find how many people were surveyed in total.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="lp-label">Question 1 of 5</span>
+    <div class="pa-prompt" id="lp-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="lp-input" type="text" inputmode="numeric" placeholder="?" autocomplete="off">
+      <button class="btn btn-accent" id="lp-check" onclick="checkLP()">Check</button>
+    </div>
+    <div class="pa-feedback" id="lp-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="lp-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="lp-next" onclick="lpNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="lp-done">✓ Tally charts &amp; line plots mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🐝 Phase 4 — Honeybee Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems from the beehive. Type your answer, then reveal the step-by-step solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Sweet work.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Data Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 speed problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l10-qans";
+const QKEY  = "math-l10-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 10: Data & Graphs|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 10', q: questionText, file: 'math-lesson-10-honeybee.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// Helper: parse a typed whole-number answer
+function parseIntAnswer(raw) {
+  const cleaned = String(raw).trim().replace(/[^0-9\-]/g, '');
+  if (cleaned === '' || cleaned === '-') return null;
+  const v = parseInt(cleaned, 10);
+  return isNaN(v) ? null : v;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "What is the biggest number in this list: 4, 9, 2, 7?",
+    choices: ["4", "9", "2", "7"],
+    correct: 1,
+    explain: "9 is the largest. Scan the list and keep the highest value you find."
+  },
+  {
+    q: "5 + 8 + 2 = ?",
+    choices: ["13", "14", "15", "16"],
+    correct: 2,
+    explain: "5 + 8 = 13, then 13 + 2 = 15."
+  },
+  {
+    q: "What is the difference between the largest (10) and the smallest (3)?",
+    choices: ["6", "7", "13", "3"],
+    correct: 1,
+    explain: "Difference means subtract: 10 − 3 = 7. That gap is called the range."
+  },
+  {
+    q: "Which number appears most often: 3, 5, 3, 8, 3?",
+    choices: ["5", "8", "3", "They all tie"],
+    correct: 2,
+    explain: "3 shows up three times — more than any other. The most common value is the mode."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — BAR GRAPH PRACTICE (clean numbers)
+// Graph: Mon 3, Tue 5, Wed 2, Thu 6
+// ═══════════════════════════════════════════════════════════
+const bgQs = [
+  {
+    q: "How many books were read on Thursday?",
+    choices: ["4", "5", "6", "3"],
+    correct: 2,
+    explain: "Thursday's bar reaches 6 on the number axis."
+  },
+  {
+    q: "Which day had the fewest books?",
+    choices: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+    correct: 2,
+    explain: "Wednesday's bar is the shortest at 2 — the fewest."
+  },
+  {
+    q: "How many more books on Tuesday than on Monday?",
+    choices: ["1", "2", "3", "8"],
+    correct: 1,
+    explain: "Tuesday is 5 and Monday is 3: 5 − 3 = 2 more."
+  },
+  {
+    q: "Total books for Monday + Wednesday?",
+    choices: ["4", "5", "6", "8"],
+    correct: 1,
+    explain: "Monday 3 + Wednesday 2 = 5 books."
+  },
+  {
+    q: "Which day had the most books?",
+    choices: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+    correct: 3,
+    explain: "Thursday's bar is the tallest at 6 — the most."
+  },
+  {
+    q: "Total books for all four days?",
+    choices: ["14", "15", "16", "17"],
+    correct: 2,
+    explain: "3 + 5 + 2 + 6 = 16 books in all."
+  }
+];
+
+let bgIdx = 0, bgCorrect = 0, bgAnswered = false;
+
+function renderBG() {
+  const q = bgQs[bgIdx];
+  document.getElementById('bg-q-label').textContent = 'Question ' + (bgIdx+1) + ' of 6';
+  document.getElementById('bg-q-text').textContent = q.q;
+  const fb = document.getElementById('bg-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('bg-next').classList.add('hidden');
+  bgAnswered = false;
+
+  const choicesEl = document.getElementById('bg-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerBG(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('bg-progress').textContent = bgCorrect + ' / 6 correct so far';
+}
+
+function answerBG(idx) {
+  if (bgAnswered) return;
+  bgAnswered = true;
+  const q = bgQs[bgIdx];
+  const btns = document.querySelectorAll('#bg-choices .choice-btn');
+  const fb = document.getElementById('bg-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    bgCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('bg-progress').textContent = bgCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('bg-next');
+  nextBtn.classList.remove('hidden');
+  if (bgIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishBG;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = bgNext;
+  }
+}
+
+function bgNext() {
+  bgIdx++;
+  if (bgIdx < 6) renderBG();
+}
+
+function finishBG() {
+  document.getElementById('bg-done').classList.add('show');
+  document.getElementById('bg-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — LINE PLOT PRACTICE (clean numbers)
+// Line plot: 0->2, 1->5, 2->3, 3->1
+// ═══════════════════════════════════════════════════════════
+const lpProblems = [
+  { prompt: 'How many people have exactly <span class="hl">1</span> pet?', answer: 5,
+    hint: 'There are 5 X marks stacked above the number 1.' },
+  { prompt: 'How many people were surveyed in <span class="hl">total</span>?', answer: 11,
+    hint: 'Add every stack: 2 + 5 + 3 + 1 = 11 people.' },
+  { prompt: 'What is the <span class="hl">MODE</span> (most common number of pets)?', answer: 1,
+    hint: 'The tallest stack (5 X’s) is above 1, so the mode is 1.' },
+  { prompt: 'How many people have <span class="hl">2 or more</span> pets?', answer: 4,
+    hint: 'Add the stacks at 2 and 3: 3 + 1 = 4 people.' },
+  { prompt: 'What is the <span class="hl">RANGE</span> (biggest value minus smallest value that appears)?', answer: 3,
+    hint: 'Values run from 0 up to 3, so 3 − 0 = 3.' }
+];
+
+let lpIdx = 0, lpCorrect = 0, lpAnswered = false;
+
+function renderLP() {
+  const p = lpProblems[lpIdx];
+  document.getElementById('lp-label').textContent = 'Question ' + (lpIdx+1) + ' of 5';
+  document.getElementById('lp-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('lp-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('lp-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('lp-check').disabled = false;
+  document.getElementById('lp-next').classList.add('hidden');
+  lpAnswered = false;
+  document.getElementById('lp-progress').textContent = lpCorrect + ' / 5 correct so far';
+}
+
+function checkLP() {
+  if (lpAnswered) return;
+  const p = lpProblems[lpIdx];
+  const inp = document.getElementById('lp-input');
+  const val = parseIntAnswer(inp.value);
+  if (val === null) { inp.focus(); return; }
+  lpAnswered = true;
+  const correct = val === p.answer;
+  const fb = document.getElementById('lp-feedback');
+  inp.disabled = true;
+  document.getElementById('lp-check').disabled = true;
+  if (correct) {
+    lpCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.answer + '. ' + p.hint;
+  }
+  document.getElementById('lp-progress').textContent = lpCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('lp-next');
+  nextBtn.classList.remove('hidden');
+  if (lpIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishLP;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = lpNext;
+  }
+}
+
+function lpNext() {
+  lpIdx++;
+  if (lpIdx < 5) renderLP();
+}
+
+function finishLP() {
+  document.getElementById('lp-done').classList.add('show');
+  document.getElementById('lp-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (honeybee data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A beekeeper checks 5 hives and records the honey (in pounds): <strong>8, 6, 10, 6, 10</strong>. What is the TOTAL honey from all 5 hives?",
+    solution: [
+      {label:"Plan", text:"Total means add every value in the list."},
+      {label:"Solve", math:"8 + 6 + 10 + 6 + 10 = 40"},
+      {label:"Answer", text:"40 pounds of honey in all."},
+      {label:"Check", text:"Group them: (8 + 6 + 6) = 20 and (10 + 10) = 20, so 20 + 20 = 40 ✓"}
+    ]
+  },
+  {
+    text: "Using that same list of hives (<strong>8, 6, 10, 6, 10</strong>), what is the RANGE of the honey amounts?",
+    solution: [
+      {label:"Plan", text:"Range = biggest value − smallest value."},
+      {label:"Solve", math:"largest = 10, smallest = 6, so 10 − 6 = 4"},
+      {label:"Answer", text:"The range is 4 pounds."},
+      {label:"Check", text:"Every amount sits between 6 and 10, a spread of 4 ✓"}
+    ]
+  },
+  {
+    text: "Using that same list (<strong>8, 6, 10, 6, 10</strong>), which number appears most often (the MODE)?",
+    solution: [
+      {label:"Plan", text:"Count how many times each number shows up."},
+      {label:"Solve", math:"6 appears twice, 10 appears twice, 8 appears once"},
+      {label:"Answer", text:"There are TWO modes: 6 and 10 (both appear twice). A list can have more than one mode."},
+      {label:"Check", text:"No value beats two appearances, and two values tie — so 6 and 10 are both modes ✓"}
+    ]
+  },
+  {
+    text: "A hive sends out foragers: <strong>Monday 40, Tuesday 60, Wednesday 50</strong>. What is the average (mean) number of foragers per day?",
+    solution: [
+      {label:"Plan", text:"Mean = add the values, then divide by how many there are (3 days)."},
+      {label:"Solve", math:"40 + 60 + 50 = 150; 150 ÷ 3 = 50"},
+      {label:"Answer", text:"The mean is 50 foragers per day."},
+      {label:"Check", text:"50 × 3 = 150, matching the total ✓"}
+    ]
+  },
+  {
+    text: "One bee visits <strong>100 flowers</strong> per trip and makes <strong>4 trips</strong>. How many flower visits is that in all?",
+    solution: [
+      {label:"Plan", text:"Same amount repeated → multiply."},
+      {label:"Solve", math:"100 × 4 = 400"},
+      {label:"Answer", text:"400 flower visits."},
+      {label:"Check", text:"100 + 100 + 100 + 100 = 400 ✓"}
+    ]
+  },
+  {
+    text: "A beekeeper collects <strong>12 pounds</strong> of honey from each of <strong>5 hives</strong>. A bar graph would show 5 equal bars of 12. What is the total honey shown?",
+    solution: [
+      {label:"Plan", text:"Five equal bars of 12 → multiply the height by the number of bars."},
+      {label:"Solve", math:"12 × 5 = 60"},
+      {label:"Answer", text:"60 pounds of honey total."},
+      {label:"Check", text:"12 + 12 + 12 + 12 + 12 = 60 ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"Largest of 6, 2, 9, 4?", choices:["6","2","9","4"], correct:2 },
+  { q:"Range of 3 and 10?", choices:["7","13","3","10"], correct:0 },
+  { q:"Mode of 5, 5, 2, 8?", choices:["2","5","8","3"], correct:1 },
+  { q:"Sum of 10 + 10 + 5?", choices:["20","25","15","30"], correct:1 },
+  { q:"Mean of 4, 6, 8?", choices:["4","5","6","8"], correct:2 },
+  { q:"Smallest of 7, 3, 9, 1?", choices:["7","3","9","1"], correct:3 },
+  { q:"Total tally: 4 + 3 + 5?", choices:["11","12","13","10"], correct:1 },
+  { q:"Mean of 10 and 20?", choices:["10","15","20","30"], correct:1 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "On a bar graph, a taller bar means:",
+    opts: ["A greater amount", "A smaller amount", "Nothing at all", "An error"],
+    correct: 0,
+    explain: "Taller bars stand for bigger amounts; shorter bars stand for smaller amounts."
+  },
+  {
+    q: "The MODE of 4, 7, 4, 9 is:",
+    opts: ["9", "4", "7", "6"],
+    correct: 1,
+    explain: "4 appears twice — more than any other number — so the mode is 4."
+  },
+  {
+    q: "The RANGE of 3, 8, 5 is:",
+    opts: ["3", "8", "5", "11"],
+    correct: 2,
+    explain: "Range = biggest − smallest = 8 − 3 = 5."
+  },
+  {
+    q: "A beekeeper's hives gave 8, 6, 10 pounds. The total is:",
+    opts: ["22 pounds", "24 pounds", "26 pounds", "18 pounds"],
+    correct: 1,
+    explain: "8 + 6 + 10 = 24 pounds."
+  },
+  {
+    q: "The MEAN (average) of 10, 20, 30 is:",
+    opts: ["10", "15", "20", "30"],
+    correct: 2,
+    explain: "10 + 20 + 30 = 60, and 60 ÷ 3 = 20."
+  },
+  {
+    q: "On a line plot, more X's above a number means:",
+    opts: ["That value happened more often", "That value is bigger", "There was a mistake", "Nothing"],
+    correct: 0,
+    explain: "Each X is one data point, so a taller stack means that value happened more often."
+  },
+  {
+    q: "Hives gave 5, 5, 8, 2 pounds. Which value is the mode?",
+    opts: ["2", "8", "5", "20"],
+    correct: 2,
+    explain: "5 appears twice, more than any other number, so the mode is 5."
+  },
+  {
+    q: "The largest value minus the smallest value is called the:",
+    opts: ["Mode", "Mean", "Total", "Range"],
+    correct: 3,
+    explain: "That difference between highest and lowest is the range."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Bar graphs, line plots, mode, range, AND mean — you nailed them all.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your data skills are as busy as a beehive — in the best way.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the bar graph and line plot cards, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderBG();
+  renderLP();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+
+  document.getElementById('lp-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkLP();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

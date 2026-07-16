@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 9 · Emperor Penguin 🐧 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 10 · Honeybee 🐝 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — A City of Bees",topic:"Geography",time:"45 min",file:"social-studies-lesson-10-honeybee.html",desc:"The hive as a society: queen, workers & drones, 4,500 years of beekeeping, and why bees feed the world."},
+      {n:2,emoji:"🔬",title:"Science — The Waggle Dance & Superpowers",topic:"Science",time:"45 min",file:"science-lesson-10-honeybee.html",desc:"Pollination, the waggle dance language, hexagon honeycomb, five eyes, and how honey is made."},
+      {n:3,emoji:"📖",title:"ELA — Zuzu's First Flight",topic:"Reading",time:"45 min",file:"ela-lesson-10-honeybee.html",desc:"A young bee's first flight! 7 vocab words, prefixes & suffixes, and a story about finding your place."},
+      {n:4,emoji:"📐",title:"Math — Data & Graphs",topic:"Number",time:"45 min",file:"math-lesson-10-honeybee.html",desc:"Read bar graphs, tally charts & line plots; find mode, range & mean, with honeybee data problems."},
+      {n:5,emoji:"💻",title:"Coding — Level 7: Pixel Art Studio",topic:"Coding",time:"60 min",file:"coding-lesson-07-pixel-art.html",desc:"Build a real drawing app — grid, palette, brush, tools — then make & save your own pixel art! 🎨"},
+    ]},
+    {label:"Day 9 · Emperor Penguin 🐧 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — The Continent at the Bottom of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-09-penguin.html",desc:"Antarctica: the frozen desert no country owns, the Antarctic Treaty, and legendary polar explorers."},
       {n:2,emoji:"🔬",title:"Science — Built for the Deep Freeze",topic:"Science",time:"45 min",file:"science-lesson-09-penguin.html",desc:"Blubber, feather layers, the huddle, record-breaking dives, and the dads who guard eggs all winter."},
       {n:3,emoji:"📖",title:"ELA — The Long Night",topic:"Reading",time:"45 min",file:"ela-lesson-09-penguin.html",desc:"Tumi guards his egg through the polar winter. 7 vocab words, context clues, and a perseverance theme."},
@@ -211,6 +218,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 10 · Honeybee 🐝", items:[
+       {n:10,emoji:"🐝",title:"Data & Graphs",topic:"Number",time:"45 min",file:"math-lesson-10-honeybee.html",desc:"Read bar graphs, tally charts & line plots; find mode, range & mean, with honeybee data word problems."},
+     ]},
      {label:"Day 9 · Emperor Penguin 🐧", items:[
        {n:9,emoji:"🐧",title:"Negative Numbers & Integers",topic:"Number",time:"45 min",file:"math-lesson-09-penguin.html",desc:"Number line, comparing integers, adding & subtracting negatives, and Antarctic temperature problems."},
      ]},
@@ -244,6 +254,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 10 · Honeybee 🐝", items:[
+       {n:10,emoji:"🐝",title:"Honeybee: The Waggle Dance & Superpowers",topic:"Science",time:"45 min",file:"science-lesson-10-honeybee.html",desc:"Pollination, the waggle dance language, hexagon honeycomb, five eyes, honey-making, and a dance decoder."},
+     ]},
      {label:"Day 9 · Emperor Penguin 🐧", items:[
        {n:9,emoji:"🐧",title:"Penguin: Built for the Deep Freeze",topic:"Science",time:"45 min",file:"science-lesson-09-penguin.html",desc:"Blubber, feather layers, counter-current heat, the huddle, record dives, and a winter survival sequencer."},
      ]},
@@ -275,6 +288,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 10 · Honeybee 🐝", items:[
+       {n:10,emoji:"🐝",title:"Honeybee: Zuzu's First Flight",topic:"Reading",time:"45 min",file:"ela-lesson-10-honeybee.html",desc:"A young bee's first flight! 7 vocab words, prefixes & suffixes game, and a finding-your-place theme."},
+     ]},
      {label:"Day 9 · Emperor Penguin 🐧", items:[
        {n:9,emoji:"🐧",title:"Penguin: The Long Night",topic:"Reading",time:"45 min",file:"ela-lesson-09-penguin.html",desc:"Tumi guards his egg through the polar winter. 7 vocab words, context clues, and a perseverance theme."},
      ]},
@@ -302,6 +318,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 10 · Honeybee 🐝", items:[
+       {n:10,emoji:"🐝",title:"A City of Bees",topic:"Geography",time:"45 min",file:"social-studies-lesson-10-honeybee.html",desc:"The hive as a society: queen, workers & drones, 4,500 years of beekeeping, pollination, and bee symbols."},
+     ]},
      {label:"Day 9 · Emperor Penguin 🐧", items:[
        {n:9,emoji:"🐧",title:"The Continent at the Bottom of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-09-penguin.html",desc:"Antarctica: the frozen desert no country owns, the Antarctic Treaty, research stations, and polar explorers."},
      ]},
@@ -341,6 +360,7 @@ const SUBJECTS=[
        {n:4,emoji:"⚔️",title:"Level 4: Battle Mode (Random)",topic:"Coding",time:"60 min",file:"coding-lesson-04-random.html",desc:"Dice rolls, fairness proofs, critical hits, and a full boss fight — Boss the Panda Level 4!"},
        {n:5,emoji:"📋",title:"Level 5: The Character Sheet (Objects)",topic:"Coding",time:"60 min",file:"coding-lesson-05-objects.html",desc:"Objects & properties — build a hero's stats, read them, change them, level up a squad — Boss the Panda Level 5!"},
        {n:6,emoji:"🕹️",title:"Level 6: Build Your Own Game",topic:"Coding",time:"60 min",file:"coding-lesson-06-build-a-game.html",desc:"The capstone! Build a real arcade game piece by piece — catcher, drops, controls, rules — then PLAY the game you made!"},
+       {n:7,emoji:"🎨",title:"Level 7: Pixel Art Studio",topic:"Coding",time:"60 min",file:"coding-lesson-07-pixel-art.html",desc:"Build a real drawing app — grid, color palette, brush, and tools — then make & save your own pixel art!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

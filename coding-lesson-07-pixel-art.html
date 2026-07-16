@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 7 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn.purple{background:var(--purple);border-color:var(--purple);color:#0a0520}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+/* pixel grid */
+.grid-wrap{display:flex;justify-content:center;margin:12px 0}
+.pixgrid{display:grid;gap:2px;background:#000;border:3px solid var(--line);border-radius:10px;padding:4px;touch-action:none;user-select:none;-webkit-user-select:none}
+.cell{background:#12141f;border-radius:2px;width:100%;aspect-ratio:1;cursor:pointer}
+.size-btn{padding:10px 16px;border-radius:10px;background:var(--panel2);border:2px solid var(--line);font-size:15px;font-weight:900;color:var(--ink);cursor:pointer;touch-action:manipulation}
+.size-btn.sel{border-color:var(--accent2);background:#003328;color:var(--accent2)}
+.swatch{width:40px;height:40px;border-radius:9px;border:3px solid #000;cursor:pointer;touch-action:manipulation;transition:.12s}
+.swatch.sel{border-color:#fff;transform:scale(1.14);box-shadow:0 0 0 2px var(--warn)}
+.palette{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px;text-align:center}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 7</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🔲 THE GRID</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🎨 COLORS</div>
+  <div class="mtab" onclick="go(3)" id="tab3">🖌️ PAINT IT</div>
+  <div class="mtab" onclick="go(4)" id="tab4">🧰 TOOLS</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🖼️ MAKE ART</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼🎨</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 7: PIXEL ART STUDIO</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      Last time you built a game. This time you'll build a <strong style="color:var(--ink)">real drawing app</strong> — a pixel art studio — then use it to make art you can keep. Every pro artist's tool started as code like this.
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: A PIXEL STUDIO</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🔲 <strong>The Grid</strong> — a canvas made with loops</div>
+        <div>🎨 <strong>Colors</strong> — a palette (a list!)</div>
+        <div>🖌️ <strong>Paint It</strong> — tap to fill cells (events)</div>
+        <div>🧰 <strong>Tools</strong> — eraser, clear, fill (functions)</div>
+        <div>🖼️ <strong>Make Art</strong> — draw &amp; save your masterpiece</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — THE GRID -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">🔲 Build the Canvas Grid</div>
+    <div class="mission-brief">A pixel canvas is a GRID — rows and columns of little cells. Code builds it with a loop inside a loop (one for rows, one for columns). Pick a size and watch your grid appear!</div>
+  </div>
+
+  <div class="sec">Pick your canvas size:</div>
+  <div class="btn-row" style="justify-content:center">
+    <button class="size-btn" onclick="pickSize(8)">8 × 8</button>
+    <button class="size-btn" onclick="pickSize(12)">12 × 12</button>
+    <button class="size-btn" onclick="pickSize(16)">16 × 16</button>
+  </div>
+
+  <div class="grid-wrap"><div class="pixgrid" id="grid1"></div></div>
+
+  <div class="sec">The code that builds it:</div>
+  <div class="code-block" id="code1"><span class="cm">// Pick a size above!</span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    A loop inside a loop — a <strong style="color:var(--accent2)">nested loop</strong> — builds every cell: for each row, go across every column. An <span class="hl">8×8</span> grid is 64 cells; <span class="hl">16×16</span> is 256! You just made a computer draw all of them with a few lines.
+  </div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn go" id="m1go" style="display:none" onclick="go(2)">NEXT: THE COLORS →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — COLORS -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">🎨 Build the Color Palette</div>
+    <div class="mission-brief">Every paint app has a palette — a LIST of colors (Level 3!). Tap a color to select it. The selected color is what your brush will paint with. Try picking a few!</div>
+  </div>
+
+  <div class="sec">Your palette (a list of colors):</div>
+  <div class="palette" id="palette2"></div>
+
+  <div class="code-block" id="code2"><span class="cm">// Tap a color above to select it</span></div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    Your palette is a <strong style="color:var(--accent2)">list</strong>: <span style="font-family:monospace" class="str">['red','orange','yellow', ...]</span>. Tapping picks one to be the "current color." Real art apps store their palettes as lists exactly like this.
+  </div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn go" id="m2go" style="display:none" onclick="go(3)">NEXT: PAINT! →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — PAINT IT -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">🖌️ Make It Paintable</div>
+    <div class="mission-brief">Now the magic: when you TAP a cell, it fills with your color. That's an EVENT — code that runs when you do something. Pick a color, then paint at least 10 cells. Drag to paint fast!</div>
+  </div>
+
+  <div class="palette" id="palette3"></div>
+  <div class="grid-wrap"><div class="pixgrid" id="grid3"></div></div>
+
+  <div class="code-block"><span class="fn">cell</span>.onclick = <span class="kw">function</span>() {
+  <span class="cm">// when this cell is tapped...</span>
+  cell.<span class="prop">color</span> = currentColor;   <span class="cm">// paint it!</span>
+};</div>
+  <div style="text-align:center;font-size:14px;color:var(--muted)">Cells painted: <span id="paintCount" style="color:var(--warn);font-weight:900;font-size:17px">0</span> / 10</div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    Tapping a cell fires an <strong style="color:var(--accent2)">event</strong>, and the event runs code that changes that cell's color. Every button, every tap, every click in every app works this way: an event happens → code responds.
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">🖌️</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">It's a real paint app now!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: THE TOOLS →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — TOOLS -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">🧰 Add Your Tools</div>
+    <div class="mission-brief">Real apps have tools. Each tool is a FUNCTION (Level 2!). You get an ERASER, a CLEAR-ALL button, and a FILL button that paints the whole canvas one color. Try each one!</div>
+  </div>
+
+  <div class="palette" id="palette4"></div>
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn ghost" onclick="useEraser()" id="eraserBtn">🧽 Eraser</button>
+    <button class="btn warn" onclick="fillAll()">🪣 Fill All</button>
+    <button class="btn fire" onclick="clearArt()">🗑️ Clear</button>
+  </div>
+  <div class="grid-wrap"><div class="pixgrid" id="grid4"></div></div>
+
+  <div class="code-block"><span class="kw">function</span> <span class="fn">clearCanvas</span>() {
+  <span class="kw">for</span> (<span class="kw">let</span> cell <span class="kw">of</span> grid) {   <span class="cm">// loop every cell...</span>
+    cell.<span class="prop">color</span> = <span class="str">'blank'</span>;      <span class="cm">// ...and reset it</span>
+  }
+}</div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    Each tool is a <strong style="color:var(--accent2)">function</strong> that loops over the grid: the eraser paints "blank," fill paints one color everywhere, clear resets it all. One button → one function → the whole grid changes. That's how tools work.
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">🧰</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Toolbox loaded — your studio is complete!</div>
+    <button class="btn go xl pulse" style="margin-top:10px" onclick="go(5)">🖼️ OPEN MY STUDIO →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — MAKE ART -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished App</div>
+    <div class="mission-title">🖼️ PIXEL STUDIO</div>
+    <div class="mission-brief">You BUILT this whole app! Now make something. Pick colors, tap and drag to paint, use your tools. Fill at least 20 cells to finish your masterpiece — it saves automatically.</div>
+  </div>
+
+  <div class="palette" id="palette5"></div>
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn ghost" onclick="useEraser()">🧽 Eraser</button>
+    <button class="btn warn" onclick="fillAll()">🪣 Fill</button>
+    <button class="btn fire" onclick="clearArt()">🗑️ Clear</button>
+  </div>
+  <div class="grid-wrap"><div class="pixgrid" id="grid5"></div></div>
+  <div style="text-align:center;font-size:14px;color:var(--muted)">Cells painted: <span id="artCount" style="color:var(--warn);font-weight:900;font-size:17px">0</span> — your art auto-saves 💾</div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn teal" onclick="challengeIdea()">💡 Give me an idea!</button>
+  </div>
+  <div id="ideaBox" style="text-align:center;font-weight:800;color:var(--accent2);min-height:22px;margin-top:4px"></div>
+
+  <div class="complete-banner" id="m5done">
+    <div style="font-size:40px">🎨</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">MASTERPIECE COMPLETE!</div>
+    <p style="margin-top:6px">You built a real drawing app using grids, nested loops, lists, events, and functions — then made actual art with it. That's exactly how real creative software is coded.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Pixel Power</div>
+    <div class="mission-brief">10 rounds on grids, loops, lists, events, and functions. +10 XP each. Show what you built!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l7-qans', QKEY='coding-l7-quiz', WKEY='coding-l7-art';
+const PREFIX='Coding|Lesson 7: Pixel Art|';
+let xp=0, cur=0;
+
+const COLORS=['#ff4466','#ff8833','#ffcc00','#39e07a','#00e5c8','#4499ff','#b06eff','#ff66cc','#ffffff','#8890b0'];
+const BLANK='#12141f';
+let gridSize=12;
+let art=[];               // flat array length gridSize*gridSize of color strings
+let selColor=COLORS[0];
+let eraser=false;
+let painting=false;
+
+function ensureArt(){ if(art.length!==gridSize*gridSize){ art=new Array(gridSize*gridSize).fill(BLANK); } }
+function paintedCount(){ return art.filter(c=>c&&c!==BLANK).length; }
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===1){ if(gridSize)renderGrid('grid1',false); }
+  if(n===2){ buildPalette('palette2'); }
+  if(n===3){ buildPalette('palette3'); renderGrid('grid3',true); updatePaintCount(); }
+  if(n===4){ buildPalette('palette4'); renderGrid('grid4',true); }
+  if(n===5){ buildPalette('palette5'); renderGrid('grid5',true); updateArtCount(); }
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+
+/* ═══ GRID RENDERING ══════════════════════════════════════ */
+function renderGrid(containerId,paintable){
+  ensureArt();
+  const g=document.getElementById(containerId);
+  if(!g)return;
+  const maxW=Math.min(360,window.innerWidth-64);
+  g.style.gridTemplateColumns=`repeat(${gridSize},1fr)`;
+  g.style.width=maxW+'px';
+  g.innerHTML='';
+  for(let i=0;i<gridSize*gridSize;i++){
+    const c=document.createElement('div');
+    c.className='cell';
+    c.style.background=art[i]||BLANK;
+    c.dataset.i=i;
+    g.appendChild(c);
+  }
+  if(paintable) wirePaint(g);
+}
+function applyPaint(idx){
+  const col=eraser?BLANK:selColor;
+  if(art[idx]===col)return;
+  art[idx]=col;
+  // update just that cell in the active grid
+  document.querySelectorAll('.pixgrid .cell').forEach(c=>{ if(+c.dataset.i===idx) c.style.background=col; });
+  if(cur===3)updatePaintCount();
+  if(cur===5)updateArtCount();
+}
+function wirePaint(g){
+  const idxFromEvent=(e)=>{
+    const t=(e.touches&&e.touches[0])||e;
+    const el=document.elementFromPoint(t.clientX,t.clientY);
+    if(el&&el.classList.contains('cell')&&el.dataset.i!==undefined) return +el.dataset.i;
+    return -1;
+  };
+  g.addEventListener('pointerdown',e=>{e.preventDefault();painting=true;const i=idxFromEvent(e);if(i>=0)applyPaint(i);});
+  g.addEventListener('pointermove',e=>{if(!painting)return;e.preventDefault();const i=idxFromEvent(e);if(i>=0)applyPaint(i);});
+  window.addEventListener('pointerup',()=>{painting=false;});
+  // touch fallback
+  g.addEventListener('touchstart',e=>{e.preventDefault();painting=true;const i=idxFromEvent(e);if(i>=0)applyPaint(i);},{passive:false});
+  g.addEventListener('touchmove',e=>{e.preventDefault();const i=idxFromEvent(e);if(i>=0)applyPaint(i);},{passive:false});
+}
+
+/* ═══ PALETTE ═════════════════════════════════════════════ */
+function buildPalette(containerId){
+  const p=document.getElementById(containerId);
+  if(!p)return;
+  p.innerHTML='';
+  COLORS.forEach(col=>{
+    const s=document.createElement('div');
+    s.className='swatch'+((!eraser&&col===selColor)?' sel':'');
+    s.style.background=col;
+    s.onclick=()=>{ selColor=col;eraser=false;document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('sel'));document.querySelectorAll('.swatch').forEach(x=>{if(x.style.background===s.style.background)x.classList.add('sel');});
+      if(cur===2)onColorPicked();
+    };
+    p.appendChild(s);
+  });
+}
+
+/* ═══ STEP 1 — THE GRID ═══════════════════════════════════ */
+function pickSize(n){
+  gridSize=n;
+  art=new Array(n*n).fill(BLANK);
+  document.querySelectorAll('#sc1 .size-btn').forEach(b=>b.classList.toggle('sel',b.textContent.startsWith(n+' ')));
+  renderGrid('grid1',false);
+  document.getElementById('code1').innerHTML=`<span class="kw">let</span> size = <span class="num">${n}</span>;\n<span class="kw">for</span> (<span class="kw">let</span> row = <span class="num">0</span>; row < size; row++) {\n  <span class="kw">for</span> (<span class="kw">let</span> col = <span class="num">0</span>; col < size; col++) {\n    makeCell(row, col);   <span class="cm">// ${n*n} cells total!</span>\n  }\n}`;
+  document.getElementById('disc1').style.display='block';
+  if(document.getElementById('m1go').style.display==='none'){
+    document.getElementById('m1go').style.display='inline-flex';
+    addXP(20);showToast('🔲 Grid built! +20 XP');
+  }
+}
+
+/* ═══ STEP 2 — COLORS ═════════════════════════════════════ */
+let m2ok=false;
+function onColorPicked(){
+  document.getElementById('code2').innerHTML=`<span class="kw">let</span> palette = [<span class="str">'red'</span>,<span class="str">'orange'</span>,<span class="str">'yellow'</span>,<span class="str">'green'</span>, ...];\n<span class="kw">let</span> currentColor = <span class="str">'${cssName(selColor)}'</span>;   <span class="cm">// you picked this!</span>`;
+  document.getElementById('disc2').style.display='block';
+  if(!m2ok){m2ok=true;document.getElementById('m2go').style.display='inline-flex';addXP(20);showToast('🎨 Palette ready! +20 XP');}
+}
+function cssName(hex){
+  const names={'#ff4466':'red','#ff8833':'orange','#ffcc00':'yellow','#39e07a':'green','#00e5c8':'teal','#4499ff':'blue','#b06eff':'purple','#ff66cc':'pink','#ffffff':'white','#8890b0':'gray'};
+  return names[hex]||'color';
+}
+
+/* ═══ STEP 3 — PAINT IT ═══════════════════════════════════ */
+function updatePaintCount(){
+  const n=paintedCount();
+  const el=document.getElementById('paintCount');if(el)el.textContent=n;
+  if(n>=10){
+    document.getElementById('disc3').style.display='block';
+    const b=document.getElementById('m3done');
+    if(b&&b.className.indexOf('show')<0){b.classList.add('show');addXP(25);showToast('🖌️ Painting works! +25 XP');}
+  }else if(n>=1){
+    document.getElementById('disc3').style.display='block';
+  }
+}
+
+/* ═══ STEP 4 — TOOLS ══════════════════════════════════════ */
+let toolsUsed={};
+function useEraser(){eraser=true;document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('sel'));toolUsed('erase');showToast('🧽 Eraser on — paint to erase');}
+function fillAll(){ensureArt();const col=eraser?BLANK:selColor;for(let i=0;i<art.length;i++)art[i]=col;refreshActiveGrid();toolUsed('fill');if(cur===5)updateArtCount();showToast('🪣 Filled!');}
+function clearArt(){ensureArt();for(let i=0;i<art.length;i++)art[i]=BLANK;refreshActiveGrid();toolUsed('clear');if(cur===5)updateArtCount();if(cur===3)updatePaintCount();showToast('🗑️ Cleared');}
+function refreshActiveGrid(){
+  const id=cur===3?'grid3':cur===4?'grid4':cur===5?'grid5':'grid1';
+  const g=document.getElementById(id);if(!g)return;
+  g.querySelectorAll('.cell').forEach(c=>{c.style.background=art[+c.dataset.i]||BLANK;});
+}
+function toolUsed(t){
+  toolsUsed[t]=1;
+  if(cur===4){
+    document.getElementById('disc4').style.display='block';
+    if(Object.keys(toolsUsed).length>=2){
+      const b=document.getElementById('m4done');
+      if(b&&b.className.indexOf('show')<0){b.classList.add('show');addXP(25);showToast('🧰 Tools ready! +25 XP');}
+    }
+  }
+}
+
+/* ═══ STEP 5 — MAKE ART ═══════════════════════════════════ */
+let m5ok=false;
+function updateArtCount(){
+  const n=paintedCount();
+  const el=document.getElementById('artCount');if(el)el.textContent=n;
+  saveAll();
+  if(n>=20&&!m5ok){
+    m5ok=true;
+    document.getElementById('m5done').classList.add('show');
+    addXP(40);showToast('🎨 Masterpiece! +40 XP');
+  }
+}
+const IDEAS=['a smiley face 🙂','a heart ❤️','a little house 🏠','a tree 🌳','a rocket 🚀','the panda 🐼','a rainbow 🌈','your initial letter','a fish 🐟','a star ⭐','a flower 🌸','a sword ⚔️'];
+let ideaI=0;
+function challengeIdea(){document.getElementById('ideaBox').textContent='Try drawing: '+IDEAS[ideaI%IDEAS.length];ideaI++;}
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"A pixel canvas is made of rows and columns of little cells. That shape is called a:",o:["Grid","List","Loop","Random number"],a:0,e:"A grid is rows × columns of cells — exactly what you built in Step 1. Screens, spreadsheets, and pixel art all use grids."},
+  {q:"To build every cell of an 8×8 grid, the code uses a loop inside a loop. That's called a:",o:["Nested loop","Single if-statement","Object","Random roll"],a:0,e:"A nested loop: the outer loop goes row by row, the inner loop goes across each column. 8×8 = 64 cells built automatically."},
+  {q:"How many cells are in a 16 × 16 grid?",o:["256","32","16","160"],a:0,e:"16 rows × 16 columns = 256 cells. Rows times columns gives the total — that's multiplication and grids working together."},
+  {q:"Your color palette holds many colors in order. It's stored as a:",o:["List (Level 3)","Object","Single number","Function"],a:0,e:"A palette is a list of colors: ['red','orange','yellow', ...]. Lists hold ordered collections — perfect for a set of paint colors."},
+  {q:"When you TAP a cell and it fills with color, what made the code run?",o:["An event","A random number","A nested loop","Nothing"],a:0,e:"A tap is an event. Events run code when something happens — a tap, a click, a key press. Every interactive app is built on events."},
+  {q:"cell.onclick = function() { cell.color = currentColor; }\nWhat does this do?",o:["Paints the tapped cell with the current color","Deletes the cell","Builds the grid","Picks a random color"],a:0,e:"When the cell is clicked, the event runs and sets that cell's color to your current color. Tap → event → paint!"},
+  {q:"Your Clear button loops over every cell and resets it. Clear is a:",o:["Function","List","Grid","Event that never runs"],a:0,e:"Clear is a function that loops through the grid setting each cell back to blank. One button calls one function that changes everything."},
+  {q:"The eraser works by painting cells with:",o:["The blank/background color","A random color","Nothing at all","A brand new grid"],a:0,e:"An eraser is really just a brush that paints the background color — a clever trick used in real paint programs too."},
+  {q:"To make your canvas have MORE detail, you would:",o:["Use a bigger grid (more rows and columns)","Use fewer colors","Delete the palette","Turn off events"],a:0,e:"More cells = more detail. A 16×16 grid can show far more than an 8×8. That's why real screens have millions of tiny pixels!"},
+  {q:"Your finished studio combined grids, nested loops, lists, events, and functions. That shows that big apps are:",o:["Many simple ideas working together","One giant magic command","Impossible to understand","Only made of random numbers"],a:0,e:"Every app — games, paint tools, whole operating systems — is built from simple pieces like the ones you now know, combined together."}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 7',q:text,file:'coding-lesson-07-pixel-art.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — PIXEL MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You built a real drawing app from scratch. 🎨🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({xp,gridSize,art}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAll();});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');
+    if(g.xp)xp=g.xp;
+    if(g.gridSize)gridSize=g.gridSize;
+    if(Array.isArray(g.art)&&g.art.length)art=g.art;
+    document.getElementById('xpNum').textContent=xp;
+  }catch(e){}
+  ensureArt();
+  buildQuiz();restoreQuiz();
+}
+init();
+window.addEventListener('resize',()=>{
+  const id=cur===1?'grid1':cur===3?'grid3':cur===4?'grid4':cur===5?'grid5':null;
+  if(id)renderGrid(id,cur>=3);
+});
+</script>
+</body>
+</html>

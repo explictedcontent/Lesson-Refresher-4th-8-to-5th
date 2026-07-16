@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Studies Day 10 — Honeybee</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:6px;align-items:center}
+.seg{flex:1;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s,transform .2s;cursor:pointer}
+.seg.done{background:var(--good)}
+.seg.active{background:var(--accent);transform:scaleY(1.4)}
+.phase-label{font-size:11px;color:var(--muted);white-space:nowrap;min-width:fit-content;margin-left:8px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:20px 16px 60px}
+.phase{display:none}
+.phase.active{display:block}
+h1{font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:12px;margin-top:24px}
+h3{font-size:1.05rem;font-weight:600;color:var(--warn);margin-bottom:8px}
+.phase-header{margin-bottom:24px}
+.phase-header .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.phase-header p{color:var(--muted);font-size:.95rem}
+
+/* Cards */
+.card{background:var(--panel);border-radius:var(--radius);padding:20px;margin-bottom:var(--gap);border:1px solid var(--line)}
+.card p{color:var(--muted);font-size:.95rem;line-height:1.65}
+
+/* True/False cards */
+.tf-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.tf-card{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:20px;cursor:pointer;transition:border-color .2s,background .2s;min-height:44px}
+.tf-card:hover{border-color:var(--accent2)}
+.tf-card.correct{border-color:var(--good);background:rgba(123,216,143,.08)}
+.tf-card.wrong{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tf-card .tf-statement{font-size:1rem;font-weight:600;margin-bottom:10px}
+.tf-btns{display:flex;gap:10px;margin-top:10px}
+.tf-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;min-height:44px;transition:opacity .2s}
+.tf-btn.true-btn{background:var(--accent2);color:#111}
+.tf-btn.false-btn{background:var(--accent);color:#fff}
+.tf-btn:disabled{opacity:.5;cursor:default}
+.tf-feedback{margin-top:10px;font-size:.875rem;padding:8px 12px;border-radius:6px;display:none}
+.tf-feedback.show{display:block}
+.tf-feedback.correct{background:rgba(123,216,143,.15);color:var(--good)}
+.tf-feedback.wrong{background:rgba(255,107,129,.15);color:var(--bad)}
+
+/* Reading passage */
+.reading-passage{background:var(--panel);border-radius:var(--radius);padding:24px;border:1px solid var(--line);line-height:1.8}
+.reading-passage p{margin-bottom:14px;color:#dce0f0}
+.reading-passage p:last-child{margin-bottom:0}
+.reading-passage strong{color:var(--warn)}
+.reading-passage em{color:var(--accent2)}
+.vocab-box{background:var(--panel2);border-left:3px solid var(--accent2);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.vocab-box span{font-weight:700;color:var(--accent2)}
+.facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.fact-tile{background:var(--panel2);border-radius:10px;padding:14px;text-align:center}
+.fact-tile .num{font-size:1.5rem;font-weight:800;color:var(--accent2)}
+.fact-tile .lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+
+/* Match game */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:14px 12px;cursor:pointer;text-align:center;font-size:.875rem;line-height:1.4;min-height:70px;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;user-select:none}
+.match-item:hover:not(.matched){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.match-item.selected{border-color:var(--warn);background:rgba(255,209,102,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.7}
+.match-item.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.match-score{font-size:1rem;color:var(--muted);margin-bottom:14px}
+.match-score span{color:var(--accent2);font-weight:700}
+.col-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;text-align:center}
+
+/* Timeline order */
+.timeline-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.tl-item{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .3s,background .3s}
+.tl-item.shake{animation:shake .35s}
+.tl-item.right{border-color:var(--good);background:rgba(123,216,143,.1)}
+.tl-item.wrong-pos{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tl-num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--panel2);color:var(--muted);font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.tl-item.right .tl-num{background:var(--good);color:#111}
+.tl-item.wrong-pos .tl-num{background:var(--bad);color:#fff}
+.tl-text{flex:1;font-size:.9rem;line-height:1.45}
+.tl-btns{display:flex;flex-direction:column;gap:6px}
+.tl-move{width:44px;height:44px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;font-size:1rem;cursor:pointer;transition:border-color .2s}
+.tl-move:hover:not(:disabled){border-color:var(--accent2)}
+.tl-move:disabled{opacity:.3;cursor:default}
+.tl-check-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.check-btn{background:var(--accent2);color:#111;border:none;border-radius:8px;padding:12px 22px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.check-btn:hover{opacity:.88}
+.tl-result{font-weight:700;font-size:.95rem}
+.tl-result.perfect{color:var(--good)}
+.tl-result.partial{color:var(--warn)}
+
+/* Writing pad */
+.writing-wrap{position:relative}
+textarea{width:100%;min-height:200px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:var(--radius);padding:16px;font-size:1rem;line-height:1.7;resize:vertical;font-family:inherit;transition:border-color .2s}
+textarea:focus{outline:none;border-color:var(--accent2)}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;color:var(--muted)}
+.save-indicator{color:var(--good);font-weight:600;opacity:0;transition:opacity .4s}
+.save-indicator.show{opacity:1}
+
+/* Quiz */
+.quiz-progress{display:flex;gap:6px;margin-bottom:20px}
+.q-dot{width:28px;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s}
+.q-dot.answered-correct{background:var(--good)}
+.q-dot.answered-wrong{background:var(--bad)}
+.q-dot.current{background:var(--accent)}
+.quiz-q{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);margin-bottom:14px}
+.quiz-q .q-num{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.quiz-q .q-text{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:16px}
+.choice-btn{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:8px;font-size:.95rem;cursor:pointer;color:var(--ink);transition:border-color .2s,background .2s;min-height:44px;line-height:1.4}
+.choice-btn:hover:not(:disabled){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.12);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.choice-btn:disabled{cursor:default}
+.q-explanation{margin-top:12px;font-size:.875rem;padding:10px 14px;border-radius:8px;background:rgba(91,209,196,.1);color:var(--accent2);display:none}
+.q-explanation.show{display:block}
+.quiz-nav{display:flex;gap:10px;margin-top:6px}
+.quiz-nav button{flex:1;padding:12px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.q-prev-btn{background:var(--panel2);color:var(--ink)}
+.q-next-btn{background:var(--accent);color:#fff}
+.q-next-btn:disabled{opacity:.5;cursor:default}
+.quiz-result{text-align:center;padding:28px 20px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-top:16px;display:none}
+.quiz-result.show{display:block}
+.result-score{font-size:2.8rem;font-weight:800;color:var(--accent2);margin-bottom:8px}
+.result-msg{font-size:1rem;color:var(--muted);margin-bottom:16px}
+.retry-btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;min-height:44px}
+.retry-btn:hover{border-color:var(--accent)}
+
+/* Nav buttons */
+.nav-btns{display:flex;gap:10px;margin-top:28px}
+.nav-btn{flex:1;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;min-height:44px;transition:opacity .2s}
+.nav-btn:hover{opacity:.88}
+.btn-prev{background:var(--panel2);color:var(--ink);border:2px solid var(--line)}
+.btn-next{background:var(--accent);color:#fff}
+@media(max-width:480px){.match-grid{grid-template-columns:1fr}.facts-grid{grid-template-columns:1fr}.match-item{min-height:56px}}
+</style>
+</head>
+<body>
+
+<div id="phase-bar">
+  <div class="seg" data-phase="0" title="Warm-Up"></div>
+  <div class="seg" data-phase="1" title="Reading"></div>
+  <div class="seg" data-phase="2" title="Match Game"></div>
+  <div class="seg" data-phase="3" title="Career Order"></div>
+  <div class="seg" data-phase="4" title="Writing"></div>
+  <div class="seg" data-phase="5" title="Quiz"></div>
+  <span class="phase-label" id="phase-label">Warm-Up</span>
+</div>
+
+<div class="container">
+
+<!-- PHASE 1: Warm-Up -->
+<div class="phase active" id="phase-0">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 1 of 6 &bull; 5 min</div>
+    <h1>🐝 Honeybee Warm-Up</h1>
+    <p>Tap TRUE or FALSE for each statement. You'll get instant feedback!</p>
+  </div>
+  <div class="tf-grid" id="tf-grid"></div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-next" onclick="goPhase(1)">Start Reading &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 2: Reading -->
+<div class="phase" id="phase-1">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 2 of 6 &bull; 10 min</div>
+    <h1>Core Reading: A City of Bees</h1>
+    <p>Read carefully — the quiz and activities come from this passage.</p>
+  </div>
+  <div class="reading-passage">
+    <p>Peek inside a beehive and you are looking at a tiny society — almost like a <strong>city</strong>. A single honeybee <strong>colony</strong> can hold <strong>50,000 to 60,000 bees</strong>, all living and working together in one buzzing home. No bee lives alone; the whole hive survives only because everyone does a job.</p>
+
+    <p>There are <strong>three roles</strong> in the hive. There is exactly one <strong>queen</strong> — she is the mother of the whole colony, and her job is to <strong>lay all the eggs</strong>. There are thousands of <strong>workers</strong>, all females, who do nearly everything else: they <strong>build the honeycomb, clean the cells, guard the entrance, and gather nectar</strong>. And there are the <strong>drones</strong>, the males, whose main job is to <strong>mate with a queen</strong>. This sharing out of tasks is called <em>division of labor</em>.</p>
+
+    <div class="vocab-box"><span>Colony:</span> a large group of bees living together as one community. &nbsp; <span>Pollination:</span> moving pollen so plants can make fruit and seeds. &nbsp; <span>Agriculture:</span> the growing of crops and raising of animals for food. &nbsp; <span>Division of labor:</span> splitting up different jobs among different workers. &nbsp; <span>Apiary:</span> a place where a beekeeper keeps their hives.</div>
+
+    <p>Here is something amazing: a worker bee changes careers as she grows older. She starts as a <em>nurse bee</em> feeding babies, then becomes a <em>builder</em> making wax, then a <em>guard</em> at the door, and finally a <em>forager</em> flying out for nectar — a little like a citizen who moves through different careers in a lifetime.</p>
+
+    <p>People have loved bees for a very long time. The <strong>ancient Egyptians kept hives more than 4,500 years ago</strong> and even floated them on rafts up and down the <strong>Nile River</strong> to follow the blooming flowers. Back then honey was treasure — it was used as <strong>food, as medicine, and even as money</strong>. Before sugar was common, honey was one of the only sweeteners on Earth, and it was <strong>traded across the ancient world</strong>.</p>
+
+    <p>Today beekeeping happens on <strong>every continent except Antarctica</strong>. Countries like <strong>China, Turkey, and the United States</strong> are among the top honey producers. But bees matter to people for a bigger reason than honey: <strong>pollination</strong>. As bees visit flowers, they carry pollen from bloom to bloom, which lets plants grow fruit and seeds. Bees pollinate crops like <strong>apples, almonds, and blueberries</strong>. In fact, about <strong>1 of every 3 bites of food</strong> we eat depends on pollinators.</p>
+
+    <p>There is a modern worry, though. <em>Colony collapse</em> and harmful <strong>pesticides</strong> have hurt bee populations around the world. So people are helping — planting <strong>bee-friendly gardens</strong> and protecting hives. Bees have always stood for something too: the beehive is an old symbol of <strong>hard work and teamwork</strong>, and it is even a state symbol of <strong>Utah</strong>, the "Beehive State." A hive works because every single bee cooperates.</p>
+
+    <div class="facts-grid">
+      <div class="fact-tile"><div class="num">60,000</div><div class="lbl">bees can live in one colony</div></div>
+      <div class="fact-tile"><div class="num">4,500+</div><div class="lbl">years people have kept bees</div></div>
+      <div class="fact-tile"><div class="num">1 in 3</div><div class="lbl">bites of food depends on pollinators</div></div>
+      <div class="fact-tile"><div class="num">3</div><div class="lbl">roles: queen, workers, drones</div></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(0)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(2)">Match Game &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 3: Match Game -->
+<div class="phase" id="phase-2">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 3 of 6 &bull; 8 min</div>
+    <h1>Bee Match Game</h1>
+    <p>Tap a term on the left, then tap the matching fact on the right. Wrong pairs will shake — keep trying!</p>
+  </div>
+  <div class="match-score">Matched: <span id="match-count">0</span> / 6</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+    <div class="col-label">Term / Place</div>
+    <div class="col-label">Fact</div>
+  </div>
+  <div class="match-grid" id="match-grid"></div>
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+    <button class="retry-btn" onclick="resetMatch()">Reset Game</button>
+    <span id="match-done-msg" style="color:var(--good);font-weight:700;display:none">All matched! Great work!</span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(1)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(3)">Worker Bee Careers &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 4: Career Order -->
+<div class="phase" id="phase-3">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 4 of 6 &bull; 8 min</div>
+    <h1>Worker Bee Career Order</h1>
+    <p>A worker bee changes jobs as she grows up! These 6 stages are scrambled. Use the ▲ and ▼ buttons to put them in order from FIRST job to LAST, then tap <strong style="color:var(--accent2)">Check My Order</strong>.</p>
+  </div>
+  <div class="timeline-list" id="timeline-list"></div>
+  <div class="tl-check-row">
+    <button class="check-btn" onclick="checkTimeline()">Check My Order</button>
+    <button class="retry-btn" onclick="resetTimeline()">Shuffle Again</button>
+    <span class="tl-result" id="tl-result"></span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(2)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(4)">Writing Pad &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 5: Writing -->
+<div class="phase" id="phase-4">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 5 of 6 &bull; 5 min</div>
+    <h1>Writing Pad</h1>
+  </div>
+  <div class="card">
+    <h3>Writing Prompt</h3>
+    <p>A beehive works because every bee has a job and they all cooperate. Think about your family, classroom, or a team you're on. What jobs or roles help it work? What is YOUR role, and why does it matter? (At least 5 sentences.)</p>
+  </div>
+  <div class="writing-wrap">
+    <textarea id="writing-pad" placeholder="In my family/team, the jobs that help us work are..."></textarea>
+    <div class="writing-meta">
+      <span id="word-count">0 words</span>
+      <span class="save-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(3)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(5)">Final Quiz &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 6: Quiz -->
+<div class="phase" id="phase-5">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 6 of 6 &bull; 5 min</div>
+    <h1>Final Quiz</h1>
+    <p>8 questions — one at a time. You can go back to review!</p>
+  </div>
+  <div class="quiz-progress" id="quiz-dots"></div>
+  <div id="quiz-area"></div>
+  <div class="quiz-result" id="quiz-result">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(4)">&larr; Back</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── Storage Keys ───────────────────────────────────────────
+const QAKEY = "social-l10-qans";
+const QKEY  = "social-l10-quiz";
+const WKEY  = "social-l10-writing";
+
+// ─── logMistake ─────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Social Studies|Day 10: Honeybee|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Social Studies', day: 'Day 10', q: questionText, file: 'social-studies-lesson-10-honeybee.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── Phase navigation ───────────────────────────────────────
+let currentPhase = 0;
+const PHASE_NAMES = ['Warm-Up','Core Reading','Match Game','Career Order','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('active');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('active');
+  updatePhaseBar();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updatePhaseBar() {
+  document.querySelectorAll('.seg').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < currentPhase) s.classList.add('done');
+    if (i === currentPhase) s.classList.add('active');
+  });
+  document.getElementById('phase-label').textContent =
+    'Phase ' + (currentPhase + 1) + ': ' + PHASE_NAMES[currentPhase];
+}
+
+document.querySelectorAll('.seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+// ─── Phase 1: True/False ────────────────────────────────────
+const TF_DATA = [
+  {
+    statement: "A honeybee colony works together like a tiny city, with different jobs for different bees.",
+    answer: true,
+    fact: "Correct! A hive is like a tiny society — thousands of bees each doing their own job."
+  },
+  {
+    statement: "People have been keeping bees for honey for over 4,500 years.",
+    answer: true,
+    fact: "Right! The ancient Egyptians kept hives more than 4,500 years ago, even along the Nile."
+  },
+  {
+    statement: "Every bee in a hive does the exact same job.",
+    answer: false,
+    fact: "Nope! The queen, the workers, and the drones all have different roles in the hive."
+  },
+  {
+    statement: "Bees help grow much of the food people eat by pollinating crops.",
+    answer: true,
+    fact: "True! About 1 in 3 bites of food we eat depends on pollinators like bees."
+  }
+];
+
+function buildTF() {
+  const grid = document.getElementById('tf-grid');
+  grid.innerHTML = '';
+  TF_DATA.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'tf-card';
+    div.id = 'tf-' + i;
+    div.innerHTML = `
+      <div class="tf-statement">${item.statement}</div>
+      <div class="tf-btns">
+        <button class="tf-btn true-btn" onclick="answerTF(${i}, true)">TRUE</button>
+        <button class="tf-btn false-btn" onclick="answerTF(${i}, false)">FALSE</button>
+      </div>
+      <div class="tf-feedback" id="tf-fb-${i}"></div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function answerTF(i, userAnswer) {
+  const item = TF_DATA[i];
+  const correct = (userAnswer === item.answer);
+  const card = document.getElementById('tf-' + i);
+  const fb = document.getElementById('tf-fb-' + i);
+  card.classList.add(correct ? 'correct' : 'wrong');
+  fb.textContent = (correct ? '✓ ' : '✗ ') + item.fact;
+  fb.className = 'tf-feedback show ' + (correct ? 'correct' : 'wrong');
+  card.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+}
+
+// ─── Phase 3: Match Game ────────────────────────────────────
+const MATCH_PAIRS = [
+  { left: 'Queen', right: 'The single bee that lays all the eggs in a hive' },
+  { left: 'Worker', right: 'A female bee that builds, cleans, guards, and gathers' },
+  { left: 'Drone', right: 'A male bee whose main job is to mate' },
+  { left: 'Pollination', right: 'How bees help plants make fruit and seeds' },
+  { left: 'Apiary', right: 'A place where beekeepers keep their hives' },
+  { left: 'Ancient Egypt', right: 'Kept bees over 4,500 years ago along the Nile' }
+];
+
+let matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+
+function buildMatch() {
+  const grid = document.getElementById('match-grid');
+  grid.innerHTML = '';
+  const rights = [...MATCH_PAIRS.map(p => p.right)].sort(() => Math.random() - .5);
+
+  MATCH_PAIRS.forEach((pair, i) => {
+    const lDiv = document.createElement('div');
+    lDiv.className = 'match-item';
+    lDiv.dataset.side = 'left';
+    lDiv.dataset.idx = i;
+    lDiv.textContent = pair.left;
+    lDiv.onclick = () => selectMatch(lDiv);
+    grid.appendChild(lDiv);
+
+    const rDiv = document.createElement('div');
+    rDiv.className = 'match-item';
+    rDiv.dataset.side = 'right';
+    rDiv.dataset.val = rights[i];
+    rDiv.textContent = rights[i];
+    rDiv.onclick = () => selectMatch(rDiv);
+    grid.appendChild(rDiv);
+  });
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+  document.getElementById('match-count').textContent = '0';
+  document.getElementById('match-done-msg').style.display = 'none';
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  const side = el.dataset.side;
+
+  if (side === 'left') {
+    document.querySelectorAll('.match-item[data-side="left"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedLeft === el) { matchState.selectedLeft = null; return; }
+    el.classList.add('selected');
+    matchState.selectedLeft = el;
+  } else {
+    document.querySelectorAll('.match-item[data-side="right"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedRight === el) { matchState.selectedRight = null; return; }
+    el.classList.add('selected');
+    matchState.selectedRight = el;
+  }
+
+  if (matchState.selectedLeft && matchState.selectedRight) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const lEl = matchState.selectedLeft;
+  const rEl = matchState.selectedRight;
+  const idx = parseInt(lEl.dataset.idx);
+  const correct = MATCH_PAIRS[idx].right === rEl.dataset.val;
+
+  if (correct) {
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(idx);
+    const cnt = matchState.matched.size;
+    document.getElementById('match-count').textContent = cnt;
+    if (cnt === MATCH_PAIRS.length) {
+      document.getElementById('match-done-msg').style.display = 'inline';
+    }
+  } else {
+    [lEl, rEl].forEach(e => {
+      e.classList.add('shake');
+      setTimeout(() => { e.classList.remove('shake', 'selected'); }, 400);
+    });
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+}
+
+function resetMatch() { buildMatch(); }
+
+// ─── Phase 4: Career Order ──────────────────────────────────
+const TIMELINE_EVENTS = [
+  { text: 'Newly hatched: cleans cells in the hive', order: 0 },
+  { text: 'Nurse bee: feeds the baby larvae', order: 1 },
+  { text: 'Builder: makes wax and builds honeycomb', order: 2 },
+  { text: 'Guard: protects the hive entrance', order: 3 },
+  { text: 'Forager: flies out to gather nectar and pollen', order: 4 },
+  { text: 'Returns to do the waggle dance to share where the flowers are', order: 5 }
+];
+
+let tlOrder = [];
+
+function buildTimeline() {
+  do {
+    tlOrder = TIMELINE_EVENTS.map((_, i) => i).sort(() => Math.random() - .5);
+  } while (tlOrder.every((v, i) => v === i));
+  renderTimeline();
+  document.getElementById('tl-result').textContent = '';
+  document.getElementById('tl-result').className = 'tl-result';
+}
+
+function renderTimeline(feedback) {
+  const list = document.getElementById('timeline-list');
+  list.innerHTML = '';
+  tlOrder.forEach((evIdx, pos) => {
+    const ev = TIMELINE_EVENTS[evIdx];
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    if (feedback) div.classList.add(ev.order === pos ? 'right' : 'wrong-pos');
+    div.innerHTML = `
+      <div class="tl-num">${pos + 1}</div>
+      <div class="tl-text">${ev.text}</div>
+      <div class="tl-btns">
+        <button class="tl-move" onclick="moveTL(${pos}, -1)" ${pos === 0 ? 'disabled' : ''} aria-label="Move up">▲</button>
+        <button class="tl-move" onclick="moveTL(${pos}, 1)" ${pos === tlOrder.length - 1 ? 'disabled' : ''} aria-label="Move down">▼</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function moveTL(pos, dir) {
+  const np = pos + dir;
+  if (np < 0 || np >= tlOrder.length) return;
+  [tlOrder[pos], tlOrder[np]] = [tlOrder[np], tlOrder[pos]];
+  document.getElementById('tl-result').textContent = '';
+  document.getElementById('tl-result').className = 'tl-result';
+  renderTimeline();
+}
+
+function checkTimeline() {
+  const correct = tlOrder.filter((evIdx, pos) => TIMELINE_EVENTS[evIdx].order === pos).length;
+  renderTimeline(true);
+  const res = document.getElementById('tl-result');
+  if (correct === tlOrder.length) {
+    res.textContent = '🎉 Perfect! All 6 in order!';
+    res.className = 'tl-result perfect';
+  } else {
+    res.textContent = correct + ' / 6 in the right spot — green ones are correct, keep going!';
+    res.className = 'tl-result partial';
+    const list = document.getElementById('timeline-list');
+    list.querySelectorAll('.tl-item.wrong-pos').forEach(el => {
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 400);
+    });
+  }
+}
+
+function resetTimeline() { buildTimeline(); }
+
+// ─── Phase 5: Writing Pad ───────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(() => {
+      localStorage.setItem(WKEY, pad.value);
+      const ind = document.getElementById('save-indicator');
+      ind.classList.add('show');
+      setTimeout(() => ind.classList.remove('show'), 1800);
+    }, 300);
+  });
+}
+
+function updateWordCount() {
+  const txt = document.getElementById('writing-pad').value.trim();
+  const n = txt ? txt.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = n + ' word' + (n !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const pad = document.getElementById('writing-pad');
+  if (pad) localStorage.setItem(WKEY, pad.value);
+}
+
+// ─── Phase 6: Quiz ──────────────────────────────────────────
+const QUIZ_DATA = [
+  {
+    q: 'What is a honeybee colony most like?',
+    choices: ['A single bee living alone', 'A tiny city or society where bees have different jobs', 'A pile of random insects', 'A flower garden'],
+    correct: 1,
+    explanation: 'A colony is like a tiny city — thousands of bees living together, each with its own job.'
+  },
+  {
+    q: 'What is the queen bee\'s job?',
+    choices: ['To guard the entrance', 'To gather nectar all day', 'To lay all the eggs in the hive', 'To build the honeycomb'],
+    correct: 2,
+    explanation: 'There is one queen per hive, and her main job is to lay all of the colony\'s eggs.'
+  },
+  {
+    q: 'What do worker bees do?',
+    choices: ['Build, clean, guard, and gather nectar — they do most jobs', 'Only lay eggs', 'Only mate with the queen', 'Nothing at all'],
+    correct: 0,
+    explanation: 'Workers are females that do nearly everything — building, cleaning, guarding, and gathering nectar.'
+  },
+  {
+    q: 'What is a drone\'s main job?',
+    choices: ['To sting enemies', 'To make honey', 'To mate with a queen', 'To feed the babies'],
+    correct: 2,
+    explanation: 'Drones are the male bees, and their main job is to mate with a queen.'
+  },
+  {
+    q: 'How long have people kept bees?',
+    choices: ['About 50 years', 'Over 4,500 years', 'About 200 years', 'Only since last century'],
+    correct: 1,
+    explanation: 'The ancient Egyptians kept bees more than 4,500 years ago, even along the Nile River.'
+  },
+  {
+    q: 'What is pollination?',
+    choices: ['How bees make wax', 'How bees sting', 'How bees help plants make fruit and seeds', 'How bees clean the hive'],
+    correct: 2,
+    explanation: 'Pollination is when bees carry pollen between flowers, letting plants make fruit and seeds.'
+  },
+  {
+    q: 'Why do bees matter to farmers?',
+    choices: ['They scare away pests', 'They pollinate crops — much of our food depends on them', 'They dig up the soil', 'They water the plants'],
+    correct: 1,
+    explanation: 'Bees pollinate crops like apples, almonds, and blueberries — about 1 in 3 bites of food depends on pollinators.'
+  },
+  {
+    q: 'What is an apiary?',
+    choices: ['A type of flower', 'A place where beekeepers keep their hives', 'The queen\'s egg chamber', 'A honey factory machine'],
+    correct: 1,
+    explanation: 'An apiary is the place where a beekeeper keeps their hives.'
+  }
+];
+
+let quizCurrent = 0;
+let quizAnswers = {};
+
+function buildQuiz() {
+  quizAnswers = {};
+  quizCurrent = 0;
+  renderQuizDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (typeof saved === 'object' && saved !== null) {
+      quizAnswers = saved;
+    }
+  } catch(e) { quizAnswers = {}; }
+  renderQuizDots();
+  renderQuestion();
+}
+
+function renderQuizDots() {
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  QUIZ_DATA.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot';
+    if (i === quizCurrent) d.classList.add('current');
+    else if (quizAnswers[i] !== undefined) {
+      d.classList.add(quizAnswers[i] === QUIZ_DATA[i].correct ? 'answered-correct' : 'answered-wrong');
+    }
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const area = document.getElementById('quiz-area');
+  const result = document.getElementById('quiz-result');
+  const allAnswered = Object.keys(quizAnswers).length === QUIZ_DATA.length;
+
+  if (allAnswered && quizCurrent >= QUIZ_DATA.length) {
+    area.innerHTML = '';
+    showQuizResult();
+    return;
+  }
+
+  result.classList.remove('show');
+  const qi = quizCurrent;
+  const item = QUIZ_DATA[qi];
+  const userAns = quizAnswers[qi];
+  const answered = userAns !== undefined;
+
+  let choicesHTML = item.choices.map((c, ci) => {
+    let cls = '';
+    if (answered) {
+      if (ci === item.correct) cls = 'correct';
+      else if (ci === userAns) cls = 'wrong';
+    }
+    return `<button class="choice-btn ${cls}" ${answered ? 'disabled' : ''} onclick="ansQ(${qi},${ci})">${c}</button>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="quiz-q">
+      <div class="q-num">Question ${qi + 1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${item.q}</div>
+      ${choicesHTML}
+      <div class="q-explanation ${answered ? 'show' : ''}" id="q-exp">
+        ${answered ? (userAns === item.correct ? '✓ Correct! ' : '✗ Not quite. ') + item.explanation : item.explanation}
+      </div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-nav btn q-prev-btn" onclick="qNav(-1)" ${qi === 0 ? 'disabled' : ''}>&larr; Prev</button>
+      <button class="quiz-nav btn q-next-btn" onclick="qNav(1)" ${!answered ? 'disabled' : ''}>${qi === QUIZ_DATA.length - 1 ? 'Finish' : 'Next &rarr;'}</button>
+    </div>
+  `;
+  renderQuizDots();
+}
+
+function ansQ(qi, choiceIdx) {
+  if (quizAnswers[qi] !== undefined) return;
+  quizAnswers[qi] = choiceIdx;
+  const correct = choiceIdx === QUIZ_DATA[qi].correct;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, QUIZ_DATA[qi].q, 'Final Quiz');
+  renderQuestion();
+  if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+    const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+    try { localStorage.setItem(QKEY, JSON.stringify({ score, total: QUIZ_DATA.length, date: Date.now() })); } catch(e) {}
+  }
+}
+
+function qNav(dir) {
+  quizCurrent = Math.max(0, Math.min(QUIZ_DATA.length, quizCurrent + dir));
+  if (quizCurrent >= QUIZ_DATA.length) { showQuizResult(); return; }
+  renderQuestion();
+}
+
+function showQuizResult() {
+  const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+  const pct = Math.round(score / QUIZ_DATA.length * 100);
+  document.getElementById('quiz-area').innerHTML = '';
+  const res = document.getElementById('quiz-result');
+  document.getElementById('result-score').textContent = score + ' / ' + QUIZ_DATA.length;
+  let msg = pct >= 88 ? 'Excellent! You really know your bees!' :
+            pct >= 63 ? 'Good work! Review a few answers and try again.' :
+            'Keep studying — go back to the reading and try once more!';
+  document.getElementById('result-msg').textContent = msg + ' (' + pct + '%)';
+  res.classList.add('show');
+  renderQuizDots();
+}
+
+function retryQuiz() {
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── Save All ───────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── Init ───────────────────────────────────────────────────
+function init() {
+  buildTF();
+  buildMatch();
+  buildTimeline();
+  initWriting();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+init();
+</script>
+</body>
+</html>
