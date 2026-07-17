@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Science Day 5 — Sea Turtles</title>
+<title>Science Day 11 — Bat</title>
 <style>
 :root {
   --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
@@ -34,17 +34,18 @@ a{color:var(--accent2)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:12px}
 .card-sm{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
 
-/* Flip cards — Phase 1 */
-.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.flip-card{height:130px;cursor:pointer;perspective:800px;border-radius:var(--radius)}
-.flip-inner{width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d;position:relative}
+/* Flip cards — Phase 1 (mystery number cards) */
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.flip-card{height:150px;cursor:pointer;perspective:900px;border-radius:var(--radius)}
+.flip-inner{width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;position:relative}
 .flip-card.flipped .flip-inner{transform:rotateY(180deg)}
 .flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;border:2px solid var(--line)}
-.flip-front{background:var(--panel2);color:var(--ink);font-style:italic;font-size:15px}
+.flip-front{background:var(--panel2);color:var(--accent2);flex-direction:column;gap:6px}
+.flip-front .big-num{font-weight:800;font-size:38px;color:var(--ink);letter-spacing:-1px}
 .flip-back{background:var(--panel);transform:rotateY(180deg);flex-direction:column;gap:8px}
-.flip-back .answer{font-weight:700;font-size:16px;color:var(--accent2)}
+.flip-back .answer{font-weight:700;font-size:15px;color:var(--accent2)}
 .flip-back .explain{font-size:13px;color:var(--muted)}
-.flip-hint{position:absolute;bottom:8px;right:12px;font-size:11px;color:var(--accent);opacity:.8}
+.flip-hint{position:absolute;bottom:8px;right:12px;font-size:11px;color:var(--accent);opacity:.85}
 
 /* Reading passage */
 .passage{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;line-height:1.8}
@@ -71,16 +72,18 @@ a{color:var(--accent2)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 
-/* Sequence — Phase 4 */
-.seq-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-.seq-item{min-height:54px;padding:12px 16px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);cursor:grab;font-size:14px;display:flex;align-items:center;gap:12px;transition:border-color .2s,opacity .15s;user-select:none}
-.seq-item:active{cursor:grabbing;opacity:.8}
-.seq-item.dragging{opacity:.4}
-.seq-item.over{border-color:var(--accent2)}
-.seq-item .seq-num{min-width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--muted)}
-.seq-item.correct-pos .seq-num{background:var(--good);color:#14151d}
-.seq-item.wrong-pos .seq-num{background:var(--bad);color:#fff}
-.seq-check-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+/* Echolocation sequencer — Phase 4 */
+.seq-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.seq-intro{font-size:15px;line-height:1.6;margin-bottom:16px}
+.seq-list{display:flex;flex-direction:column;gap:8px}
+.seq-item{min-height:44px;padding:12px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .2s,background .2s,transform .15s;user-select:none;text-align:left}
+.seq-item:hover{border-color:var(--accent2)}
+.seq-num{min-width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.seq-item.picked .seq-num{background:var(--accent);color:#fff}
+.seq-item.correct-pos{border-color:var(--good);background:rgba(123,216,143,.12)}
+.seq-item.wrong-pos{animation:shake .35s;border-color:var(--bad);background:rgba(255,107,129,.1)}
+.seq-bonus{padding:16px;border-radius:8px;margin-top:14px;border-left:4px solid var(--accent2);background:rgba(91,209,196,.1);font-size:14px;line-height:1.6}
+.seq-bonus strong{color:var(--accent2)}
 
 /* Writing pad — Phase 5 */
 .writing-area{width:100%;min-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:15px;font-family:inherit;line-height:1.7;padding:14px;resize:vertical;outline:none;transition:border-color .2s}
@@ -126,36 +129,36 @@ a{color:var(--accent2)}
 
 <!-- Phase progress bar -->
 <div id="phase-bar">
-  <div class="ph-seg active" id="seg-1" onclick="scrollToPhase(1)" title="Phase 1: Mystery Body Parts"></div>
+  <div class="ph-seg active" id="seg-1" onclick="scrollToPhase(1)" title="Phase 1: Mystery Flip Cards"></div>
   <div class="ph-seg" id="seg-2" onclick="scrollToPhase(2)" title="Phase 2: Core Reading"></div>
   <div class="ph-seg" id="seg-3" onclick="scrollToPhase(3)" title="Phase 3: Adaptation Match"></div>
-  <div class="ph-seg" id="seg-4" onclick="scrollToPhase(4)" title="Phase 4: Life Cycle"></div>
+  <div class="ph-seg" id="seg-4" onclick="scrollToPhase(4)" title="Phase 4: Echolocation Sequencer"></div>
   <div class="ph-seg" id="seg-5" onclick="scrollToPhase(5)" title="Phase 5: Writing Pad"></div>
   <div class="ph-seg" id="seg-6" onclick="scrollToPhase(6)" title="Phase 6: Quiz"></div>
-  <span class="ph-label">🐢 Sea Turtle</span>
+  <span class="ph-label">🦇 Bat</span>
 </div>
 
 <div class="container">
 
   <!-- Header -->
   <div style="text-align:center;margin-bottom:36px;padding-top:8px">
-    <div style="font-size:52px;margin-bottom:8px">🐢</div>
-    <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">Sea Turtles</div>
-    <div style="color:var(--muted);font-size:14px;margin-top:4px">Science · Day 5 · Approx. 36 min</div>
+    <div style="font-size:52px;margin-bottom:8px">🦇</div>
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">The Bat</div>
+    <div style="color:var(--muted);font-size:14px;margin-top:4px">Science · Day 11 · Approx. 38 min</div>
   </div>
 
   <!-- ══════════════ PHASE 1 ══════════════ -->
   <section class="phase-section" id="phase-1">
     <div class="phase-title">
       <span class="badge">Phase 1</span>
-      Mystery Body Parts
+      Mystery Flip Cards
     </div>
-    <div class="phase-meta">5 min · Tap each card to reveal what body part is being described</div>
+    <div class="phase-meta">5 min · Tap each card to reveal the amazing fact</div>
 
     <div class="flip-grid" id="flip-grid"></div>
 
     <div class="tip-box" style="margin-top:16px">
-      <strong>Try first!</strong> Read the clue and guess before flipping. Sea turtles have amazing features that other animals don't share.
+      <strong>Guess first!</strong> Before you flip, ask yourself: what could this number or word possibly mean for the only mammal that can truly fly? Some of these will surprise you.
     </div>
   </section>
 
@@ -170,38 +173,39 @@ a{color:var(--accent2)}
     <div class="phase-meta">10 min · Read carefully — quiz questions come from this passage</div>
 
     <div class="passage">
+      <p style="font-size:19px;font-weight:700;color:var(--ink);margin-bottom:16px">Seeing With Sound</p>
 
-      <h3>Temperature-Dependent Sex Determination (TSD)</h3>
-      <p>Most animals have chromosomes that decide whether an embryo becomes male or female. Sea turtles are different. Their sex is decided by <strong>nest temperature</strong> during incubation. If the nest stays <strong>above 29°C (84°F)</strong>, more hatchlings will be female. <strong>Below 29°C</strong>, more will be male. At exactly <strong>29°C</strong> — called the <strong>"pivotal temperature"</strong> — roughly equal numbers of males and females hatch.</p>
-      <p>This creates a serious problem with climate change. As global temperatures rise, beach sand heats up, pushing nest temperatures higher. Scientists monitoring Florida beaches have found ratios as extreme as <strong>99% female</strong> in some years. Without enough males, populations cannot reproduce and will eventually collapse.</p>
+      <h3>A Mammal That Flies</h3>
+      <p>A bat may look a little like a bird, but it is a <strong>mammal</strong> — just like you, a dog, or a whale. Bats are <strong>warm-blooded</strong> and <strong>furry</strong>, and mother bats feed their babies <strong>milk</strong>. In fact, the bat is the only mammal that can truly fly, flapping through the night sky on its own power.</p>
 
-      <h3>Magnetic Navigation</h3>
-      <p>How does a turtle find the same tiny beach across thousands of miles of open ocean — sometimes 30 years later? The answer is <strong>magnetite crystals</strong> — tiny magnetic particles in brain cells that work like a built-in compass. These crystals detect Earth's magnetic field lines, giving turtles information about both their <strong>latitude</strong> (north-south position) and <strong>longitude</strong> (east-west position).</p>
-      <p>Every beach has a slightly different magnetic "address" in Earth's field. Female turtles memorize their birth beach's magnetic signature as hatchlings, then use that memory as adults to navigate back to nest. Researchers have confirmed turtles return to within a few miles of their exact hatch site.</p>
+      <h3>Echolocation</h3>
+      <p>How does a bat find a tiny insect in total darkness? It "sees" with sound, using a skill called <strong>echolocation</strong>. The bat makes high-pitched <strong>squeaks</strong> that are too high for humans to hear. Those sound waves fly out, <strong>bounce off</strong> objects, and come back as <strong>echoes</strong>. The bat's brain uses the exact timing of each echo to know where everything is — like a built-in <strong>sonar</strong> system.</p>
 
-      <h3>Leatherback Sea Turtle: The Record-Breaker</h3>
-      <p>The leatherback is the most extreme of all sea turtles. It is the <strong>only sea turtle without a hard bony shell</strong> — instead, it has thick, rubbery leathery skin over a mosaic of tiny bones. This flexible body allows it to reach depths of <strong>3,937 feet (1,200 m)</strong> — the deepest dive of any reptile — without cracking under pressure.</p>
-      <p>Leatherbacks are also the <strong>largest reptiles by weight</strong>, reaching up to <strong>2,000 lbs (900 kg)</strong>. Unlike almost all reptiles, which are ectotherms (cold-blooded), leatherbacks can <strong>partially regulate their own body temperature</strong> through their large size and special circulation. This lets them survive in cold waters from the Arctic all the way to the tropics.</p>
+      <h3>Quick Echo, Slow Echo</h3>
+      <p>The timing of the echo tells the bat the <strong>distance</strong>. A <strong>quick echo</strong> means an object is close, and a <strong>slow echo</strong> means it is far away. This works so well that a bat can chase and catch a fluttering moth in complete darkness, doing this sound-math hundreds of times every minute.</p>
 
-      <h3>The Green Sea Turtle's Surprising Name</h3>
-      <p>The green sea turtle is NOT named for the color of its shell — its shell is brownish. It is named for the <strong>green-colored fat</strong> beneath its skin. The fat turns green because green turtles are the <strong>only sea turtles that graze on plants as adults</strong>, eating large amounts of seagrass and algae. The chlorophyll in these plants tints their fat green.</p>
+      <h3>Wings Made of Hands</h3>
+      <p>Look closely and a bat's wing is really a <strong>hand</strong>. It has long <strong>finger bones</strong> with thin skin stretched between them. That is why the bat's animal group is named <strong>Chiroptera</strong>, which means "<strong>hand-wing</strong>." A bat literally flies on its fingers.</p>
 
-      <h3>Phototaxis: Following the Light</h3>
-      <p>Hatchlings are born with a behavior called <strong>phototaxis</strong> — they automatically move toward the <strong>brightest light</strong> they can see. In nature, that's the reflection of moonlight and starlight on the ocean surface. But on developed beaches, streetlights, parking lots, and houses are brighter. Disoriented hatchlings crawl toward roads and lights instead of the sea, where they die from dehydration, predators, or cars.</p>
+      <h3>Creatures of the Night</h3>
+      <p>Most bats are <strong>nocturnal</strong>, meaning they are active at night. Hunting after dark lets them <strong>avoid daytime predators</strong> and catch insects that fly at night. When it comes to food, bats are very different from one another: most eat <strong>insects</strong>, while <strong>fruit bats</strong> eat fruit and nectar and help <strong>pollinate</strong> plants. A few unusual bats eat fish, frogs, or even blood.</p>
 
-      <h3>Breathing and Diving</h3>
-      <p>Sea turtles are <strong>air-breathing reptiles</strong> — they must surface to breathe. But they can hold their breath for impressive lengths of time: <strong>up to 7 hours while resting</strong> on the sea floor (their heart slows to just one beat per minute!), and about <strong>45 minutes while actively swimming</strong>.</p>
+      <h3>Hanging Upside Down</h3>
+      <p>Bats roost <strong>upside down</strong>, and it takes no effort at all. Their leg <strong>tendons lock</strong> automatically, so hanging costs no energy. Best of all, hanging high up means they can simply <strong>drop straight into flight</strong> the instant they need to go.</p>
 
-      <h3>Ancient Survivors</h3>
-      <p>Sea turtles have roamed Earth's oceans for <strong>over 100 million years</strong> — they watched dinosaurs come and go. They survived the asteroid impact that wiped out most life on Earth 66 million years ago. Today, six of the seven sea turtle species are threatened or endangered, mostly due to <strong>human activity</strong>: plastic pollution, fishing nets, coastal development, and climate change.</p>
+      <h3>Sleeping Through Winter</h3>
+      <p>When cold weather comes and insects disappear, many bats <strong>hibernate</strong>. They slow their heartbeat way down and rest deeply to save energy until spring, when the bugs return.</p>
+
+      <h3>Not Really Blind</h3>
+      <p>People say "blind as a bat," but that is a <strong>myth</strong>. Bats can see just fine — they simply rely on echolocation because sound works better in the dark. And bats matter to the whole world: by controlling insects and pollinating plants, they are a <strong>keystone</strong> part of many habitats.</p>
 
       <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
-        <span class="fact-pill">🌡️ Pivotal temp: 29°C</span>
-        <span class="fact-pill">🧲 Magnetite navigation</span>
-        <span class="fact-pill">🫁 7 hrs breath-hold</span>
-        <span class="fact-pill">⚖️ Leatherback: 2,000 lbs</span>
-        <span class="fact-pill">🌊 Deepest dive: 3,937 ft</span>
-        <span class="fact-pill">🕰️ 100 million years old</span>
+        <span class="fact-pill">🦇 Only flying mammal</span>
+        <span class="fact-pill">🔊 Echolocation = seeing with sound</span>
+        <span class="fact-pill">✋ Wing = a hand</span>
+        <span class="fact-pill">🌙 Nocturnal hunter</span>
+        <span class="fact-pill">🙃 Hangs upside down free</span>
+        <span class="fact-pill">👁️ Not actually blind</span>
       </div>
     </div>
   </section>
@@ -214,7 +218,7 @@ a{color:var(--accent2)}
       <span class="badge">Phase 3</span>
       Adaptation Match
     </div>
-    <div class="phase-meta">8 min · Tap an adaptation on the left, then tap its purpose on the right</div>
+    <div class="phase-meta">8 min · Tap a word on the left, then tap what it means on the right</div>
 
     <div class="match-wrap">
       <div class="match-col" id="match-left"></div>
@@ -226,7 +230,7 @@ a{color:var(--accent2)}
       <button class="btn btn-muted" onclick="resetMatch()">Reset all</button>
     </div>
     <div class="tip-box" style="margin-top:14px">
-      <strong>Tip:</strong> If you get one wrong, the "Retry unmatched" button will appear so you can try again without starting over.
+      <strong>Tip:</strong> If you get one wrong, the "Retry unmatched" button appears so you can try again without starting over.
     </div>
   </section>
 
@@ -236,18 +240,13 @@ a{color:var(--accent2)}
   <section class="phase-section" id="phase-4">
     <div class="phase-title">
       <span class="badge">Phase 4</span>
-      Life Cycle Sequencing
+      Echolocation Sequencer
     </div>
-    <div class="phase-meta">8 min · Drag or tap to put the 7 life cycle stages in the correct order</div>
+    <div class="phase-meta">10 min · Put the steps of echolocation in the right order</div>
 
-    <div class="seq-list" id="seq-list"></div>
-    <div class="seq-check-row">
-      <button class="btn btn-accent" onclick="checkSeq()">Check Order</button>
-      <button class="btn btn-muted" onclick="shuffleSeq()">Shuffle Again</button>
-      <span id="seq-msg" style="font-size:14px;color:var(--muted)"></span>
-    </div>
+    <div id="seq-body"></div>
     <div class="tip-box" style="margin-top:14px">
-      <strong>Tip:</strong> On mobile, tap an item to select it (it highlights), then tap where you want it to go. On desktop, you can also drag.
+      <strong>Think it through:</strong> What has to happen FIRST — before an echo can come back at all? What is the very LAST thing, when the bat finally knows exactly where the insect is? Build the timeline from the first squeak to the catch.
     </div>
   </section>
 
@@ -259,17 +258,17 @@ a{color:var(--accent2)}
       <span class="badge">Phase 5</span>
       Writing Pad
     </div>
-    <div class="phase-meta">5 min · Write 3–5 sentences</div>
+    <div class="phase-meta">5 min · Write at least 5 sentences</div>
 
     <div class="card" style="margin-bottom:14px">
       <div style="font-weight:700;margin-bottom:8px;color:var(--accent2)">Your prompt:</div>
-      <p style="font-size:15px;line-height:1.7">Choose <strong>ONE</strong> sea turtle adaptation: magnetic navigation, temperature-dependent sex determination, salt glands, or holding their breath.</p>
-      <p style="font-size:15px;line-height:1.7;margin-top:8px">In your answer, explain: <strong>(1)</strong> What is it? <strong>(2)</strong> How does it help the turtle survive? <strong>(3)</strong> What would happen if the turtle <em>didn't</em> have this adaptation?</p>
+      <p style="font-size:15px;line-height:1.7">Bats "see" using sound instead of light. Imagine you had echolocation too.</p>
+      <p style="font-size:15px;line-height:1.7;margin-top:8px">How would you use it? What could you do that you can't do now? Describe a day using your new power. <strong>(At least 5 sentences.)</strong></p>
     </div>
 
-    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here…" oninput="onWritingInput()"></textarea>
+    <textarea class="writing-area" id="writing-pad" placeholder="If I had echolocation, the first thing I would do is…" oninput="onWritingInput()"></textarea>
     <div class="writing-footer">
-      <span id="char-count">0 characters</span>
+      <span id="word-count">0 words</span>
       <span class="saved-indicator" id="save-indicator">Saved ✓</span>
     </div>
   </section>
@@ -294,17 +293,17 @@ a{color:var(--accent2)}
 'use strict';
 
 // ── Storage keys ──────────────────────────────────────────────
-const QAKEY = 'science-l5-qans';
-const QKEY  = 'science-l5-quiz';
-const WKEY  = 'science-l5-writing';
+const QAKEY = 'science-l11-qans';
+const QKEY  = 'science-l11-quiz';
+const WKEY  = 'science-l11-writing';
 
 // ── logMistake ────────────────────────────────────────────────
 function logMistake(correct, questionText, quizTitle) {
   try {
     let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
-    const key = 'Science|Day 5: Sea Turtle|' + quizTitle;
+    const key = 'Science|Day 11: Bat|' + quizTitle;
     if (!correct) {
-      m[key] = { subject: 'Science', day: 'Day 5', q: questionText, file: 'science-lesson-05-sea-turtle.html' };
+      m[key] = { subject: 'Science', day: 'Day 11', q: questionText, file: 'science-lesson-11-bat.html' };
     } else {
       delete m[key];
     }
@@ -312,43 +311,44 @@ function logMistake(correct, questionText, quizTitle) {
   } catch(e) {}
 }
 
-// ── Phase 1 Data ──────────────────────────────────────────────
+// ── Phase 1: Mystery Flip Cards ───────────────────────────────
 const flipCards = [
   {
-    clue: '"I steer through water like wings on a plane"',
-    answer: 'Front Flippers',
-    explain: 'Streamlined for long-distance swimming, they act like wings to generate lift and steering — not just paddles.'
+    num: 'ECHOLOCATION',
+    answer: 'Seeing with sound',
+    explain: 'Bats "see" with sound: they squeak, then listen to the echoes bouncing back to map the world in the dark.'
   },
   {
-    clue: '"I\'m made of 60 bones fused together — but I\'m not a backpack"',
-    answer: 'Carapace (Upper Shell)',
-    explain: 'The shell is part of the turtle\'s skeleton — ribs and spine fused together. It cannot be removed.'
+    num: '1,200',
+    answer: 'Insects in one hour',
+    explain: 'A single little brown bat can catch up to 1,200 insects in just one hour of hunting.'
   },
   {
-    clue: '"I drip liquid while laying eggs — but not tears of sadness"',
-    answer: 'Salt Glands Near Eyes',
-    explain: 'These glands remove excess salt from ocean water. The liquid they secrete looks like tears but is purely functional.'
+    num: 'UPSIDE DOWN',
+    answer: 'How a bat roosts',
+    explain: 'Bats roost hanging upside down so they can drop into flight instantly — their legs lock in place with no effort.'
   },
   {
-    clue: '"I can tell North from South without a compass"',
-    answer: 'Magnetic Sensing Cells',
-    explain: 'Magnetite crystals in brain cells detect Earth\'s magnetic field lines, giving turtles built-in GPS for ocean navigation.'
+    num: '3',
+    answer: 'Bat species that drink blood',
+    explain: 'Only 3 of the 1,400+ bat species feed on blood — the rest eat insects, fruit, or nectar.'
   },
   {
-    clue: '"I decide if you\'re a boy or a girl — but I\'m just the temperature"',
-    answer: 'Nest Temperature (TSD)',
-    explain: 'Temperature-Dependent Sex Determination: above 29°C = more females, below 29°C = more males. No chromosomes needed!'
+    num: '40 YEARS',
+    answer: 'A surprisingly long life',
+    explain: 'Some small bats can live over 30-40 years, amazingly long for such a tiny mammal.'
   }
 ];
 
 function buildFlipCards() {
   const grid = document.getElementById('flip-grid');
+  grid.innerHTML = '';
   flipCards.forEach((fc, i) => {
     grid.innerHTML += `
       <div class="flip-card" id="fc-${i}" onclick="flipCard(${i})" role="button" tabindex="0" aria-label="Flip card ${i+1}" onkeydown="if(event.key==='Enter'||event.key===' ')flipCard(${i})">
         <div class="flip-inner">
           <div class="flip-front">
-            <span>${fc.clue}</span>
+            <span class="big-num">${fc.num}</span>
             <span class="flip-hint">tap to reveal</span>
           </div>
           <div class="flip-back">
@@ -364,15 +364,15 @@ function flipCard(i) {
   document.getElementById('fc-'+i).classList.toggle('flipped');
 }
 
-// ── Phase 3: Match Game ───────────────────────────────────────
+// ── Phase 3: Adaptation Match ─────────────────────────────────
 const matchPairs = [
-  { left: 'Streamlined shell', right: 'Reduces drag for fast swimming' },
-  { left: 'Front flippers like paddles', right: 'Power through ocean currents' },
-  { left: 'Temperature-Dependent Sex Determination', right: 'Produces ratio of males to females' },
-  { left: 'Magnetic sensing', right: 'Navigate back to birth beach across entire oceans' },
-  { left: 'Salt glands by eyes', right: 'Remove extra salt from seawater' },
-  { left: 'Ability to hold breath 7 hours', right: 'Rest on sea floor without surfacing' },
-  { left: "Leatherback's leathery skin", right: 'Allows deep diving without shell pressure' }
+  { left: 'Echolocation', right: 'Using sound echoes to find objects in the dark' },
+  { left: 'Wing = hand', right: 'Finger bones with skin stretched between them' },
+  { left: 'Nocturnal', right: 'Active at night to hunt and avoid predators' },
+  { left: 'Locking tendons', right: 'Let a bat hang upside down using no energy' },
+  { left: 'Hibernation', right: 'Slowing the body down to survive cold winters' },
+  { left: 'Big ears', right: 'Catch the faint echoes bouncing back from prey' },
+  { left: 'High-pitched squeaks', right: 'The sounds a bat sends out to echolocate' }
 ];
 
 let matchState = {
@@ -388,10 +388,11 @@ function buildMatch() {
   leftCol.innerHTML = '';
   rightCol.innerHTML = '';
 
+  const leftOrder = shuffle([...Array(matchPairs.length).keys()]);
   const rightOrder = shuffle([...Array(matchPairs.length).keys()]);
 
-  matchPairs.forEach((p, i) => {
-    leftCol.innerHTML += `<div class="match-item" id="ml-${i}" onclick="selectLeft(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectLeft(${i})">${p.left}</div>`;
+  leftOrder.forEach(i => {
+    leftCol.innerHTML += `<div class="match-item" id="ml-${i}" onclick="selectLeft(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectLeft(${i})">${matchPairs[i].left}</div>`;
   });
   rightOrder.forEach(i => {
     rightCol.innerHTML += `<div class="match-item" id="mr-${i}" onclick="selectRight(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectRight(${i})">${matchPairs[i].right}</div>`;
@@ -400,7 +401,6 @@ function buildMatch() {
 
 function selectLeft(i) {
   if (matchState.matched.has(i)) return;
-  // deselect previous
   if (matchState.selectedLeft !== null) {
     const prev = document.getElementById('ml-'+matchState.selectedLeft);
     if (prev) prev.classList.remove('selected');
@@ -426,7 +426,6 @@ function tryMatch() {
   if (l === null || r === null) return;
 
   if (l === r) {
-    // correct
     const lEl = document.getElementById('ml-'+l);
     const rEl = document.getElementById('mr-'+r);
     lEl.classList.remove('selected'); lEl.classList.add('matched');
@@ -437,7 +436,6 @@ function tryMatch() {
     matchState.selectedRight = null;
     updateMatchScore();
   } else {
-    // wrong
     const lEl = document.getElementById('ml-'+l);
     const rEl = document.getElementById('mr-'+r);
     lEl.classList.add('wrong'); rEl.classList.add('wrong');
@@ -456,7 +454,7 @@ function updateMatchScore() {
   const s = matchState.score;
   const el = document.getElementById('match-score');
   if (s === total) {
-    el.innerHTML = `<span style="color:var(--good)">🎉 All ${total} pairs matched! Great work!</span>`;
+    el.innerHTML = `<span style="color:var(--good)">🎉 All ${total} matched! Bat expert!</span>`;
     document.getElementById('retry-btn').style.display = 'none';
     markPhaseDone(3);
   } else {
@@ -485,123 +483,117 @@ function resetMatch() {
   buildMatch();
 }
 
-// ── Phase 4: Life Cycle Sequencing ───────────────────────────
-const seqItems = [
-  { id: 'A', text: 'Female digs nest on beach at night, lays 80–120 eggs, covers them with sand' },
-  { id: 'B', text: 'Eggs incubate for 45–70 days; nest temperature determines hatchlings\' sex' },
-  { id: 'C', text: 'Hatchlings emerge as a group (safety in numbers!) and race to the ocean' },
-  { id: 'D', text: 'Young turtles drift in ocean currents for years ("lost years" — scientists rarely see them)' },
-  { id: 'E', text: 'Juvenile turtles feed and grow in coastal waters for 10–30 years' },
-  { id: 'F', text: 'Adult female returns to EXACT birth beach using magnetic navigation to nest' },
-  { id: 'G', text: 'Turtles can live 80–100 years, nesting every 2–5 years' }
+// ── Phase 4: Echolocation Sequencer ───────────────────────────
+// Correct order (order value = the real step number, 1..5)
+const seqStages = [
+  { order: 1, text: 'The bat sends out a high-pitched squeak into the dark' },
+  { order: 2, text: 'The sound waves travel out and hit a flying insect' },
+  { order: 3, text: 'The echo bounces off the insect and travels back' },
+  { order: 4, text: 'The bat\'s ears catch the returning echo' },
+  { order: 5, text: 'Its brain uses the timing to find exactly where the insect is' }
 ];
-const correctSeqOrder = ['A','B','C','D','E','F','G'];
-let currentSeq = [];
-let dragSrc = null;
-let tapSelected = null;
+
+// seqState.slots holds the stage indexes the player has placed, in order
+let seqState = { slots: [], solved: false };
 
 function buildSeq() {
-  currentSeq = shuffle([...seqItems]);
-  renderSeq();
-}
-
-function shuffleSeq() {
-  currentSeq = shuffle([...seqItems]);
-  tapSelected = null;
-  document.getElementById('seq-msg').textContent = '';
+  seqState = { slots: [], solved: false };
   renderSeq();
 }
 
 function renderSeq() {
-  const list = document.getElementById('seq-list');
-  list.innerHTML = '';
-  currentSeq.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'seq-item';
-    div.id = 'si-' + idx;
-    div.draggable = true;
-    div.dataset.idx = idx;
-    div.innerHTML = `<span class="seq-num">${idx+1}</span><span>${item.text}</span>`;
-    div.addEventListener('dragstart', onDragStart);
-    div.addEventListener('dragover', onDragOver);
-    div.addEventListener('drop', onDrop);
-    div.addEventListener('dragend', onDragEnd);
-    div.addEventListener('click', onSeqTap);
-    list.appendChild(div);
+  const body = document.getElementById('seq-body');
+
+  if (seqState.solved) {
+    let orderedHTML = '';
+    seqState.slots.forEach((si, pos) => {
+      orderedHTML += `<div class="seq-item correct-pos"><span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span></div>`;
+    });
+    body.innerHTML = `
+      <div class="seq-wrap">
+        <div class="seq-intro">🦇 <strong>You cracked the code!</strong> Here is how echolocation works, in order:</div>
+        <div class="seq-list">${orderedHTML}</div>
+        <div class="seq-bonus">
+          <strong>A quick echo means the insect is close; a slower echo means it's far. Bats do this math in a fraction of a second, hundreds of times a minute, to hunt in total darkness.</strong>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-muted" onclick="buildSeq()">Try Again</button></div>
+      </div>`;
+    markPhaseDone(4);
+    return;
+  }
+
+  // Build the "choices remaining" list (shuffled once per game) and the placed list
+  if (!seqState.shuffled) {
+    seqState.shuffled = shuffle([...Array(seqStages.length).keys()]);
+  }
+
+  let choicesHTML = '';
+  seqState.shuffled.forEach(si => {
+    if (seqState.slots.includes(si)) return; // already placed
+    choicesHTML += `<button class="seq-item" onclick="placeStage(${si})">
+      <span class="seq-num">?</span><span>${seqStages[si].text}</span>
+    </button>`;
   });
+
+  let placedHTML = '';
+  seqState.slots.forEach((si, pos) => {
+    const cls = seqState.checked ? (seqStages[si].order === pos+1 ? ' correct-pos' : ' wrong-pos') : '';
+    placedHTML += `<button class="seq-item${cls}" onclick="removeStage(${pos})">
+      <span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  const allPlaced = seqState.slots.length === seqStages.length;
+
+  body.innerHTML = `
+    <div class="seq-wrap">
+      <div class="seq-intro">🦇 Put the steps of echolocation in the right order! <strong>Tap the steps in the order they happen.</strong></div>
+      ${seqState.slots.length ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Your timeline (tap a step to remove it):</div><div class="seq-list" style="margin-bottom:16px">${placedHTML}</div>` : ''}
+      ${choicesHTML ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Steps to place:</div><div class="seq-list">${choicesHTML}</div>` : ''}
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        ${allPlaced ? `<button class="btn btn-accent" onclick="checkSeq()">Check Order</button>` : ''}
+        <button class="btn btn-muted" onclick="buildSeq()">Reset</button>
+      </div>
+    </div>`;
 }
 
-function onDragStart(e) {
-  dragSrc = +e.currentTarget.dataset.idx;
-  e.currentTarget.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-}
-function onDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('over'));
-  e.currentTarget.classList.add('over');
-}
-function onDrop(e) {
-  e.preventDefault();
-  const target = +e.currentTarget.dataset.idx;
-  if (dragSrc !== null && dragSrc !== target) {
-    swapSeq(dragSrc, target);
-  }
-  document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('over','dragging'));
-  dragSrc = null;
-}
-function onDragEnd() {
-  document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('dragging','over'));
-  dragSrc = null;
-}
-function onSeqTap(e) {
-  const idx = +e.currentTarget.dataset.idx;
-  if (tapSelected === null) {
-    tapSelected = idx;
-    e.currentTarget.classList.add('selected');
-  } else {
-    if (tapSelected !== idx) {
-      swapSeq(tapSelected, idx);
-    }
-    document.querySelectorAll('.seq-item').forEach(el => el.classList.remove('selected'));
-    tapSelected = null;
-  }
-}
-function swapSeq(a, b) {
-  [currentSeq[a], currentSeq[b]] = [currentSeq[b], currentSeq[a]];
+function placeStage(si) {
+  seqState.checked = false;
+  seqState.slots.push(si);
   renderSeq();
-  document.getElementById('seq-msg').textContent = '';
+}
+
+function removeStage(pos) {
+  seqState.checked = false;
+  seqState.slots.splice(pos, 1);
+  renderSeq();
 }
 
 function checkSeq() {
-  const correct = currentSeq.map(i => i.id).join('') === correctSeqOrder.join('');
-  const items = document.querySelectorAll('.seq-item');
-  currentSeq.forEach((item, idx) => {
-    const el = items[idx];
-    el.classList.remove('correct-pos','wrong-pos');
-    if (item.id === correctSeqOrder[idx]) {
-      el.classList.add('correct-pos');
-    } else {
-      el.classList.add('wrong-pos');
-    }
-  });
-  const msg = document.getElementById('seq-msg');
-  if (correct) {
-    msg.innerHTML = '<span style="color:var(--good)">🎉 Perfect order!</span>';
-    markPhaseDone(4);
+  const allCorrect = seqState.slots.every((si, pos) => seqStages[si].order === pos+1);
+  if (allCorrect) {
+    seqState.solved = true;
+    renderSeq();
   } else {
-    const numRight = currentSeq.filter((item, idx) => item.id === correctSeqOrder[idx]).length;
-    msg.innerHTML = `<span style="color:var(--warn)">${numRight}/7 in correct position — keep adjusting!</span>`;
+    seqState.checked = true;
+    renderSeq();
+    // clear the red marks after the shake so kid can rearrange
+    setTimeout(() => { seqState.checked = false; renderSeq(); }, 900);
   }
 }
 
 // ── Phase 5: Writing Pad ──────────────────────────────────────
 let writeTimer = null;
 
+function countWords(txt) {
+  const t = txt.trim();
+  return t === '' ? 0 : t.split(/\s+/).length;
+}
+
 function onWritingInput() {
   const txt = document.getElementById('writing-pad').value;
-  document.getElementById('char-count').textContent = txt.length + ' character' + (txt.length !== 1 ? 's' : '');
+  const w = countWords(txt);
+  document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
   clearTimeout(writeTimer);
   writeTimer = setTimeout(saveWriting, 300);
 }
@@ -620,7 +612,8 @@ function restoreWriting() {
     const saved = localStorage.getItem(WKEY);
     if (saved) {
       document.getElementById('writing-pad').value = saved;
-      document.getElementById('char-count').textContent = saved.length + ' character' + (saved.length !== 1 ? 's' : '');
+      const w = countWords(saved);
+      document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
     }
   } catch(e) {}
 }
@@ -628,59 +621,59 @@ function restoreWriting() {
 // ── Phase 6: Quiz ─────────────────────────────────────────────
 const questions = [
   {
-    q: 'What determines whether a sea turtle egg will hatch as male or female?',
-    opts: ['The size of the egg', 'Nest temperature (TSD)', 'The mother\'s age', 'The depth the eggs are buried'],
+    q: 'What is echolocation?',
+    opts: ['A special way of flying very fast in the nighttime', 'Using sound echoes to find things in the dark', 'The way bats hang upside down to sleep', 'How bats keep warm during cold winters'],
     ans: 1,
-    explain: 'Temperature-Dependent Sex Determination (TSD): above 29°C makes more females, below 29°C makes more males.'
+    explain: 'Echolocation is "seeing with sound" — a bat squeaks, and the echoes bouncing back tell it where everything is.'
   },
   {
-    q: 'How do sea turtles navigate back to the exact beach where they were born?',
-    opts: ['They follow the ocean currents and tides', 'They use their sense of smell', 'They detect Earth\'s magnetic field', 'They follow other turtles'],
+    q: 'A bat\'s wing is really a:',
+    opts: ['Hand, with long finger bones', 'Feathered arm like a bird has', 'Flap of loose skin with no bones inside', 'Set of stiff spines covered in fur'],
+    ans: 0,
+    explain: 'A bat\'s wing is a hand — long finger bones with thin skin stretched between them. "Chiroptera" means "hand-wing."'
+  },
+  {
+    q: 'What does "nocturnal" mean?',
+    opts: ['Able to fly without flapping', 'Eating only insects and nothing else', 'Active at night', 'Sleeping through the whole cold winter'],
     ans: 2,
-    explain: 'Magnetite crystals in brain cells detect Earth\'s unique magnetic field lines at each beach location.'
+    explain: 'Nocturnal means active at night. Hunting after dark lets bats avoid daytime predators and catch night-flying insects.'
   },
   {
-    q: 'What does "phototaxis" cause hatchlings to do?',
-    opts: ['Dig deeper into the sand', 'Move toward the brightest light', 'Hide from predators', 'Follow their mother into the water'],
+    q: 'How does a bat know an insect is close?',
+    opts: ['The insect glows in the dark', 'It can smell the insect from far away', 'The echo comes back quickly', 'It feels the wind from the insect\'s wings'],
+    ans: 2,
+    explain: 'A quick echo means the object is close, and a slow echo means it is far away. The timing tells the bat the distance.'
+  },
+  {
+    q: 'Why do bats hang upside down?',
+    opts: ['To hide their faces from predators nearby', 'Their legs lock so they can drop into flight', 'Because their wings are far too heavy to fold up neatly', 'It keeps rain and cold off of their bodies'],
     ans: 1,
-    explain: 'Phototaxis = movement toward light. Normally that\'s moonlight on the ocean, but beach lights can redirect hatchlings the wrong way.'
+    explain: 'A bat\'s leg tendons lock automatically, so hanging costs no energy — and it can drop straight into flight in an instant.'
   },
   {
-    q: 'Why is the green sea turtle named "green"?',
-    opts: ['Its shell is a bright grassy green color', 'Its skin is greenish', 'Its fat is green from eating seagrass', 'Its eggs have a green tint'],
+    q: 'What do most bats eat?',
+    opts: ['Blood', 'Fish', 'Insects', 'Small frogs and lizards they catch'],
     ans: 2,
-    explain: 'Green turtles eat seagrass and algae as adults. The chlorophyll tints their fat green — not their shell color!'
+    explain: 'Most bats eat insects. Fruit bats eat fruit and nectar, and only a few unusual bats eat fish, frogs, or blood.'
   },
   {
-    q: 'What is unusual about the leatherback sea turtle\'s shell?',
-    opts: ['It is invisible underwater', 'It glows in the dark', 'It has no hard bony shell — just leathery skin', 'It changes color depending on the water temperature'],
-    ans: 2,
-    explain: 'Leatherbacks have a mosaic of tiny bones under flexible, rubbery skin. This allows them to dive to extreme depths without cracking.'
-  },
-  {
-    q: 'How does climate change threaten sea turtle sex ratios?',
-    opts: ['Colder water reduces egg fertility', 'Warmer nests produce too many females', 'Rising seas flood all nesting beaches', 'Increased storms destroy eggs before hatching'],
+    q: 'Is a bat blind?',
+    opts: ['Yes, bats are completely blind from birth', 'No — it can see, but sound works better at night', 'Yes, that is exactly why they rely on sound to get around', 'Only fruit bats can see, and the rest cannot'],
     ans: 1,
-    explain: 'Warmer sand pushes nest temps above the 29°C pivotal point, creating extreme female-heavy ratios — some beaches see 99% female hatchlings.'
+    explain: '"Blind as a bat" is a myth. Bats can see just fine — they rely on echolocation because sound works better in the dark.'
   },
   {
-    q: 'How long can a sea turtle hold its breath while resting?',
-    opts: ['About 10 minutes', 'Up to 45 minutes', 'Up to 7 hours', 'Up to 3 days'],
+    q: 'Why do many bats hibernate in winter?',
+    opts: ['The freezing cold air would make their thin wings stiffen up', 'They are afraid of the winter predators', 'Insects disappear, so they slow down to save energy', 'The days get too short for them to hunt'],
     ans: 2,
-    explain: 'Resting turtles can slow their heart rate to one beat per minute and hold their breath for up to 7 hours on the sea floor.'
-  },
-  {
-    q: 'Sea turtles have existed on Earth for approximately how long?',
-    opts: ['About 10,000 years', 'About 1 million years', 'About 10 million years', 'Over 100 million years'],
-    ans: 3,
-    explain: 'Sea turtles are ancient survivors — they lived alongside dinosaurs and survived the mass extinction 66 million years ago.'
+    explain: 'When cold weather makes insects disappear, many bats hibernate — slowing their heartbeat way down to save energy until spring.'
   }
 ];
 
 let quizState = {
   current: 0,
-  answers: {}, // idx -> chosen option index
-  locked: {}   // idx -> true when answered
+  answers: {},
+  locked: {}
 };
 
 function buildQuiz() {
@@ -693,7 +686,6 @@ function restoreQuiz() {
   try {
     const saved = JSON.parse(localStorage.getItem(QAKEY) || 'null');
     if (!saved) return;
-    // Check if final score saved
     const finalScore = localStorage.getItem(QKEY);
     if (finalScore !== null) {
       quizState.answers = saved.answers || {};
@@ -852,7 +844,6 @@ function scrollToPhase(n) {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Intersection observer to update active phase
 function setupPhaseObserver() {
   const phases = [1,2,3,4,5,6];
   const observer = new IntersectionObserver(entries => {

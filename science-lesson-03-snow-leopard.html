@@ -237,16 +237,16 @@ function pickAdapt(o,right,btn){if(aLock)return;aLock=true;aDone++;document.quer
 
 /* QUIZ */
 const QUIZ=[
-  {q:"Snow leopards are nicknamed…",opts:["Ghost of the Mountains","King of the Jungle","Wolf of the Peaks"],a:0},
-  {q:"What do snow leopards mainly eat?",opts:["Blue sheep, ibex & marmots","Fish & frogs","Bamboo & berries"],a:0},
+  {q:"Snow leopards are nicknamed…",opts:["Ghost of the Mountains","King of the Jungle","Grey Wolf of the High Peaks"],a:0},
+  {q:"What do snow leopards mainly eat?",opts:["Blue sheep, ibex & marmots","Fish & frogs","Bamboo shoots & mountain berries"],a:0},
   {q:"In a food chain, the snow leopard is a…",opts:["Apex predator","Producer","Primary consumer"],a:0},
   {q:"In a food chain, energy starts with…",opts:["The Sun","The top predator","Rain"],a:0},
-  {q:"Wide, fur-covered paws help the snow leopard…",opts:["Walk on snow & stalk silently","Swim faster","Climb trees"],a:0},
-  {q:"The long tail is used for…",opts:["Balance on cliffs and warmth","Attracting mates","Storing fat"],a:0},
-  {q:"Its grey spotted fur provides…",opts:["Camouflage on rocky snow slopes","Heat generation","Waterproofing"],a:0},
-  {q:"The enlarged nasal cavity helps the snow leopard…",opts:["Breathe thin, cold mountain air","Roar louder","Smell prey from 50 km away"],a:0},
+  {q:"Wide, fur-covered paws help the snow leopard…",opts:["Walk on snow & stalk silently","Swim faster","Climb up tall forest trees quickly"],a:0},
+  {q:"The long tail is used for…",opts:["Balance on cliffs and warmth","Attracting mates with bright colors","Storing fat"],a:0},
+  {q:"Its grey spotted fur provides…",opts:["Camouflage on rocky snow slopes","Generating warmth in freezing weather","Waterproofing"],a:0},
+  {q:"The enlarged nasal cavity helps the snow leopard…",opts:["Breathe thin, cold mountain air","Roar much louder across the valley","Smell prey from 50 km away"],a:0},
   {q:"About how many wild snow leopards are left?",opts:["Fewer than 4,000","Millions","Exactly 400"],a:0},
-  {q:"An ECOSYSTEM includes…",opts:["All living things in a place AND their environment","Only the apex predators","Just the plants"],a:0},
+  {q:"An ECOSYSTEM includes…",opts:["Living things AND their environment","Only the biggest apex predators in the area","Just the plants"],a:0},
 ];
 let qi=0,qAns=[];const MKEY="refresher-mistakes";
 function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="Science|Day 3: Snow Leopard|"+qx;if(c)delete s[id];else s[id]={subject:"Science",lesson:"Day 3: Snow Leopard",q:qt,file:"science-lesson-03-snow-leopard.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}

@@ -641,25 +641,25 @@ function vocabClick(tile) {
 // ─── PHASE 5: CONTEXT CLUES ───────────────────────────────────
 const seItems = [
   { stmt: 'The blizzard was <strong>relentless</strong>, never pausing for even a minute.',
-    correct: 'never stopping', options: ['never stopping', 'gentle', 'warm'] },
+    correct: 'never stopping', options: ['never stopping', 'calm and gentle', 'warm and sunny'] },
   { stmt: 'It took great <strong>endurance</strong> to keep standing in the cold for months.',
-    correct: 'the ability to keep going', options: ['the ability to keep going', 'a type of food', 'a quick nap'] },
+    correct: 'the ability to keep going', options: ['the ability to keep going', 'a certain type of food', 'a quick nap in the afternoon'] },
   { stmt: 'Through <strong>cooperation</strong>, the penguins all survived the freeze.',
-    correct: 'working together', options: ['working together', 'fighting', 'sleeping'] },
+    correct: 'working together', options: ['working together', 'fighting each other', 'sleeping all day'] },
   { stmt: 'His <strong>devotion</strong> to the egg kept him from ever leaving it.',
-    correct: 'deep love and loyalty', options: ['deep love and loyalty', 'dislike', 'confusion'] },
+    correct: 'deep love and loyalty', options: ['deep love and loyalty', 'a strong dislike', 'total confusion and doubt'] },
   { stmt: 'They searched for <strong>shelter</strong> from the screaming wind.',
-    correct: 'protection from weather', options: ['protection from weather', 'a snack', 'a song'] },
+    correct: 'protection from weather', options: ['protection from weather', 'a tasty little snack', 'a cheerful song to sing along to'] },
   { stmt: 'Tumi felt <strong>triumphant</strong> when the chick finally hatched.',
-    correct: 'joyful after success', options: ['joyful after success', 'sleepy', 'angry'] },
+    correct: 'joyful after success', options: ['joyful after success', 'tired and sleepy', 'grumpy, tired, and angry'] },
   { stmt: 'By <strong>instinct</strong>, the chick knew to peep for its parent.',
     correct: 'born-in knowledge', options: ['born-in knowledge', 'a lucky guess', 'a lesson from school'] },
   { stmt: 'The <strong>barren</strong> ice stretched empty in every direction.',
-    correct: 'bare and empty', options: ['bare and empty', 'crowded', 'colorful'] },
+    correct: 'bare and empty', options: ['bare and empty', 'crowded and full', 'bright and colorful'] },
   { stmt: 'The penguins <strong>huddled</strong> close to trap their warmth.',
-    correct: 'crowded tightly together', options: ['crowded tightly together', 'ran away', 'spread apart'] },
+    correct: 'crowded tightly together', options: ['crowded tightly together', 'quickly ran away', 'spread far apart from each other'] },
   { stmt: 'After months of dark, the sun\'s return felt <strong>glorious</strong>.',
-    correct: 'wonderful and beautiful', options: ['wonderful and beautiful', 'boring', 'frightening'] },
+    correct: 'wonderful and beautiful', options: ['wonderful and beautiful', 'dull and boring', 'scary and truly frightening'] },
 ];
 
 let seCorrectCount = 0;
@@ -758,9 +758,9 @@ const quizData = [
     q: 'What does "relentless" mean?',
     opts: [
       'Soft and gentle',
-      'Never stopping; harsh and constant',
+      'Harsh and never stopping',
       'Warm and sunny',
-      'Quiet and peaceful',
+      'Calm, quiet, and peaceful',
     ],
     correct: 1,
   },
@@ -768,8 +768,8 @@ const quizData = [
     q: 'What does "endurance" mean?',
     opts: [
       'A kind of food',
-      'The ability to keep going through hardship',
-      'A quick afternoon nap',
+      'The ability to keep going',
+      'A quick nap on a warm afternoon',
       'A loud, sudden noise',
     ],
     correct: 1,
@@ -777,8 +777,8 @@ const quizData = [
   {
     q: 'What does "cooperation" mean?',
     opts: [
-      'Working together toward a shared goal',
-      'Fighting over the warmest spot',
+      'Working together toward a goal',
+      'Fighting over the warmest spot in the huddle',
       'Falling fast asleep',
       'Running away from danger',
     ],
@@ -787,10 +787,10 @@ const quizData = [
   {
     q: 'In the story, how do the penguins survive the cold together?',
     opts: [
-      'They each dig their own snow cave',
-      'They huddle and take turns from the edge to the warm center',
-      'They fly south to a warmer place',
-      'They swim in the ocean to stay warm',
+      'They each dig their own deep snow cave to hide in',
+      'They huddle and take turns reaching the warm center',
+      'They fly far south to find a much warmer place',
+      'They swim in the icy ocean the whole time to stay warm',
     ],
     correct: 1,
   },
@@ -827,8 +827,8 @@ const quizData = [
   {
     q: 'What does "triumphant" mean?',
     opts: [
-      'Feeling sleepy and worn out',
-      'Feeling great after a victory or success',
+      'Feeling sleepy, worn out, and ready for bed',
+      'Feeling great after a win',
       'Feeling scared and alone',
       'Feeling angry at the storm',
     ],

@@ -37,6 +37,12 @@ function logMistake(correct, questionText, quizTitle) {
 }
 ```
 
+## Quiz fairness rule (CRITICAL)
+In every multiple-choice quiz, the CORRECT answer must NOT be the longest option — a 10-yo exploited "pick the longest." Balance option lengths (make 1-2 distractors as long or longer) and vary which option is longest. Numeric/short-value options are exempt.
+
+## Quiz fairness rule (CRITICAL)
+In every multiple-choice quiz, the CORRECT answer must NOT be the longest option — a 10-yo exploited "just pick the longest one." Balance option lengths (make 1-2 distractors as long or longer than the correct answer) and vary which option is longest across questions. Numeric/short-value options are exempt. Applies to any choice-based game too (e.g. scenario pickers), not just the graded quiz.
+
 ## Quiz pattern (required order)
 `buildQuiz()` first, then `restoreQuiz()` — both called at init. Never reversed.
 
@@ -61,6 +67,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Level 5 (`coding-lesson-05-objects.html`): objects/properties — build a character sheet, read/change stats, squad of objects
 - Level 6 (`coding-lesson-06-build-a-game.html`): CAPSTONE — build a real playable arcade game (Bamboo Catcher) piece by piece, then play it. Most interactive yet.
 - Level 7 (`coding-lesson-07-pixel-art.html`): build a real pixel-art drawing app (grid/nested loops, palette list, tap events, tool functions), then draw & save art. Creative build.
+- Level 8 (`coding-lesson-08-timers.html`): build a timer-based reaction game (Target Smash) — setInterval timers, countdown, random spawns, tap events, score. Then play it.
 
 ## Day themes (completed)
 - Day 2: Red Panda 🐾
@@ -72,11 +79,12 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Day 8: Peregrine Falcon 🦅
 - Day 9: Emperor Penguin 🐧
 - Day 10: Honeybee 🐝
+- Day 11: Bat 🦇
 
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 2492KB, 63 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 2710KB, 68 lessons)
 Uses inline injection (not iframe) for iOS Safari compatibility.
 
 ## Committing

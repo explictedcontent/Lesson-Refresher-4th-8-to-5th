@@ -451,12 +451,12 @@ pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("
 
 /* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
 const QUIZ=[
-  {q:"In art, the word VALUE means…",opts:["How expensive a painting is","How light or dark something is","How many colors are used"],a:1},
-  {q:"What makes a flat circle look like a 3D ball?",opts:["Using lots of bright colors","Light on one side and dark on the other","Drawing it very big"],a:1},
+  {q:"In art, the word VALUE means…",opts:["How expensive the painting is to buy","How light or dark something is","How many colors are used"],a:1},
+  {q:"What makes a flat circle look like a 3D ball?",opts:["Using lots of bright, cheerful colors","Light on one side, dark on the other","Drawing it very big"],a:1},
   {q:"The brightest spot on a ball, where the light hits most directly, is the…",opts:["Cast shadow","Highlight","Core shadow"],a:1},
   {q:"The shadow a ball drops onto the ground or table is the…",opts:["Cast shadow","Highlight","Reflected light"],a:0},
-  {q:"A smooth change from light to dark (no hard lines) is called…",opts:["A value scale or blending","A complement","A primary color"],a:0},
-  {q:"If the light comes from the LEFT, the darkest part of the ball is on the…",opts:["Left side","Right side","Very top"],a:1},
+  {q:"A smooth change from light to dark (no hard lines) is called…",opts:["A value scale or blending","A complement or opposite color","A primary color"],a:0},
+  {q:"If the light comes from the LEFT, the darkest part of the ball is on the…",opts:["Left side","Right side","The very top edge"],a:1},
 ];
 let qi=0, qAns=[];
 $("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };

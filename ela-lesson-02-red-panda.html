@@ -200,14 +200,14 @@ function pickG(o,right,btn){ if(gLock)return; gLock=true; gDone++; document.quer
 
 /* quiz (vocab + comprehension) */
 const QUIZ=[
-  {q:"Where does the red panda live?",opts:["Misty mountains of Asia","Hot African deserts","Deep ocean reefs"],a:0},
-  {q:"'Arboreal' means the red panda spends most of its life…",opts:["Underground","Up in the trees","In rivers"],a:1},
-  {q:"How does the red panda's reddish fur help it?",opts:["It scares predators","It camouflages it in red moss & lichen","It keeps it cool"],a:1},
-  {q:"'Crepuscular' animals are most active at…",opts:["Noon","Dawn and dusk","Only midnight"],a:1},
-  {q:"How does a red panda stay warm in the cold?",opts:["It wraps its bushy tail around itself","It hibernates underwater","It grows feathers"],a:0},
-  {q:"'Endangered' means…",opts:["So few are left it could disappear forever","Very common","Newly discovered"],a:0},
-  {q:"The best way to help red pandas survive is to…",opts:["Protect their forest home","Move them to the desert","Feed them fish"],a:0},
-  {q:"A red panda is about the size of a…",opts:["House cat","Horse","Mouse"],a:0},
+  {q:"Where does the red panda live?",opts:["Misty mountains of Asia","Hot, sandy African deserts","Deep ocean coral reefs"],a:0},
+  {q:"'Arboreal' means the red panda spends most of its life…",opts:["Deep underground in dens","Up in the trees","In rivers"],a:1},
+  {q:"How does the red panda's reddish fur help it?",opts:["It scares away big hungry predators","It hides it in red moss and lichen","It keeps it cool"],a:1},
+  {q:"'Crepuscular' animals are most active at…",opts:["Noon","Dawn and dusk","Only at midnight, in the dark"],a:1},
+  {q:"How does a red panda stay warm in the cold?",opts:["It wraps its bushy tail around it","It dives underwater to hibernate all winter","It grows feathers"],a:0},
+  {q:"'Endangered' means…",opts:["So few are left they could vanish","Very common and found everywhere","Just recently discovered by scientists"],a:0},
+  {q:"The best way to help red pandas survive is to…",opts:["Protect their forest home","Move them all to the hot desert","Feed them fish"],a:0},
+  {q:"A red panda is about the size of a…",opts:["House cat","A full-grown horse","Mouse"],a:0},
 ];
 let qi=0, qAns=[]; const MKEY="refresher-mistakes";
 function logMistake(c,qx,qt){try{const s=JSON.parse(localStorage.getItem(MKEY)||"{}");const id="ELA|Day 2: Red Panda|"+qx;if(c)delete s[id];else s[id]={subject:"ELA",lesson:"Day 2: Red Panda",q:qt,file:"ela-lesson-02-red-panda.html",ts:Date.now()};localStorage.setItem(MKEY,JSON.stringify(s));}catch(e){}}

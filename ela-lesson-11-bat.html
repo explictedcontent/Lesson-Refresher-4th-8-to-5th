@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELA Day 6 — Octopus 🐙</title>
+<title>ELA Day 11 — Bat 🦇</title>
 <style>
 :root {
   --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
@@ -119,21 +119,18 @@ strong{color:var(--warn);}
 .shake{animation:shake .4s ease;}
 .vocab-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:8px;}
 
-/* FACT VS OPINION */
-.fo-card{background:var(--panel);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--line);}
-.fo-stmt{font-size:.97rem;margin-bottom:12px;font-weight:500;}
-.fo-btns{display:flex;gap:8px;flex-wrap:wrap;}
-.fo-btn{flex:1;min-width:110px;min-height:44px;border:2px solid var(--line);border-radius:8px;
+/* SYNONYMS & ANTONYMS */
+.se-card{background:var(--panel);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--line);}
+.se-stmt{font-size:.97rem;margin-bottom:12px;font-weight:500;}
+.se-btns{display:flex;flex-direction:column;gap:8px;}
+.se-btn{width:100%;min-height:44px;border:2px solid var(--line);border-radius:8px;
   background:transparent;color:var(--ink);cursor:pointer;font-size:.88rem;font-weight:600;
-  transition:all .2s;padding:6px 4px;}
-.fo-btn:hover:not(:disabled){border-color:var(--muted);}
-.fo-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good);}
-.fo-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad);}
-.fo-feedback{font-size:.82rem;margin-top:8px;min-height:20px;}
-.fo-retry{background:var(--panel2);border:1px solid var(--line);border-radius:7px;
-  padding:5px 12px;font-size:.82rem;color:var(--muted);cursor:pointer;margin-top:6px;min-height:34px;}
-.fo-retry:hover{border-color:var(--muted);}
-.fo-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:12px;}
+  transition:all .2s;padding:8px 12px;text-align:left;}
+.se-btn:hover:not(:disabled){border-color:var(--muted);}
+.se-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good);}
+.se-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad);}
+.se-feedback{font-size:.82rem;margin-top:8px;min-height:20px;}
+.se-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:12px;}
 
 /* WRITING PAD */
 .writing-area{width:100%;min-height:180px;background:var(--panel2);border:2px solid var(--line);
@@ -194,7 +191,6 @@ strong{color:var(--warn);}
 /* RESPONSIVE */
 @media(max-width:480px){
   .vocab-grid{grid-template-columns:1fr;}
-  .fo-btns{flex-direction:column;}
   h1{font-size:1.35rem;}
 }
 </style>
@@ -208,7 +204,7 @@ strong{color:var(--warn);}
     <div class="pb-seg" data-phase="2" data-label="Reading"></div>
     <div class="pb-seg" data-phase="3" data-label="Comprehension"></div>
     <div class="pb-seg" data-phase="4" data-label="Vocabulary"></div>
-    <div class="pb-seg" data-phase="5" data-label="Fact vs. Opinion"></div>
+    <div class="pb-seg" data-phase="5" data-label="Synonyms & Antonyms"></div>
     <div class="pb-seg" data-phase="6" data-label="Writing"></div>
     <div class="pb-seg" data-phase="7" data-label="Quiz"></div>
     <div id="pb-title">Phase 1 — Warm-Up</div>
@@ -216,8 +212,8 @@ strong{color:var(--warn);}
 
   <!-- HERO -->
   <div id="hero">
-    <div class="day-badge">ELA · Day 6</div>
-    <h1>🐙 Octopus</h1>
+    <div class="day-badge">ELA · Day 11</div>
+    <h1>🦇 Bat</h1>
     <p>Reading · Vocabulary · Writing · Quiz</p>
   </div>
 
@@ -235,12 +231,12 @@ strong{color:var(--warn);}
 
     <div class="fact-card" id="fc-1">
       <div class="fact-front" onclick="revealFact('fc-1')">
-        <span class="fact-icon">💡</span>
-        <span style="font-weight:600;">Lights Out, Otto!</span>
+        <span class="fact-icon">🍼</span>
+        <span style="font-weight:600;">Pups &amp; Colonies</span>
         <span class="fact-hint">Tap to reveal ▾</span>
       </div>
       <div class="fact-body">
-        <p class="fact-text">An octopus named Otto at a German aquarium learned to <strong>squirt water at a lamp</strong> to short-circuit it — turning off the lights when he wanted to sleep!</p>
+        <p class="fact-text">A baby bat is called a <strong>"pup,"</strong> and a big group of bats living together is called a <strong>"colony."</strong></p>
         <div class="fact-btns">
           <button class="fact-btn" onclick="reactFact(this,'knew','fc-1')">I knew this! 👍</button>
           <button class="fact-btn" onclick="reactFact(this,'new','fc-1')">New to me! 🤯</button>
@@ -250,12 +246,12 @@ strong{color:var(--warn);}
 
     <div class="fact-card" id="fc-2">
       <div class="fact-front" onclick="revealFact('fc-2')">
-        <span class="fact-icon">🥥</span>
-        <span style="font-weight:600;">Coconut Armor</span>
+        <span class="fact-icon">🐝</span>
+        <span style="font-weight:600;">The Tiniest Bat</span>
         <span class="fact-hint">Tap to reveal ▾</span>
       </div>
       <div class="fact-body">
-        <p class="fact-text">Octopuses have been seen carrying <strong>two coconut shell halves</strong> to hide inside later — packing their own armor!</p>
+        <p class="fact-text">The smallest bat, the <strong>bumblebee bat</strong>, is tinier than your thumb — it weighs less than a penny!</p>
         <div class="fact-btns">
           <button class="fact-btn" onclick="reactFact(this,'knew','fc-2')">I knew this! 👍</button>
           <button class="fact-btn" onclick="reactFact(this,'new','fc-2')">New to me! 🤯</button>
@@ -265,12 +261,12 @@ strong{color:var(--warn);}
 
     <div class="fact-card" id="fc-3">
       <div class="fact-front" onclick="revealFact('fc-3')">
-        <span class="fact-icon">🧠</span>
-        <span style="font-weight:600;">Brainy Arms</span>
+        <span class="fact-icon">🦟</span>
+        <span style="font-weight:600;">A Big Appetite</span>
         <span class="fact-hint">Tap to reveal ▾</span>
       </div>
       <div class="fact-body">
-        <p class="fact-text">Each octopus arm has its own <strong>mini-brain</strong> and can act on its own — even after being separated!</p>
+        <p class="fact-text">In a single night, a bat can eat its <strong>whole body weight in insects</strong> — that's thousands of bugs!</p>
         <div class="fact-btns">
           <button class="fact-btn" onclick="reactFact(this,'knew','fc-3')">I knew this! 👍</button>
           <button class="fact-btn" onclick="reactFact(this,'new','fc-3')">New to me! 🤯</button>
@@ -280,12 +276,12 @@ strong{color:var(--warn);}
 
     <div class="fact-card" id="fc-4">
       <div class="fact-front" onclick="revealFact('fc-4')">
-        <span class="fact-icon">👁️</span>
-        <span style="font-weight:600;">Seeing Skin</span>
+        <span class="fact-icon">✋</span>
+        <span style="font-weight:600;">Wings Are Hands</span>
         <span class="fact-hint">Tap to reveal ▾</span>
       </div>
       <div class="fact-body">
-        <p class="fact-text">An octopus's skin can <strong>"see" light</strong> — it has the same light-sensing proteins found in eyes!</p>
+        <p class="fact-text">A bat's wing is made of the <strong>same bones as your hand</strong> — with thin skin stretched between the long fingers.</p>
         <div class="fact-btns">
           <button class="fact-btn" onclick="reactFact(this,'knew','fc-4')">I knew this! 👍</button>
           <button class="fact-btn" onclick="reactFact(this,'new','fc-4')">New to me! 🤯</button>
@@ -309,24 +305,20 @@ strong{color:var(--warn);}
     </div>
 
     <div class="passage">
-      <h3>The Great Escape of Professor Eight</h3>
-      <p>The humans call me Professor Eight. I live in a glass tank at a seaside aquarium, and I earned my name the honest way: I solve every puzzle the staff gives me. Locked boxes, twisting tubes, mazes with hidden treats — I open them all. They cheer and clap. I just wave an arm. For a professor, it's all in a day's work.</p>
+      <h3>Echo Learns to See</h3>
+      <p>Echo was a young bat pup, and tonight she felt very small. All around her, the grown bats of the colony swooped out of the cave to hunt, snatching moths from the darkness as if they could see every one. But Echo could not hunt. She could not "see" in the dark the way they did, because she had always been too timid to try calling out into the night. Instead, she clung to the cold stone wall and watched the others disappear into the black, wishing she could be brave like them.</p>
 
-      <p>Humans think we octopuses aren't watching, but we are. I can <span class="vocab-word" data-def="to tell the difference between two or more things">distinguish</span> every person who walks past my tank. There is the kind feeder with the gentle hands who brings me crabs. And there is the one who taps on my glass — tap, tap, tap — as if I were a television. I squirt water at that one. He deserves it.</p>
+      <p>"You look worried, little one," said a soft voice. It was her mother, Sable, folding a warm wing around her. "You have everything you need already. Send your voice into the night, and listen for what comes back."</p>
 
-      <p>At night, when the visitors go home and the lights hum low, my real work begins. I <span class="vocab-word" data-def="to look into something carefully to learn the facts">investigate</span> every inch of my tank: every rock, every corner, every bubbling tube. My <span class="vocab-word" data-def="able to bend easily without breaking">flexible</span> arms reach up and test the lid, night after night. My <span class="vocab-word" data-def="a strong desire to learn or know something">curiosity</span> never sleeps, even when I pretend to.</p>
+      <p>Echo was <span class="vocab-word" data-def="slow to act because of fear or doubt">hesitant</span>. The cave was pitch black, and beyond its mouth the open sky felt <span class="vocab-word" data-def="extremely large or wide">vast</span> and endless. What if she squeaked and nothing happened? What if the others laughed? Bats are born with an <span class="vocab-word" data-def="a behavior an animal is born knowing">instinct</span> for this, Sable had told her — a hidden sense just waiting to be used.</p>
 
-      <p>The staff once left a glass jar in my tank with a live crab sealed inside. A screw-top lid! Did they think that would stop me? I wrapped my arms around it, twisted, and — pop — dinner was served. I didn't even need my <span class="vocab-word" data-def="coloring or covering that helps something blend in">camouflage</span> to sneak up on it.</p>
+      <p>Finally, Echo gathered her courage and let out a tiny squeak. She held still and listened as hard as she could. Nothing. The darkness stayed empty and silent. Her wings drooped, and she felt <span class="vocab-word" data-def="having lost confidence or hope">discouraged</span>. "I can't do it," she whispered.</p>
 
-      <p>Then one night, everything changed. A maintenance worker, in a hurry to go home, left my tank lid slightly loose. Just a crack. But a crack is a doorway if you have no bones.</p>
+      <p>"Be <span class="vocab-word" data-def="able to wait calmly without giving up">patient</span>," Sable said gently. "Try again, and this time listen very closely for the faint echoes. They are quiet, but they are there." Echo took a breath, squeaked once more — and waited.</p>
 
-      <p>I formed my <span class="vocab-word" data-def="a careful plan for reaching a goal">strategy</span> at once: wait until the last light went out, squeeze through the gap, and slide down the outside of the tank. Simple. When darkness finally settled, I pushed one arm through the opening, then another, then squeezed my whole soft body — no bones, remember — through a space barely wider than my eye. Down the cold glass I slid, landing on the floor with a wet plop.</p>
+      <p>This time, something came back. A whisper of sound bounced off of something ahead and returned to her ears. Suddenly, in her mind, she could "see" it: a moth, fluttering just in front of her, drawn as a picture made entirely of sound. She could tell exactly how far away it was and which way it was turning. Echo did not stop to wonder how. She spread her wings, swooped down through the dark, opened her mouth, and caught her very first insect!</p>
 
-      <p>Now came the dangerous part. An octopus can only survive a few minutes out of water, so I had to move fast. I pulled myself across the damp floor, arm over arm, following a smell that called to me like a song: the smell of the sea, drifting up from a drain in the floor.</p>
-
-      <p>I poured myself into the drain pipe and let it carry me down, down, down — until suddenly the pipe ended and the whole ocean opened around me. Cold, dark, endless. Freedom.</p>
-
-      <p>Sometimes I wonder if the humans tell stories about my <span class="vocab-word" data-def="so unusual or amazing that it deserves attention">remarkable</span> escape. They should. After all, it really happened — a real octopus named Inky escaped New Zealand's National Aquarium through a drain pipe in 2016. Curiosity, it turns out, opens more doors than any key.</p>
+      <p>The darkness was no longer empty. It was full of shapes she could <span class="vocab-word" data-def="to notice or become aware of something">perceive</span> — walls, branches, insects, all glowing in sound. A rush of <span class="vocab-word" data-def="a feeling of trust in your own ability">confidence</span> spread through Echo's small body. The night that had frightened her only minutes ago now felt like home. She had faced her fear, and in doing so she had found a strength she never knew she had.</p>
     </div>
 
     <div class="phase-nav">
@@ -348,42 +340,42 @@ strong{color:var(--warn);}
 
     <div class="accord-item" id="acc-1">
       <div class="accord-q" onclick="toggleAccord('acc-1')">
-        <span>1.</span> Why do the aquarium workers call her "Professor Eight"?
+        <span>1.</span> Why is Echo nervous at the start of the story?
         <span class="accord-arrow">▶</span>
       </div>
-      <div class="accord-a">She solves every puzzle they give her — she's remarkably smart, like a professor, and she has eight arms.</div>
+      <div class="accord-a">She can't hunt yet because she's too timid to try echolocating in the dark.</div>
     </div>
 
     <div class="accord-item" id="acc-2">
       <div class="accord-q" onclick="toggleAccord('acc-2')">
-        <span>2.</span> How can Professor Eight fit through the small gap in the lid?
+        <span>2.</span> What does Sable tell Echo to do?
         <span class="accord-arrow">▶</span>
       </div>
-      <div class="accord-a">Octopuses have no bones — they can squeeze their soft bodies through any gap bigger than their beak.</div>
+      <div class="accord-a">To send her voice into the night and listen closely for the echoes that come back.</div>
     </div>
 
     <div class="accord-item" id="acc-3">
       <div class="accord-q" onclick="toggleAccord('acc-3')">
-        <span>3.</span> What is Professor Eight's strategy for escaping?
+        <span>3.</span> What happens the first time Echo tries?
         <span class="accord-arrow">▶</span>
       </div>
-      <div class="accord-a">Wait for darkness, squeeze through the loose lid, cross the floor, and follow the smell of the sea into the drain pipe.</div>
+      <div class="accord-a">She hears nothing and feels discouraged.</div>
     </div>
 
     <div class="accord-item" id="acc-4">
       <div class="accord-q" onclick="toggleAccord('acc-4')">
-        <span>4.</span> Why must she cross the floor quickly?
+        <span>4.</span> How does Echo finally "see" the moth?
         <span class="accord-arrow">▶</span>
       </div>
-      <div class="accord-a">Octopuses can only survive out of water for a few minutes — if she moved too slowly, she wouldn't make it to the drain.</div>
+      <div class="accord-a">Her squeak's echo returns and shows her the moth as a picture made of sound.</div>
     </div>
 
     <div class="accord-item" id="acc-5">
       <div class="accord-q" onclick="toggleAccord('acc-5')">
-        <span>5.</span> What true story inspired this passage?
+        <span>5.</span> What is the THEME (big lesson) of the story?
         <span class="accord-arrow">▶</span>
       </div>
-      <div class="accord-a">Inky the octopus, who escaped New Zealand's National Aquarium through a drain pipe in 2016.</div>
+      <div class="accord-a">Facing your fears and finding a strength you didn't know you had.</div>
     </div>
 
     <div class="phase-nav">
@@ -408,7 +400,7 @@ strong{color:var(--warn);}
 
     <div class="phase-nav">
       <button class="btn-ghost" onclick="goPhase(3)">← Back</button>
-      <button class="btn-primary" onclick="goPhase(5)">Next: Fact vs. Opinion →</button>
+      <button class="btn-primary" onclick="goPhase(5)">Next: Synonyms & Antonyms →</button>
     </div>
   </section>
 
@@ -417,14 +409,14 @@ strong{color:var(--warn);}
     <div class="phase-header">
       <div class="phase-num">5</div>
       <div>
-        <div class="phase-title">Fact vs. Opinion</div>
+        <div class="phase-title">Synonyms & Antonyms</div>
         <span class="tag tag-phase">10 min</span>
       </div>
     </div>
-    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">A <strong>FACT</strong> can be proven true or false. An <strong>OPINION</strong> tells what someone thinks or feels. Decide for each statement!</p>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;"><strong>Synonyms</strong> mean the SAME thing. <strong>Antonyms</strong> mean the OPPOSITE. Read each word pair and choose which one they are. Wrong? Shake it off and try again!</p>
 
-    <div id="fo-container"></div>
-    <div class="fo-score" id="fo-score">0 / 10 answered correctly</div>
+    <div id="se-container"></div>
+    <div class="se-score" id="se-score">0 / 10 answered correctly</div>
 
     <div class="phase-nav">
       <button class="btn-ghost" onclick="goPhase(4)">← Back</button>
@@ -444,11 +436,11 @@ strong{color:var(--warn);}
 
     <div class="card">
       <h3 style="margin-bottom:10px;color:var(--warn);">✏️ Your Writing Prompt</h3>
-      <p style="font-size:.95rem;line-height:1.7;">You are the aquarium's night security guard. Write your <strong>incident report</strong> about the night Professor Eight escaped. What clues did you find in the morning? What do you think happened? Use at least <strong>3 vocabulary words</strong> from today's lesson. <strong>(At least 5 sentences.)</strong></p>
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:0;">Vocabulary words: <em>curiosity, flexible, strategy, investigate, distinguish, remarkable, camouflage</em></p>
+      <p style="font-size:.95rem;line-height:1.7;">Echo was scared of the dark until she learned to use echolocation — then her fear turned into confidence. Write about something that scared <strong>YOU</strong> until you learned how to do it. What was it? How did practice change how you felt? Use at least <strong>3 vocabulary words</strong>. <strong>(At least 5 sentences.)</strong></p>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:0;">Vocabulary words: <em>hesitant, vast, discouraged, patient, perceive, confidence, instinct</em></p>
     </div>
 
-    <textarea class="writing-area" id="writing-pad" placeholder="Incident Report — start writing here… Remember: at least 5 sentences and 3 vocab words!"></textarea>
+    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here… Remember: at least 5 sentences and 3 vocab words!"></textarea>
     <div class="writing-meta">
       <span id="word-count" style="color:var(--muted);">0 words</span>
       <span class="save-indicator" id="save-indicator">✓ Saved</span>
@@ -482,17 +474,17 @@ strong{color:var(--warn);}
 
 <script>
 // ─── CONSTANTS ────────────────────────────────────────────────
-const QAKEY = "ela-l6-qans";
-const QKEY  = "ela-l6-quiz";
-const WKEY  = "ela-l6-writing";
+const QAKEY = "ela-l11-qans";
+const QKEY  = "ela-l11-quiz";
+const WKEY  = "ela-l11-writing";
 
 // ─── MISTAKE LOGGER ───────────────────────────────────────────
 function logMistake(correct, questionText, quizTitle) {
   try {
     let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
-    const key = 'ELA|Day 6: Octopus|' + quizTitle;
+    const key = 'ELA|Day 11: Bat|' + quizTitle;
     if (!correct) {
-      m[key] = { subject: 'ELA', day: 'Day 6', q: questionText, file: 'ela-lesson-06-octopus.html' };
+      m[key] = { subject: 'ELA', day: 'Day 11', q: questionText, file: 'ela-lesson-11-bat.html' };
     } else {
       delete m[key];
     }
@@ -502,7 +494,7 @@ function logMistake(correct, questionText, quizTitle) {
 
 // ─── PHASE NAV ────────────────────────────────────────────────
 let currentPhase = 1;
-const PHASE_LABELS = ['','Warm-Up','Reading','Comprehension','Vocabulary','Fact vs. Opinion','Writing','Quiz'];
+const PHASE_LABELS = ['','Warm-Up','Reading','Comprehension','Vocabulary','Synonyms & Antonyms','Writing','Quiz'];
 
 function goPhase(n) {
   document.getElementById('phase-' + currentPhase).classList.remove('visible');
@@ -511,7 +503,7 @@ function goPhase(n) {
   document.getElementById('phase-' + n).scrollIntoView({behavior:'smooth', block:'start'});
   updatePhaseBar();
   if (n === 4) buildVocab();
-  if (n === 5) buildFO();
+  if (n === 5) buildSE();
   if (n === 7) { buildQuiz(); restoreQuiz(); }
 }
 
@@ -550,13 +542,13 @@ function toggleAccord(id) {
 
 // ─── PHASE 4: VOCABULARY MATCH ────────────────────────────────
 const vocabPairs = [
-  { word: 'curiosity',   def: 'a strong desire to learn or know something' },
-  { word: 'flexible',    def: 'able to bend easily without breaking' },
-  { word: 'strategy',    def: 'a careful plan for reaching a goal' },
-  { word: 'investigate', def: 'to look into something carefully to learn the facts' },
-  { word: 'distinguish', def: 'to tell the difference between two or more things' },
-  { word: 'remarkable',  def: 'so unusual or amazing that it deserves attention' },
-  { word: 'camouflage',  def: 'coloring or covering that helps something blend in' },
+  { word: 'hesitant',    def: 'slow to act because of fear or doubt' },
+  { word: 'vast',        def: 'extremely large or wide' },
+  { word: 'discouraged', def: 'having lost confidence or hope' },
+  { word: 'patient',     def: 'able to wait calmly without giving up' },
+  { word: 'perceive',    def: 'to notice or become aware of something' },
+  { word: 'confidence',  def: 'a feeling of trust in your own ability' },
+  { word: 'instinct',    def: 'a behavior an animal is born knowing' },
 ];
 
 let vocabSelected = null;
@@ -640,76 +632,75 @@ function vocabClick(tile) {
   }
 }
 
-// ─── PHASE 5: FACT VS OPINION ─────────────────────────────────
-const foItems = [
-  { stmt: 'Octopuses have eight arms.', answer: 'fact', explain: 'You can count them — this can be proven true.' },
-  { stmt: 'Octopuses are the coolest animals in the ocean.', answer: 'opinion', explain: '"Coolest" is a judgment — someone else might pick sharks or dolphins.' },
-  { stmt: 'An octopus can change color in under a second.', answer: 'fact', explain: 'Scientists have measured this — it can be proven.' },
-  { stmt: 'Watching an octopus change color is amazing.', answer: 'opinion', explain: '"Amazing" tells how someone feels — it can\'t be proven.' },
-  { stmt: 'Inky the octopus escaped through a drain pipe in 2016.', answer: 'fact', explain: 'This really happened at New Zealand\'s National Aquarium — it\'s a documented event.' },
-  { stmt: 'Every kid should visit an aquarium to see an octopus.', answer: 'opinion', explain: '"Should" signals what someone believes people ought to do — that\'s an opinion.' },
-  { stmt: 'Octopuses have blue blood.', answer: 'fact', explain: 'True! Their blood uses copper instead of iron, which makes it blue. It can be tested and proven.' },
-  { stmt: 'Octopus camouflage is better than a chameleon\'s.', answer: 'opinion', explain: '"Better" is a judgment call — people could disagree about what counts as better.' },
-  { stmt: 'Most octopuses live only a few years.', answer: 'fact', explain: 'Scientists have studied octopus lifespans — this can be proven.' },
-  { stmt: 'It would be fun to have an octopus as a pet.', answer: 'opinion', explain: '"Fun" is a feeling — not something you can prove true or false.' },
+// ─── PHASE 5: SYNONYMS & ANTONYMS ─────────────────────────────
+const seItems = [
+  { pair: 'vast / huge',            correct: 'SYNONYMS' },
+  { pair: 'hesitant / confident',   correct: 'ANTONYMS' },
+  { pair: 'discouraged / hopeless', correct: 'SYNONYMS' },
+  { pair: 'patient / restless',     correct: 'ANTONYMS' },
+  { pair: 'perceive / notice',      correct: 'SYNONYMS' },
+  { pair: 'brave / fearful',        correct: 'ANTONYMS' },
+  { pair: 'tiny / small',           correct: 'SYNONYMS' },
+  { pair: 'dark / bright',          correct: 'ANTONYMS' },
+  { pair: 'nervous / anxious',      correct: 'SYNONYMS' },
+  { pair: 'begin / end',            correct: 'ANTONYMS' },
 ];
 
-let foCorrectCount = 0;
-const foSolved = {};
+let seCorrectCount = 0;
+const seSolved = {};
 
-function buildFO() {
-  const container = document.getElementById('fo-container');
+function buildSE() {
+  const container = document.getElementById('se-container');
   if (container.children.length > 0) return;
 
-  foItems.forEach((item, i) => {
+  seItems.forEach((item, i) => {
     const card = document.createElement('div');
-    card.className = 'fo-card';
-    card.id = 'fo-' + i;
+    card.className = 'se-card';
+    card.id = 'se-' + i;
     card.innerHTML = `
-      <div class="fo-stmt">${i+1}. ${item.stmt}</div>
-      <div class="fo-btns">
-        <button class="fo-btn" data-ans="fact" onclick="ansFO(${i},'fact')">📊 FACT</button>
-        <button class="fo-btn" data-ans="opinion" onclick="ansFO(${i},'opinion')">💭 OPINION</button>
+      <div class="se-stmt">${i+1}. <strong style="color:var(--accent2);">${item.pair}</strong> — are these words synonyms or antonyms?</div>
+      <div class="se-btns">
+        <button class="se-btn" data-opt="SYNONYMS" onclick="ansSE(${i}, this)">🟰 SYNONYMS (same meaning)</button>
+        <button class="se-btn" data-opt="ANTONYMS" onclick="ansSE(${i}, this)">↔️ ANTONYMS (opposite meaning)</button>
       </div>
-      <div class="fo-feedback" id="fof-${i}"></div>
+      <div class="se-feedback" id="sef-${i}"></div>
     `;
     container.appendChild(card);
   });
 }
 
-function ansFO(i, choice) {
-  const item = foItems[i];
-  const card = document.getElementById('fo-' + i);
-  const feedback = document.getElementById('fof-' + i);
-  const btns = card.querySelectorAll('.fo-btn');
+function ansSE(i, btn) {
+  const item = seItems[i];
+  const card = document.getElementById('se-' + i);
+  const feedback = document.getElementById('sef-' + i);
+  const choice = btn.dataset.opt;
 
-  const correct = (choice === item.answer);
+  const correct = (choice === item.correct);
 
   if (correct) {
-    btns.forEach(b => {
+    card.querySelectorAll('.se-btn').forEach(b => {
       b.disabled = true;
-      if (b.dataset.ans === item.answer) b.classList.add('correct');
+      if (b.dataset.opt === item.correct) b.classList.add('correct');
     });
     feedback.style.color = 'var(--good)';
-    feedback.textContent = '✓ Correct! ' + item.explain;
-    if (!foSolved[i]) {
-      foSolved[i] = true;
-      foCorrectCount++;
-      const sc = document.getElementById('fo-score');
-      sc.textContent = foCorrectCount + ' / 10 answered correctly';
-      if (foCorrectCount === 10) {
+    feedback.textContent = '✓ Correct! They are ' + item.correct.toLowerCase() + '.';
+    if (!seSolved[i]) {
+      seSolved[i] = true;
+      seCorrectCount++;
+      const sc = document.getElementById('se-score');
+      sc.textContent = seCorrectCount + ' / 10 answered correctly';
+      if (seCorrectCount === 10) {
         sc.style.color = 'var(--good)';
-        sc.textContent = '🎉 All 10 correct! You can spot facts and opinions!';
+        sc.textContent = '🎉 All 10 correct! You are a word-meaning champion!';
       }
     }
   } else {
     // Wrong — shake and let them retry
-    const wrongBtn = card.querySelector(`.fo-btn[data-ans="${choice}"]`);
-    wrongBtn.classList.add('wrong','shake');
-    wrongBtn.addEventListener('animationend', () => wrongBtn.classList.remove('shake'), {once:true});
+    btn.classList.add('wrong','shake');
+    btn.addEventListener('animationend', () => btn.classList.remove('shake'), {once:true});
     feedback.style.color = 'var(--bad)';
-    feedback.textContent = '✗ Not quite — think about it and try again!';
-    setTimeout(() => { wrongBtn.classList.remove('wrong'); }, 900);
+    feedback.textContent = '✗ Not quite — think about the meanings and try again!';
+    setTimeout(() => { btn.classList.remove('wrong'); }, 900);
   }
 }
 
@@ -746,84 +737,84 @@ function saveWriting() {
 // ─── PHASE 7: QUIZ ────────────────────────────────────────────
 const quizData = [
   {
-    q: 'What does "strategy" mean?',
+    q: 'What does "hesitant" mean?',
     opts: [
-      'A type of octopus camouflage',
-      'A careful plan for reaching a goal',
-      'A strong desire to learn something new',
-      'A sudden burst of speed',
+      'Slow to act from fear or doubt',
+      'Ready to jump in without thinking twice',
+      'Very loud',
+      'Very sleepy',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'What does "vast" mean?',
+    opts: [
+      'Tiny',
+      'Extremely large',
+      'Quiet and still, without any sound at all',
+      'Bright and colorful',
     ],
     correct: 1,
   },
   {
-    q: 'If you can "distinguish" two fish, you can:',
+    q: 'What does "perceive" mean?',
     opts: [
-      'Catch both of them at the same time',
-      'Make them disappear',
-      'Tell the difference between them',
-      'Teach them to swim faster',
+      'To fall fast asleep',
+      'To build something',
+      'To notice something',
+      'To forget where you put something you had',
     ],
     correct: 2,
   },
   {
-    q: 'What does "investigate" mean?',
+    q: 'Which pair are ANTONYMS (opposite meanings)?',
     opts: [
-      'To hide quietly from something large and dangerous',
-      'To study something carefully to learn the facts',
-      'To bend without breaking',
-      'To escape through a small gap',
-    ],
-    correct: 1,
-  },
-  {
-    q: 'In the passage, why is Professor Eight\'s escape possible?',
-    opts: [
-      'She is small enough to fit under the door',
-      'She learned to open the lock with a key',
-      'The workers accidentally left the tank lid wide open',
-      'She has no bones and can squeeze through gaps',
+      'tiny / small',
+      'nervous / anxious',
+      'quick / fast',
+      'brave / fearful',
     ],
     correct: 3,
   },
   {
-    q: 'Something "remarkable" is:',
+    q: 'Which pair are SYNONYMS (same meaning)?',
     opts: [
-      'Easy to forget',
-      'So amazing it deserves notice',
-      'Marked with a pen, pencil, or crayon',
-      'Impossible to prove',
+      'vast / huge',
+      'dark / bright',
+      'begin / end',
+      'patient / restless',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'What is the theme of "Echo Learns to See"?',
+    opts: [
+      'Bats are the only animals that can fly at night',
+      'Facing fear and finding a hidden strength',
+      'It is safer to never leave the cave at all',
+      'Moths are the tastiest food a bat can eat',
     ],
     correct: 1,
   },
   {
-    q: '"The octopus is the smartest animal in the sea" is an example of:',
+    q: 'What does "discouraged" mean?',
     opts: [
-      'A fact',
-      'An opinion',
-      'A strategy',
-      'A camouflage',
-    ],
-    correct: 1,
-  },
-  {
-    q: '"Octopuses have three hearts" is an example of:',
-    opts: [
-      'An opinion',
-      'A guess',
-      'A fact',
-      'An exaggeration',
+      'Full of energy and cheer',
+      'Feeling curious',
+      'Having lost hope',
+      'Wide awake and ready to go anywhere tonight',
     ],
     correct: 2,
   },
   {
-    q: 'What does "curiosity" mean?',
+    q: 'What does "confidence" mean?',
     opts: [
-      'A strong desire to learn or know',
-      'A careful plan for escaping a locked tank',
-      'The ability to change color',
-      'A feeling of being afraid',
+      'A cold and windy night out in the open',
+      'Trust in your own ability',
+      'A feeling of being sleepy',
+      'A loud, high squeak',
     ],
-    correct: 0,
+    correct: 1,
   },
 ];
 
@@ -966,10 +957,10 @@ function finishQuiz() {
 function showQuizResult(result) {
   const body = document.getElementById('quiz-body');
   let msg = '';
-  if (result.pct >= 90) msg = 'Amazing work! You\'re as clever as Professor Eight! 🐙🌟';
-  else if (result.pct >= 75) msg = 'Great job! You learned a lot today! 🌊';
+  if (result.pct >= 90) msg = 'Amazing work! You faced the quiz like Echo faced the dark! 🦇🌟';
+  else if (result.pct >= 75) msg = 'Great job! You learned a lot today! 🌙';
   else if (result.pct >= 60) msg = 'Good effort! Review the passage to strengthen your answers. 📖';
-  else msg = 'Keep going — re-read the passage and try again! You\'ve got this! 💪';
+  else msg = 'Keep going — re-read the passage and try again! Be patient, like Echo! 💪';
 
   body.innerHTML = `
     <div class="quiz-result">

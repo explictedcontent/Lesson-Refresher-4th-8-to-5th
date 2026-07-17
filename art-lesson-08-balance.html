@@ -421,14 +421,14 @@ pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("
 
 /* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
 const QUIZ=[
-  {q:"BALANCE in art means…",opts:["Using only one color","How visual weight is spread so the art feels steady","Drawing very fast"],a:1},
+  {q:"BALANCE in art means…",opts:["Using only one color across the whole page","How visual weight is spread evenly","Drawing very fast"],a:1},
   {q:"SYMMETRICAL balance is when…",opts:["Both sides match like a mirror","Everything spreads from a center","The sides are totally different"],a:0},
-  {q:"A butterfly or a person's face is an example of…",opts:["Radial balance","Symmetrical balance","No balance"],a:1},
-  {q:"ASYMMETRICAL balance is when…",opts:["The two sides look different but still feel balanced","Both halves are identical","There is a center point"],a:0},
-  {q:"RADIAL balance is when parts…",opts:["Spread out from a center point","Match left and right","Are all in one corner"],a:0},
+  {q:"A butterfly or a person's face is an example of…",opts:["Radial balance (spinning out)","Symmetrical balance","No balance"],a:1},
+  {q:"ASYMMETRICAL balance is when…",opts:["The sides look different but feel balanced","Both halves are exactly identical and equal","There is a center point"],a:0},
+  {q:"RADIAL balance is when parts…",opts:["Spread out from a center point","Match on the left and the right side","Are all in one corner"],a:0},
   {q:"A flower, a wheel, or a snowflake shows…",opts:["Radial balance","Asymmetrical balance","No balance"],a:0},
-  {q:"The imaginary line that splits a symmetrical design into matching halves is the…",opts:["Horizon line","Line of symmetry","Color line"],a:1},
-  {q:"A big shape on one side balanced by several small shapes on the other is…",opts:["Symmetrical","Asymmetrical","Radial"],a:1},
+  {q:"The imaginary line that splits a symmetrical design into matching halves is the…",opts:["Horizon line (where sky meets land)","Line of symmetry","Color line"],a:1},
+  {q:"A big shape on one side balanced by several small shapes on the other is…",opts:["Symmetrical (mirror match)","Asymmetrical","Radial"],a:1},
 ];
 let qi=0, qAns=[];
 $("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };

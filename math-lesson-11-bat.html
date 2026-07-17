@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Math Day 10 — Data &amp; Graphs</title>
+<title>Math Day 11 — Telling Time &amp; Elapsed Time</title>
 <style>
 :root {
   --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
@@ -110,16 +110,11 @@ main{max-width:780px;margin:0 auto;padding:0 16px}
 .concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
 .concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700}
 
-/* GRAPH SVG */
+/* CLOCK / GRAPH SVG */
 .gr-wrap{margin:6px 0 4px;overflow-x:auto}
 .gr-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:block;margin:0 auto}
-
-/* TALLY TABLE */
-.tally-table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:15px}
-.tally-table th,.tally-table td{border:1px solid var(--line);padding:10px 12px;text-align:center}
-.tally-table th{background:var(--panel);color:var(--accent2);font-size:13px}
-.tally-table td{background:var(--panel)}
-.tally-table .tally-marks{color:var(--warn);font-weight:700;letter-spacing:2px;font-family:ui-monospace,monospace}
+.clock-wrap{display:flex;justify-content:center;margin:6px 0 14px}
+.clock-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:50%;display:block}
 
 /* CONCEPT / WORKED EXAMPLE */
 .algo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -147,7 +142,7 @@ main{max-width:780px;margin:0 auto;padding:0 16px}
 .pa-prompt .hl{color:var(--accent)}
 .pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 .pa-input{
-  width:150px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  width:180px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
   background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
   min-height:44px;transition:border-color .15s;
 }
@@ -272,8 +267,8 @@ main{max-width:780px;margin:0 auto;padding:0 16px}
 <!-- STICKY PHASE BAR -->
 <div id="phase-bar">
   <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
-  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Bar Graph</button>
-  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Line Plot</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Read Clocks</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Elapsed</button>
   <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
   <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
   <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
@@ -281,9 +276,9 @@ main{max-width:780px;margin:0 auto;padding:0 16px}
 
 <!-- HERO -->
 <div class="hero">
-  <div class="animal-icon">🐝</div>
-  <h1>Math Day 10 — Data &amp; Graphs</h1>
-  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Honeybee Edition</p>
+  <div class="animal-icon">🦇</div>
+  <h1>Math Day 11 — Time &amp; Elapsed Time</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Bat Edition</p>
 </div>
 
 <main>
@@ -311,189 +306,136 @@ main{max-width:780px;margin:0 auto;padding:0 16px}
 </section>
 
 <!-- ═══════════════════════════════════════════
-     PHASE 2 — READING A BAR GRAPH
+     PHASE 2 — READING A CLOCK
 ═══════════════════════════════════════════ -->
 <section class="phase-section" id="phase2">
-  <h2>📊 Phase 2 — Reading a Bar Graph <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
-  <p class="phase-meta">A bar graph turns numbers into bars. Taller bar = more. Always read the side axis to find the amount.</p>
+  <h2>🕐 Phase 2 — Reading a Clock <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">An analog clock has two hands. Read the short hand for the hour and the long hand for the minutes.</p>
 
   <div class="teach-card">
-    <h3>📋 How a Bar Graph Works</h3>
-    <div class="gr-wrap">
-      <svg width="440" height="300" viewBox="0 0 440 300" role="img" aria-label="Bar graph titled Books Read showing Monday 3, Tuesday 5, Wednesday 2, Thursday 6">
-        <text x="220" y="24" font-size="16" text-anchor="middle" fill="#f4f5fb" font-weight="700">Books Read</text>
-        <!-- Y axis -->
-        <line x1="70" y1="50" x2="70" y2="250" stroke="#a7adc4" stroke-width="2"/>
-        <!-- X axis -->
-        <line x1="70" y1="250" x2="410" y2="250" stroke="#a7adc4" stroke-width="2"/>
-        <!-- Y gridlines + labels 0..6 (30px per unit) -->
-        <g font-size="12" fill="#a7adc4" text-anchor="end">
-          <line x1="70" y1="250" x2="410" y2="250" stroke="#2e3347" stroke-width="1"/>
-          <text x="62" y="254">0</text>
-          <line x1="70" y1="220" x2="410" y2="220" stroke="#2e3347" stroke-width="1"/>
-          <text x="62" y="224">1</text>
-          <line x1="70" y1="190" x2="410" y2="190" stroke="#2e3347" stroke-width="1"/>
-          <text x="62" y="194">2</text>
-          <line x1="70" y1="160" x2="410" y2="160" stroke="#2e3347" stroke-width="1"/>
-          <text x="62" y="164">3</text>
-          <line x1="70" y1="130" x2="410" y2="130" stroke="#2e3347" stroke-width="1"/>
-          <text x="62" y="134">4</text>
-          <line x1="70" y1="100" x2="410" y2="100" stroke="#2e3347" stroke-width="1"/>
-          <text x="62" y="104">5</text>
-          <line x1="70" y1="70" x2="410" y2="70" stroke="#2e3347" stroke-width="1"/>
-          <text x="62" y="74">6</text>
-        </g>
-        <!-- Bars: value*30 tall, base at y=250 -->
-        <!-- Mon 3 -> 90 tall, top y=160 -->
-        <rect x="95" y="160" width="52" height="90" fill="#5bd1c4"/>
-        <!-- Tue 5 -> 150 tall, top y=100 -->
-        <rect x="167" y="100" width="52" height="150" fill="#ff7a59"/>
-        <!-- Wed 2 -> 60 tall, top y=190 -->
-        <rect x="239" y="190" width="52" height="60" fill="#5bd1c4"/>
-        <!-- Thu 6 -> 180 tall, top y=70 -->
-        <rect x="311" y="70" width="52" height="180" fill="#ff7a59"/>
-        <!-- Value labels on top of bars -->
-        <g font-size="13" text-anchor="middle" fill="#ffd166" font-weight="700">
-          <text x="121" y="152">3</text>
-          <text x="193" y="92">5</text>
-          <text x="265" y="182">2</text>
-          <text x="337" y="62">6</text>
-        </g>
-        <!-- X labels -->
-        <g font-size="12" text-anchor="middle" fill="#f4f5fb">
-          <text x="121" y="268">Mon</text>
-          <text x="193" y="268">Tue</text>
-          <text x="265" y="268">Wed</text>
-          <text x="337" y="268">Thu</text>
-        </g>
-        <text x="240" y="290" font-size="12" text-anchor="middle" fill="#a7adc4">Day of the week</text>
-      </svg>
-    </div>
-    <div class="teach-note">
-      To read a bar: find its top, then slide your finger <span class="hl">left to the number axis</span>. Thursday's bar reaches
-      <span class="hl">6</span>, so 6 books were read Thursday. The <span class="hl">tallest</span> bar is the most; the
-      <span class="hl">shortest</span> bar is the fewest. To compare two days, look at the <span class="hl">difference</span> in their heights.
-    </div>
-  </div>
-
-  <div class="warmup-card" id="bg-container">
-    <div class="warmup-q">
-      <span class="q-num" id="bg-q-label">Question 1 of 6</span>
-      <span id="bg-q-text"></span>
-    </div>
-    <div class="warmup-choices" id="bg-choices"></div>
-    <div class="warmup-feedback" id="bg-feedback"></div>
-    <div class="warmup-nav">
-      <span class="warmup-progress" id="bg-progress">0 / 6 correct</span>
-      <button class="btn btn-teal hidden" id="bg-next" onclick="bgNext()">Next →</button>
-    </div>
-  </div>
-  <div class="section-done-banner" id="bg-done">✓ Bar graph mastered!</div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     PHASE 3 — TALLY CHARTS & LINE PLOTS
-═══════════════════════════════════════════ -->
-<section class="phase-section" id="phase3">
-  <h2>📈 Phase 3 — Tally Charts &amp; Line Plots <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
-  <p class="phase-meta">A tally chart counts things quickly. A line plot stacks an X for each answer above a number line.</p>
-
-  <div class="teach-card">
-    <h3>📋 The Same Data, Two Ways</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">A class was asked: "How many pets do you have?" Here are the results as a tally chart:</p>
-    <table class="tally-table">
-      <thead>
-        <tr><th>Number of Pets</th><th>Tally</th><th>Count</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>0</td><td class="tally-marks">||</td><td>2</td></tr>
-        <tr><td>1</td><td class="tally-marks">||||&nbsp;</td><td>5</td></tr>
-        <tr><td>2</td><td class="tally-marks">|||</td><td>3</td></tr>
-        <tr><td>3</td><td class="tally-marks">|</td><td>1</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:14px;color:var(--muted);margin:14px 0 8px">And the same counts drawn as a line plot — one X per person:</p>
-    <div class="gr-wrap">
-      <svg width="420" height="220" viewBox="0 0 420 220" role="img" aria-label="Line plot of number of pets: zero has 2 X, one has 5 X, two has 3 X, three has 1 X">
-        <text x="210" y="22" font-size="15" text-anchor="middle" fill="#f4f5fb" font-weight="700">Number of Pets</text>
-        <!-- number line -->
-        <line x1="60" y1="180" x2="360" y2="180" stroke="#5bd1c4" stroke-width="3"/>
-        <!-- ticks at 0,1,2,3 spaced 80px starting x=90 -->
-        <g stroke="#a7adc4" stroke-width="2">
-          <line x1="90" y1="174" x2="90" y2="186"/>
-          <line x1="170" y1="174" x2="170" y2="186"/>
-          <line x1="250" y1="174" x2="250" y2="186"/>
-          <line x1="330" y1="174" x2="330" y2="186"/>
-        </g>
-        <g font-size="14" text-anchor="middle" fill="#f4f5fb" font-weight="700">
-          <text x="90" y="204">0</text>
-          <text x="170" y="204">1</text>
-          <text x="250" y="204">2</text>
-          <text x="330" y="204">3</text>
-        </g>
-        <!-- X marks stack upward, each 26px tall, bottom X centered ~ y=162 -->
-        <g font-size="20" text-anchor="middle" fill="#ff7a59" font-weight="700">
-          <!-- 0: 2 X -->
-          <text x="90" y="168">✕</text>
-          <text x="90" y="142">✕</text>
-          <!-- 1: 5 X -->
-          <text x="170" y="168">✕</text>
-          <text x="170" y="142">✕</text>
-          <text x="170" y="116">✕</text>
-          <text x="170" y="90">✕</text>
-          <text x="170" y="64">✕</text>
-          <!-- 2: 3 X -->
-          <text x="250" y="168">✕</text>
-          <text x="250" y="142">✕</text>
-          <text x="250" y="116">✕</text>
-          <!-- 3: 1 X -->
-          <text x="330" y="168">✕</text>
-        </g>
-      </svg>
+    <h3>📋 How an Analog Clock Works</h3>
+    <div class="clock-wrap" id="teach-clock"></div>
+    <div class="concept-row">
+      <div class="concept-box">
+        <div class="cb-name">Short Hand</div>
+        <div class="cb-eq">the HOUR</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Long Hand</div>
+        <div class="cb-eq">the MINUTES</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Each Number</div>
+        <div class="cb-eq">= 5 minutes</div>
+      </div>
     </div>
     <div class="concept-row">
       <div class="concept-box">
-        <div class="cb-name">Mode</div>
-        <div class="cb-eq">most common value</div>
+        <div class="cb-name">AM</div>
+        <div class="cb-eq">morning</div>
       </div>
       <div class="concept-box">
-        <div class="cb-name">Range</div>
-        <div class="cb-eq">biggest − smallest</div>
-      </div>
-      <div class="concept-box">
-        <div class="cb-name">Total</div>
-        <div class="cb-eq">add all counts</div>
+        <div class="cb-name">PM</div>
+        <div class="cb-eq">afternoon / night</div>
       </div>
     </div>
     <div class="teach-note">
-      The tallest stack is above <span class="hl">1</span>, so 1 pet is the <span class="hl">MODE</span> (most common).
-      The values that appear go from 0 up to 3, so the <span class="hl">RANGE</span> is <span class="hl">3 − 0 = 3</span>.
-      Add every count (2 + 5 + 3 + 1) to find how many people were surveyed in total.
+      The clock above shows <span class="hl">1:00</span>. The <span class="hl">short hand</span> points at the 1 (the hour),
+      and the <span class="hl">long hand</span> points straight up at the 12 (0 minutes). To read minutes, count by
+      <span class="hl">5s</span> around the clock: the 3 means <span class="hl">15 minutes</span>, the 6 means
+      <span class="hl">30 minutes</span>, and the 9 means <span class="hl">45 minutes</span>. A day has two rounds of the clock:
+      <span class="hl">AM</span> for morning and <span class="hl">PM</span> for afternoon and night.
+    </div>
+  </div>
+
+  <div class="warmup-card" id="cl-container">
+    <div class="warmup-q">
+      <span class="q-num" id="cl-q-label">Clock 1 of 6</span>
+      <span id="cl-q-text">What time does this clock show?</span>
+    </div>
+    <div class="clock-wrap" id="cl-face"></div>
+    <div class="warmup-choices" id="cl-choices"></div>
+    <div class="warmup-feedback" id="cl-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="cl-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="cl-next" onclick="clNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="cl-done">✓ Clock reading mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — ELAPSED TIME
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>📈 Phase 3 — Elapsed Time <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">Elapsed time is how much time passes from a START time to an END time. Count forward — hours first, then minutes.</p>
+
+  <div class="teach-card">
+    <h3>📋 Counting Forward on a Time Number Line</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">Worked example: how long is it from <strong style="color:var(--accent2)">2:15</strong> to <strong style="color:var(--accent2)">4:45</strong>?</p>
+    <div class="gr-wrap">
+      <svg width="460" height="150" viewBox="0 0 460 150" role="img" aria-label="Time number line from 2:15 to 4:45, jump of 2 hours then 30 minutes">
+        <!-- base line -->
+        <line x1="55" y1="105" x2="415" y2="105" stroke="#5bd1c4" stroke-width="3"/>
+        <!-- ticks -->
+        <g stroke="#a7adc4" stroke-width="2">
+          <line x1="65" y1="98" x2="65" y2="112"/>
+          <line x1="255" y1="98" x2="255" y2="112"/>
+          <line x1="405" y1="98" x2="405" y2="112"/>
+        </g>
+        <!-- jump arcs -->
+        <path d="M65,105 Q160,35 255,105" fill="none" stroke="#ff7a59" stroke-width="2.5"/>
+        <path d="M255,105 Q330,55 405,105" fill="none" stroke="#ffd166" stroke-width="2.5"/>
+        <!-- arrow heads -->
+        <polygon points="255,105 246,99 249,110" fill="#ff7a59"/>
+        <polygon points="405,105 396,99 399,110" fill="#ffd166"/>
+        <!-- jump labels -->
+        <text x="160" y="30" font-size="13" text-anchor="middle" fill="#ff7a59" font-weight="700">+2 hours</text>
+        <text x="330" y="48" font-size="13" text-anchor="middle" fill="#ffd166" font-weight="700">+30 min</text>
+        <!-- point labels -->
+        <g font-size="14" text-anchor="middle" fill="#f4f5fb" font-weight="700">
+          <text x="65" y="132">2:15</text>
+          <text x="255" y="132">4:15</text>
+          <text x="405" y="132">4:45</text>
+        </g>
+      </svg>
+    </div>
+    <div class="algo-box">
+      <div class="ab-title">The Two-Step Count</div>
+      <div class="algo-work">2:15 → 4:15  is  <span class="hl">2 hours</span>
+4:15 → 4:45  is  <span class="hl">30 minutes</span>
+Total elapsed = <span class="hl">2 hours 30 minutes</span></div>
+      <div class="algo-step">Jump by whole hours first to get close, then count the leftover minutes.</div>
+    </div>
+    <div class="teach-note">
+      Another way: to add <span class="hl">90 minutes</span> to a time, remember 90 minutes = <span class="hl">1 hour 30 minutes</span>.
+      So 4:00 + 90 minutes lands on <span class="hl">5:30</span>. Always split minutes over 60 into hours + minutes.
     </div>
   </div>
 
   <div class="pa-game">
-    <span class="ag-label" id="lp-label">Question 1 of 5</span>
-    <div class="pa-prompt" id="lp-prompt"></div>
+    <span class="ag-label" id="el-label">Question 1 of 5</span>
+    <div class="pa-prompt" id="el-prompt"></div>
     <div class="pa-input-row">
-      <input class="pa-input" id="lp-input" type="text" inputmode="numeric" placeholder="?" autocomplete="off">
-      <button class="btn btn-accent" id="lp-check" onclick="checkLP()">Check</button>
+      <input class="pa-input" id="el-input" type="text" placeholder="e.g. 2 hours" autocomplete="off">
+      <button class="btn btn-accent" id="el-check" onclick="checkEL()">Check</button>
     </div>
-    <div class="pa-feedback" id="lp-feedback"></div>
+    <div class="pa-feedback" id="el-feedback"></div>
     <div class="pa-nav">
-      <span class="warmup-progress" id="lp-progress">0 / 5 correct</span>
-      <button class="btn btn-teal hidden" id="lp-next" onclick="lpNext()">Next →</button>
+      <span class="warmup-progress" id="el-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="el-next" onclick="elNext()">Next →</button>
     </div>
   </div>
-  <div class="section-done-banner" id="lp-done">✓ Tally charts &amp; line plots mastered!</div>
+  <div class="section-done-banner" id="el-done">✓ Elapsed time mastered!</div>
 </section>
 
 <!-- ═══════════════════════════════════════════
      PHASE 4 — WORD PROBLEMS
 ═══════════════════════════════════════════ -->
 <section class="phase-section" id="phase4">
-  <h2>🐝 Phase 4 — Honeybee Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
-  <p class="phase-meta">6 problems from the beehive. Type your answer, then reveal the step-by-step solution.</p>
+  <h2>🦇 Phase 4 — Bat Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems from the bat cave. Type your answer, then reveal the step-by-step solution.</p>
 
   <div class="wp-card" id="wp1-container">
     <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
@@ -510,14 +452,14 @@ main{max-width:780px;margin:0 auto;padding:0 16px}
       <span class="wp-counter" id="wp1-counter">1 / 6</span>
     </div>
   </div>
-  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Sweet work.</div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Batty good work.</div>
 </section>
 
 <!-- ═══════════════════════════════════════════
      PHASE 5 — SPEED ROUND
 ═══════════════════════════════════════════ -->
 <section class="phase-section" id="phase5">
-  <h2>⚡ Phase 5 — Data Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <h2>⚡ Phase 5 — Time Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
   <p class="phase-meta">8 speed problems — pick the right answer fast!</p>
 
   <div class="mm-score-bar" id="mm-score-bar">
@@ -553,8 +495,8 @@ main{max-width:780px;margin:0 auto;padding:0 16px}
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS & STORAGE
 // ═══════════════════════════════════════════════════════════
-const QAKEY = "math-l10-qans";
-const QKEY  = "math-l10-quiz";
+const QAKEY = "math-l11-qans";
+const QKEY  = "math-l11-quiz";
 
 function saveAll() {
   saveQuizState();
@@ -571,9 +513,9 @@ window.addEventListener('blur', saveAll);
 function logMistake(correct, questionText, quizTitle) {
   try {
     let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
-    const key = 'Math|Day 10: Data & Graphs|' + quizTitle;
+    const key = 'Math|Day 11: Time & Elapsed Time|' + quizTitle;
     if (!correct) {
-      m[key] = { subject: 'Math', day: 'Day 10', q: questionText, file: 'math-lesson-10-honeybee.html' };
+      m[key] = { subject: 'Math', day: 'Day 11', q: questionText, file: 'math-lesson-11-bat.html' };
     } else { delete m[key]; }
     localStorage.setItem('refresher-mistakes', JSON.stringify(m));
   } catch(e) {}
@@ -602,12 +544,35 @@ function updatePhaseBar() {
 }
 window.addEventListener('scroll', updatePhaseBar, {passive:true});
 
-// Helper: parse a typed whole-number answer
-function parseIntAnswer(raw) {
-  const cleaned = String(raw).trim().replace(/[^0-9\-]/g, '');
-  if (cleaned === '' || cleaned === '-') return null;
-  const v = parseInt(cleaned, 10);
-  return isNaN(v) ? null : v;
+// ═══════════════════════════════════════════════════════════
+// CLEAN ANALOG CLOCK BUILDER (no theme — plain clock face)
+// ═══════════════════════════════════════════════════════════
+function clockSVG(h, m, size) {
+  size = size || 200;
+  const cx = size/2, cy = size/2, r = size/2 - 8;
+  const minA = m * 6;                 // degrees from 12, clockwise
+  const hrA  = (h % 12) * 30 + m * 0.5;
+  function pt(angle, len) {
+    const rad = angle * Math.PI / 180;
+    return [cx + len * Math.sin(rad), cy - len * Math.cos(rad)];
+  }
+  let ticks = '';
+  for (let n = 1; n <= 12; n++) {
+    const [nx, ny] = pt(n * 30, r - 18);
+    ticks += `<text x="${nx.toFixed(1)}" y="${(ny + 5).toFixed(1)}" font-size="15" text-anchor="middle" fill="#f4f5fb" font-weight="700">${n}</text>`;
+    const [ox, oy] = pt(n * 30, r - 2);
+    const [ix, iy] = pt(n * 30, r - 8);
+    ticks += `<line x1="${ox.toFixed(1)}" y1="${oy.toFixed(1)}" x2="${ix.toFixed(1)}" y2="${iy.toFixed(1)}" stroke="#a7adc4" stroke-width="2"/>`;
+  }
+  const [hx, hy] = pt(hrA, r * 0.52);
+  const [mx, my] = pt(minA, r * 0.80);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="analog clock">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#1e2130" stroke="#2e3347" stroke-width="3"/>
+    ${ticks}
+    <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#ff7a59" stroke-width="6" stroke-linecap="round"/>
+    <line x1="${cx}" y1="${cy}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#5bd1c4" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="6" fill="#ffd166"/>
+  </svg>`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -615,28 +580,28 @@ function parseIntAnswer(raw) {
 // ═══════════════════════════════════════════════════════════
 const warmupQs = [
   {
-    q: "What is the biggest number in this list: 4, 9, 2, 7?",
-    choices: ["4", "9", "2", "7"],
-    correct: 1,
-    explain: "9 is the largest. Scan the list and keep the highest value you find."
-  },
-  {
-    q: "5 + 8 + 2 = ?",
-    choices: ["13", "14", "15", "16"],
+    q: "How many minutes are in 1 hour?",
+    choices: ["30", "45", "60", "100"],
     correct: 2,
-    explain: "5 + 8 = 13, then 13 + 2 = 15."
+    explain: "One hour is 60 minutes — that never changes."
   },
   {
-    q: "What is the difference between the largest (10) and the smallest (3)?",
-    choices: ["6", "7", "13", "3"],
+    q: "How many hours are in 1 day?",
+    choices: ["12", "24", "60", "10"],
     correct: 1,
-    explain: "Difference means subtract: 10 − 3 = 7. That gap is called the range."
+    explain: "A full day is 24 hours (2 rounds of a 12-hour clock)."
   },
   {
-    q: "Which number appears most often: 3, 5, 3, 8, 3?",
-    choices: ["5", "8", "3", "They all tie"],
+    q: "What time is 30 minutes after 4:00?",
+    choices: ["4:15", "4:30", "4:45", "5:00"],
+    correct: 1,
+    explain: "4:00 plus 30 minutes is 4:30 — halfway to 5:00."
+  },
+  {
+    q: "How many minutes are in half an hour?",
+    choices: ["15", "20", "30", "45"],
     correct: 2,
-    explain: "3 shows up three times — more than any other. The most common value is the mode."
+    explain: "Half of 60 minutes is 30 minutes."
   }
 ];
 
@@ -707,78 +672,47 @@ function finishWarmup() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PHASE 2 — BAR GRAPH PRACTICE (clean numbers)
-// Graph: Mon 3, Tue 5, Wed 2, Thu 6
+// PHASE 2 — READING A CLOCK (clean clocks, no theme)
 // ═══════════════════════════════════════════════════════════
-const bgQs = [
-  {
-    q: "How many books were read on Thursday?",
-    choices: ["4", "5", "6", "3"],
-    correct: 2,
-    explain: "Thursday's bar reaches 6 on the number axis."
-  },
-  {
-    q: "Which day had the fewest books?",
-    choices: ["Monday", "Tuesday", "Wednesday", "Thursday"],
-    correct: 2,
-    explain: "Wednesday's bar is the shortest at 2 — the fewest."
-  },
-  {
-    q: "How many more books on Tuesday than on Monday?",
-    choices: ["1", "2", "3", "8"],
-    correct: 1,
-    explain: "Tuesday is 5 and Monday is 3: 5 − 3 = 2 more."
-  },
-  {
-    q: "Total books for Monday + Wednesday?",
-    choices: ["4", "5", "6", "8"],
-    correct: 1,
-    explain: "Monday 3 + Wednesday 2 = 5 books."
-  },
-  {
-    q: "Which day had the most books?",
-    choices: ["Monday", "Tuesday", "Wednesday", "Thursday"],
-    correct: 3,
-    explain: "Thursday's bar is the tallest at 6 — the most."
-  },
-  {
-    q: "Total books for all four days?",
-    choices: ["14", "15", "16", "17"],
-    correct: 2,
-    explain: "3 + 5 + 2 + 6 = 16 books in all."
-  }
+const clQs = [
+  { h:3,  m:0,  choices:["3:00","3:30","12:15","9:00"],  correct:0, explain:"Short hand on 3, long hand straight up on 12 = 3:00." },
+  { h:6,  m:30, choices:["6:00","6:30","12:30","5:30"],  correct:1, explain:"Long hand on 6 means 30 minutes, short hand halfway past 6 = 6:30." },
+  { h:9,  m:15, choices:["9:03","3:45","9:15","9:45"],   correct:2, explain:"Long hand on 3 means 15 minutes, short hand just past 9 = 9:15." },
+  { h:12, m:45, choices:["12:45","9:00","12:09","1:45"], correct:0, explain:"Long hand on 9 means 45 minutes, short hand near 12 = 12:45." },
+  { h:7,  m:20, choices:["4:35","7:04","7:20","7:40"],   correct:2, explain:"Long hand on 4 means 20 minutes, short hand just past 7 = 7:20." },
+  { h:10, m:50, choices:["10:10","11:50","10:50","10:05"], correct:2, explain:"Long hand on 10 means 50 minutes, short hand almost at 11 = 10:50." }
 ];
 
-let bgIdx = 0, bgCorrect = 0, bgAnswered = false;
+let clIdx = 0, clCorrect = 0, clAnswered = false;
 
-function renderBG() {
-  const q = bgQs[bgIdx];
-  document.getElementById('bg-q-label').textContent = 'Question ' + (bgIdx+1) + ' of 6';
-  document.getElementById('bg-q-text').textContent = q.q;
-  const fb = document.getElementById('bg-feedback');
+function renderCL() {
+  const q = clQs[clIdx];
+  document.getElementById('cl-q-label').textContent = 'Clock ' + (clIdx+1) + ' of 6';
+  document.getElementById('cl-face').innerHTML = clockSVG(q.h, q.m, 200);
+  const fb = document.getElementById('cl-feedback');
   fb.className = 'warmup-feedback';
   fb.textContent = '';
-  document.getElementById('bg-next').classList.add('hidden');
-  bgAnswered = false;
+  document.getElementById('cl-next').classList.add('hidden');
+  clAnswered = false;
 
-  const choicesEl = document.getElementById('bg-choices');
+  const choicesEl = document.getElementById('cl-choices');
   choicesEl.innerHTML = '';
   q.choices.forEach((c, i) => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
     btn.textContent = c;
-    btn.onclick = () => answerBG(i);
+    btn.onclick = () => answerCL(i);
     choicesEl.appendChild(btn);
   });
-  document.getElementById('bg-progress').textContent = bgCorrect + ' / 6 correct so far';
+  document.getElementById('cl-progress').textContent = clCorrect + ' / 6 correct so far';
 }
 
-function answerBG(idx) {
-  if (bgAnswered) return;
-  bgAnswered = true;
-  const q = bgQs[bgIdx];
-  const btns = document.querySelectorAll('#bg-choices .choice-btn');
-  const fb = document.getElementById('bg-feedback');
+function answerCL(idx) {
+  if (clAnswered) return;
+  clAnswered = true;
+  const q = clQs[clIdx];
+  const btns = document.querySelectorAll('#cl-choices .choice-btn');
+  const fb = document.getElementById('cl-feedback');
   const correct = idx === q.correct;
   btns.forEach((btn, i) => {
     btn.disabled = true;
@@ -786,169 +720,182 @@ function answerBG(idx) {
     else if (i === idx && !correct) btn.classList.add('wrong');
   });
   if (correct) {
-    bgCorrect++;
+    clCorrect++;
     fb.className = 'warmup-feedback show ok';
     fb.textContent = '✓ Correct! ' + q.explain;
   } else {
     fb.className = 'warmup-feedback show no';
     fb.textContent = '✗ Not quite. ' + q.explain;
   }
-  document.getElementById('bg-progress').textContent = bgCorrect + ' / 6 correct so far';
-  const nextBtn = document.getElementById('bg-next');
+  document.getElementById('cl-progress').textContent = clCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('cl-next');
   nextBtn.classList.remove('hidden');
-  if (bgIdx === 5) {
+  if (clIdx === 5) {
     nextBtn.textContent = 'Finish ✓';
-    nextBtn.onclick = finishBG;
+    nextBtn.onclick = finishCL;
   } else {
     nextBtn.textContent = 'Next →';
-    nextBtn.onclick = bgNext;
+    nextBtn.onclick = clNext;
   }
 }
 
-function bgNext() {
-  bgIdx++;
-  if (bgIdx < 6) renderBG();
+function clNext() {
+  clIdx++;
+  if (clIdx < 6) renderCL();
 }
 
-function finishBG() {
-  document.getElementById('bg-done').classList.add('show');
-  document.getElementById('bg-next').classList.add('hidden');
+function finishCL() {
+  document.getElementById('cl-done').classList.add('show');
+  document.getElementById('cl-next').classList.add('hidden');
   document.getElementById('seg2').classList.add('done');
 }
 
 // ═══════════════════════════════════════════════════════════
-// PHASE 3 — LINE PLOT PRACTICE (clean numbers)
-// Line plot: 0->2, 1->5, 2->3, 3->1
+// PHASE 3 — ELAPSED TIME (clean numbers/times, type the answer)
 // ═══════════════════════════════════════════════════════════
-const lpProblems = [
-  { prompt: 'How many people have exactly <span class="hl">1</span> pet?', answer: 5,
-    hint: 'There are 5 X marks stacked above the number 1.' },
-  { prompt: 'How many people were surveyed in <span class="hl">total</span>?', answer: 11,
-    hint: 'Add every stack: 2 + 5 + 3 + 1 = 11 people.' },
-  { prompt: 'What is the <span class="hl">MODE</span> (most common number of pets)?', answer: 1,
-    hint: 'The tallest stack (5 X’s) is above 1, so the mode is 1.' },
-  { prompt: 'How many people have <span class="hl">2 or more</span> pets?', answer: 4,
-    hint: 'Add the stacks at 2 and 3: 3 + 1 = 4 people.' },
-  { prompt: 'What is the <span class="hl">RANGE</span> (biggest value minus smallest value that appears)?', answer: 3,
-    hint: 'Values run from 0 up to 3, so 3 − 0 = 3.' }
-];
-
-let lpIdx = 0, lpCorrect = 0, lpAnswered = false;
-
-function renderLP() {
-  const p = lpProblems[lpIdx];
-  document.getElementById('lp-label').textContent = 'Question ' + (lpIdx+1) + ' of 5';
-  document.getElementById('lp-prompt').innerHTML = p.prompt;
-  const inp = document.getElementById('lp-input');
-  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
-  const fb = document.getElementById('lp-feedback');
-  fb.className = 'pa-feedback'; fb.textContent = '';
-  document.getElementById('lp-check').disabled = false;
-  document.getElementById('lp-next').classList.add('hidden');
-  lpAnswered = false;
-  document.getElementById('lp-progress').textContent = lpCorrect + ' / 5 correct so far';
+function normTime(s) {
+  let x = String(s).toLowerCase().trim();
+  x = x.replace(/\./g, '').replace(/&/g, ' ').replace(/\band\b/g, ' ');
+  x = x.replace(/hours|hour|hrs|hr/g, 'h');
+  x = x.replace(/minutes|minute|mins|min/g, 'm');
+  x = x.replace(/\s+/g, '');
+  return x;
 }
 
-function checkLP() {
-  if (lpAnswered) return;
-  const p = lpProblems[lpIdx];
-  const inp = document.getElementById('lp-input');
-  const val = parseIntAnswer(inp.value);
-  if (val === null) { inp.focus(); return; }
-  lpAnswered = true;
-  const correct = val === p.answer;
-  const fb = document.getElementById('lp-feedback');
+const elProblems = [
+  { prompt: 'From <span class="hl">3:00</span> to <span class="hl">5:00</span>, how much time passed?',
+    display: '2 hours', accept: ['2h','2'],
+    hint: 'From 3:00 to 5:00 is a jump of 2 whole hours.' },
+  { prompt: 'From <span class="hl">1:30</span> to <span class="hl">2:15</span>, how much time passed?',
+    display: '45 minutes', accept: ['45m','45'],
+    hint: '1:30 to 2:00 is 30 min, then 2:00 to 2:15 is 15 min: 30 + 15 = 45 minutes.' },
+  { prompt: 'From <span class="hl">6:00</span> to <span class="hl">8:30</span>, how much time passed?',
+    display: '2 hours 30 minutes', accept: ['2h30m','2h30'],
+    hint: '6:00 to 8:00 is 2 hours, then 8:00 to 8:30 is 30 minutes.' },
+  { prompt: 'Start at <span class="hl">4:00</span> and wait <span class="hl">90 minutes</span>. What time is it now?',
+    display: '5:30', accept: ['5:30','530'],
+    hint: '90 minutes = 1 hour 30 minutes, so 4:00 + 1:30 = 5:30.' },
+  { prompt: 'From <span class="hl">9:45</span> to <span class="hl">10:15</span>, how much time passed?',
+    display: '30 minutes', accept: ['30m','30'],
+    hint: '9:45 to 10:00 is 15 min, then 10:00 to 10:15 is 15 min: 15 + 15 = 30 minutes.' }
+];
+
+let elIdx = 0, elCorrect = 0, elAnswered = false;
+
+function renderEL() {
+  const p = elProblems[elIdx];
+  document.getElementById('el-label').textContent = 'Question ' + (elIdx+1) + ' of 5';
+  document.getElementById('el-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('el-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('el-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('el-check').disabled = false;
+  document.getElementById('el-next').classList.add('hidden');
+  elAnswered = false;
+  document.getElementById('el-progress').textContent = elCorrect + ' / 5 correct so far';
+}
+
+function checkEL() {
+  if (elAnswered) return;
+  const p = elProblems[elIdx];
+  const inp = document.getElementById('el-input');
+  const val = normTime(inp.value);
+  if (val === '') { inp.focus(); return; }
+  elAnswered = true;
+  const correct = p.accept.indexOf(val) !== -1;
+  const fb = document.getElementById('el-feedback');
   inp.disabled = true;
-  document.getElementById('lp-check').disabled = true;
+  document.getElementById('el-check').disabled = true;
   if (correct) {
-    lpCorrect++;
+    elCorrect++;
     inp.classList.add('right');
     fb.className = 'pa-feedback show ok';
     fb.textContent = '✓ Correct! ' + p.hint;
   } else {
     inp.classList.add('nope');
     fb.className = 'pa-feedback show no';
-    fb.textContent = '✗ The answer is ' + p.answer + '. ' + p.hint;
+    fb.textContent = '✗ The answer is ' + p.display + '. ' + p.hint;
   }
-  document.getElementById('lp-progress').textContent = lpCorrect + ' / 5 correct so far';
-  const nextBtn = document.getElementById('lp-next');
+  document.getElementById('el-progress').textContent = elCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('el-next');
   nextBtn.classList.remove('hidden');
-  if (lpIdx === 4) {
+  if (elIdx === 4) {
     nextBtn.textContent = 'Finish ✓';
-    nextBtn.onclick = finishLP;
+    nextBtn.onclick = finishEL;
   } else {
     nextBtn.textContent = 'Next →';
-    nextBtn.onclick = lpNext;
+    nextBtn.onclick = elNext;
   }
 }
 
-function lpNext() {
-  lpIdx++;
-  if (lpIdx < 5) renderLP();
+function elNext() {
+  elIdx++;
+  if (elIdx < 5) renderEL();
 }
 
-function finishLP() {
-  document.getElementById('lp-done').classList.add('show');
-  document.getElementById('lp-next').classList.add('hidden');
+function finishEL() {
+  document.getElementById('el-done').classList.add('show');
+  document.getElementById('el-next').classList.add('hidden');
   document.getElementById('seg3').classList.add('done');
 }
 
 // ═══════════════════════════════════════════════════════════
-// PHASE 4 — WORD PROBLEMS (honeybee data in TEXT only)
+// PHASE 4 — WORD PROBLEMS (bat data in TEXT only)
 // ═══════════════════════════════════════════════════════════
 const wp1Data = [
   {
-    text: "A beekeeper checks 5 hives and records the honey (in pounds): <strong>8, 6, 10, 6, 10</strong>. What is the TOTAL honey from all 5 hives?",
+    text: "A colony of bats leaves the cave at <strong>8:00 PM</strong> and returns at <strong>5:00 AM</strong>. How many hours were they out hunting?",
     solution: [
-      {label:"Plan", text:"Total means add every value in the list."},
-      {label:"Solve", math:"8 + 6 + 10 + 6 + 10 = 40"},
-      {label:"Answer", text:"40 pounds of honey in all."},
-      {label:"Check", text:"Group them: (8 + 6 + 6) = 20 and (10 + 10) = 20, so 20 + 20 = 40 ✓"}
+      {label:"Plan", text:"Count forward from 8:00 PM around to 5:00 AM."},
+      {label:"Solve", math:"8 PM → midnight = 4 h, then midnight → 5 AM = 5 h, so 4 + 5 = 9"},
+      {label:"Answer", text:"They were out for 9 hours."},
+      {label:"Check", text:"9 hours after 8:00 PM lands on 5:00 AM ✓"}
     ]
   },
   {
-    text: "Using that same list of hives (<strong>8, 6, 10, 6, 10</strong>), what is the RANGE of the honey amounts?",
+    text: "A bat starts hunting at <strong>9:15 PM</strong> and catches its first moth <strong>20 minutes</strong> later. What time does it catch the moth?",
     solution: [
-      {label:"Plan", text:"Range = biggest value − smallest value."},
-      {label:"Solve", math:"largest = 10, smallest = 6, so 10 − 6 = 4"},
-      {label:"Answer", text:"The range is 4 pounds."},
-      {label:"Check", text:"Every amount sits between 6 and 10, a spread of 4 ✓"}
+      {label:"Plan", text:"Add 20 minutes to the start time."},
+      {label:"Solve", math:"9:15 + 20 min = 9:35"},
+      {label:"Answer", text:"It catches the moth at 9:35 PM."},
+      {label:"Check", text:"35 − 15 = 20 minutes of difference ✓"}
     ]
   },
   {
-    text: "Using that same list (<strong>8, 6, 10, 6, 10</strong>), which number appears most often (the MODE)?",
+    text: "Bats emerge from Bracken Cave for <strong>3 hours</strong> each evening. If they start at <strong>7:30 PM</strong>, what time do they finish emerging?",
     solution: [
-      {label:"Plan", text:"Count how many times each number shows up."},
-      {label:"Solve", math:"6 appears twice, 10 appears twice, 8 appears once"},
-      {label:"Answer", text:"There are TWO modes: 6 and 10 (both appear twice). A list can have more than one mode."},
-      {label:"Check", text:"No value beats two appearances, and two values tie — so 6 and 10 are both modes ✓"}
+      {label:"Plan", text:"Add 3 whole hours to the start time."},
+      {label:"Solve", math:"7:30 + 3 h = 10:30"},
+      {label:"Answer", text:"They finish at 10:30 PM."},
+      {label:"Check", text:"The minutes stay :30, and 7 + 3 = 10 for the hour ✓"}
     ]
   },
   {
-    text: "A hive sends out foragers: <strong>Monday 40, Tuesday 60, Wednesday 50</strong>. What is the average (mean) number of foragers per day?",
+    text: "A fruit bat visits flowers from <strong>10:00 PM</strong> to <strong>11:45 PM</strong>. How long did it spend feeding?",
     solution: [
-      {label:"Plan", text:"Mean = add the values, then divide by how many there are (3 days)."},
-      {label:"Solve", math:"40 + 60 + 50 = 150; 150 ÷ 3 = 50"},
-      {label:"Answer", text:"The mean is 50 foragers per day."},
-      {label:"Check", text:"50 × 3 = 150, matching the total ✓"}
+      {label:"Plan", text:"Count hours first, then leftover minutes."},
+      {label:"Solve", math:"10:00 → 11:00 = 1 h, then 11:00 → 11:45 = 45 min"},
+      {label:"Answer", text:"1 hour 45 minutes."},
+      {label:"Check", text:"1:45 before 11:45 is 10:00 ✓"}
     ]
   },
   {
-    text: "One bee visits <strong>100 flowers</strong> per trip and makes <strong>4 trips</strong>. How many flower visits is that in all?",
+    text: "A bat sleeps from <strong>6:00 AM</strong> until <strong>7:30 PM</strong>. How many hours did it sleep?",
     solution: [
-      {label:"Plan", text:"Same amount repeated → multiply."},
-      {label:"Solve", math:"100 × 4 = 400"},
-      {label:"Answer", text:"400 flower visits."},
-      {label:"Check", text:"100 + 100 + 100 + 100 = 400 ✓"}
+      {label:"Plan", text:"Count from 6 AM to 6 PM, then add the extra minutes."},
+      {label:"Solve", math:"6 AM → 6 PM = 12 h, then 6 PM → 7:30 PM = 1 h 30 min"},
+      {label:"Answer", text:"13 hours 30 minutes."},
+      {label:"Check", text:"12 h + 1 h 30 min = 13 h 30 min ✓"}
     ]
   },
   {
-    text: "A beekeeper collects <strong>12 pounds</strong> of honey from each of <strong>5 hives</strong>. A bar graph would show 5 equal bars of 12. What is the total honey shown?",
+    text: "One bat eats <strong>600 insects</strong> per hour. If it hunts for <strong>4 hours</strong>, how many insects does it eat?",
     solution: [
-      {label:"Plan", text:"Five equal bars of 12 → multiply the height by the number of bars."},
-      {label:"Solve", math:"12 × 5 = 60"},
-      {label:"Answer", text:"60 pounds of honey total."},
-      {label:"Check", text:"12 + 12 + 12 + 12 + 12 = 60 ✓"}
+      {label:"Plan", text:"Same amount each hour → multiply."},
+      {label:"Solve", math:"600 × 4 = 2,400"},
+      {label:"Answer", text:"2,400 insects."},
+      {label:"Check", text:"600 + 600 + 600 + 600 = 2,400 ✓"}
     ]
   }
 ];
@@ -1034,17 +981,17 @@ function finishWP(set) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// PHASE 5 — SPEED ROUND (clean numbers/times, no theme)
 // ═══════════════════════════════════════════════════════════
 const mmData = [
-  { q:"Largest of 6, 2, 9, 4?", choices:["6","2","9","4"], correct:2 },
-  { q:"Range of 3 and 10?", choices:["7","13","3","10"], correct:0 },
-  { q:"Mode of 5, 5, 2, 8?", choices:["2","5","8","3"], correct:1 },
-  { q:"Sum of 10 + 10 + 5?", choices:["20","25","15","30"], correct:1 },
-  { q:"Mean of 4, 6, 8?", choices:["4","5","6","8"], correct:2 },
-  { q:"Smallest of 7, 3, 9, 1?", choices:["7","3","9","1"], correct:3 },
-  { q:"Total tally: 4 + 3 + 5?", choices:["11","12","13","10"], correct:1 },
-  { q:"Mean of 10 and 20?", choices:["10","15","20","30"], correct:1 }
+  { q:"Minutes in 2 hours?", choices:["100","120","90","60"], correct:1 },
+  { q:"15 minutes after 5:00?", choices:["5:05","5:15","5:50","5:30"], correct:1 },
+  { q:"From 2:00 to 4:00?", choices:["1 hour","2 hours","3 hours","4 hours"], correct:1 },
+  { q:"Hours in half a day?", choices:["6","12","24","30"], correct:1 },
+  { q:"45 minutes after 8:00?", choices:["8:15","8:30","8:45","9:00"], correct:2 },
+  { q:"From 3:30 to 3:50?", choices:["15 minutes","20 minutes","10 minutes","30 minutes"], correct:1 },
+  { q:"Minutes in 1½ hours?", choices:["75","90","120","60"], correct:1 },
+  { q:"1 hour after 11:00?", choices:["10:00","12:00","1:00","11:30"], correct:1 }
 ];
 
 let mmScore = 0;
@@ -1111,52 +1058,52 @@ function answerMM(qi, ci) {
 // ═══════════════════════════════════════════════════════════
 const quizData = [
   {
-    q: "On a bar graph, a taller bar means:",
-    opts: ["A greater amount", "A smaller amount", "Nothing at all", "An error"],
-    correct: 0,
-    explain: "Taller bars stand for bigger amounts; shorter bars stand for smaller amounts."
-  },
-  {
-    q: "The MODE of 4, 7, 4, 9 is:",
-    opts: ["9", "4", "7", "6"],
+    q: "How many minutes are in an hour?",
+    opts: ["30", "60", "100", "24"],
     correct: 1,
-    explain: "4 appears twice — more than any other number — so the mode is 4."
+    explain: "One hour is always 60 minutes."
   },
   {
-    q: "The RANGE of 3, 8, 5 is:",
-    opts: ["3", "8", "5", "11"],
-    correct: 2,
-    explain: "Range = biggest − smallest = 8 − 3 = 5."
-  },
-  {
-    q: "A beekeeper's hives gave 8, 6, 10 pounds. The total is:",
-    opts: ["22 pounds", "24 pounds", "26 pounds", "18 pounds"],
+    q: "On a clock, the short hand points to the:",
+    opts: ["Minute", "Hour", "Second", "Number"],
     correct: 1,
-    explain: "8 + 6 + 10 = 24 pounds."
+    explain: "The short hand shows the hour; the long hand shows the minutes."
   },
   {
-    q: "The MEAN (average) of 10, 20, 30 is:",
-    opts: ["10", "15", "20", "30"],
-    correct: 2,
-    explain: "10 + 20 + 30 = 60, and 60 ÷ 3 = 20."
+    q: "From 4:00 to 6:30, how much time passes?",
+    opts: ["2 hours 15 minutes", "2 hours 30 minutes", "3 hours 30 minutes", "2 hours 45 minutes"],
+    correct: 1,
+    explain: "4:00 to 6:00 is 2 hours, then 6:00 to 6:30 is 30 minutes."
   },
   {
-    q: "On a line plot, more X's above a number means:",
-    opts: ["That value happened more often", "That the value shown is a much bigger number", "There was a mistake", "Nothing"],
-    correct: 0,
-    explain: "Each X is one data point, so a taller stack means that value happened more often."
+    q: "Bats leave at 8:00 PM and return at 2:00 AM. Hours out?",
+    opts: ["5 hours", "6 hours", "7 hours", "8 hours"],
+    correct: 1,
+    explain: "8 PM to midnight is 4 hours, midnight to 2 AM is 2 hours: 4 + 2 = 6."
   },
   {
-    q: "Hives gave 5, 5, 8, 2 pounds. Which value is the mode?",
-    opts: ["2", "8", "5", "20"],
-    correct: 2,
-    explain: "5 appears twice, more than any other number, so the mode is 5."
+    q: "What is 90 minutes in hours and minutes?",
+    opts: ["1 hour 15 minutes", "1 hour 30 minutes", "1 hour 40 minutes", "2 hours 30 minutes"],
+    correct: 1,
+    explain: "60 minutes make 1 hour, and 30 minutes are left: 1 hour 30 minutes."
   },
   {
-    q: "The largest value minus the smallest value is called the:",
-    opts: ["Mode", "Mean", "Total", "Range"],
-    correct: 3,
-    explain: "That difference between highest and lowest is the range."
+    q: "20 minutes after 7:50 is:",
+    opts: ["8:00", "8:10", "7:70", "8:20"],
+    correct: 1,
+    explain: "7:50 to 8:00 is 10 min, then 10 more min gets to 8:10."
+  },
+  {
+    q: "A bat hunts 3 hours starting at 9:00 PM. It stops at:",
+    opts: ["11:00 PM", "12:00 AM", "12:00 PM", "1:00 AM"],
+    correct: 1,
+    explain: "9 PM + 3 hours = 12:00 AM, which is midnight."
+  },
+  {
+    q: "How many hours are in a full day?",
+    opts: ["12", "24", "48", "60"],
+    correct: 1,
+    explain: "A full day is 24 hours."
   }
 ];
 
@@ -1227,10 +1174,10 @@ function finishQuiz() {
   card.classList.add('show');
   document.getElementById('score-big').textContent = quizScore;
   let msg = '', sub = '';
-  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Bar graphs, line plots, mode, range, AND mean — you nailed them all.'; }
-  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your data skills are as busy as a beehive — in the best way.'; }
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Reading clocks, AM/PM, AND elapsed time — you nailed them all.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your time skills are flying high, just like a bat at dusk.'; }
   else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
-  else { msg = 'Keep practicing!'; sub = 'Go back through the bar graph and line plot cards, then try again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the clock and elapsed-time cards, then try again.'; }
   document.getElementById('score-msg').textContent = msg;
   document.getElementById('score-sub').textContent = sub;
   document.getElementById('seg6').classList.add('done');
@@ -1262,17 +1209,18 @@ function restoreQuiz() {
 // INIT
 // ═══════════════════════════════════════════════════════════
 function init() {
+  document.getElementById('teach-clock').innerHTML = clockSVG(1, 0, 210);
   renderWarmup();
-  renderBG();
-  renderLP();
+  renderCL();
+  renderEL();
   renderWP(1);
   buildMM();
   buildQuiz();
   restoreQuiz();
   updatePhaseBar();
 
-  document.getElementById('lp-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkLP();
+  document.getElementById('el-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkEL();
   });
 }
 

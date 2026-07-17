@@ -470,14 +470,14 @@ pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("
 
 /* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
 const QUIZ=[
-  {q:"In art, SPACE means…",opts:["The area in, around and between objects","Only outer space and stars","How bright a color is"],a:0},
+  {q:"In art, SPACE means…",opts:["The area in and around objects","Only outer space, stars and planets","How bright a color is"],a:0},
   {q:"POSITIVE space is…",opts:["The empty area around things","The object itself","The darkest value"],a:1},
-  {q:"NEGATIVE space is…",opts:["The empty area around and between objects","The main object","A type of line"],a:0},
-  {q:"To make something look CLOSER, you usually draw it…",opts:["Smaller and higher up","Bigger and lower down","In the corner"],a:1},
-  {q:"Things that are FAR away are usually drawn…",opts:["Bigger and lower","Smaller and higher (near the horizon)","With more detail"],a:1},
-  {q:"When one object covers part of another, that's called…",opts:["Overlapping","Shading","Stippling"],a:0},
-  {q:"The part of a picture that feels closest to you is the…",opts:["Background","Foreground","Horizon"],a:1},
-  {q:"A road drawn getting narrower as it goes back makes it look…",opts:["Closer","Farther away (deep)","Flatter"],a:1},
+  {q:"NEGATIVE space is…",opts:["The empty area around objects","The main object or subject shown","A type of line"],a:0},
+  {q:"To make something look CLOSER, you usually draw it…",opts:["Smaller and higher up the page","Bigger and lower down","In the corner"],a:1},
+  {q:"Things that are FAR away are usually drawn…",opts:["Bigger, lower and very detailed","Smaller and near the horizon","With more detail"],a:1},
+  {q:"When one object covers part of another, that's called…",opts:["Overlapping","Shading and blending","Stippling"],a:0},
+  {q:"The part of a picture that feels closest to you is the…",opts:["Background (far away part)","Foreground","Horizon"],a:1},
+  {q:"A road drawn getting narrower as it goes back makes it look…",opts:["Closer and much bigger","Farther away (deep)","Flatter"],a:1},
 ];
 let qi=0, qAns=[];
 $("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };

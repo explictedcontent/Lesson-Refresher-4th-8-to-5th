@@ -489,7 +489,7 @@ const scenarios = [
     danger: '🦈 A shark is swimming straight at you!',
     opts: [
       { text: 'Ink cloud + jet away', correct: true },
-      { text: 'Change color slowly', correct: false },
+      { text: 'Slowly change color and hope it swims past', correct: false },
       { text: 'Fight the shark', correct: false }
     ],
     explain: 'Right! Blast an ink cloud to hide and blind the shark, then jet away fast before it recovers.'
@@ -498,7 +498,7 @@ const scenarios = [
     danger: '🐍 A moray eel is patrolling nearby and hasn\'t seen you yet',
     opts: [
       { text: 'Camouflage against the coral', correct: true },
-      { text: 'Jet away making noise', correct: false },
+      { text: 'Jet away loudly, making lots of noise', correct: false },
       { text: 'Ink cloud', correct: false }
     ],
     explain: 'Right! Since it hasn\'t spotted you, the safest move is to blend into the coral and stay perfectly hidden.'
@@ -507,7 +507,7 @@ const scenarios = [
     danger: '🪨 You need to escape a predator\'s cave through a coin-sized crack',
     opts: [
       { text: 'Squeeze through — no bones!', correct: true },
-      { text: 'Ink cloud', correct: false },
+      { text: 'Release a big ink cloud and stay put', correct: false },
       { text: 'Fight', correct: false }
     ],
     explain: 'Right! With no bones, you can pour your whole body through any gap bigger than your beak.'
@@ -515,9 +515,9 @@ const scenarios = [
   {
     danger: '🦀 A crab is hiding under a rock ledge you can\'t see into',
     opts: [
-      { text: 'Reach in with an arm — suckers taste by touch!', correct: true },
+      { text: 'Reach in with an arm — suckers taste it', correct: true },
       { text: 'Ink the crab', correct: false },
-      { text: 'Wait for it to leave', correct: false }
+      { text: 'Wait patiently for the crab to come out on its own', correct: false }
     ],
     explain: 'Right! Your suckers can taste what they touch, so an arm can find the crab even where your eyes can\'t reach.'
   },
@@ -525,7 +525,7 @@ const scenarios = [
     danger: '🎣 A fisherman\'s net caught your arm',
     opts: [
       { text: 'Sacrifice the arm — it will regrow', correct: true },
-      { text: 'Pull the whole net', correct: false },
+      { text: 'Pull against the whole heavy net as hard as you can', correct: false },
       { text: 'Do nothing', correct: false }
     ],
     explain: 'Right! Better to lose one arm and escape — it will grow back over several months thanks to regeneration.'
@@ -656,19 +656,19 @@ const questions = [
   },
   {
     q: 'Why is octopus blood blue?',
-    opts: ['It is very cold', 'It uses copper instead of iron to carry oxygen', 'It reflects the ocean water', 'It has no oxygen in it'],
+    opts: ['It is very cold', 'It uses copper instead of iron', 'It reflects the blue color of the ocean water', 'It has no oxygen in it'],
     ans: 1,
     explain: 'Octopus blood uses copper-based hemocyanin instead of iron, and copper makes the blood blue.'
   },
   {
     q: 'How many brains does an octopus have?',
-    opts: ['1', '3', '8', '9 — one central plus one in each arm'],
+    opts: ['1', '3', '8', '9'],
     ans: 3,
     explain: 'Nine brains: one central brain plus a mini-brain (ganglion) in each of the eight arms.'
   },
   {
     q: 'What are chromatophores?',
-    opts: ['Tiny bones in the arms', 'Color-changing cells in the skin', 'The three hearts', 'Suckers that taste'],
+    opts: ['Tiny bones hidden inside the eight arms', 'Color-changing cells in the skin', 'The three hearts', 'Suckers that taste'],
     ans: 1,
     explain: 'Chromatophores are color-changing cells that let an octopus change color in under a second.'
   },
@@ -680,7 +680,7 @@ const questions = [
   },
   {
     q: 'What is jet propulsion?',
-    opts: ['Changing color to hide', 'Shooting water through the siphon to move fast', 'Growing back a lost arm', 'Tasting food with suckers'],
+    opts: ['Slowly changing color to hide from predators', 'Shooting water through the siphon', 'Growing back a lost arm', 'Tasting food with suckers'],
     ans: 1,
     explain: 'The octopus pulls in water and blasts it out through its siphon, rocketing itself backward.'
   },
@@ -692,7 +692,7 @@ const questions = [
   },
   {
     q: 'What is one sign that octopuses are intelligent?',
-    opts: ['They have three hearts', 'They open jars, use coconut shells as tools, and solve mazes', 'They have blue blood', 'They live a long time'],
+    opts: ['They have three separate hearts and blue blood', 'They open jars, use tools, and solve mazes', 'They have blue blood', 'They live a long time'],
     ans: 1,
     explain: 'Octopuses open jars, solve mazes, use coconut shells as armor (tool use), and even recognize individual people.'
   }

@@ -507,13 +507,13 @@ pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("
 /* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
 const QUIZ=[
   {q:"A SHAPE is flat. How many dimensions does it have?",opts:["1 (just length)","2 (length and width)","3 (length, width and depth)"],a:1},
-  {q:"A FORM is 3D. Which dimension does it ADD to a shape?",opts:["Color","Depth (thickness)","Temperature"],a:1},
+  {q:"A FORM is 3D. Which dimension does it ADD to a shape?",opts:["Color","Depth (thickness)","Temperature and warmth"],a:1},
   {q:"Which of these is a GEOMETRIC shape?",opts:["A puddle","A square","A leaf"],a:1},
-  {q:"ORGANIC shapes are best described as…",opts:["Exact math shapes","Free-form and curvy, like in nature","Always gray"],a:1},
-  {q:"The 3D form of a CIRCLE is a…",opts:["Cube","Sphere","Cone"],a:1},
+  {q:"ORGANIC shapes are best described as…",opts:["Exact math shapes with straight edges","Free-form and curvy, like nature","Always gray"],a:1},
+  {q:"The 3D form of a CIRCLE is a…",opts:["Cube","Sphere","Pointed cone"],a:1},
   {q:"The 3D form of a SQUARE is a…",opts:["Cube","Cylinder","Sphere"],a:0},
-  {q:"What turns a flat shape into a form that looks 3D in a drawing?",opts:["Shading (light and dark)","Using more colors","Making it bigger"],a:0},
-  {q:"A soup can is shaped most like a…",opts:["Cone","Cylinder","Cube"],a:1},
+  {q:"What turns a flat shape into a form that looks 3D in a drawing?",opts:["Shading (light and dark)","Using more bright colors on it","Making it bigger"],a:0},
+  {q:"A soup can is shaped most like a…",opts:["Pointy cone","Cylinder","Cube"],a:1},
 ];
 let qi=0, qAns=[];
 $("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };

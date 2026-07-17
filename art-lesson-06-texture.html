@@ -507,14 +507,14 @@ pad.addEventListener("touchstart",start,{passive:false}); pad.addEventListener("
 
 /* ---------------- QUIZ (graded; answer hidden from student) ---------------- */
 const QUIZ=[
-  {q:"In art, TEXTURE means…",opts:["How bright a color is","How something feels, or looks like it would feel","How big something is"],a:1},
-  {q:"ACTUAL (real) texture is texture you can…",opts:["Only see","Feel with your fingers","Only hear"],a:1},
-  {q:"VISUAL (implied) texture…",opts:["Looks bumpy or soft, but the surface is really flat","Is always rough","Can be felt with your hands"],a:0},
-  {q:"A pencil drawing of fluffy fur on flat paper is which kind of texture?",opts:["Actual","Visual (implied)","Neither"],a:1},
+  {q:"In art, TEXTURE means…",opts:["How bright, light, or dark a color really looks","How something feels, or looks like it feels","How big something is"],a:1},
+  {q:"ACTUAL (real) texture is texture you can…",opts:["Only see it, never touch it","Feel with your fingers","Only hear"],a:1},
+  {q:"VISUAL (implied) texture…",opts:["Looks bumpy or soft, but is really flat","Is always rough","Can always be felt with your fingers and hands"],a:0},
+  {q:"A pencil drawing of fluffy fur on flat paper is which kind of texture?",opts:["Actual (you can touch it)","Visual (implied)","Neither"],a:1},
   {q:"Which of these has ACTUAL texture you can feel?",opts:["A photo of a brick wall","A real seashell","A drawing of a cactus"],a:1},
-  {q:"To draw soft FUR, your marks should be…",opts:["Long straight rulers lines","Short, soft curved strokes","One big circle"],a:1},
-  {q:"Making tiny DOTS to show a bumpy texture is called…",opts:["Stippling","Shading","Blending"],a:0},
-  {q:"Rubbing a crayon over paper on top of a bumpy surface makes a…",opts:["Texture rubbing","Color wheel","Value scale"],a:0},
+  {q:"To draw soft FUR, your marks should be…",opts:["Long straight strokes made with a ruler","Short, soft curved strokes","One big circle"],a:1},
+  {q:"Making tiny DOTS to show a bumpy texture is called…",opts:["Stippling","Smudging and shading","Blending"],a:0},
+  {q:"Rubbing a crayon over paper on top of a bumpy surface makes a…",opts:["Texture rubbing","Color wheel or color chart","Value scale"],a:0},
 ];
 let qi=0, qAns=[];
 $("#quizBtn").onclick=()=>{ qi=0; qAns=[]; $("#quizModal").classList.remove("hidden"); renderQ(); };

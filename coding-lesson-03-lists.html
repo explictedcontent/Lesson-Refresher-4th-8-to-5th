@@ -529,15 +529,15 @@ function runCombo5(){
 
 /* ═══ QUIZ ════════════════════════════════════════════════ */
 const QS=[
-  {q:"What is a LIST in coding?",o:["One variable that holds many items in order","A type of loop","A single number","A function with no name"],a:0,e:"A list is ONE variable holding a whole ordered collection — like a backpack holding many items with numbered slots."},
+  {q:"What is a LIST in coding?",o:["One variable that holds many items in order","A type of loop","A single number","A special kind of function that has no proper name"],a:0,e:"A list is ONE variable holding a whole ordered collection — like a backpack holding many items with numbered slots."},
   {q:"let stash = ['🎋','🍎','🥕'];\nWhat is stash[0]?",o:["🎋","🍎","🥕","Nothing — 0 is empty"],a:0,e:"Lists start counting at ZERO! stash[0] is the FIRST item: 🎋."},
   {q:"let stash = ['🎋','🍎','🥕'];\nWhat is stash[2]?",o:["🥕","🍎","🎋","Error"],a:0,e:"Slot 0 = 🎋, slot 1 = 🍎, slot 2 = 🥕. Index 2 is the THIRD item because counting starts at 0."},
   {q:"What number is the FIRST slot of every list?",o:["0","1","-1","It depends on the list"],a:0,e:"Always 0! This trips up every new coder. First item = index 0, second item = index 1, and so on."},
-  {q:"What does stash.push('🍪') do?",o:["Adds 🍪 to the END of the list","Removes 🍪 from the list","Puts 🍪 at the start","Deletes the whole list"],a:0,e:".push() adds a new item to the END of a list, and the length grows by 1."},
+  {q:"What does stash.push('🍪') do?",o:["Adds 🍪 to the END of the list","Removes 🍪 from the very front of the list","Puts 🍪 at the start","Deletes the whole list"],a:0,e:".push() adds a new item to the END of a list, and the length grows by 1."},
   {q:"What does stash.pop() do?",o:["Removes the LAST item","Removes the FIRST item","Adds a random item","Empties the whole list"],a:0,e:".pop() removes the item at the END of the list — the most recently pushed one."},
   {q:"let stash = ['🎋','🍎','🥕','🍪'];\nWhat is stash.length?",o:["4","3","5","0"],a:0,e:"Length counts the ITEMS (4 of them). Careful: the last INDEX is 3, but the LENGTH is 4."},
   {q:"for (let item of stash) { panda.eat(item); }\nIf stash has 6 items, how many times does panda.eat run?",o:["6","1","0","36"],a:0,e:"The loop runs the code once per item. 6 items = 6 times. 1,000 items = 1,000 times — same 3 lines of code!"},
-  {q:"Why are loops + lists so powerful together?",o:["The same short code works no matter how many items the list has","Loops make lists shorter","Lists only work inside loops","They make the code colorful"],a:0,e:"Write the loop once and it handles ANY size list — 3 items or 3 million. That's how apps show your playlists, photos, and messages."},
+  {q:"Why are loops + lists so powerful together?",o:["The same short code works for any size list","Loops magically make all your lists much shorter","Lists only work inside loops","They make the code colorful"],a:0,e:"Write the loop once and it handles ANY size list — 3 items or 3 million. That's how apps show your playlists, photos, and messages."},
   {q:"A list starts with 3 items. You push() twice and pop() once. How many items now?",o:["4","5","3","2"],a:0,e:"3 + 2 pushed = 5, then 1 popped = 4. Push adds, pop removes — the length tracks it all automatically."}
 ];
 

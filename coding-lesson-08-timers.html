@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 8 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+/* target grid */
+.holes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:340px;margin:12px auto;touch-action:manipulation}
+.hole{aspect-ratio:1;background:#08090f;border:3px solid var(--line);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;user-select:none;-webkit-user-select:none;transition:transform .06s,border-color .15s}
+.hole:active{transform:scale(.94)}
+.hole.up{border-color:var(--accent2);background:#04211d;animation:pop .16s}
+.hole.bomb{border-color:var(--bad);background:#210408}
+.hole.hit{border-color:var(--good);background:#04210f}
+@keyframes pop{from{transform:scale(.5)}to{transform:scale(1)}}
+.pick{padding:12px 15px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:28px;cursor:pointer;touch-action:manipulation}
+.pick.sel{border-color:var(--accent2);background:#003328;box-shadow:0 0 0 3px #00e5c833}
+.pick:active{transform:scale(.9)}
+.picker{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:900;font-size:17px;margin:4px auto 6px;max-width:340px}
+.hud .sc{color:var(--good)}.hud .tm{color:var(--warn)}
+.stepper{display:flex;align-items:center;gap:10px;justify-content:center}
+.step-btn{width:44px;height:44px;border-radius:10px;background:var(--panel2);border:2px solid var(--line);font-size:22px;font-weight:900;color:var(--warn);cursor:pointer;touch-action:manipulation}
+.step-btn:active{transform:scale(.9)}
+.badge{border-radius:8px;padding:4px 11px;font-size:15px;font-weight:900;min-width:36px;text-align:center;background:var(--accent2);color:#001a16}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px;text-align:center}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 8</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🎯 TARGETS</div>
+  <div class="mtab" onclick="go(2)" id="tab2">⏱️ POP TIMER</div>
+  <div class="mtab" onclick="go(3)" id="tab3">👆 TAP TO SCORE</div>
+  <div class="mtab" onclick="go(4)" id="tab4">⏳ COUNTDOWN</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🕹️ PLAY IT!</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼⏱️</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 8: TARGET SMASH</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      Your last builds ran once when YOU tapped. This one runs <strong style="color:var(--ink)">on its own clock</strong> — a TIMER. You'll build a fast reaction game where targets pop up and you race the countdown.
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: TARGET SMASH</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🎯 <strong>Targets</strong> — a grid of holes</div>
+        <div>⏱️ <strong>Pop Timer</strong> — targets pop on a timer</div>
+        <div>👆 <strong>Tap to Score</strong> — smash them for points</div>
+        <div>⏳ <strong>Countdown</strong> — race the clock</div>
+        <div>🕹️ <strong>Play It</strong> — your finished reaction game!</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — TARGETS -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">🎯 Set Up the Targets</div>
+    <div class="mission-brief">Your game board is a grid of holes where targets pop up. Pick what your target looks like — it shows up in the grid right away. Pick one to continue!</div>
+  </div>
+
+  <div class="sec">Pick your target:</div>
+  <div class="picker" id="targetPick">
+    <button class="pick" onclick="pickTarget('🎯')">🎯</button>
+    <button class="pick" onclick="pickTarget('🐭')">🐭</button>
+    <button class="pick" onclick="pickTarget('🍄')">🍄</button>
+    <button class="pick" onclick="pickTarget('⭐')">⭐</button>
+    <button class="pick" onclick="pickTarget('🐸')">🐸</button>
+    <button class="pick" onclick="pickTarget('👾')">👾</button>
+  </div>
+
+  <div class="holes" id="holes1"></div>
+
+  <div class="sec">Your game code so far:</div>
+  <div class="code-block" id="code1"><span class="cm">// Pick a target above!</span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    The board is a grid of holes (a <strong style="color:var(--accent2)">list</strong> of spots). Your target is stored so the game knows what to show. Nothing pops yet though — for that, you need a TIMER. That's next!
+  </div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn go" id="m1go" style="display:none" onclick="go(2)">NEXT: THE POP TIMER →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — POP TIMER -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">⏱️ Make Them Pop</div>
+    <div class="mission-brief">Here's the new magic: setInterval runs code again and again, all by itself. Yours picks a RANDOM hole and pops a target every so often. Hit START POPPING and just watch!</div>
+  </div>
+
+  <div class="holes" id="holes2"></div>
+
+  <div class="code-block"><span class="kw">setInterval</span>(<span class="kw">function</span>() {
+  <span class="kw">let</span> spot = random(<span class="num">0</span>, <span class="num">8</span>);  <span class="cm">// pick a random hole</span>
+  popTarget(spot);              <span class="cm">// ...and pop it up!</span>
+}, <span class="num">800</span>);   <span class="cm">// every 800 milliseconds, on its own</span></div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn fire" id="popBtn" onclick="toggleDemo()">▶ START POPPING</button>
+  </div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    <strong style="color:var(--accent2)">setInterval</strong> is a timer: give it code and a time, and it runs that code over and over forever — no tapping needed. Combined with <strong style="color:var(--accent2)">random</strong>, your targets pop in surprise spots. This is the heartbeat of your game!
+  </div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn go" id="m2go" style="display:none" onclick="go(3)">NEXT: TAP TO SCORE →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — TAP TO SCORE -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">👆 Tap to Score</div>
+    <div class="mission-brief">Now make it a game: when you tap a popped target, your score goes up (an EVENT + an if-statement). Watch out — sometimes a 💣 bomb pops. Don't tap that! Score 8 to continue.</div>
+  </div>
+
+  <div class="hud"><span class="sc">⭐ Score: <span id="score3">0</span> / 8</span><span style="color:var(--muted);font-size:14px">tap the targets!</span></div>
+  <div class="holes" id="holes3"></div>
+
+  <div class="code-block"><span class="fn">hole</span>.onclick = <span class="kw">function</span>() {
+  <span class="kw">if</span> (hole.<span class="prop">hasTarget</span>) { score = score + <span class="num">1</span>; }
+  <span class="kw">if</span> (hole.<span class="prop">hasBomb</span>)   { score = score - <span class="num">2</span>; }
+};</div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    A tap is an <strong style="color:var(--accent2)">event</strong>; the <strong style="color:var(--accent2)">if-statements</strong> are the rules that decide what the tap does. Target → points. Bomb → ouch. Timers make things happen; events + ifs let YOU respond. That's a game!
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">👆</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Nice reflexes — scoring works!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: THE COUNTDOWN →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — COUNTDOWN -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">⏳ Add the Countdown</div>
+    <div class="mission-brief">A reaction game needs pressure — a clock ticking down! Another timer subtracts 1 second each second, and when it hits 0, the game ends. You pick how long the game lasts.</div>
+  </div>
+
+  <div class="code-block"><span class="kw">setInterval</span>(<span class="kw">function</span>() {
+  timeLeft = timeLeft - <span class="num">1</span>;      <span class="cm">// tick... every second</span>
+  <span class="kw">if</span> (timeLeft === <span class="num">0</span>) { endGame(); }  <span class="cm">// time's up!</span>
+}, <span class="num">1000</span>);   <span class="cm">// 1000 ms = 1 second</span></div>
+
+  <div class="sec">How long is your game?</div>
+  <div class="stepper">
+    <button class="step-btn" onclick="changeLen(-5)">−</button>
+    <span class="badge" id="lenVal" style="font-size:20px;min-width:64px">20s</span>
+    <button class="step-btn" onclick="changeLen(5)">+</button>
+    <span style="font-size:14px;color:var(--muted)">seconds</span>
+  </div>
+
+  <div class="discovery">
+    One <strong style="color:var(--accent2)">setInterval</strong> pops targets fast; another ticks the clock down once per second. Games often run several timers at once — one for the action, one for the countdown. You just wired up both.
+  </div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn go xl pulse" onclick="go(5)">🕹️ PLAY MY GAME! →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — PLAY IT -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished Game</div>
+    <div class="mission-title">🕹️ TARGET SMASH</div>
+    <div class="mission-brief">You built this! Tap targets to score, dodge the 💣 bombs, and beat the clock. Hit 15 points before time runs out to WIN. Tap START!</div>
+  </div>
+
+  <div class="hud">
+    <span class="sc">⭐ <span id="gScore">0</span> / 15</span>
+    <span class="tm">⏳ <span id="gTime">20</span>s</span>
+  </div>
+  <div class="holes" id="holesG"></div>
+
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn fire xl" id="startBtn" onclick="playGame()">▶ START</button>
+    <button class="btn ghost" onclick="resetGame()">↺ Reset</button>
+  </div>
+
+  <div class="complete-banner" id="winBanner">
+    <div style="font-size:40px">🏆</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">YOU BEAT YOUR OWN GAME!</div>
+    <p style="margin-top:6px">You built a real reaction game using timers, random, events, if-statements, and a score — everything from all 8 levels working together. Amazing.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+  <div class="complete-banner" id="loseBanner" style="border-color:var(--bad)">
+    <div style="font-size:40px">⏰</div>
+    <div style="font-weight:900;font-size:20px;color:var(--bad)">Time's up! Score: <span id="finalScore">0</span></div>
+    <p style="margin-top:6px">So close! Tap Reset to try again — or go back and make the game longer or the targets pop faster.</p>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Timers</div>
+    <div class="mission-brief">10 rounds on timers, events, random, and game logic. +10 XP each. Beat the clock!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l8-qans', QKEY='coding-l8-quiz', WKEY='coding-l8-game';
+const PREFIX='Coding|Lesson 8: Timers|';
+let xp=0, cur=0;
+let target='🎯';
+let gameLen=20;
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1400);}
+function go(n){
+  stopAllTimers();
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===1)buildHoles('holes1');
+  if(n===2)buildHoles('holes2');
+  if(n===3){score3=0;document.getElementById('score3').textContent='0';m3done=false;document.getElementById('m3done').classList.remove('show');buildHoles('holes3',true);startScoreDemo();}
+  if(n===5)setupGame();
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+function stopAllTimers(){
+  if(demoTimer){clearInterval(demoTimer);demoTimer=null;}
+  if(scoreDemoTimer){clearInterval(scoreDemoTimer);scoreDemoTimer=null;}
+  if(spawnTimer){clearInterval(spawnTimer);spawnTimer=null;}
+  if(countTimer){clearInterval(countTimer);countTimer=null;}
+  const pb=document.getElementById('popBtn');if(pb)pb.textContent='▶ START POPPING';
+}
+
+/* build a 9-hole grid into a container */
+function buildHoles(id,scoring){
+  const g=document.getElementById(id);
+  if(!g)return;
+  g.innerHTML='';
+  for(let i=0;i<9;i++){
+    const h=document.createElement('div');
+    h.className='hole';h.dataset.i=i;
+    if(id==='holes1')h.textContent=target;  // static preview
+    g.appendChild(h);
+  }
+}
+
+/* ═══ STEP 1 — TARGETS ════════════════════════════════════ */
+function pickTarget(e){
+  target=e;
+  document.querySelectorAll('#targetPick .pick').forEach(b=>b.classList.toggle('sel',b.textContent===e));
+  buildHoles('holes1');
+  document.getElementById('code1').innerHTML=`<span class="kw">let</span> target = <span class="str">'${e}'</span>;\n<span class="kw">let</span> holes = [<span class="num">0</span>,<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>,<span class="num">7</span>,<span class="num">8</span>];  <span class="cm">// 9 spots</span>`;
+  document.getElementById('disc1').style.display='block';
+  if(document.getElementById('m1go').style.display==='none'){
+    document.getElementById('m1go').style.display='inline-flex';
+    addXP(20);showToast('🎯 Targets ready! +20 XP');
+  }
+}
+
+/* ═══ STEP 2 — POP TIMER (demo) ═══════════════════════════ */
+let demoTimer=null;
+function toggleDemo(){
+  const btn=document.getElementById('popBtn');
+  if(demoTimer){clearInterval(demoTimer);demoTimer=null;btn.textContent='▶ START POPPING';return;}
+  btn.textContent='⏸ STOP';
+  document.getElementById('disc2').style.display='block';
+  document.getElementById('m2go').style.display='inline-flex';
+  addXP(20);showToast('⏱️ Timer running! +20 XP');
+  const g=document.getElementById('holes2');
+  demoTimer=setInterval(()=>{
+    g.querySelectorAll('.hole').forEach(h=>{h.className='hole';h.textContent='';});
+    const spot=rnd(0,8);
+    const h=g.querySelector('.hole[data-i="'+spot+'"]');
+    if(h){h.className='hole up';h.textContent=target;}
+  },800);
+}
+
+/* ═══ STEP 3 — TAP TO SCORE (demo) ════════════════════════ */
+let scoreDemoTimer=null,score3=0,m3done=false;
+function startScoreDemo(){
+  const g=document.getElementById('holes3');
+  g.querySelectorAll('.hole').forEach(h=>{
+    h.onclick=()=>{
+      if(h.classList.contains('up')){score3++;h.className='hole hit';setTimeout(()=>{h.className='hole';h.textContent='';},120);}
+      else if(h.classList.contains('bomb')){score3=Math.max(0,score3-2);h.className='hole';h.textContent='';showToast('💣 -2!');}
+      document.getElementById('score3').textContent=score3;
+      if(score3>=8&&!m3done){m3done=true;document.getElementById('disc3').style.display='block';document.getElementById('m3done').classList.add('show');addXP(25);showToast('👆 +25 XP');}
+    };
+  });
+  scoreDemoTimer=setInterval(()=>{
+    g.querySelectorAll('.hole').forEach(h=>{h.className='hole';h.textContent='';});
+    const spot=rnd(0,8);
+    const h=g.querySelector('.hole[data-i="'+spot+'"]');
+    const bomb=Math.random()<0.2;
+    if(h){h.className='hole '+(bomb?'bomb':'up');h.textContent=bomb?'💣':target;}
+  },850);
+}
+
+/* ═══ STEP 4 — COUNTDOWN ══════════════════════════════════ */
+function changeLen(d){gameLen=Math.max(15,Math.min(40,gameLen+d));document.getElementById('lenVal').textContent=gameLen+'s';}
+
+/* ═══ STEP 5 — THE GAME ═══════════════════════════════════ */
+let spawnTimer=null,countTimer=null,gScore=0,gTime=20,gRunning=false,gDone=false;
+const WIN=15;
+function setupGame(){
+  gScore=0;gTime=gameLen;gRunning=false;gDone=false;
+  document.getElementById('gScore').textContent='0';
+  document.getElementById('gTime').textContent=gTime;
+  document.getElementById('winBanner').classList.remove('show');
+  document.getElementById('loseBanner').classList.remove('show');
+  document.getElementById('startBtn').textContent='▶ START';
+  buildHoles('holesG');
+  const g=document.getElementById('holesG');
+  g.querySelectorAll('.hole').forEach(h=>{
+    h.onclick=()=>{
+      if(!gRunning)return;
+      if(h.classList.contains('up')){gScore++;h.className='hole hit';h.textContent='';showToast('+1 ⭐');}
+      else if(h.classList.contains('bomb')){gScore=Math.max(0,gScore-2);h.className='hole';h.textContent='';showToast('💣 -2');}
+      document.getElementById('gScore').textContent=gScore;
+      if(gScore>=WIN)endGame(true);
+    };
+  });
+}
+function playGame(){
+  if(gRunning)return;
+  if(gDone)setupGame();
+  gRunning=true;gDone=false;
+  document.getElementById('startBtn').textContent='▶ Playing...';
+  const g=document.getElementById('holesG');
+  const popEvery=Math.max(500,900-(gameLen>=30?150:0));
+  // pop timer
+  spawnTimer=setInterval(()=>{
+    g.querySelectorAll('.hole').forEach(h=>{h.className='hole';h.textContent='';});
+    const spot=rnd(0,8);
+    const h=g.querySelector('.hole[data-i="'+spot+'"]');
+    const bomb=Math.random()<0.22;
+    if(h){h.className='hole '+(bomb?'bomb':'up');h.textContent=bomb?'💣':target;}
+  },popEvery);
+  // countdown timer
+  countTimer=setInterval(()=>{
+    gTime--;
+    document.getElementById('gTime').textContent=gTime;
+    if(gTime<=0)endGame(false);
+  },1000);
+}
+function endGame(won){
+  stopAllTimers();gRunning=false;gDone=true;
+  document.getElementById('startBtn').textContent='▶ START';
+  document.getElementById('holesG').querySelectorAll('.hole').forEach(h=>{h.className='hole';h.textContent='';});
+  if(won){document.getElementById('winBanner').classList.add('show');addXP(60);showToast('🏆 YOU WON! +60 XP');}
+  else{document.getElementById('finalScore').textContent=gScore;document.getElementById('loseBanner').classList.add('show');}
+}
+function resetGame(){stopAllTimers();setupGame();}
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"What does setInterval do?",o:["Runs code over and over on a timer","Runs code one single time","Picks a random number","Stores a list of items"],a:0,e:"setInterval runs the same code again and again on a schedule — the heartbeat that makes targets keep popping without you tapping."},
+  {q:"setInterval(popTarget, 800) runs popTarget how often?",o:["Every 800 milliseconds","Exactly 800 times total","One time after 800 minutes","Never, until you tap"],a:0,e:"The number is the delay in milliseconds. 800 ms means it runs about once every 0.8 seconds, forever, until you stop it."},
+  {q:"Which timer makes your countdown clock tick down each second?",o:["setInterval running every 1000 ms","A single if-statement","A list of numbers","The random() function"],a:0,e:"1000 milliseconds = 1 second, so setInterval with 1000 subtracts 1 from the clock once per second."},
+  {q:"In your game, what picks WHICH hole a target pops in?",o:["random()","The countdown","The score variable","The target emoji"],a:0,e:"random(0, 8) chooses one of the 9 holes each time, so targets appear in surprising spots — that's what makes it a challenge."},
+  {q:"When you TAP a popped target and the score goes up, what caused the code to run?",o:["An event (the tap)","The countdown hitting zero","A random number","The setInterval delay"],a:0,e:"A tap is an event. The event runs code that checks the rules and adds to your score."},
+  {q:"if (hole.hasBomb) { score = score - 2; }\nWhat does this rule do?",o:["Subtracts 2 when you tap a bomb","Adds 2 points for a bomb","Ends the game instantly","Pops a new target"],a:0,e:"The if-statement checks whether the tapped hole holds a bomb; if so, the rule takes away 2 points. Ifs are the rules of the game."},
+  {q:"Your game runs TWO timers at once. What are they for?",o:["One pops targets, one ticks the clock","Both pop targets","Both tick the clock","One draws, one saves"],a:0,e:"Games often run several timers together: a fast one for the action (popping targets) and a slow one (every second) for the countdown."},
+  {q:"When the countdown reaches 0, the code calls endGame(). This means:",o:["The game stops and shows your score","The score doubles","A new target pops","The timer speeds up"],a:0,e:"When time hits zero the if-statement fires endGame(), which stops the timers and shows whether you won."},
+  {q:"To make your game HARDER, you could:",o:["Pop targets faster or shorten the clock","Remove the score","Turn off all timers","Delete the grid of holes"],a:0,e:"A shorter countdown or faster pops gives less time to react. You already have those dials — that's difficulty tuning, part of game design."},
+  {q:"Your finished game combined timers, random, events, if-statements, and a score. That shows real games are:",o:["Simple ideas working together","One giant magic command","Impossible to build yourself","Only made of timers"],a:0,e:"Every game — even huge ones — is built by combining simple pieces like the ones you now know. You've got the whole toolkit!"}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 8',q:text,file:'coding-lesson-08-timers.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — TIMER MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You built a real reaction game with timers. ⏱️🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({xp,target,gameLen}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stopAllTimers();saveAll();}});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,()=>{stopAllTimers();saveAll();}));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');if(g.xp)xp=g.xp;if(g.target)target=g.target;if(g.gameLen)gameLen=g.gameLen;document.getElementById('xpNum').textContent=xp;}catch(e){}
+  document.getElementById('lenVal').textContent=gameLen+'s';
+  buildQuiz();restoreQuiz();
+}
+init();
