@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 9 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;justify-content:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+.pad{padding:16px 10px;border-radius:14px;border:2px solid var(--line);font-size:15px;font-weight:900;cursor:pointer;touch-action:manipulation;color:#08090f;text-align:center;transition:transform .06s}
+.pad:active{transform:scale(.92)}
+.pad-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.seq{display:grid;gap:5px;margin:12px auto;max-width:430px;touch-action:manipulation}
+.seqrow{display:grid;grid-template-columns:36px repeat(8,1fr);gap:5px;align-items:center}
+.seqlbl{font-size:15px;text-align:center;font-weight:900}
+.cellS{aspect-ratio:1;border-radius:7px;background:#12141f;border:2px solid var(--line);cursor:pointer;touch-action:manipulation;transition:transform .05s}
+.cellS:active{transform:scale(.9)}
+.cellS.on{border-color:transparent}
+.cellS.playcol{box-shadow:0 0 0 3px var(--warn) inset}
+.stepper{display:flex;align-items:center;gap:10px;justify-content:center}
+.step-btn{width:44px;height:44px;border-radius:10px;background:var(--panel2);border:2px solid var(--line);font-size:20px;font-weight:900;color:var(--warn);cursor:pointer;touch-action:manipulation}
+.step-btn:active{transform:scale(.9)}
+.badge{border-radius:8px;padding:4px 11px;font-size:15px;font-weight:900;min-width:70px;text-align:center;background:var(--accent2);color:#001a16}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px;text-align:center}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 9</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🔊 THE SOUND</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🎵 THE NOTES</div>
+  <div class="mtab" onclick="go(3)" id="tab3">🎹 THE GRID</div>
+  <div class="mtab" onclick="go(4)" id="tab4">🥁 THE BEAT</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🎧 MAKE MUSIC</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼🎵</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 9: PANDA BEATS</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      Games, art, timers... now <strong style="color:var(--ink)">SOUND</strong>. You'll teach the computer to make music, then build a real beat maker and compose your own looping tune. 🔊 Turn your volume up!
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: A BEAT MAKER</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🔊 <strong>The Sound</strong> — make the computer beep</div>
+        <div>🎵 <strong>The Notes</strong> — a list of musical notes</div>
+        <div>🎹 <strong>The Grid</strong> — a note grid to tap</div>
+        <div>🥁 <strong>The Beat</strong> — a timer plays your pattern</div>
+        <div>🎧 <strong>Make Music</strong> — compose &amp; loop your song!</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — THE SOUND -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">🔊 Make a Sound</div>
+    <div class="mission-brief">Sound is a wave that wiggles the air. The computer makes a note by choosing a FREQUENCY — how fast the wave wiggles. Higher number = higher pitch. Tap all three to hear it!</div>
+  </div>
+
+  <div class="pad-row">
+    <button class="pad" style="background:var(--accent2);min-width:96px" onclick="hear('low')">LOW<br><small>220 Hz</small></button>
+    <button class="pad" style="background:var(--good);min-width:96px" onclick="hear('mid')">MID<br><small>440 Hz</small></button>
+    <button class="pad" style="background:var(--warn);min-width:96px" onclick="hear('high')">HIGH<br><small>880 Hz</small></button>
+  </div>
+
+  <div class="code-block"><span class="fn">playTone</span>(<span class="num">440</span>);  <span class="cm">// 440 = the pitch (frequency in Hz)</span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    A bigger <strong style="color:var(--accent2)">frequency</strong> number makes a higher-pitched sound. 220, 440, 880 — each doubling jumps up an octave! The computer builds every note from a number. That's all a "note" really is.
+  </div>
+
+  <div class="btn-row">
+    <button class="btn go" id="m1go" style="display:none" onclick="go(2)">NEXT: THE NOTES →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — THE NOTES -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">🎵 A List of Notes</div>
+    <div class="mission-brief">Music uses a set of notes. Yours is a LIST of frequencies (Level 3!). These 5 notes always sound good together. Tap them to play a little tune — hit at least 5 taps!</div>
+  </div>
+
+  <div class="pad-row" id="notePads"></div>
+
+  <div class="code-block" id="code2"><span class="kw">let</span> notes = [<span class="num">262</span>, <span class="num">294</span>, <span class="num">330</span>, <span class="num">392</span>, <span class="num">440</span>];
+<span class="cm">// C   D   E   G   A  — tap one to play notes[i]</span></div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    Your notes live in a <strong style="color:var(--accent2)">list</strong>. Tapping the 3rd pad plays <span style="font-family:monospace">notes[2]</span>. A melody is really just a list of notes played in an order — and code is great at lists!
+  </div>
+
+  <div class="btn-row">
+    <button class="btn go" id="m2go" style="display:none" onclick="go(3)">NEXT: THE GRID →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — THE GRID -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">🎹 Build the Note Grid</div>
+    <div class="mission-brief">A beat maker is a GRID: each row is a note, each column is a beat in time. Tap squares to place notes (you'll hear each one). Place at least 5 notes to continue!</div>
+  </div>
+
+  <div class="seq" id="grid3"></div>
+  <div style="text-align:center;font-size:14px;color:var(--muted)">Notes placed: <span id="placeCount" style="color:var(--warn);font-weight:900;font-size:17px">0</span> / 5</div>
+
+  <div class="code-block"><span class="cm">// pattern[row][col] = true means "play this note on this beat"</span>
+pattern[<span class="num">2</span>][<span class="num">0</span>] = <span class="kw">true</span>;  <span class="cm">// note E on beat 1</span></div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    The grid is a <strong style="color:var(--accent2)">2D pattern</strong> — rows of notes across columns of time. Each lit square says "play THIS note on THIS beat." You're writing music as data!
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">🎹</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Notes placed — now let's play them!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: THE BEAT →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — THE BEAT -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">🥁 Play the Beat</div>
+    <div class="mission-brief">Here's the magic: a TIMER (Level 8!) moves a playhead across the columns. On each beat, it checks that column and plays every lit note. Press PLAY and listen to your pattern loop!</div>
+  </div>
+
+  <div class="seq" id="grid4"></div>
+
+  <div class="btn-row">
+    <button class="btn fire xl" id="playBtn4" onclick="togglePlay(4)">▶ PLAY</button>
+  </div>
+
+  <div class="code-block"><span class="kw">setInterval</span>(<span class="kw">function</span>() {
+  <span class="kw">for</span> (<span class="kw">let</span> row = <span class="num">0</span>; row < <span class="num">5</span>; row++) {
+    <span class="kw">if</span> (pattern[row][step]) playTone(notes[row]);
+  }
+  step = (step + <span class="num">1</span>) % <span class="num">8</span>;        <span class="cm">// next beat, then loop</span>
+}, beatTime);</div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    One <strong style="color:var(--accent2)">timer</strong> walks the playhead across the beats; a <strong style="color:var(--accent2)">loop</strong> checks the whole column and plays every lit note at once. Timer + loop + list = a working music sequencer. That's real code powering real sound!
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">🥁</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Your pattern is playing — it's a real beat maker!</div>
+    <button class="btn go xl pulse" style="margin-top:10px" onclick="go(5)">🎧 OPEN THE STUDIO →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — MAKE MUSIC -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished App</div>
+    <div class="mission-title">🎧 PANDA BEATS STUDIO</div>
+    <div class="mission-brief">You built this! Tap squares to compose, set the tempo, and press PLAY to loop your song. Place at least 6 notes and press play to finish. Your tune saves automatically. 🎶</div>
+  </div>
+
+  <div class="seq" id="grid5"></div>
+
+  <div class="stepper" style="margin:8px 0">
+    <span style="font-size:13px;color:var(--muted);font-weight:800">TEMPO:</span>
+    <button class="step-btn" onclick="changeTempo(-1)">−</button>
+    <span class="badge" id="tempoVal">Medium</span>
+    <button class="step-btn" onclick="changeTempo(1)">+</button>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn fire xl" id="playBtn5" onclick="togglePlay(5)">▶ PLAY</button>
+    <button class="btn ghost" onclick="clearPattern()">🗑️ Clear</button>
+  </div>
+
+  <div class="complete-banner" id="m5done">
+    <div style="font-size:40px">🎶</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">YOU MADE MUSIC WITH CODE!</div>
+    <p style="margin-top:6px">You built a real beat maker using frequencies, lists, a 2D grid, loops, timers, and events — sound is just data played in time. You're a music coder now.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Sound &amp; Sequences</div>
+    <div class="mission-brief">10 rounds on frequency, lists, grids, loops, and timers. +10 XP each. Finish the beat!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l9-qans', QKEY='coding-l9-quiz', WKEY='coding-l9-music';
+const PREFIX='Coding|Lesson 9: Sound & Sequences|';
+let xp=0, cur=0;
+
+const NOTES=[440.00,392.00,329.63,293.66,261.63]; // A G E D C (top row = highest)
+const NOTE_LBL=['🔴','🟠','🟡','🟢','🔵'];
+const NOTE_COL=['#ff4466','#ff8833','#ffcc00','#39e07a','#00e5c8'];
+const ROWS=5, STEPS=8;
+let pattern=[];              // pattern[row][step] = bool
+let tempoIdx=1;              // 0 slow,1 med,2 fast
+const TEMPOS=[[ 'Slow',360],[ 'Medium',260],[ 'Fast',180]];
+
+function blankPattern(){ return Array.from({length:ROWS},()=>Array(STEPS).fill(false)); }
+function ensurePattern(){ if(!Array.isArray(pattern)||pattern.length!==ROWS) pattern=blankPattern(); }
+function noteCount(){ let n=0; pattern.forEach(r=>r.forEach(c=>{if(c)n++;})); return n; }
+
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1400);}
+
+/* ═══ WEB AUDIO ═══════════════════════════════════════════ */
+let actx=null;
+function audio(){
+  if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(actx && actx.state==='suspended') actx.resume();
+  return actx;
+}
+function playTone(freq,dur){
+  const a=audio(); if(!a) return;
+  dur=dur||0.35;
+  const o=a.createOscillator(), g=a.createGain();
+  o.type='triangle'; o.frequency.value=freq;
+  o.connect(g); g.connect(a.destination);
+  const t=a.currentTime;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.linearRampToValueAtTime(0.28,t+0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.start(t); o.stop(t+dur+0.03);
+}
+
+function go(n){
+  stopPlay();
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===2)buildNotePads();
+  if(n===3)buildSeq('grid3');
+  if(n===4)buildSeq('grid4');
+  if(n===5){buildSeq('grid5');document.getElementById('tempoVal').textContent=TEMPOS[tempoIdx][0];}
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+
+/* ═══ STEP 1 — THE SOUND ══════════════════════════════════ */
+let heard={};
+function hear(which){
+  const f=which==='low'?220:which==='high'?880:440;
+  playTone(f,0.45);
+  heard[which]=1;
+  if(Object.keys(heard).length>=3){
+    document.getElementById('disc1').style.display='block';
+    if(document.getElementById('m1go').style.display==='none'){
+      document.getElementById('m1go').style.display='inline-flex';
+      addXP(20);showToast('🔊 Sound works! +20 XP');
+    }
+  }
+}
+
+/* ═══ STEP 2 — THE NOTES ══════════════════════════════════ */
+let notePlays=0;
+function buildNotePads(){
+  const p=document.getElementById('notePads');
+  p.innerHTML='';
+  NOTES.forEach((f,i)=>{
+    const b=document.createElement('button');
+    b.className='pad';b.style.background=NOTE_COL[i];b.style.minWidth='58px';
+    b.innerHTML=['C','D','E','G','A'][i];
+    b.onclick=()=>{playTone(f,0.4);b.classList.remove('flash');void b.offsetWidth;
+      notePlays++;
+      if(notePlays>=5){document.getElementById('disc2').style.display='block';
+        if(document.getElementById('m2go').style.display==='none'){document.getElementById('m2go').style.display='inline-flex';addXP(20);showToast('🎵 Notes ready! +20 XP');}}
+    };
+    p.appendChild(b);
+  });
+}
+
+/* ═══ SEQUENCER GRID ══════════════════════════════════════ */
+function buildSeq(id){
+  ensurePattern();
+  const g=document.getElementById(id);
+  if(!g)return;
+  g.innerHTML='';
+  for(let r=0;r<ROWS;r++){
+    const row=document.createElement('div');row.className='seqrow';
+    const lbl=document.createElement('div');lbl.className='seqlbl';lbl.textContent=NOTE_LBL[r];
+    row.appendChild(lbl);
+    for(let c=0;c<STEPS;c++){
+      const cell=document.createElement('div');
+      cell.className='cellS'+(pattern[r][c]?' on':'');
+      if(pattern[r][c])cell.style.background=NOTE_COL[r];
+      cell.dataset.r=r;cell.dataset.c=c;
+      cell.onclick=()=>toggleCell(r,c,id);
+      row.appendChild(cell);
+    }
+    g.appendChild(row);
+  }
+}
+function toggleCell(r,c,id){
+  ensurePattern();
+  pattern[r][c]=!pattern[r][c];
+  const g=document.getElementById(id);
+  const cell=g.querySelector('.cellS[data-r="'+r+'"][data-c="'+c+'"]');
+  if(pattern[r][c]){cell.classList.add('on');cell.style.background=NOTE_COL[r];playTone(NOTES[r],0.3);}
+  else{cell.classList.remove('on');cell.style.background='#12141f';}
+  saveAll();
+  if(cur===3)updatePlace();
+  if(cur===5)updateStudio();
+}
+function updatePlace(){
+  const n=noteCount();
+  const el=document.getElementById('placeCount');if(el)el.textContent=n;
+  if(n>=5){
+    document.getElementById('disc3').style.display='block';
+    const b=document.getElementById('m3done');
+    if(b&&b.className.indexOf('show')<0){b.classList.add('show');addXP(25);showToast('🎹 +25 XP');}
+  }
+}
+
+/* ═══ PLAYBACK (timer) ════════════════════════════════════ */
+let playTimer=null, step=0, playingScreen=null;
+function beatTime(){ return TEMPOS[tempoIdx][1]; }
+function highlightCol(id,col){
+  const g=document.getElementById(id);if(!g)return;
+  g.querySelectorAll('.cellS').forEach(c=>{
+    c.classList.toggle('playcol', +c.dataset.c===col);
+  });
+}
+function togglePlay(scr){
+  if(playTimer){ stopPlay(); return; }
+  ensurePattern();
+  playingScreen=scr; step=0;
+  const btn=document.getElementById('playBtn'+scr);
+  if(btn)btn.textContent='⏸ STOP';
+  const gid='grid'+scr;
+  audio(); // unlock on user gesture
+  const tick=()=>{
+    for(let r=0;r<ROWS;r++){ if(pattern[r][step]) playTone(NOTES[r], Math.min(0.5, beatTime()/1000*0.9)); }
+    highlightCol(gid,step);
+    step=(step+1)%STEPS;
+  };
+  tick();
+  playTimer=setInterval(tick, beatTime());
+  if(scr===4){
+    document.getElementById('disc4').style.display='block';
+    const b=document.getElementById('m4done');
+    if(b&&b.className.indexOf('show')<0 && noteCount()>0){b.classList.add('show');addXP(25);showToast('🥁 +25 XP');}
+  }
+  if(scr===5)updateStudio(true);
+}
+function stopPlay(){
+  if(playTimer){clearInterval(playTimer);playTimer=null;}
+  [4,5].forEach(s=>{const b=document.getElementById('playBtn'+s);if(b)b.textContent='▶ PLAY';});
+  document.querySelectorAll('.cellS.playcol').forEach(c=>c.classList.remove('playcol'));
+}
+
+/* ═══ STEP 5 — STUDIO ═════════════════════════════════════ */
+let m5ok=false;
+function changeTempo(d){ tempoIdx=Math.max(0,Math.min(2,tempoIdx+d)); document.getElementById('tempoVal').textContent=TEMPOS[tempoIdx][0]; if(playTimer){stopPlay();togglePlay(5);} saveAll(); }
+function clearPattern(){ pattern=blankPattern(); buildSeq('grid'+(cur===5?5:4)); saveAll(); if(cur===5)updateStudio(); if(cur===3)updatePlace(); }
+function updateStudio(playing){
+  if(!m5ok && noteCount()>=6 && (playing||playTimer)){
+    m5ok=true;
+    document.getElementById('m5done').classList.add('show');
+    addXP(50);showToast('🎶 Masterpiece! +50 XP');
+  }
+}
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"How does the computer make a musical note?",o:["By choosing a frequency number","By drawing a picture","By rolling a dice","By waiting a while"],a:0,e:"A note is just a frequency — how fast the sound wave wiggles. A bigger number gives a higher pitch. playTone(440) makes the note A."},
+  {q:"Frequencies of 220, 440, and 880 sound like:",o:["The same note, going higher each time","Three totally random noises","The exact same pitch","Lower and lower each time"],a:0,e:"Each doubling of the frequency jumps up one octave — the same note, higher. That's why 220/440/880 sound related."},
+  {q:"Your 5 musical notes are stored together in order. That's a:",o:["List (Level 3)","Timer","Single number","Random roll"],a:0,e:"notes = [262, 294, 330, 392, 440] is a list of frequencies. A melody is a list of notes played in an order."},
+  {q:"notes[2] plays which note?",o:["The 3rd note","The 2nd note","The very last note","A random note"],a:0,e:"Lists start at 0, so notes[0] is the 1st and notes[2] is the 3rd note. Counting from zero again!"},
+  {q:"pattern[row][col] = true means:",o:["Play that note on that beat","Delete that note forever","Make the song louder","Skip that beat entirely"],a:0,e:"The 2D grid stores your music as data: each true square says 'play THIS note (row) on THIS beat (column).'"},
+  {q:"What moves the playhead from one beat to the next?",o:["A timer (setInterval)","The frequency number","A single if-statement","The list of notes"],a:0,e:"A timer fires on every beat, advancing the step. That's the same setInterval idea you used for the reaction game in Level 8."},
+  {q:"On each beat, how does the code play every lit note in that column?",o:["A loop checks each row","It plays only the top note","It picks one row at random","It waits for a tap"],a:0,e:"A loop runs down the column checking each row: if that row is lit on this beat, play its note. Loop + list working together."},
+  {q:"After the last beat (step 7), the playhead goes back to step 0. This makes the song:",o:["Loop forever","Stop for good","Speed up","Play backwards"],a:0,e:"step = (step + 1) % 8 wraps back to 0 after 7, so the pattern repeats — that's what makes a loop of music."},
+  {q:"Tapping a square to place a note is an example of:",o:["An event","A frequency","A loop","A list"],a:0,e:"A tap is an event; the code responds by flipping that square on and playing its note. Events make the studio interactive."},
+  {q:"Your beat maker combined frequencies, lists, a grid, loops, timers, and events. This shows that even music software is:",o:["Simple ideas working together","One magic music command","Impossible to code","Only made of timers"],a:0,e:"Real music apps are built from the same small pieces you now know. Combine them and you can build almost anything."}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 9',q:text,file:'coding-lesson-09-sound.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — SOUND MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You made music with code. 🎶🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({xp,pattern,tempoIdx}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stopPlay();saveAll();}});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,()=>{stopPlay();saveAll();}));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const g=JSON.parse(localStorage.getItem(WKEY)||'{}');
+    if(g.xp)xp=g.xp;
+    if(Array.isArray(g.pattern)&&g.pattern.length===ROWS)pattern=g.pattern;
+    if(typeof g.tempoIdx==='number')tempoIdx=g.tempoIdx;
+    document.getElementById('xpNum').textContent=xp;
+  }catch(e){}
+  ensurePattern();
+  buildQuiz();restoreQuiz();
+}
+init();
+</script>
+</body>
+</html>

@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 11 · Bat 🦇 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 12 · Chameleon 🦎 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — Masters of Madagascar",topic:"Geography",time:"45 min",file:"social-studies-lesson-12-chameleon.html",desc:"Madagascar's island biodiversity, endemic species, where chameleons live, and protecting their habitat."},
+      {n:2,emoji:"🔬",title:"Science — The Color-Changing Bug Catcher",topic:"Science",time:"45 min",file:"science-lesson-12-chameleon.html",desc:"How color change REALLY works, 360° eyes, the ballistic tongue, grippy feet — plus a tongue-strike decoder."},
+      {n:3,emoji:"📖",title:"ELA — Kali Learns to Blend In",topic:"Reading",time:"45 min",file:"ela-lesson-12-chameleon.html",desc:"A chameleon learns to be herself! 7 vocab words, an idioms game, and a being-yourself theme."},
+      {n:4,emoji:"📐",title:"Math — Multiplication & Division",topic:"Number",time:"45 min",file:"math-lesson-12-chameleon.html",desc:"Factors, multiples, prime vs composite, and multi-digit multiply & divide, with chameleon word problems."},
+      {n:5,emoji:"💻",title:"Coding — Level 9: Panda Beats",topic:"Coding",time:"60 min",file:"coding-lesson-09-sound.html",desc:"Build a real music maker — make sound, place notes on a grid, and press play to loop your own beat! 🎵"},
+    ]},
+    {label:"Day 11 · Bat 🦇 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Creatures of the Night",topic:"Geography",time:"45 min",file:"social-studies-lesson-11-bat.html",desc:"Bats around the world, Bracken Cave, fruit bats & vampire bats, and how cultures see the bat differently."},
       {n:2,emoji:"🔬",title:"Science — Seeing With Sound",topic:"Science",time:"45 min",file:"science-lesson-11-bat.html",desc:"Echolocation, wings that are hands, hanging upside down, hibernation — plus an echolocation decoder."},
       {n:3,emoji:"📖",title:"ELA — Echo Learns to See",topic:"Reading",time:"45 min",file:"ela-lesson-11-bat.html",desc:"A young bat faces her fear of the dark! 7 vocab words, synonyms & antonyms, and a courage theme."},
@@ -225,6 +232,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 12 · Chameleon 🦎", items:[
+       {n:12,emoji:"🦎",title:"Multiplication & Division",topic:"Number",time:"45 min",file:"math-lesson-12-chameleon.html",desc:"Factors, multiples, prime vs composite, and multi-digit multiply & divide, with chameleon word problems."},
+     ]},
      {label:"Day 11 · Bat 🦇", items:[
        {n:11,emoji:"🦇",title:"Telling Time & Elapsed Time",topic:"Number",time:"45 min",file:"math-lesson-11-bat.html",desc:"Read analog clocks, AM/PM, elapsed time, and time-unit conversions, with bat night-hours word problems."},
      ]},
@@ -264,6 +274,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 12 · Chameleon 🦎", items:[
+       {n:12,emoji:"🦎",title:"Chameleon: The Color-Changing Bug Catcher",topic:"Science",time:"45 min",file:"science-lesson-12-chameleon.html",desc:"How color change really works, 360° eyes, the ballistic tongue, grippy feet, flip cards, and a tongue-strike decoder."},
+     ]},
      {label:"Day 11 · Bat 🦇", items:[
        {n:11,emoji:"🦇",title:"Bat: Seeing With Sound",topic:"Science",time:"45 min",file:"science-lesson-11-bat.html",desc:"Echolocation, wings that are hands, upside-down roosting, hibernation, flip cards, and an echolocation decoder."},
      ]},
@@ -301,6 +314,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 12 · Chameleon 🦎", items:[
+       {n:12,emoji:"🦎",title:"Chameleon: Kali Learns to Blend In",topic:"Reading",time:"45 min",file:"ela-lesson-12-chameleon.html",desc:"A chameleon learns to be herself! 7 vocab words, an idioms game, and a being-yourself theme."},
+     ]},
      {label:"Day 11 · Bat 🦇", items:[
        {n:11,emoji:"🦇",title:"Bat: Echo Learns to See",topic:"Reading",time:"45 min",file:"ela-lesson-11-bat.html",desc:"A young bat faces her fear of the dark! 7 vocab words, synonyms & antonyms game, and a courage theme."},
      ]},
@@ -334,6 +350,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 12 · Chameleon 🦎", items:[
+       {n:12,emoji:"🦎",title:"Masters of Madagascar and Beyond",topic:"Geography",time:"45 min",file:"social-studies-lesson-12-chameleon.html",desc:"Madagascar's island biodiversity, endemic species, where chameleons live worldwide, and habitat conservation."},
+     ]},
      {label:"Day 11 · Bat 🦇", items:[
        {n:11,emoji:"🦇",title:"Creatures of the Night Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-11-bat.html",desc:"Bats on every continent, Bracken Cave, fruit & vampire bats, and how different cultures view the bat."},
      ]},
@@ -381,6 +400,7 @@ const SUBJECTS=[
        {n:6,emoji:"🕹️",title:"Level 6: Build Your Own Game",topic:"Coding",time:"60 min",file:"coding-lesson-06-build-a-game.html",desc:"The capstone! Build a real arcade game piece by piece — catcher, drops, controls, rules — then PLAY the game you made!"},
        {n:7,emoji:"🎨",title:"Level 7: Pixel Art Studio",topic:"Coding",time:"60 min",file:"coding-lesson-07-pixel-art.html",desc:"Build a real drawing app — grid, color palette, brush, and tools — then make & save your own pixel art!"},
        {n:8,emoji:"⏱️",title:"Level 8: Target Smash (Timers)",topic:"Coding",time:"60 min",file:"coding-lesson-08-timers.html",desc:"Build a timer-based reaction game — targets pop on a countdown, tap to score, race the clock — Boss the Panda Level 8!"},
+       {n:9,emoji:"🎵",title:"Level 9: Panda Beats (Sound)",topic:"Coding",time:"60 min",file:"coding-lesson-09-sound.html",desc:"Build a real music maker — frequencies, a note list, a beat grid, and a timer that loops your song — Boss the Panda Level 9!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

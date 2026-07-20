@@ -38,10 +38,7 @@ function logMistake(correct, questionText, quizTitle) {
 ```
 
 ## Quiz fairness rule (CRITICAL)
-In every multiple-choice quiz, the CORRECT answer must NOT be the longest option — a 10-yo exploited "pick the longest." Balance option lengths (make 1-2 distractors as long or longer) and vary which option is longest. Numeric/short-value options are exempt.
-
-## Quiz fairness rule (CRITICAL)
-In every multiple-choice quiz, the CORRECT answer must NOT be the longest option — a 10-yo exploited "just pick the longest one." Balance option lengths (make 1-2 distractors as long or longer than the correct answer) and vary which option is longest across questions. Numeric/short-value options are exempt. Applies to any choice-based game too (e.g. scenario pickers), not just the graded quiz.
+In every multiple-choice quiz, the CORRECT answer must NOT be the longest option — a 10-yo exploited "just pick the longest one." Balance option lengths (make 1-2 distractors as long or longer than the correct answer) and vary which option is longest across questions. Numeric/short-value options are exempt. Applies to any choice-based game too (e.g. scenario pickers), not just the graded quiz. ALSO vary the correct answer's POSITION across A/B/C/D — never put the correct answer at the same index for every question (a fixed position is just as exploitable as a fixed length).
 
 ## Quiz pattern (required order)
 `buildQuiz()` first, then `restoreQuiz()` — both called at init. Never reversed.
@@ -68,6 +65,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Level 6 (`coding-lesson-06-build-a-game.html`): CAPSTONE — build a real playable arcade game (Bamboo Catcher) piece by piece, then play it. Most interactive yet.
 - Level 7 (`coding-lesson-07-pixel-art.html`): build a real pixel-art drawing app (grid/nested loops, palette list, tap events, tool functions), then draw & save art. Creative build.
 - Level 8 (`coding-lesson-08-timers.html`): build a timer-based reaction game (Target Smash) — setInterval timers, countdown, random spawns, tap events, score. Then play it.
+- Level 9 (`coding-lesson-09-sound.html`): build a music maker (Panda Beats) — Web Audio tones/frequencies, note list, 2D beat grid, timer-driven playback loop. Then compose & play.
 
 ## Day themes (completed)
 - Day 2: Red Panda 🐾
@@ -80,11 +78,12 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Day 9: Emperor Penguin 🐧
 - Day 10: Honeybee 🐝
 - Day 11: Bat 🦇
+- Day 12: Chameleon 🦎
 
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 2710KB, 68 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 2925KB, 73 lessons)
 Uses inline injection (not iframe) for iOS Safari compatibility.
 
 ## Committing
