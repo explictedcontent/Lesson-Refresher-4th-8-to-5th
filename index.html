@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 12 · Chameleon 🦎 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 13 · Dolphin 🐬 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — Dolphins Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-13-dolphin.html",desc:"Dolphins worldwide, pods, the human–dolphin fishing partnership in Brazil, and dolphin-safe conservation."},
+      {n:2,emoji:"🔬",title:"Science — The Brainy Mammal of the Sea",topic:"Science",time:"45 min",file:"science-lesson-13-dolphin.html",desc:"Echolocation, blowholes, half-brain sleep, signature whistles, tool use — plus an echolocation decoder."},
+      {n:3,emoji:"📖",title:"ELA — Finn Finds His Whistle",topic:"Reading",time:"45 min",file:"ela-lesson-13-dolphin.html",desc:"A dolphin finds his own voice! 7 vocab words, prefixes & root words, and a find-your-identity theme."},
+      {n:4,emoji:"📐",title:"Math — Fractions Deep-Dive",topic:"Number",time:"45 min",file:"math-lesson-13-dolphin.html",desc:"Equivalent fractions, comparing, and adding & subtracting fractions, with dolphin word problems."},
+      {n:5,emoji:"💻",title:"Coding — Level 10: Maze Runner",topic:"Coding",time:"60 min",file:"coding-lesson-10-maze.html",desc:"Build a maze game — move by coordinates, walls block you, design your own maze, then solve it! 🧭"},
+    ]},
+    {label:"Day 12 · Chameleon 🦎 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Masters of Madagascar",topic:"Geography",time:"45 min",file:"social-studies-lesson-12-chameleon.html",desc:"Madagascar's island biodiversity, endemic species, where chameleons live, and protecting their habitat."},
       {n:2,emoji:"🔬",title:"Science — The Color-Changing Bug Catcher",topic:"Science",time:"45 min",file:"science-lesson-12-chameleon.html",desc:"How color change REALLY works, 360° eyes, the ballistic tongue, grippy feet — plus a tongue-strike decoder."},
       {n:3,emoji:"📖",title:"ELA — Kali Learns to Blend In",topic:"Reading",time:"45 min",file:"ela-lesson-12-chameleon.html",desc:"A chameleon learns to be herself! 7 vocab words, an idioms game, and a being-yourself theme."},
@@ -232,6 +239,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 13 · Dolphin 🐬", items:[
+       {n:13,emoji:"🐬",title:"Fractions Deep-Dive",topic:"Number",time:"45 min",file:"math-lesson-13-dolphin.html",desc:"Equivalent fractions, comparing fractions, and adding & subtracting with like denominators, with dolphin problems."},
+     ]},
      {label:"Day 12 · Chameleon 🦎", items:[
        {n:12,emoji:"🦎",title:"Multiplication & Division",topic:"Number",time:"45 min",file:"math-lesson-12-chameleon.html",desc:"Factors, multiples, prime vs composite, and multi-digit multiply & divide, with chameleon word problems."},
      ]},
@@ -274,6 +284,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 13 · Dolphin 🐬", items:[
+       {n:13,emoji:"🐬",title:"Dolphin: The Brainy Mammal of the Sea",topic:"Science",time:"45 min",file:"science-lesson-13-dolphin.html",desc:"Echolocation, blowholes, half-brain sleep, signature whistles, tool use, flip cards, and an echolocation decoder."},
+     ]},
      {label:"Day 12 · Chameleon 🦎", items:[
        {n:12,emoji:"🦎",title:"Chameleon: The Color-Changing Bug Catcher",topic:"Science",time:"45 min",file:"science-lesson-12-chameleon.html",desc:"How color change really works, 360° eyes, the ballistic tongue, grippy feet, flip cards, and a tongue-strike decoder."},
      ]},
@@ -314,6 +327,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 13 · Dolphin 🐬", items:[
+       {n:13,emoji:"🐬",title:"Dolphin: Finn Finds His Whistle",topic:"Reading",time:"45 min",file:"ela-lesson-13-dolphin.html",desc:"A dolphin finds his own voice! 7 vocab words, prefixes & root words game, and a find-your-identity theme."},
+     ]},
      {label:"Day 12 · Chameleon 🦎", items:[
        {n:12,emoji:"🦎",title:"Chameleon: Kali Learns to Blend In",topic:"Reading",time:"45 min",file:"ela-lesson-12-chameleon.html",desc:"A chameleon learns to be herself! 7 vocab words, an idioms game, and a being-yourself theme."},
      ]},
@@ -350,6 +366,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 13 · Dolphin 🐬", items:[
+       {n:13,emoji:"🐬",title:"Dolphins Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-13-dolphin.html",desc:"Dolphins worldwide, pods, the human–dolphin fishing partnership in Brazil, and dolphin-safe conservation."},
+     ]},
      {label:"Day 12 · Chameleon 🦎", items:[
        {n:12,emoji:"🦎",title:"Masters of Madagascar and Beyond",topic:"Geography",time:"45 min",file:"social-studies-lesson-12-chameleon.html",desc:"Madagascar's island biodiversity, endemic species, where chameleons live worldwide, and habitat conservation."},
      ]},
@@ -401,6 +420,7 @@ const SUBJECTS=[
        {n:7,emoji:"🎨",title:"Level 7: Pixel Art Studio",topic:"Coding",time:"60 min",file:"coding-lesson-07-pixel-art.html",desc:"Build a real drawing app — grid, color palette, brush, and tools — then make & save your own pixel art!"},
        {n:8,emoji:"⏱️",title:"Level 8: Target Smash (Timers)",topic:"Coding",time:"60 min",file:"coding-lesson-08-timers.html",desc:"Build a timer-based reaction game — targets pop on a countdown, tap to score, race the clock — Boss the Panda Level 8!"},
        {n:9,emoji:"🎵",title:"Level 9: Panda Beats (Sound)",topic:"Coding",time:"60 min",file:"coding-lesson-09-sound.html",desc:"Build a real music maker — frequencies, a note list, a beat grid, and a timer that loops your song — Boss the Panda Level 9!"},
+       {n:10,emoji:"🧭",title:"Level 10: Maze Runner (Coordinates)",topic:"Coding",time:"60 min",file:"coding-lesson-10-maze.html",desc:"Build a maze game — move by row/column coordinates, walls block you with collision checks, design & solve your own maze — Boss the Panda Level 10!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

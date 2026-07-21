@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 10 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;justify-content:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+/* maze */
+.maze{display:grid;gap:3px;margin:12px auto;max-width:350px;background:#000;border:3px solid var(--line);border-radius:12px;padding:5px;touch-action:manipulation}
+.mcell{aspect-ratio:1;border-radius:5px;background:#1a1d2e;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;user-select:none;-webkit-user-select:none;transition:background .1s}
+.mcell.wall{background:#3a2140;border:1px solid #52306080}
+.mcell.goal-cell{background:#12301c}
+.mcell.player-cell{background:#0e2440}
+/* d-pad */
+.dpad{display:grid;grid-template-columns:repeat(3,60px);grid-template-rows:repeat(2,54px);gap:8px;justify-content:center;margin:10px auto}
+.dbtn{border-radius:12px;background:var(--panel2);border:2px solid var(--accent2);font-size:24px;font-weight:900;color:var(--accent2);cursor:pointer;touch-action:manipulation}
+.dbtn:active{transform:scale(.9);background:#003328}
+.dbtn.wide{grid-column:1 / span 3}
+.hud{display:flex;justify-content:center;gap:18px;align-items:center;font-weight:900;font-size:16px;margin:4px auto 6px}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px;text-align:center}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 10</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🕹️ MOVE IT</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🧱 THE WALLS</div>
+  <div class="mtab" onclick="go(3)" id="tab3">🔨 BUILD IT</div>
+  <div class="mtab" onclick="go(4)" id="tab4">🏁 THE GOAL</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🎮 PLAY IT!</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼🧭</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 10: MAZE RUNNER</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      Every game character lives at a spot: a <strong style="color:var(--ink)">row and a column</strong> — its coordinates. You'll move the panda through a maze, learn how walls block it, then build and solve your own maze!
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: A MAZE GAME</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🕹️ <strong>Move It</strong> — coordinates (row, col)</div>
+        <div>🧱 <strong>The Walls</strong> — collision blocks you</div>
+        <div>🔨 <strong>Build It</strong> — make your own maze</div>
+        <div>🏁 <strong>The Goal</strong> — the win check</div>
+        <div>🎮 <strong>Play It</strong> — solve the finished maze!</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — MOVE IT -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">🕹️ Move by Coordinates</div>
+    <div class="mission-brief">The panda lives at a spot: a ROW and a COLUMN. The arrows change those numbers to move it. No walls yet — just steer the panda onto the flag 🏁!</div>
+  </div>
+
+  <div class="hud">📍 row <span id="pr1" style="color:var(--warn)">0</span>, col <span id="pc1" style="color:var(--warn)">0</span></div>
+  <div class="maze" id="maze1"></div>
+
+  <div class="dpad">
+    <div></div><button class="dbtn" onclick="move(-1,0)">▲</button><div></div>
+    <button class="dbtn" onclick="move(0,-1)">◀</button><button class="dbtn" onclick="move(0,1)">▶</button>
+  </div>
+  <div class="dpad" style="grid-template-rows:54px;margin-top:-2px"><div></div><button class="dbtn" onclick="move(1,0)">▼</button><div></div></div>
+
+  <div class="code-block"><span class="cm">// ▲ up: row - 1   ▼ down: row + 1</span>
+<span class="cm">// ◀ left: col - 1  ▶ right: col + 1</span>
+panda.<span class="prop">row</span> = panda.<span class="prop">row</span> + <span class="num">1</span>;  <span class="cm">// move down</span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    The panda's spot is just two numbers: <strong style="color:var(--accent2)">row</strong> and <strong style="color:var(--accent2)">col</strong> — its coordinates. Every arrow adds or subtracts 1 from one of them. That's how EVERY character in EVERY game knows where it is!
+  </div>
+
+  <div class="complete-banner" id="m1done">
+    <div style="font-size:34px">🏁</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">You reached the flag!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(2)">NEXT: THE WALLS →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — THE WALLS -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">🧱 Walls Block the Way</div>
+    <div class="mission-brief">Now there are WALLS. Before the panda moves, the code checks: is the next spot a wall? If yes, it can't move there. Wind your way around to the flag!</div>
+  </div>
+
+  <div class="hud">🐾 Moves: <span id="moves2" style="color:var(--warn)">0</span></div>
+  <div class="maze" id="maze2"></div>
+
+  <div class="dpad">
+    <div></div><button class="dbtn" onclick="move(-1,0)">▲</button><div></div>
+    <button class="dbtn" onclick="move(0,-1)">◀</button><button class="dbtn" onclick="move(0,1)">▶</button>
+  </div>
+  <div class="dpad" style="grid-template-rows:54px;margin-top:-2px"><div></div><button class="dbtn" onclick="move(1,0)">▼</button><div></div></div>
+
+  <div class="code-block"><span class="kw">if</span> (grid[nextRow][nextCol] === WALL) {
+  <span class="cm">// blocked! don't move.</span>
+} <span class="kw">else</span> {
+  panda.row = nextRow;  panda.col = nextCol;
+}</div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    That check is <strong style="color:var(--accent2)">collision detection</strong>: before moving, the code asks "is that spot a wall?" If yes, the move is blocked. Walls, edges, enemies — games check the next spot before every step.
+  </div>
+
+  <div class="complete-banner" id="m2done">
+    <div style="font-size:34px">🧱</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">You solved the maze!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(3)">NEXT: BUILD IT →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — BUILD IT -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">🔨 Build Your Own Maze</div>
+    <div class="mission-brief">A maze is just DATA — a grid where each cell is either open or a wall. TAP cells to add or remove walls and design your own maze. Place at least 6 walls!</div>
+  </div>
+
+  <div class="maze" id="maze3"></div>
+  <div style="text-align:center;font-size:14px;color:var(--muted)">Walls placed: <span id="wallCount" style="color:var(--warn);font-weight:900;font-size:17px">0</span> / 6 <span style="color:var(--muted)">· tap a cell to toggle</span></div>
+
+  <div class="code-block"><span class="cm">// tap flips a cell between open and wall</span>
+grid[row][col] = WALL;   <span class="cm">// the maze is just a grid of data!</span></div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    Your whole maze is a <strong style="color:var(--accent2)">grid</strong> of data — each square is open (0) or a wall (1). Level design is really just editing data in a grid. You're a level designer now!
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">🔨</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Maze built — you're a level designer!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: THE GOAL →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — THE GOAL -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">🏁 The Win Check</div>
+    <div class="mission-brief">How does a game know you WON? It checks: is the panda's spot the SAME as the goal's spot? First TAP any open cell to place the flag, then drive the panda to it!</div>
+  </div>
+
+  <div class="hud" id="goalHud">👆 Tap an open square to place the flag</div>
+  <div class="maze" id="maze4"></div>
+
+  <div class="dpad">
+    <div></div><button class="dbtn" onclick="move(-1,0)">▲</button><div></div>
+    <button class="dbtn" onclick="move(0,-1)">◀</button><button class="dbtn" onclick="move(0,1)">▶</button>
+  </div>
+  <div class="dpad" style="grid-template-rows:54px;margin-top:-2px"><div></div><button class="dbtn" onclick="move(1,0)">▼</button><div></div></div>
+
+  <div class="code-block"><span class="kw">if</span> (panda.row === goal.row &amp;&amp; panda.col === goal.col) {
+  youWin();   <span class="cm">// same spot = you reached the goal!</span>
+}</div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    The <strong style="color:var(--accent2)">win check</strong> compares two coordinates: is the panda's (row, col) the same as the goal's? When they match, you win. Coins, exits, checkpoints — all just "are these two spots the same?"
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">🏁</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Reached your flag — win check works!</div>
+    <button class="btn go xl pulse" style="margin-top:10px" onclick="go(5)">🎮 PLAY THE FULL MAZE →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — PLAY IT -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished Game</div>
+    <div class="mission-title">🎮 MAZE RUNNER</div>
+    <div class="mission-brief">You built it! Guide the panda 🐼 through the walls to the flag 🏁. Use the arrows or your keyboard arrow keys. Tap "New Maze" for a fresh challenge. Solve it to finish!</div>
+  </div>
+
+  <div class="hud">🐾 Moves: <span id="movesG" style="color:var(--warn)">0</span></div>
+  <div class="maze" id="mazeG"></div>
+
+  <div class="dpad">
+    <div></div><button class="dbtn" onclick="move(-1,0)">▲</button><div></div>
+    <button class="dbtn" onclick="move(0,-1)">◀</button><button class="dbtn" onclick="move(0,1)">▶</button>
+  </div>
+  <div class="dpad" style="grid-template-rows:54px;margin-top:-2px"><div></div><button class="dbtn" onclick="move(1,0)">▼</button><div></div></div>
+
+  <div class="btn-row">
+    <button class="btn teal" onclick="newMaze()">🔀 New Maze</button>
+    <button class="btn ghost" onclick="restartMaze()">↺ Restart</button>
+  </div>
+
+  <div class="complete-banner" id="m5done">
+    <div style="font-size:40px">🏆</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">MAZE SOLVED — YOU DID IT!</div>
+    <p style="margin-top:6px">You built a real maze game using coordinates, grids, collision checks, and a win condition — the exact ideas behind Pac-Man, Zelda, and every game with a moving character.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Coordinates &amp; Collision</div>
+    <div class="mission-brief">10 rounds on rows, columns, collision, and win checks. +10 XP each. Reach the finish!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l10-qans', QKEY='coding-l10-quiz', WKEY='coding-l10-maze';
+const PREFIX='Coding|Lesson 10: Maze & Coordinates|';
+let xp=0, cur=0;
+const N=7;
+
+const MAZE_A=[
+  [0,0,0,0,0,0,0],
+  [1,1,1,1,1,1,0],
+  [0,0,0,0,0,0,0],
+  [0,1,1,1,1,1,1],
+  [0,0,0,0,0,0,0],
+  [1,1,1,1,1,1,0],
+  [0,0,0,0,0,0,0]
+];
+const MAZE_B=[
+  [0,0,0,0,0,1,0],
+  [1,1,1,0,1,1,0],
+  [0,0,0,0,0,0,0],
+  [0,1,1,1,1,1,0],
+  [0,0,0,0,0,1,0],
+  [1,1,1,1,0,1,0],
+  [0,0,0,0,0,0,0]
+];
+const MAZES=[MAZE_A,MAZE_B];
+let mazeIdx=0;
+
+// live game state
+let g={grid:[], pr:0, pc:0, gr:6, gc:6, moves:0, mode:'play', screen:1, won:false};
+
+function copyGrid(m){return m.map(r=>r.slice());}
+function emptyGrid(){return Array.from({length:N},()=>Array(N).fill(0));}
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1400);}
+
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===1)setupMove();
+  if(n===2)setupWalls();
+  if(n===3)setupBuild();
+  if(n===4)setupGoal();
+  if(n===5)setupStudio();
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+
+/* ═══ MAZE RENDER ═════════════════════════════════════════ */
+function mazeId(){ return g.screen===1?'maze1':g.screen===2?'maze2':g.screen===3?'maze3':g.screen===4?'maze4':'mazeG'; }
+function renderMaze(){
+  const el=document.getElementById(mazeId());
+  if(!el)return;
+  el.style.gridTemplateColumns='repeat('+N+',1fr)';
+  el.innerHTML='';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const cell=document.createElement('div');
+    cell.className='mcell';
+    const isWall=g.grid[r][c]===1;
+    const isGoal=(g.gr===r&&g.gc===c);
+    const isP=(g.pr===r&&g.pc===c);
+    if(isWall)cell.classList.add('wall');
+    if(isGoal&&!isP){cell.classList.add('goal-cell');cell.textContent='🏁';}
+    if(isP){cell.classList.add('player-cell');cell.textContent='🐼';}
+    cell.dataset.r=r;cell.dataset.c=c;
+    if(g.mode==='build'||g.mode==='setgoal') cell.onclick=()=>editCell(r,c);
+    el.appendChild(cell);
+  }
+}
+
+/* ═══ MOVEMENT ════════════════════════════════════════════ */
+function move(dr,dc){
+  if(g.mode!=='play'||g.won)return;
+  const nr=g.pr+dr, nc=g.pc+dc;
+  if(nr<0||nr>=N||nc<0||nc>=N)return;        // edge collision
+  if(g.grid[nr][nc]===1)return;               // wall collision
+  g.pr=nr; g.pc=nc; g.moves++;
+  renderMaze();
+  updateHud();
+  if(g.pr===g.gr&&g.pc===g.gc) reachedGoal();
+}
+function updateHud(){
+  if(g.screen===1){document.getElementById('pr1').textContent=g.pr;document.getElementById('pc1').textContent=g.pc;}
+  if(g.screen===2){document.getElementById('moves2').textContent=g.moves;}
+  if(g.screen===5){document.getElementById('movesG').textContent=g.moves;}
+}
+function reachedGoal(){
+  g.won=true;
+  if(g.screen===1){document.getElementById('disc1').style.display='block';document.getElementById('m1done').classList.add('show');addXP(20);showToast('🏁 +20 XP');}
+  if(g.screen===2){document.getElementById('disc2').style.display='block';document.getElementById('m2done').classList.add('show');addXP(25);showToast('🧱 Solved! +25 XP');}
+  if(g.screen===4){document.getElementById('disc4').style.display='block';document.getElementById('m4done').classList.add('show');addXP(25);showToast('🏁 +25 XP');}
+  if(g.screen===5){document.getElementById('m5done').classList.add('show');addXP(50);showToast('🏆 Maze solved! +50 XP');}
+}
+
+/* ═══ STEP 1 — MOVE (no walls) ════════════════════════════ */
+function setupMove(){
+  g={grid:emptyGrid(), pr:0, pc:0, gr:6, gc:6, moves:0, mode:'play', screen:1, won:false};
+  renderMaze();updateHud();
+}
+
+/* ═══ STEP 2 — WALLS ══════════════════════════════════════ */
+function setupWalls(){
+  g={grid:copyGrid(MAZE_A), pr:0, pc:0, gr:6, gc:6, moves:0, mode:'play', screen:2, won:false};
+  renderMaze();updateHud();
+}
+
+/* ═══ STEP 3 — BUILD ══════════════════════════════════════ */
+let builtWalls=0, m3ok=false;
+function setupBuild(){
+  g={grid:emptyGrid(), pr:0, pc:0, gr:6, gc:6, moves:0, mode:'build', screen:3, won:false};
+  builtWalls=0;m3ok=false;
+  document.getElementById('wallCount').textContent='0';
+  renderMaze();
+}
+function editCell(r,c){
+  if(g.mode==='build'){
+    if((r===g.pr&&c===g.pc)||(r===g.gr&&c===g.gc))return; // don't wall start/goal
+    g.grid[r][c]=g.grid[r][c]===1?0:1;
+    renderMaze();
+    builtWalls=g.grid.flat().filter(x=>x===1).length;
+    document.getElementById('wallCount').textContent=builtWalls;
+    if(builtWalls>=6&&!m3ok){m3ok=true;document.getElementById('disc3').style.display='block';document.getElementById('m3done').classList.add('show');addXP(25);showToast('🔨 +25 XP');}
+  } else if(g.mode==='setgoal'){
+    if(g.grid[r][c]===1||(r===g.pr&&c===g.pc))return;
+    g.gr=r;g.gc=c;g.mode='play';
+    document.getElementById('goalHud').innerHTML='🏁 Flag placed at row '+r+', col '+c+' — now reach it!';
+    renderMaze();
+  }
+}
+
+/* ═══ STEP 4 — GOAL ═══════════════════════════════════════ */
+function setupGoal(){
+  // small maze with a couple walls; player places goal, then navigates
+  const grid=emptyGrid();
+  grid[2][3]=1;grid[3][3]=1;grid[4][3]=1;grid[1][1]=1;grid[5][5]=1;
+  g={grid, pr:0, pc:0, gr:-1, gc:-1, moves:0, mode:'setgoal', screen:4, won:false};
+  document.getElementById('goalHud').innerHTML='👆 Tap an open square to place the flag';
+  renderMaze();
+}
+
+/* ═══ STEP 5 — STUDIO ═════════════════════════════════════ */
+function setupStudio(){
+  g={grid:copyGrid(MAZES[mazeIdx]), pr:0, pc:0, gr:6, gc:6, moves:0, mode:'play', screen:5, won:false};
+  document.getElementById('m5done').classList.remove('show');
+  renderMaze();updateHud();
+}
+function newMaze(){ mazeIdx=(mazeIdx+1)%MAZES.length; setupStudio(); showToast('🔀 New maze!'); }
+function restartMaze(){ g.pr=0;g.pc=0;g.moves=0;g.won=false;document.getElementById('m5done').classList.remove('show');renderMaze();updateHud(); }
+
+/* keyboard arrows */
+document.addEventListener('keydown',e=>{
+  if(cur!==1&&cur!==2&&cur!==4&&cur!==5)return;
+  if(e.key==='ArrowUp'){e.preventDefault();move(-1,0);}
+  else if(e.key==='ArrowDown'){e.preventDefault();move(1,0);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();move(0,-1);}
+  else if(e.key==='ArrowRight'){e.preventDefault();move(0,1);}
+});
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"A character's spot on a grid is described by its:",o:["Row and column (its coordinates)","Color and its size","Name and its score","Speed and direction"],a:0,e:"Every character sits at a row and a column — its coordinates. That's how the game always knows exactly where it is."},
+  {q:"To move the panda DOWN one square, the code changes:",o:["row + 1","col + 1","row - 1","the color of the cell"],a:0,e:"Down means the next row, so row + 1. Up is row - 1, left is col - 1, right is col + 1."},
+  {q:"Before the panda moves, the game checks if the next spot is a wall. This is called:",o:["Collision detection","A random roll","A signature whistle","A countdown timer"],a:0,e:"Checking whether the next spot is blocked BEFORE moving is collision detection — it stops the panda from walking through walls."},
+  {q:"if (grid[nextRow][nextCol] === WALL) { block the move }\nWhat happens if the next spot is a wall?",o:["The panda does not move","The panda moves anyway","The wall disappears","The game ends"],a:0,e:"If the next spot is a wall, the if-statement blocks the move, so the panda stays put. No walking through walls!"},
+  {q:"In your game, a maze is really just:",o:["A grid of data (open cells and walls)","One long list of colors","A single number","A random sound"],a:0,e:"A maze is a grid where each cell holds a value: open (0) or wall (1). Level design is editing that grid of data."},
+  {q:"How does the game know you WON the maze?",o:["The panda's spot equals the goal's spot","The timer reaches zero","You tapped enough times","The maze changed color"],a:0,e:"The win check compares coordinates: if the panda's (row, col) is the same as the goal's, you win!"},
+  {q:"The panda is at row 3, col 2. You press ◀ LEFT. Its new spot is:",o:["row 3, col 1","row 3, col 3","row 2, col 2","row 4, col 2"],a:0,e:"Left lowers the column by 1: col 2 becomes col 1. The row stays the same at 3."},
+  {q:"Why can't the panda walk off the edge of the maze?",o:["The code checks it stays inside the grid","The maze has no edges","It runs out of moves","The timer stops it"],a:0,e:"Before moving, the code checks the next spot is still inside the grid (row and col in range). The edge is a collision too."},
+  {q:"Editing the grid to place walls is basically:",o:["Designing a level","Playing a sound","Rolling dice","Saving your score"],a:0,e:"Changing which cells are walls is exactly what level designers do — they edit the grid to shape the challenge."},
+  {q:"Coordinates, collision checks, and a win condition are the core of:",o:["Almost every game with a moving character","Only maze games","Only music apps","Nothing useful"],a:0,e:"Pac-Man, Zelda, chess apps, platformers — anything with a character on a map uses coordinates, collision, and win checks. You built the core of games!"}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 10',q:text,file:'coding-lesson-10-maze.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${q.q.replace(/\n/g,'<br>')}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${o}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — MAZE MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You built a real maze game. 🧭🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({xp,mazeIdx}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAll();});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const s=JSON.parse(localStorage.getItem(WKEY)||'{}');if(s.xp)xp=s.xp;if(typeof s.mazeIdx==='number')mazeIdx=s.mazeIdx;document.getElementById('xpNum').textContent=xp;}catch(e){}
+  buildQuiz();restoreQuiz();
+}
+init();
+</script>
+</body>
+</html>
