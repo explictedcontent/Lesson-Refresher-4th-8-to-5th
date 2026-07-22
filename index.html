@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 13 · Dolphin 🐬 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 14 · Elephant 🐘 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — The Giants of Africa and Asia",topic:"Geography",time:"45 min",file:"social-studies-lesson-14-elephant.html",desc:"African vs Asian elephants, matriarch-led herds, elephants & people in history, and ivory conservation."},
+      {n:2,emoji:"🔬",title:"Science — The Amazing Trunk & a Great Memory",topic:"Science",time:"45 min",file:"science-lesson-14-elephant.html",desc:"The 40,000-muscle trunk, infrasound, big-ear cooling, memory & intelligence — plus a cooling-down sequencer."},
+      {n:3,emoji:"📖",title:"ELA — Tembo and the Long Memory",topic:"Reading",time:"45 min",file:"ela-lesson-14-elephant.html",desc:"A calf learns from his matriarch grandmother. 7 vocab words, cause & effect, and a wisdom-of-elders theme."},
+      {n:4,emoji:"📐",title:"Math — Large Numbers",topic:"Number",time:"45 min",file:"math-lesson-14-elephant.html",desc:"Place value to the millions, reading & writing big numbers, rounding & comparing, with elephant word problems."},
+      {n:5,emoji:"💻",title:"Coding — Level 11: Story Machine",topic:"Coding",time:"60 min",file:"coding-lesson-11-story.html",desc:"Build a Mad Libs story generator — text/strings, gluing words together, and templates — then make a silly tale! 📖"},
+    ]},
+    {label:"Day 13 · Dolphin 🐬 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Dolphins Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-13-dolphin.html",desc:"Dolphins worldwide, pods, the human–dolphin fishing partnership in Brazil, and dolphin-safe conservation."},
       {n:2,emoji:"🔬",title:"Science — The Brainy Mammal of the Sea",topic:"Science",time:"45 min",file:"science-lesson-13-dolphin.html",desc:"Echolocation, blowholes, half-brain sleep, signature whistles, tool use — plus an echolocation decoder."},
       {n:3,emoji:"📖",title:"ELA — Finn Finds His Whistle",topic:"Reading",time:"45 min",file:"ela-lesson-13-dolphin.html",desc:"A dolphin finds his own voice! 7 vocab words, prefixes & root words, and a find-your-identity theme."},
@@ -239,6 +246,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 14 · Elephant 🐘", items:[
+       {n:14,emoji:"🐘",title:"Large Numbers",topic:"Number",time:"45 min",file:"math-lesson-14-elephant.html",desc:"Place value to the millions, reading & writing big numbers, rounding & comparing, with elephant word problems."},
+     ]},
      {label:"Day 13 · Dolphin 🐬", items:[
        {n:13,emoji:"🐬",title:"Fractions Deep-Dive",topic:"Number",time:"45 min",file:"math-lesson-13-dolphin.html",desc:"Equivalent fractions, comparing fractions, and adding & subtracting with like denominators, with dolphin problems."},
      ]},
@@ -284,6 +294,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 14 · Elephant 🐘", items:[
+       {n:14,emoji:"🐘",title:"Elephant: The Amazing Trunk & a Great Memory",topic:"Science",time:"45 min",file:"science-lesson-14-elephant.html",desc:"The 40,000-muscle trunk, infrasound, big-ear cooling, memory & intelligence, flip cards, and a cooling-down sequencer."},
+     ]},
      {label:"Day 13 · Dolphin 🐬", items:[
        {n:13,emoji:"🐬",title:"Dolphin: The Brainy Mammal of the Sea",topic:"Science",time:"45 min",file:"science-lesson-13-dolphin.html",desc:"Echolocation, blowholes, half-brain sleep, signature whistles, tool use, flip cards, and an echolocation decoder."},
      ]},
@@ -327,6 +340,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 14 · Elephant 🐘", items:[
+       {n:14,emoji:"🐘",title:"Elephant: Tembo and the Long Memory",topic:"Reading",time:"45 min",file:"ela-lesson-14-elephant.html",desc:"A calf learns from his matriarch grandmother. 7 vocab words, cause & effect game, and a wisdom-of-elders theme."},
+     ]},
      {label:"Day 13 · Dolphin 🐬", items:[
        {n:13,emoji:"🐬",title:"Dolphin: Finn Finds His Whistle",topic:"Reading",time:"45 min",file:"ela-lesson-13-dolphin.html",desc:"A dolphin finds his own voice! 7 vocab words, prefixes & root words game, and a find-your-identity theme."},
      ]},
@@ -366,6 +382,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 14 · Elephant 🐘", items:[
+       {n:14,emoji:"🐘",title:"The Giants of Africa and Asia",topic:"Geography",time:"45 min",file:"social-studies-lesson-14-elephant.html",desc:"African vs Asian elephants, matriarch-led herds, elephants & people through history, and ivory conservation."},
+     ]},
      {label:"Day 13 · Dolphin 🐬", items:[
        {n:13,emoji:"🐬",title:"Dolphins Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-13-dolphin.html",desc:"Dolphins worldwide, pods, the human–dolphin fishing partnership in Brazil, and dolphin-safe conservation."},
      ]},
@@ -421,6 +440,7 @@ const SUBJECTS=[
        {n:8,emoji:"⏱️",title:"Level 8: Target Smash (Timers)",topic:"Coding",time:"60 min",file:"coding-lesson-08-timers.html",desc:"Build a timer-based reaction game — targets pop on a countdown, tap to score, race the clock — Boss the Panda Level 8!"},
        {n:9,emoji:"🎵",title:"Level 9: Panda Beats (Sound)",topic:"Coding",time:"60 min",file:"coding-lesson-09-sound.html",desc:"Build a real music maker — frequencies, a note list, a beat grid, and a timer that loops your song — Boss the Panda Level 9!"},
        {n:10,emoji:"🧭",title:"Level 10: Maze Runner (Coordinates)",topic:"Coding",time:"60 min",file:"coding-lesson-10-maze.html",desc:"Build a maze game — move by row/column coordinates, walls block you with collision checks, design & solve your own maze — Boss the Panda Level 10!"},
+       {n:11,emoji:"📖",title:"Level 11: Story Machine (Text)",topic:"Coding",time:"60 min",file:"coding-lesson-11-story.html",desc:"Build a Mad Libs story generator — text/strings, joining words with +, and templates — then make silly personalized stories — Boss the Panda Level 11!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

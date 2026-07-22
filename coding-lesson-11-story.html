@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 11 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn.purple{background:var(--purple);border-color:var(--purple);color:#0a0520}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;justify-content:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:15px;color:#e6edf3;margin:10px 0;line-height:2;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+/* story inputs */
+.field{margin:10px 0}
+.field label{display:block;font-size:12px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.tin{width:100%;background:#08090f;border:2px solid var(--line);border-radius:10px;padding:11px 14px;font-size:16px;color:var(--ink);font-weight:700;outline:none}
+.tin:focus{border-color:var(--accent2)}
+.story{background:linear-gradient(160deg,#141726,#0b0d18);border:2px solid var(--warn);border-radius:14px;padding:18px 20px;margin:12px 0;font-size:18px;line-height:1.7;color:var(--ink)}
+.story .fillword{color:var(--warn);font-weight:900}
+.live{background:#08090f;border:2px dashed var(--line);border-radius:12px;padding:16px;margin:10px 0;font-size:18px;line-height:1.6;text-align:center;min-height:60px}
+.live .fillword{color:var(--accent2);font-weight:900}
+.tsel{padding:10px 15px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:15px;font-weight:900;cursor:pointer;touch-action:manipulation}
+.tsel.sel{border-color:var(--accent2);background:#003328;color:var(--accent2)}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px;text-align:center}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 11</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🔤 THE WORD</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🔗 GLUE IT</div>
+  <div class="mtab" onclick="go(3)" id="tab3">📝 THE BLANKS</div>
+  <div class="mtab" onclick="go(4)" id="tab4">📖 TEMPLATE</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🎬 MAKE A STORY</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼📖</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 11: STORY MACHINE</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      So far your variables held numbers. But they can also hold <strong style="color:var(--ink)">WORDS</strong> — called strings! You'll glue words together and build a silly story machine that writes a personalized tale from words YOU pick.
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: A STORY MACHINE</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🔤 <strong>The Word</strong> — variables can hold text</div>
+        <div>🔗 <strong>Glue It</strong> — join words with +</div>
+        <div>📝 <strong>The Blanks</strong> — fill-in words</div>
+        <div>📖 <strong>Template</strong> — words slot into a story</div>
+        <div>🎬 <strong>Make a Story</strong> — your silly tale!</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — THE WORD -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">🔤 Words in a Variable</div>
+    <div class="mission-brief">A variable can hold TEXT, not just numbers. Text in code is called a STRING (it goes in quotes). Type your name and watch it drop into the sentence live!</div>
+  </div>
+
+  <div class="field">
+    <label>Type your name</label>
+    <input class="tin" id="name1" placeholder="your name..." oninput="live1()" maxlength="20">
+  </div>
+
+  <div class="live" id="liveOut1">Hello, my name is <span class="fillword">???</span> and I love to code! 🐼</div>
+
+  <div class="code-block" id="code1"><span class="kw">let</span> name = <span class="str">"???"</span>;   <span class="cm">// a string = text in quotes</span>
+say(<span class="str">"Hello, my name is "</span> + name);</div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    A <strong style="color:var(--accent2)">string</strong> is just text stored in a variable — always wrapped in quotes like <span style="font-family:monospace" class="str">"panda"</span>. Numbers or words, a variable can hold either. Now your name lives inside the code!
+  </div>
+
+  <div class="btn-row">
+    <button class="btn go" id="m1go" style="display:none" onclick="go(2)">NEXT: GLUE IT →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2 — GLUE IT -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">🔗 Glue Words Together</div>
+    <div class="mission-brief">The + sign glues strings together — that's called joining, or "concatenation." Fill both boxes and watch the code snap your words into one sentence!</div>
+  </div>
+
+  <div class="field"><label>A color</label><input class="tin" id="color2" placeholder="e.g. purple" oninput="live2()" maxlength="20"></div>
+  <div class="field"><label>An animal</label><input class="tin" id="animal2" placeholder="e.g. dragon" oninput="live2()" maxlength="20"></div>
+
+  <div class="live" id="liveOut2">The <span class="fillword">???</span> <span class="fillword">???</span> jumped over the moon! 🌙</div>
+
+  <div class="code-block" id="code2"><span class="kw">let</span> sentence = <span class="str">"The "</span> + color + <span class="str">" "</span> + animal + <span class="str">" jumped over the moon!"</span>;</div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    <strong style="color:var(--accent2)">Concatenation</strong> is a big word for gluing strings with +. You even add spaces (<span class="str" style="font-family:monospace">" "</span>) so the words don't smush together. This is how programs build any message out of pieces.
+  </div>
+
+  <div class="btn-row">
+    <button class="btn go" id="m2go" style="display:none" onclick="go(3)">NEXT: THE BLANKS →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3 — THE BLANKS -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">📝 Fill in the Blanks</div>
+    <div class="mission-brief">Here's the Mad Libs trick: a sentence with BLANKS, and each blank is a variable. Fill in the words, hit Build, and your words slot right in!</div>
+  </div>
+
+  <div class="field"><label>An adjective (describing word)</label><input class="tin" id="adj3" placeholder="e.g. stinky" maxlength="20"></div>
+  <div class="field"><label>An animal</label><input class="tin" id="noun3" placeholder="e.g. hamster" maxlength="20"></div>
+  <div class="field"><label>An action ending in -ING</label><input class="tin" id="verb3" placeholder="e.g. dancing" maxlength="20"></div>
+
+  <div class="btn-row"><button class="btn fire" onclick="build3()">🔨 Build the sentence</button></div>
+
+  <div class="story" id="out3" style="display:none"></div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    Each blank is a <strong style="color:var(--accent2)">variable</strong> waiting for a word. The template stays the same, but the words change — so the same code can make a MILLION different sentences. That's the whole idea of a story machine!
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">📝</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Your words filled the blanks!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: THE TEMPLATE →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — TEMPLATE -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">📖 A Whole Template</div>
+    <div class="mission-brief">A story template is a long string with lots of blanks. Fill them all, press Generate, and the machine writes a whole silly paragraph with YOUR words!</div>
+  </div>
+
+  <div class="field"><label>A name</label><input class="tin" id="t_name" placeholder="a name" maxlength="20"></div>
+  <div class="field"><label>An adjective (silly word)</label><input class="tin" id="t_adj" placeholder="e.g. squishy" maxlength="20"></div>
+  <div class="field"><label>A food</label><input class="tin" id="t_food" placeholder="e.g. tacos" maxlength="20"></div>
+  <div class="field"><label>A place</label><input class="tin" id="t_place" placeholder="e.g. the moon" maxlength="24"></div>
+  <div class="field"><label>An action ending in -ING</label><input class="tin" id="t_verb" placeholder="e.g. giggling" maxlength="20"></div>
+
+  <div class="btn-row"><button class="btn fire" onclick="build4()">✨ Generate story</button></div>
+
+  <div class="story" id="out4" style="display:none"></div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    You just ran a real <strong style="color:var(--accent2)">template</strong>: fixed words plus blanks that get filled from variables. Websites, games, and text messages build almost everything this way — a template + your data = a finished message.
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">📖</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">A whole story from your words!</div>
+    <button class="btn go xl pulse" style="margin-top:10px" onclick="go(5)">🎬 OPEN THE STORY MACHINE →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — MAKE A STORY -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished App</div>
+    <div class="mission-title">🎬 STORY MACHINE</div>
+    <div class="mission-brief">You built it! Pick a story, fill in the words (or tap Surprise Me!), and Generate your own silly tale. Read it out loud — the sillier the words, the funnier the story!</div>
+  </div>
+
+  <div class="sec">Pick a story:</div>
+  <div class="btn-row" id="templatePicks"></div>
+
+  <div id="fieldWrap"></div>
+
+  <div class="btn-row">
+    <button class="btn warn" onclick="surprise()">🎲 Surprise Me!</button>
+    <button class="btn fire" onclick="generateStory()">✨ Generate!</button>
+  </div>
+
+  <div class="story" id="storyOut" style="display:none"></div>
+
+  <div class="complete-banner" id="m5done">
+    <div style="font-size:40px">🎉</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">YOU BUILT A STORY MACHINE!</div>
+    <p style="margin-top:6px">You used strings, variables, concatenation, inputs, and templates to make a program that writes endless silly stories — the same tools behind chat apps, games, and websites.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Text &amp; Strings</div>
+    <div class="mission-brief">10 rounds on strings, joining words, and templates. +10 XP each. Write the ending!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l11-qans', QKEY='coding-l11-quiz', WKEY='coding-l11-story';
+const PREFIX='Coding|Lesson 11: Text & Strings|';
+let xp=0, cur=0;
+
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===5)setupStudio();
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+
+/* ═══ STEP 1 — THE WORD ═══════════════════════════════════ */
+function live1(){
+  const v=document.getElementById('name1').value.trim();
+  document.getElementById('liveOut1').innerHTML='Hello, my name is <span class="fillword">'+(v?esc(v):'???')+'</span> and I love to code! 🐼';
+  document.getElementById('code1').innerHTML='<span class="kw">let</span> name = <span class="str">"'+(v?esc(v):'???')+'"</span>;   <span class="cm">// a string = text in quotes</span>\nsay(<span class="str">"Hello, my name is "</span> + name);';
+  if(v&&document.getElementById('m1go').style.display==='none'){
+    document.getElementById('disc1').style.display='block';
+    document.getElementById('m1go').style.display='inline-flex';
+    addXP(20);showToast('🔤 String saved! +20 XP');
+  }
+}
+
+/* ═══ STEP 2 — GLUE IT ════════════════════════════════════ */
+function live2(){
+  const c=document.getElementById('color2').value.trim(), a=document.getElementById('animal2').value.trim();
+  document.getElementById('liveOut2').innerHTML='The <span class="fillword">'+(c?esc(c):'???')+'</span> <span class="fillword">'+(a?esc(a):'???')+'</span> jumped over the moon! 🌙';
+  document.getElementById('code2').innerHTML='<span class="kw">let</span> sentence = <span class="str">"The "</span> + <span class="str">"'+(c?esc(c):'?')+'"</span> + <span class="str">" "</span> + <span class="str">"'+(a?esc(a):'?')+'"</span> + <span class="str">" jumped over the moon!"</span>;';
+  if(c&&a&&document.getElementById('m2go').style.display==='none'){
+    document.getElementById('disc2').style.display='block';
+    document.getElementById('m2go').style.display='inline-flex';
+    addXP(20);showToast('🔗 Glued! +20 XP');
+  }
+}
+
+/* ═══ STEP 3 — BLANKS ═════════════════════════════════════ */
+function build3(){
+  const adj=document.getElementById('adj3').value.trim()||'silly';
+  const noun=document.getElementById('noun3').value.trim()||'hamster';
+  const verb=document.getElementById('verb3').value.trim()||'dancing';
+  const o=document.getElementById('out3');
+  o.style.display='block';
+  o.innerHTML='My <span class="fillword">'+esc(adj)+'</span> <span class="fillword">'+esc(noun)+'</span> loves to go <span class="fillword">'+esc(verb)+'</span> every single day!';
+  document.getElementById('disc3').style.display='block';
+  if(document.getElementById('m3done').className.indexOf('show')<0){
+    document.getElementById('m3done').classList.add('show');
+    addXP(25);showToast('📝 +25 XP');
+  }
+}
+
+/* ═══ STEP 4 — TEMPLATE ═══════════════════════════════════ */
+function build4(){
+  const v={
+    name:document.getElementById('t_name').value.trim()||'Sam',
+    adj:document.getElementById('t_adj').value.trim()||'squishy',
+    food:document.getElementById('t_food').value.trim()||'tacos',
+    place:document.getElementById('t_place').value.trim()||'the moon',
+    verb:document.getElementById('t_verb').value.trim()||'giggling'
+  };
+  const w=s=>'<span class="fillword">'+esc(s)+'</span>';
+  const o=document.getElementById('out4');
+  o.style.display='block';
+  o.innerHTML='One morning, '+w(v.name)+' woke up feeling very '+w(v.adj)+'. '+
+    'For breakfast they ate a giant plate of '+w(v.food)+' and zoomed off to '+w(v.place)+'. '+
+    'The whole way there, '+w(v.name)+' could not stop '+w(v.verb)+'. What a day!';
+  document.getElementById('disc4').style.display='block';
+  if(document.getElementById('m4done').className.indexOf('show')<0){
+    document.getElementById('m4done').classList.add('show');
+    addXP(25);showToast('📖 +25 XP');
+  }
+}
+
+/* ═══ STEP 5 — STORY MACHINE ══════════════════════════════ */
+const FIELDS=[
+  {k:'name',label:'A NAME'},
+  {k:'adjective',label:'AN ADJECTIVE (silly word)'},
+  {k:'animal',label:'AN ANIMAL'},
+  {k:'place',label:'A PLACE'},
+  {k:'verb',label:'AN ACTION ending in -ING'},
+  {k:'food',label:'A FOOD'},
+  {k:'number',label:'A NUMBER'}
+];
+const TEMPLATES=[
+  {name:'🚀 Space',
+   text:'Captain {name} blasted off in a {adjective} rocket toward {place}. Floating past the window was a giant {animal} munching on {food} and {verb} in zero gravity! "Only {number} more miles!" cheered {name}. It was the wildest trip in the whole galaxy.'},
+  {name:'🏫 School',
+   text:'At school, {name} opened a locker and a {adjective} {animal} leaped out! It grabbed {number} lunchboxes packed with {food} and went {verb} down the hallway toward {place}. Even the principal could not stop laughing.'},
+  {name:'🦸 Hero',
+   text:'{name} the {adjective} superhero could shoot {food} from both hands! When an evil {animal} tried to take over {place}, {name} started {verb} so fast that {number} villains ran away. The city was saved!'}
+];
+const BANK={
+  name:['Zed','Luna','Bao','Pixel','Milo','Nova'],
+  adjective:['squishy','stinky','sparkly','grumpy','wiggly','turbo'],
+  animal:['llama','octopus','penguin','dragon','hamster','narwhal'],
+  place:['the moon','a volcano','Pizza Town','the mall','a jungle','Antarctica'],
+  verb:['dancing','giggling','sneezing','zooming','flip-flopping','burping'],
+  food:['tacos','pickles','waffles','spaghetti','gummy bears','broccoli'],
+  number:['7','42','100','3','999','12']
+};
+let tmplIdx=0, m5ok=false;
+function setupStudio(){
+  const p=document.getElementById('templatePicks');
+  p.innerHTML=TEMPLATES.map((t,i)=>'<button class="tsel'+(i===tmplIdx?' sel':'')+'" onclick="pickTemplate('+i+')">'+t.name+'</button>').join('');
+  const fw=document.getElementById('fieldWrap');
+  fw.innerHTML=FIELDS.map(f=>'<div class="field"><label>'+f.label+'</label><input class="tin" id="f_'+f.k+'" maxlength="24"></div>').join('');
+}
+function pickTemplate(i){tmplIdx=i;document.querySelectorAll('#templatePicks .tsel').forEach((b,bi)=>b.classList.toggle('sel',bi===i));showToast('Story: '+TEMPLATES[i].name);}
+function surprise(){
+  FIELDS.forEach(f=>{const bank=BANK[f.k];document.getElementById('f_'+f.k).value=bank[Math.floor(xp+ Math.floor(Math.random()*bank.length))%bank.length];});
+  showToast('🎲 Surprise words!');
+}
+function generateStory(){
+  const vals={};
+  FIELDS.forEach(f=>{vals[f.k]=(document.getElementById('f_'+f.k).value.trim());});
+  const tmpl=TEMPLATES[tmplIdx].text;
+  const filled=tmpl.replace(/\{(\w+)\}/g,(m,k)=> vals[k]? '<span class="fillword">'+esc(vals[k])+'</span>' : '<span class="fillword">_____</span>');
+  const o=document.getElementById('storyOut');
+  o.style.display='block';
+  o.innerHTML=filled;
+  const allFilled=FIELDS.every(f=>vals[f.k]);
+  if(allFilled&&!m5ok){
+    m5ok=true;
+    document.getElementById('m5done').classList.add('show');
+    addXP(50);showToast('🎉 Story made! +50 XP');
+  } else if(!allFilled){
+    showToast('Fill every blank for the full story!');
+  }
+  saveAll();
+}
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"In code, text stored in a variable is called a:",o:["String","Number","Loop","Timer"],a:0,e:"Text is a string — always wrapped in quotes, like \"panda\". Variables can hold strings OR numbers."},
+  {q:"Which of these is written correctly as a string?",o:["\"hello\"","hello","(hello)","hello;"],a:0,e:"A string goes in quotes: \"hello\". Without quotes, the computer thinks it's a variable name, not text."},
+  {q:"What does the + sign do with two strings?",o:["Glues them together into one","Adds up their letters as math","Deletes the second one","Sorts them alphabetically"],a:0,e:"With strings, + joins them end to end. \"cup\" + \"cake\" becomes \"cupcake\". This is called concatenation."},
+  {q:"Joining strings together with + is called:",o:["Concatenation","Multiplication","A loop","Rounding"],a:0,e:"Concatenation is the fancy word for gluing strings with +. It's how programs build sentences out of pieces."},
+  {q:"\"Hi \" + name, where name is \"Bao\", gives:",o:["\"Hi Bao\"","\"Hiname\"","\"Bao Hi\"","an error"],a:0,e:"The + glues \"Hi \" onto the value of name. Notice the space inside the quotes keeps the words apart: \"Hi Bao\"."},
+  {q:"Why put a space \" \" between two joined words?",o:["So the words don't smush together","To make the code run faster","To turn them into numbers","To delete a letter"],a:0,e:"Without a space, \"Hi\"+\"Bao\" becomes \"HiBao\". Adding \" \" keeps them readable: \"Hi Bao\"."},
+  {q:"A Mad Libs story with blanks that get filled from variables is a:",o:["Template","Timer","Dice roll","Maze"],a:0,e:"A template is fixed text plus blanks. Fill the blanks from variables and you get a finished message — endless different stories from one template."},
+  {q:"In your Story Machine, where do the blank words come from?",o:["What the user types in","Random numbers only","The clock","They never change"],a:0,e:"Each blank reads what the user typed into an input box. User input → variable → into the template."},
+  {q:"Changing the words but keeping the same template lets you make:",o:["Tons of different stories from one program","Only one single story ever","No stories at all","A drawing"],a:0,e:"That's the power of templates: one program, endless outputs, just by swapping the words. Same idea behind chats and forms."},
+  {q:"Strings, joining with +, and templates are the tools behind:",o:["Chat apps, forms, and game text","Only math problems","Only music","Nothing real"],a:0,e:"Any app that shows words built from your data — messages, usernames, game dialogue — uses strings and templates just like yours."}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 11',q:text,file:'coding-lesson-11-story.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${esc(q.q)}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${esc(o)}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — WORD WIZARD UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You built a story machine with code. 📖🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({xp,tmplIdx}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveAll();});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,saveAll));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const s=JSON.parse(localStorage.getItem(WKEY)||'{}');if(s.xp)xp=s.xp;if(typeof s.tmplIdx==='number')tmplIdx=s.tmplIdx;document.getElementById('xpNum').textContent=xp;}catch(e){}
+  buildQuiz();restoreQuiz();
+}
+init();
+</script>
+</body>
+</html>

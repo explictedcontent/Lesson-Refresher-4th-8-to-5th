@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 14 — Large Numbers</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700}
+
+/* PLACE-VALUE CHART */
+.pv-wrap{overflow-x:auto;margin:6px 0 4px;padding-bottom:4px}
+.pv-chart{display:flex;gap:4px;justify-content:center;min-width:min-content;padding:6px 2px}
+.pv-col{min-width:54px;flex:0 0 auto;text-align:center}
+.pv-name{font-size:10px;color:var(--muted);height:30px;display:flex;align-items:flex-end;justify-content:center;line-height:1.1;margin-bottom:4px}
+.pv-box{background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:12px 0;font-size:24px;font-weight:700;color:var(--accent2)}
+.pv-val{font-size:10px;color:var(--warn);margin-top:5px;font-weight:600}
+.pv-comma{flex:0 0 auto;display:flex;align-items:flex-start;font-size:26px;color:var(--muted);font-weight:700;padding-top:52px}
+
+/* COMPARE CELLS */
+.cmp{display:flex;flex-direction:column;gap:8px;align-items:center;margin:12px 0 4px}
+.cmp-row{display:flex;align-items:center;gap:10px}
+.cmp-tag{width:78px;font-size:12px;color:var(--muted);text-align:right;flex:0 0 auto}
+.cmp-line{display:flex;gap:4px}
+.cmp-cell{width:32px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;font-size:18px;font-weight:700;font-family:ui-monospace,Menlo,Consolas,monospace}
+.cmp-cell.comma{width:12px;border:none;background:transparent;color:var(--muted)}
+.cmp-cell.diff{border-color:var(--accent);color:var(--accent);background:rgba(255,122,89,.12)}
+.cmp-result{font-size:16px;font-weight:700;color:var(--good);margin-top:6px}
+
+/* DIAGRAM SVG */
+.gr-wrap{margin:6px 0 4px;overflow-x:auto}
+.gr-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:block;margin:0 auto}
+
+/* INPUT PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:14px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:200px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:520px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Place Value</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Round+Compare</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🐘</div>
+  <h1>Math Day 14 — Large Numbers</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Elephant Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick number facts — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — PLACE VALUE
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🔢 Phase 2 — Place Value <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">Every digit has a place. The place tells you how much it is worth.</p>
+
+  <div class="teach-card">
+    <h3>📋 Reading Big Numbers, Place by Place</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">Each spot to the LEFT is worth <strong style="color:var(--accent2)">10 times more</strong>. Here is the number <strong style="color:var(--warn)">3,482,175</strong> broken into its places:</p>
+
+    <div class="pv-wrap">
+      <div class="pv-chart">
+        <div class="pv-col"><div class="pv-name">Millions</div><div class="pv-box">3</div><div class="pv-val">3,000,000</div></div>
+        <div class="pv-comma">,</div>
+        <div class="pv-col"><div class="pv-name">Hundred-<br>Thousands</div><div class="pv-box">4</div><div class="pv-val">400,000</div></div>
+        <div class="pv-col"><div class="pv-name">Ten-<br>Thousands</div><div class="pv-box">8</div><div class="pv-val">80,000</div></div>
+        <div class="pv-col"><div class="pv-name">Thousands</div><div class="pv-box">2</div><div class="pv-val">2,000</div></div>
+        <div class="pv-comma">,</div>
+        <div class="pv-col"><div class="pv-name">Hundreds</div><div class="pv-box">1</div><div class="pv-val">100</div></div>
+        <div class="pv-col"><div class="pv-name">Tens</div><div class="pv-box">7</div><div class="pv-val">70</div></div>
+        <div class="pv-col"><div class="pv-name">Ones</div><div class="pv-box">5</div><div class="pv-val">5</div></div>
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Commas group digits in threes</span>, starting from the right. That is why 3482175 is written
+      3,482,175 — one comma before the thousands, one before the millions. Reading it out loud:
+      <span class="hl">"three million, four hundred eighty-two thousand, one hundred seventy-five."</span>
+      The value of a digit = the digit × its place. The 4 above is worth 400,000, not just 4.
+    </div>
+  </div>
+
+  <div class="warmup-card" id="pv-container">
+    <div class="warmup-q">
+      <span class="q-num" id="pv-q-label">Question 1 of 6</span>
+      <span id="pv-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="pv-choices"></div>
+    <div class="warmup-feedback" id="pv-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="pv-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="pv-next" onclick="pvNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="pv-done">✓ Place value mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — ROUNDING & COMPARING
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>⚖️ Phase 3 — Rounding &amp; Comparing <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">Round to a tidy number, and line up places to see which is bigger.</p>
+
+  <div class="teach-card">
+    <h3>📋 Rounding — Look at the Digit to the Right</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">To round, find your place, then peek at the digit just to its <strong style="color:var(--accent2)">right</strong>. If it is <strong style="color:var(--warn)">5 or more, round up</strong>; if it is <strong style="color:var(--warn)">4 or less, round down</strong>. Rounding 3,847 to the nearest hundred:</p>
+
+    <div class="gr-wrap">
+      <svg width="460" height="96" viewBox="0 0 460 96" role="img" aria-label="Number line from 3,800 to 3,900 showing 3,847 rounds down to 3,800">
+        <line x1="40" y1="52" x2="420" y2="52" stroke="#2e3347" stroke-width="3"/>
+        <line x1="40" y1="44" x2="40" y2="60" stroke="#5bd1c4" stroke-width="3"/>
+        <line x1="230" y1="42" x2="230" y2="62" stroke="#a7adc4" stroke-width="2" stroke-dasharray="3 3"/>
+        <line x1="420" y1="44" x2="420" y2="60" stroke="#252a3a" stroke-width="3"/>
+        <text x="40" y="80" font-size="13" text-anchor="middle" fill="#7bd88f" font-weight="700">3,800</text>
+        <text x="230" y="80" font-size="12" text-anchor="middle" fill="#a7adc4">3,850</text>
+        <text x="420" y="80" font-size="13" text-anchor="middle" fill="#a7adc4">3,900</text>
+        <circle cx="219" cy="52" r="6" fill="#ff7a59"/>
+        <text x="219" y="30" font-size="13" text-anchor="middle" fill="#ff7a59" font-weight="700">3,847</text>
+      </svg>
+    </div>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:2px">3,847 is left of the halfway mark (3,850), and its tens digit 4 is less than 5 → rounds <strong style="color:var(--good)">down to 3,800</strong>.</p>
+
+    <div class="teach-note" style="margin-bottom:18px">
+      <span class="hl">Watch out:</span> 62,500 to the nearest thousand — the hundreds digit is exactly 5, so it rounds
+      <span class="hl">up to 63,000</span>. Half or more always rounds up.
+    </div>
+
+    <h3 style="margin-top:6px">📋 Comparing — Line Up the Places, Biggest First</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:2px">Same number of digits? Compare the <strong style="color:var(--accent2)">biggest place first</strong>, then move right until the digits differ. 45,120 vs 45,210:</p>
+
+    <div class="cmp">
+      <div class="cmp-row">
+        <span class="cmp-tag">45,120</span>
+        <div class="cmp-line">
+          <div class="cmp-cell">4</div><div class="cmp-cell">5</div>
+          <div class="cmp-cell comma">,</div>
+          <div class="cmp-cell">1</div><div class="cmp-cell diff">1</div><div class="cmp-cell">2</div><div class="cmp-cell">0</div>
+        </div>
+      </div>
+      <div class="cmp-row">
+        <span class="cmp-tag">45,210</span>
+        <div class="cmp-line">
+          <div class="cmp-cell">4</div><div class="cmp-cell">5</div>
+          <div class="cmp-cell comma">,</div>
+          <div class="cmp-cell">2</div><div class="cmp-cell diff">2</div><div class="cmp-cell">1</div><div class="cmp-cell">0</div>
+        </div>
+      </div>
+      <div class="cmp-result">4=4, 5=5, then hundreds 1 vs 2 → 45,210 is greater</div>
+    </div>
+
+    <div class="teach-note">
+      More digits usually means a bigger number (90,000 &gt; 89,999 because it has a digit in a higher place).
+      When the length matches, <span class="hl">the first place where the digits differ decides it.</span>
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="rc-label">Question 1 of 5</span>
+    <div class="pa-prompt" id="rc-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="rc-input" type="text" inputmode="numeric" placeholder="e.g. 3,800" autocomplete="off">
+      <button class="btn btn-accent" id="rc-check" onclick="checkRC()">Check</button>
+    </div>
+    <div class="pa-feedback" id="rc-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="rc-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="rc-next" onclick="rcNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="rc-done">✓ Rounding &amp; comparing mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🐘 Phase 4 — Elephant Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems about elephants. Type your answer, then reveal the step-by-step solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Mighty work.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Big Numbers Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 speed problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l14-qans";
+const QKEY  = "math-l14-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 14: Large Numbers|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 14', q: questionText, file: 'math-lesson-14-elephant.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// NUMBER NORMALIZER (accept with or without commas)
+// ═══════════════════════════════════════════════════════════
+function canonNum(s) {
+  return String(s).replace(/[^0-9]/g, '');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "Which is bigger: 4,500 or 4,050?",
+    choices: ["4,050", "4,500"],
+    correct: 1,
+    explain: "The hundreds digit is 5 vs 0, so 4,500 is bigger."
+  },
+  {
+    q: "What is 3,000 + 400 + 20 + 7?",
+    choices: ["3,427", "3,247", "30,427", "3,047"],
+    correct: 0,
+    explain: "Put each part in its place: 3 thousands, 4 hundreds, 2 tens, 7 ones = 3,427."
+  },
+  {
+    q: "Round 62 to the nearest ten.",
+    choices: ["70", "60", "62", "50"],
+    correct: 1,
+    explain: "The ones digit is 2 (less than 5), so round down to 60."
+  },
+  {
+    q: "In 5,280, what digit is in the hundreds place?",
+    choices: ["5", "8", "2", "0"],
+    correct: 2,
+    explain: "From the right: 0 ones, 8 tens, 2 hundreds, 5 thousands. The hundreds digit is 2."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — PLACE VALUE (clean numbers, MC)
+// ═══════════════════════════════════════════════════════════
+const pvQs = [
+  { q:"In 47,286, what digit is in the thousands place?",
+    choices:["4","7","2"], correct:1,
+    explain:"From the right: 6 ones, 8 tens, 2 hundreds, 7 thousands, 4 ten-thousands. The thousands digit is 7." },
+  { q:"What is the value of the 5 in 5,300?",
+    choices:["50","500","5,000"], correct:2,
+    explain:"The 5 sits in the thousands place, so it is worth 5,000." },
+  { q:"Write \"six thousand, forty\" as a number.",
+    choices:["6,004","6,400","6,040"], correct:2,
+    explain:"6 thousands, 0 hundreds, 4 tens, 0 ones = 6,040." },
+  { q:"In 128,509, what digit is in the ten-thousands place?",
+    choices:["1","2","8"], correct:1,
+    explain:"From the right: 9 ones, 0 tens, 5 hundreds, 8 thousands, 2 ten-thousands, 1 hundred-thousand. The ten-thousands digit is 2." },
+  { q:"Which is greater: 90,000 or 89,999?",
+    choices:["90,000","89,999"], correct:0,
+    explain:"90,000 has a 9 in the ten-thousands place and reaches into a higher place, so it is greater than 89,999." },
+  { q:"What is 200,000 + 30,000 + 5?",
+    choices:["235,000","230,005","23,005"], correct:1,
+    explain:"2 hundred-thousands, 3 ten-thousands, 0 in between, and 5 ones = 230,005." }
+];
+
+let pvIdx = 0, pvCorrect = 0, pvAnswered = false;
+
+function renderPV() {
+  const q = pvQs[pvIdx];
+  document.getElementById('pv-q-label').textContent = 'Question ' + (pvIdx+1) + ' of 6';
+  document.getElementById('pv-q-text').textContent = q.q;
+  const fb = document.getElementById('pv-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('pv-next').classList.add('hidden');
+  pvAnswered = false;
+
+  const choicesEl = document.getElementById('pv-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerPV(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('pv-progress').textContent = pvCorrect + ' / 6 correct so far';
+}
+
+function answerPV(idx) {
+  if (pvAnswered) return;
+  pvAnswered = true;
+  const q = pvQs[pvIdx];
+  const btns = document.querySelectorAll('#pv-choices .choice-btn');
+  const fb = document.getElementById('pv-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    pvCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('pv-progress').textContent = pvCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('pv-next');
+  nextBtn.classList.remove('hidden');
+  if (pvIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishPV;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = pvNext;
+  }
+}
+
+function pvNext() {
+  pvIdx++;
+  if (pvIdx < 6) renderPV();
+}
+
+function finishPV() {
+  document.getElementById('pv-done').classList.add('show');
+  document.getElementById('pv-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — ROUNDING & COMPARING (clean numbers, typed)
+// ═══════════════════════════════════════════════════════════
+const rcProblems = [
+  { prompt: 'Round <span class="hl">3,847</span> to the nearest hundred = ?', accept:['3800'], display:'3,800',
+    hint: 'The tens digit is 4 (less than 5), so round down: 3,847 → 3,800.' },
+  { prompt: 'Round <span class="hl">62,500</span> to the nearest thousand = ?', accept:['63000'], display:'63,000',
+    hint: 'The hundreds digit is 5, so round up: 62,500 → 63,000.' },
+  { prompt: 'Which is greater: <span class="hl">45,120 or 45,210</span>?', accept:['45210'], display:'45,210',
+    hint: 'Match place by place: 4=4, 5=5, then hundreds 1 vs 2 → 45,210 is greater.' },
+  { prompt: 'Round <span class="hl">8,675</span> to the nearest thousand = ?', accept:['9000'], display:'9,000',
+    hint: 'The hundreds digit is 6 (5 or more), so round up: 8,675 → 9,000.' },
+  { prompt: 'Which is SMALLEST: <span class="hl">12,300; 12,030; 12,003</span>?', accept:['12003'], display:'12,003',
+    hint: 'The thousands match (12,xxx). Compare hundreds: 3, 0, 0. Then tens: 12,003 is smallest.' }
+];
+
+let rcIdx = 0, rcCorrect = 0, rcAnswered = false;
+
+function renderRC() {
+  const p = rcProblems[rcIdx];
+  document.getElementById('rc-label').textContent = 'Question ' + (rcIdx+1) + ' of 5';
+  document.getElementById('rc-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('rc-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('rc-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('rc-check').disabled = false;
+  document.getElementById('rc-next').classList.add('hidden');
+  rcAnswered = false;
+  document.getElementById('rc-progress').textContent = rcCorrect + ' / 5 correct so far';
+}
+
+function checkRC() {
+  if (rcAnswered) return;
+  const p = rcProblems[rcIdx];
+  const inp = document.getElementById('rc-input');
+  const raw = inp.value.trim();
+  if (raw === '') { inp.focus(); return; }
+  rcAnswered = true;
+  const val = canonNum(raw);
+  const acceptSet = p.accept.map(canonNum);
+  const correct = acceptSet.indexOf(val) !== -1;
+  const fb = document.getElementById('rc-feedback');
+  inp.disabled = true;
+  document.getElementById('rc-check').disabled = true;
+  if (correct) {
+    rcCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.display + '. ' + p.hint;
+  }
+  document.getElementById('rc-progress').textContent = rcCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('rc-next');
+  nextBtn.classList.remove('hidden');
+  if (rcIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishRC;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = rcNext;
+  }
+}
+
+function rcNext() {
+  rcIdx++;
+  if (rcIdx < 5) renderRC();
+}
+
+function finishRC() {
+  document.getElementById('rc-done').classList.add('show');
+  document.getElementById('rc-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (elephant data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A large male elephant weighs about <strong>12,000 pounds</strong>. A car weighs about <strong>3,000 pounds</strong>. How much more does the elephant weigh?",
+    solution: [
+      {label:"Plan", text:"\"How much more\" means subtract the smaller from the larger."},
+      {label:"Solve", math:"12,000 − 3,000 = 9,000"},
+      {label:"Answer", text:"The elephant weighs 9,000 pounds more."},
+      {label:"Check", text:"9,000 + 3,000 = 12,000 ✓"}
+    ]
+  },
+  {
+    text: "An elephant eats about <strong>300 pounds of food a day</strong>. How much does it eat in <strong>10 days</strong>?",
+    solution: [
+      {label:"Plan", text:"Same amount each day → multiply by the number of days."},
+      {label:"Solve", math:"300 × 10 = 3,000"},
+      {label:"Answer", text:"It eats about 3,000 pounds in 10 days."},
+      {label:"Check", text:"Multiplying by 10 just adds a zero: 300 → 3,000 ✓"}
+    ]
+  },
+  {
+    text: "A wildlife reserve counted <strong>1,250 elephants</strong> one year and <strong>1,480 elephants</strong> the next year. How many more elephants were there the second year?",
+    solution: [
+      {label:"Plan", text:"\"How many more\" → subtract last year from this year."},
+      {label:"Solve", math:"1,480 − 1,250 = 230"},
+      {label:"Answer", text:"There were 230 more elephants the second year."},
+      {label:"Check", text:"1,250 + 230 = 1,480 ✓"}
+    ]
+  },
+  {
+    text: "A newborn elephant calf weighs about <strong>250 pounds</strong>. Round that to the nearest <strong>hundred</strong> pounds.",
+    solution: [
+      {label:"Plan", text:"Look at the tens digit to decide up or down."},
+      {label:"Solve", math:"250 → tens digit is 5 → round up → 300"},
+      {label:"Answer", text:"About 300 pounds."},
+      {label:"Check", text:"250 is exactly halfway, and half or more rounds up ✓"}
+    ]
+  },
+  {
+    text: "An elephant herd traveled <strong>25 miles a day</strong> for <strong>8 days</strong> to reach water. How far did they travel in all?",
+    solution: [
+      {label:"Plan", text:"Same distance each day → multiply."},
+      {label:"Solve", math:"25 × 8 = 200"},
+      {label:"Answer", text:"They traveled 200 miles in all."},
+      {label:"Check", text:"25 × 8 = 25 × 4 × 2 = 100 × 2 = 200 ✓"}
+    ]
+  },
+  {
+    text: "Reserve A protects <strong>45,120 acres</strong> and Reserve B protects <strong>45,210 acres</strong>. Which reserve is bigger, and by how many acres?",
+    solution: [
+      {label:"Plan", text:"Compare place by place, then subtract to find the gap."},
+      {label:"Solve", math:"45,210 > 45,120, and 45,210 − 45,120 = 90"},
+      {label:"Answer", text:"Reserve B is bigger, by 90 acres."},
+      {label:"Check", text:"45,120 + 90 = 45,210 ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"Which is bigger: 7,800 or 7,080?", choices:["7,080","7,800"], correct:1 },
+  { q:"Round 48 to the nearest ten.", choices:["40","50","48","60"], correct:1 },
+  { q:"Round 350 to the nearest hundred.", choices:["300","400","350","500"], correct:1 },
+  { q:"Value of the 6 in 6,000?", choices:["600","60","6,000","6"], correct:2 },
+  { q:"Which is smallest: 3,300; 3,030; 3,003?", choices:["3,300","3,030","3,003"], correct:2 },
+  { q:"5,000 + 200 + 9 = ?", choices:["5,209","5,029","5,290","529"], correct:0 },
+  { q:"Round 2,499 to the nearest thousand.", choices:["3,000","2,500","2,000","2,400"], correct:2 },
+  { q:"Which is bigger: 90,000 or 89,900?", choices:["89,900","90,000"], correct:1 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "Which is bigger: 6,500 or 6,050?",
+    opts: ["6,050", "6,500"],
+    correct: 1,
+    explain: "The hundreds digit is 5 vs 0, so 6,500 is bigger."
+  },
+  {
+    q: "In 74,203, which digit is in the thousands place?",
+    opts: ["7", "4", "2", "3"],
+    correct: 1,
+    explain: "From the right: 3 ones, 0 tens, 2 hundreds, 4 thousands, 7 ten-thousands. The thousands digit is 4."
+  },
+  {
+    q: "Round 3,847 to the nearest hundred.",
+    opts: ["3,900", "3,800", "3,000", "4,000"],
+    correct: 1,
+    explain: "The tens digit is 4 (less than 5), so round down to 3,800."
+  },
+  {
+    q: "What is 40,000 + 2,000 + 60 + 3?",
+    opts: ["42,063", "42,630", "40,263", "4,263"],
+    correct: 0,
+    explain: "4 ten-thousands, 2 thousands, 0 hundreds, 6 tens, 3 ones = 42,063."
+  },
+  {
+    q: "An elephant eats 300 lbs a day for 10 days. Total?",
+    opts: ["300 lbs", "3,000 lbs", "30,000 lbs", "310 lbs"],
+    correct: 1,
+    explain: "300 × 10 = 3,000 lbs."
+  },
+  {
+    q: "Which is smallest: 5,120; 5,012; 5,210?",
+    opts: ["5,120", "5,012", "5,210"],
+    correct: 1,
+    explain: "The thousands match. Compare hundreds: 1, 0, 2 → 5,012 is smallest."
+  },
+  {
+    q: "Round 8,675 to the nearest thousand.",
+    opts: ["8,000", "8,700", "9,000", "8,600"],
+    correct: 2,
+    explain: "The hundreds digit is 6 (5 or more), so round up to 9,000."
+  },
+  {
+    q: "What is the value of the 5 in 5,300?",
+    opts: ["50", "500", "5", "5,000"],
+    correct: 3,
+    explain: "The 5 sits in the thousands place, so it is worth 5,000."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Place value, rounding, AND comparing big numbers — you nailed them all.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your big-number skills are as strong as an elephant.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the place value and rounding cards, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderPV();
+  renderRC();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+
+  document.getElementById('rc-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkRC();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
