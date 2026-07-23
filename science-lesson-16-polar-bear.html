@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Day 16 — Polar Bear</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+a{color:var(--accent2)}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;align-items:center}
+.ph-seg{flex:1;height:8px;border-radius:4px;background:var(--line);transition:background .3s,transform .2s;cursor:pointer;position:relative}
+.ph-seg.done{background:var(--good)}
+.ph-seg.active{background:var(--accent2);transform:scaleY(1.4)}
+.ph-label{font-size:11px;color:var(--muted);white-space:nowrap;margin-left:4px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+.phase-section{margin-bottom:48px;scroll-margin-top:60px}
+.phase-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.phase-meta{font-size:13px;color:var(--muted);margin-bottom:20px}
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;color:var(--accent2);border:1px solid var(--line)}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.card-sm{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+
+/* Flip cards — Phase 1 (mystery number cards) */
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.flip-card{height:150px;cursor:pointer;perspective:900px;border-radius:var(--radius)}
+.flip-inner{width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;position:relative}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;border:2px solid var(--line)}
+.flip-front{background:var(--panel2);color:var(--accent2);flex-direction:column;gap:6px}
+.flip-front .big-num{font-weight:800;font-size:38px;color:var(--ink);letter-spacing:-1px}
+.flip-back{background:var(--panel);transform:rotateY(180deg);flex-direction:column;gap:8px}
+.flip-back .answer{font-weight:700;font-size:15px;color:var(--accent2)}
+.flip-back .explain{font-size:13px;color:var(--muted)}
+.flip-hint{position:absolute;bottom:8px;right:12px;font-size:11px;color:var(--accent);opacity:.85}
+
+/* Reading passage */
+.passage{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;line-height:1.8}
+.passage h3{color:var(--accent2);font-size:15px;margin:20px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+.passage h3:first-child{margin-top:0}
+.passage p{margin-bottom:12px;color:var(--ink)}
+.passage strong{color:var(--warn)}
+.passage .fact-pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--accent2);margin:2px 3px}
+
+/* Match game — Phase 3 */
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.match-wrap{grid-template-columns:1fr}}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-item{min-height:44px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);cursor:pointer;font-size:14px;transition:border-color .2s,background .2s,transform .15s;user-select:none;display:flex;align-items:center}
+.match-item:hover{border-color:var(--accent2)}
+.match-item.selected{border-color:var(--accent2);background:rgba(91,209,196,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.85}
+.match-item.wrong{animation:shake .35s}
+.match-score{font-size:15px;font-weight:600;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 22px;border-radius:8px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* Life-cycle sequencer — Phase 4 */
+.seq-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.seq-intro{font-size:15px;line-height:1.6;margin-bottom:16px}
+.seq-list{display:flex;flex-direction:column;gap:8px}
+.seq-item{min-height:44px;padding:12px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .2s,background .2s,transform .15s;user-select:none;text-align:left}
+.seq-item:hover{border-color:var(--accent2)}
+.seq-num{min-width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.seq-item.picked .seq-num{background:var(--accent);color:#fff}
+.seq-item.correct-pos{border-color:var(--good);background:rgba(123,216,143,.12)}
+.seq-item.wrong-pos{animation:shake .35s;border-color:var(--bad);background:rgba(255,107,129,.1)}
+.seq-bonus{padding:16px;border-radius:8px;margin-top:14px;border-left:4px solid var(--accent2);background:rgba(91,209,196,.1);font-size:14px;line-height:1.6}
+.seq-bonus strong{color:var(--accent2)}
+
+/* Writing pad — Phase 5 */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:15px;font-family:inherit;line-height:1.7;padding:14px;resize:vertical;outline:none;transition:border-color .2s}
+.writing-area:focus{border-color:var(--accent2)}
+.writing-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:var(--muted)}
+.saved-indicator{color:var(--good);opacity:0;transition:opacity .3s}
+.saved-indicator.show{opacity:1}
+
+/* Quiz — Phase 6 */
+.progress-dots{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line);transition:background .2s}
+.dot.answered{background:var(--accent2)}
+.dot.current{background:var(--accent);transform:scale(1.25)}
+.dot.correct{background:var(--good)}
+.dot.incorrect{background:var(--bad)}
+.quiz-q{font-size:17px;font-weight:600;margin-bottom:16px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.opt-btn{min-height:44px;padding:11px 16px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:15px;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:10px}
+.opt-btn:hover:not(:disabled){border-color:var(--accent2)}
+.opt-btn.chosen{border-color:var(--accent2);background:rgba(91,209,196,.1)}
+.opt-btn.correct-ans{border-color:var(--good);background:rgba(123,216,143,.12)}
+.opt-btn.wrong-ans{border-color:var(--bad);background:rgba(255,107,129,.1)}
+.opt-btn:disabled{cursor:default}
+.opt-letter{min-width:26px;height:26px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.feedback-box{padding:12px 16px;border-radius:8px;margin-bottom:12px;font-size:14px;border-left:4px solid}
+.feedback-box.good{background:rgba(123,216,143,.1);border-color:var(--good);color:var(--good)}
+.feedback-box.bad{background:rgba(255,107,129,.1);border-color:var(--bad);color:var(--bad)}
+.quiz-nav{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.score-board{text-align:center;padding:32px 20px}
+.score-big{font-size:56px;font-weight:800;color:var(--accent2)}
+.score-msg{font-size:18px;color:var(--muted);margin-top:8px}
+.score-breakdown{margin-top:24px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.score-row{display:flex;gap:12px;align-items:flex-start;font-size:14px;padding:8px 12px;border-radius:8px;background:var(--panel2)}
+.score-row .icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* Misc */
+.divider{height:1px;background:var(--line);margin:24px 0}
+.tip-box{background:var(--panel2);border:1px solid var(--accent2);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+.tip-box strong{color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<!-- Phase progress bar -->
+<div id="phase-bar">
+  <div class="ph-seg active" id="seg-1" onclick="scrollToPhase(1)" title="Phase 1: Mystery Flip Cards"></div>
+  <div class="ph-seg" id="seg-2" onclick="scrollToPhase(2)" title="Phase 2: Core Reading"></div>
+  <div class="ph-seg" id="seg-3" onclick="scrollToPhase(3)" title="Phase 3: Adaptation Match"></div>
+  <div class="ph-seg" id="seg-4" onclick="scrollToPhase(4)" title="Phase 4: Hunting-Trip Sequencer"></div>
+  <div class="ph-seg" id="seg-5" onclick="scrollToPhase(5)" title="Phase 5: Writing Pad"></div>
+  <div class="ph-seg" id="seg-6" onclick="scrollToPhase(6)" title="Phase 6: Quiz"></div>
+  <span class="ph-label">🐻‍❄️ Polar Bear</span>
+</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:36px;padding-top:8px">
+    <div style="font-size:52px;margin-bottom:8px">🐻‍❄️</div>
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">The Polar Bear</div>
+    <div style="color:var(--muted);font-size:14px;margin-top:4px">Science · Day 16 · Approx. 38 min</div>
+  </div>
+
+  <!-- ══════════════ PHASE 1 ══════════════ -->
+  <section class="phase-section" id="phase-1">
+    <div class="phase-title">
+      <span class="badge">Phase 1</span>
+      Mystery Flip Cards
+    </div>
+    <div class="phase-meta">5 min · Tap each card to reveal the amazing fact</div>
+
+    <div class="flip-grid" id="flip-grid"></div>
+
+    <div class="tip-box" style="margin-top:16px">
+      <strong>Guess first!</strong> Before you flip, ask yourself: what could this word or number mean for the biggest land hunter on Earth — an animal that lives on frozen sea ice, swims for days at a time, and stays cozy in water cold enough to freeze you solid? A few of these will surprise you.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 2 ══════════════ -->
+  <section class="phase-section" id="phase-2">
+    <div class="phase-title">
+      <span class="badge">Phase 2</span>
+      Core Reading
+    </div>
+    <div class="phase-meta">10 min · Read carefully — quiz questions come from this passage</div>
+
+    <div class="passage">
+      <p style="font-size:19px;font-weight:700;color:var(--ink);margin-bottom:16px">Built for the Big Freeze</p>
+
+      <h3>The Biggest Land Hunter</h3>
+      <p>The polar bear is the <strong>largest land predator</strong> — the largest meat-eater — on Earth. But it is also called a <strong>marine mammal</strong>, because it spends so much of its life out on the frozen <strong>sea ice</strong> and swimming in the ocean. Like all mammals, a polar bear is <strong>warm-blooded</strong>: it makes its own body heat and must protect that heat in one of the coldest places on the planet.</p>
+
+      <h3>Staying Warm</h3>
+      <p>To beat the cold, a polar bear has <strong>two layers of fur</strong> plus a thick layer of fat called <strong>blubber</strong> that can be up to about <strong>4 inches</strong> deep. Together the fur and blubber <strong>trap heat</strong> like a snug winter coat. And here is the surprise: underneath all that fur, the bear's <strong>skin is black</strong> — a dark color that soaks up the sun's warmth.</p>
+
+      <h3>The Clever "White" Fur</h3>
+      <p>A polar bear looks white, but its fur isn't really white at all. Each hair is <strong>clear and hollow</strong>, and it <strong>scatters the light</strong> so the whole coat looks bright white in the sun. That works out perfectly: the bear becomes almost invisible, giving it excellent <strong>camouflage</strong> on the snow and ice while it hunts.</p>
+
+      <h3>Snowshoe Paws</h3>
+      <p>A polar bear's paws are enormous — up to about <strong>12 inches wide</strong>. Those big paws <strong>spread the bear's weight</strong> so it won't break through thin ice, exactly like a pair of <strong>snowshoes</strong>. Rough bumpy pads help it <strong>grip slippery ice</strong>, and the wide paws work like <strong>paddles</strong> to push the bear powerfully through the water.</p>
+
+      <h3>Super Swimmer, Super Nose</h3>
+      <p>Polar bears are amazing swimmers. They can swim for <strong>days at a time</strong> and cover long distances between chunks of floating ice — one big reason they count as marine mammals. Their sense of <strong>smell</strong> is incredible, too: a polar bear can sniff out a seal's breathing hole from about a <strong>mile away</strong>, even buried under thick snow.</p>
+
+      <h3>The Hunt and the Cubs</h3>
+      <p>Polar bears mostly eat <strong>seals</strong>. A bear will wait patiently beside a hole in the ice where a seal must come up to breathe. The <strong>fat</strong> it gains from a meal is stored as <strong>energy</strong> for the lean times when food is hard to find. In winter, <strong>tiny cubs</strong> are born in a cozy snow den. They drink their mother's rich milk and stay with her for about <strong>two years</strong>, learning how to hunt.</p>
+
+      <h3>Ice and the Future</h3>
+      <p>Every part of a polar bear's life depends on <strong>sea ice</strong> — it is the platform they hunt from. As the world warms, the ice <strong>melts earlier and forms later</strong>, giving bears <strong>less time to catch food</strong>. That is why a warming climate is such a serious threat to these incredible animals.</p>
+
+      <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="fact-pill">🐻‍❄️ Largest land predator on Earth</span>
+        <span class="fact-pill">⚫ Black skin under white-looking fur</span>
+        <span class="fact-pill">❄️ Blubber up to about 4 inches thick</span>
+        <span class="fact-pill">🐾 Paws up to 12 inches wide</span>
+        <span class="fact-pill">👃 Smells a seal from a mile away</span>
+        <span class="fact-pill">🌊 Marine mammal · needs the sea ice</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 3 ══════════════ -->
+  <section class="phase-section" id="phase-3">
+    <div class="phase-title">
+      <span class="badge">Phase 3</span>
+      Adaptation Match
+    </div>
+    <div class="phase-meta">8 min · Tap a word on the left, then tap what it means on the right</div>
+
+    <div class="match-wrap">
+      <div class="match-col" id="match-left"></div>
+      <div class="match-col" id="match-right"></div>
+    </div>
+    <div class="match-score" id="match-score"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-muted" id="retry-btn" onclick="retryWrong()" style="display:none">Retry unmatched</button>
+      <button class="btn btn-muted" onclick="resetMatch()">Reset all</button>
+    </div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Tip:</strong> If you get one wrong, the "Retry unmatched" button appears so you can try again without starting over.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 4 ══════════════ -->
+  <section class="phase-section" id="phase-4">
+    <div class="phase-title">
+      <span class="badge">Phase 4</span>
+      Hunting-Trip Sequencer
+    </div>
+    <div class="phase-meta">10 min · Put a polar bear's seal hunt in order</div>
+
+    <div id="seq-body"></div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Think it through:</strong> What does the bear do FIRST, before it can even find a seal? What is the very LAST thing that happens, after the hunt is over? Build the timeline from the first sniff of the air all the way to a full belly.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 5 ══════════════ -->
+  <section class="phase-section" id="phase-5">
+    <div class="phase-title">
+      <span class="badge">Phase 5</span>
+      Writing Pad
+    </div>
+    <div class="phase-meta">5 min · Write at least 5 sentences</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--accent2)">Your prompt:</div>
+      <p style="font-size:15px;line-height:1.7">A polar bear has amazing tools for the cold: see-through fur, black skin, snowshoe paws, and a super nose.</p>
+      <p style="font-size:15px;line-height:1.7;margin-top:8px">If you were designing an animal to survive somewhere extreme (a desert, a volcano, the deep sea), what special features would you give it and why? <strong>(At least 5 sentences.)</strong></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="My animal would live in the… and to survive there it would have…" oninput="onWritingInput()"></textarea>
+    <div class="writing-footer">
+      <span id="word-count">0 words</span>
+      <span class="saved-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 6 ══════════════ -->
+  <section class="phase-section" id="phase-6">
+    <div class="phase-title">
+      <span class="badge">Phase 6</span>
+      Quiz
+    </div>
+    <div class="phase-meta">5 min · 8 questions · One at a time</div>
+
+    <div class="progress-dots" id="q-dots"></div>
+    <div id="quiz-body"></div>
+  </section>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// ── Storage keys ──────────────────────────────────────────────
+const QAKEY = 'science-l16-qans';
+const QKEY  = 'science-l16-quiz';
+const WKEY  = 'science-l16-writing';
+
+// ── logMistake ────────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Science|Day 16: Polar Bear|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Science', day: 'Day 16', q: questionText, file: 'science-lesson-16-polar-bear.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ── Phase 1: Mystery Flip Cards ───────────────────────────────
+const flipCards = [
+  {
+    num: 'BLACK SKIN',
+    answer: 'The color under the fur',
+    explain: 'Under all that white fur, a polar bear\'s skin is actually BLACK to soak up the sun\'s warmth.'
+  },
+  {
+    num: 'CLEAR FUR',
+    answer: 'Why it only looks white',
+    explain: 'A polar bear\'s fur isn\'t really white — each hair is hollow and see-through, and just looks white in the light.'
+  },
+  {
+    num: '1 MILE',
+    answer: 'How far it can smell a seal',
+    explain: 'A polar bear can smell a seal from up to a mile away, even under thick ice and snow.'
+  },
+  {
+    num: 'BIG PAWS',
+    answer: 'Snowshoes and paddles',
+    explain: 'Its paws are as wide as dinner plates, acting like snowshoes and paddles for swimming.'
+  },
+  {
+    num: 'BLUBBER',
+    answer: 'A warm layer of fat',
+    explain: 'A thick layer of fat up to 4 inches deep keeps a polar bear warm in freezing water.'
+  }
+];
+
+function buildFlipCards() {
+  const grid = document.getElementById('flip-grid');
+  grid.innerHTML = '';
+  flipCards.forEach((fc, i) => {
+    grid.innerHTML += `
+      <div class="flip-card" id="fc-${i}" onclick="flipCard(${i})" role="button" tabindex="0" aria-label="Flip card ${i+1}" onkeydown="if(event.key==='Enter'||event.key===' ')flipCard(${i})">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="big-num">${fc.num}</span>
+            <span class="flip-hint">tap to reveal</span>
+          </div>
+          <div class="flip-back">
+            <span class="answer">${fc.answer}</span>
+            <span class="explain">${fc.explain}</span>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function flipCard(i) {
+  document.getElementById('fc-'+i).classList.toggle('flipped');
+}
+
+// ── Phase 3: Adaptation Match ─────────────────────────────────
+const matchPairs = [
+  { left: 'Black skin', right: 'Soaks up the sun\'s warmth under the fur' },
+  { left: 'Hollow clear fur', right: 'Scatters light so the bear looks white' },
+  { left: 'Thick blubber', right: 'A fat layer that keeps body heat in' },
+  { left: 'Wide paws', right: 'Spread weight on ice and paddle in water' },
+  { left: 'Powerful nose', right: 'Smells a seal from about a mile away' },
+  { left: 'Two fur layers', right: 'Trap warm air close to the body' },
+  { left: 'Strong swimming', right: 'Crossing long distances between ice' }
+];
+
+let matchState = {
+  selectedLeft: null,
+  selectedRight: null,
+  matched: new Set(),
+  score: 0
+};
+
+function buildMatch() {
+  const leftCol = document.getElementById('match-left');
+  const rightCol = document.getElementById('match-right');
+  leftCol.innerHTML = '';
+  rightCol.innerHTML = '';
+
+  const leftOrder = shuffle([...Array(matchPairs.length).keys()]);
+  const rightOrder = shuffle([...Array(matchPairs.length).keys()]);
+
+  leftOrder.forEach(i => {
+    leftCol.innerHTML += `<div class="match-item" id="ml-${i}" onclick="selectLeft(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectLeft(${i})">${matchPairs[i].left}</div>`;
+  });
+  rightOrder.forEach(i => {
+    rightCol.innerHTML += `<div class="match-item" id="mr-${i}" onclick="selectRight(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectRight(${i})">${matchPairs[i].right}</div>`;
+  });
+}
+
+function selectLeft(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedLeft !== null) {
+    const prev = document.getElementById('ml-'+matchState.selectedLeft);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedLeft = i;
+  document.getElementById('ml-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function selectRight(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedRight !== null) {
+    const prev = document.getElementById('mr-'+matchState.selectedRight);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedRight = i;
+  document.getElementById('mr-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function tryMatch() {
+  const { selectedLeft: l, selectedRight: r } = matchState;
+  if (l === null || r === null) return;
+
+  if (l === r) {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(l);
+    matchState.score++;
+    matchState.selectedLeft = null;
+    matchState.selectedRight = null;
+    updateMatchScore();
+  } else {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.add('wrong'); rEl.classList.add('wrong');
+    setTimeout(() => {
+      lEl.classList.remove('wrong','selected');
+      rEl.classList.remove('wrong','selected');
+      matchState.selectedLeft = null;
+      matchState.selectedRight = null;
+      document.getElementById('retry-btn').style.display = 'inline-flex';
+    }, 400);
+  }
+}
+
+function updateMatchScore() {
+  const total = matchPairs.length;
+  const s = matchState.score;
+  const el = document.getElementById('match-score');
+  if (s === total) {
+    el.innerHTML = `<span style="color:var(--good)">🎉 All ${total} matched! Polar bear expert!</span>`;
+    document.getElementById('retry-btn').style.display = 'none';
+    markPhaseDone(3);
+  } else {
+    el.textContent = `${s} / ${total} matched`;
+  }
+}
+
+function retryWrong() {
+  if (matchState.selectedLeft !== null) {
+    const lEl = document.getElementById('ml-'+matchState.selectedLeft);
+    if (lEl) lEl.classList.remove('selected');
+  }
+  if (matchState.selectedRight !== null) {
+    const rEl = document.getElementById('mr-'+matchState.selectedRight);
+    if (rEl) rEl.classList.remove('selected');
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+  document.getElementById('retry-btn').style.display = 'none';
+}
+
+function resetMatch() {
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set(), score: 0 };
+  document.getElementById('match-score').textContent = '';
+  document.getElementById('retry-btn').style.display = 'none';
+  buildMatch();
+}
+
+// ── Phase 4: Hunting-Trip Sequencer ───────────────────────────
+// Correct order (order value = the real step number, 1..5)
+const seqStages = [
+  { order: 1, text: 'The bear sniffs the air and smells a seal far away' },
+  { order: 2, text: 'It quietly walks across the sea ice toward a breathing hole' },
+  { order: 3, text: 'It waits perfectly still beside the hole for a long time' },
+  { order: 4, text: 'A seal pops up to breathe, and the bear strikes' },
+  { order: 5, text: 'The bear eats and stores the fat as energy for later' }
+];
+
+// seqState.slots holds the stage indexes the player has placed, in order
+let seqState = { slots: [], solved: false };
+
+function buildSeq() {
+  seqState = { slots: [], solved: false };
+  renderSeq();
+}
+
+function renderSeq() {
+  const body = document.getElementById('seq-body');
+
+  if (seqState.solved) {
+    let orderedHTML = '';
+    seqState.slots.forEach((si, pos) => {
+      orderedHTML += `<div class="seq-item correct-pos"><span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span></div>`;
+    });
+    body.innerHTML = `
+      <div class="seq-wrap">
+        <div class="seq-intro">🐻‍❄️ <strong>You cracked the code!</strong> Here is the seal hunt, in order:</div>
+        <div class="seq-list">${orderedHTML}</div>
+        <div class="seq-bonus">
+          <strong>A polar bear may wait for hours, totally still, by a single hole. Its patience and powerful nose — plus sea ice to stand on — are what make the hunt possible.</strong>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-muted" onclick="buildSeq()">Try Again</button></div>
+      </div>`;
+    markPhaseDone(4);
+    return;
+  }
+
+  // Build the "choices remaining" list (shuffled once per game) and the placed list
+  if (!seqState.shuffled) {
+    seqState.shuffled = shuffle([...Array(seqStages.length).keys()]);
+  }
+
+  let choicesHTML = '';
+  seqState.shuffled.forEach(si => {
+    if (seqState.slots.includes(si)) return; // already placed
+    choicesHTML += `<button class="seq-item" onclick="placeStage(${si})">
+      <span class="seq-num">?</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  let placedHTML = '';
+  seqState.slots.forEach((si, pos) => {
+    const cls = seqState.checked ? (seqStages[si].order === pos+1 ? ' correct-pos' : ' wrong-pos') : '';
+    placedHTML += `<button class="seq-item${cls}" onclick="removeStage(${pos})">
+      <span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  const allPlaced = seqState.slots.length === seqStages.length;
+
+  body.innerHTML = `
+    <div class="seq-wrap">
+      <div class="seq-intro">🐻‍❄️ A hungry polar bear is heading out onto the ice! Put a polar bear's seal hunt in order! <strong>Tap the steps in the order they happen.</strong></div>
+      ${seqState.slots.length ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Your timeline (tap a step to remove it):</div><div class="seq-list" style="margin-bottom:16px">${placedHTML}</div>` : ''}
+      ${choicesHTML ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Steps to place:</div><div class="seq-list">${choicesHTML}</div>` : ''}
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        ${allPlaced ? `<button class="btn btn-accent" onclick="checkSeq()">Check Order</button>` : ''}
+        <button class="btn btn-muted" onclick="buildSeq()">Reset</button>
+      </div>
+    </div>`;
+}
+
+function placeStage(si) {
+  seqState.checked = false;
+  seqState.slots.push(si);
+  renderSeq();
+}
+
+function removeStage(pos) {
+  seqState.checked = false;
+  seqState.slots.splice(pos, 1);
+  renderSeq();
+}
+
+function checkSeq() {
+  const allCorrect = seqState.slots.every((si, pos) => seqStages[si].order === pos+1);
+  if (allCorrect) {
+    seqState.solved = true;
+    renderSeq();
+  } else {
+    seqState.checked = true;
+    renderSeq();
+    // clear the red marks after the shake so kid can rearrange
+    setTimeout(() => { seqState.checked = false; renderSeq(); }, 900);
+  }
+}
+
+// ── Phase 5: Writing Pad ──────────────────────────────────────
+let writeTimer = null;
+
+function countWords(txt) {
+  const t = txt.trim();
+  return t === '' ? 0 : t.split(/\s+/).length;
+}
+
+function onWritingInput() {
+  const txt = document.getElementById('writing-pad').value;
+  const w = countWords(txt);
+  document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(saveWriting, 300);
+}
+
+function saveWriting() {
+  try {
+    localStorage.setItem(WKEY, document.getElementById('writing-pad').value);
+    const ind = document.getElementById('save-indicator');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 1500);
+  } catch(e) {}
+}
+
+function restoreWriting() {
+  try {
+    const saved = localStorage.getItem(WKEY);
+    if (saved) {
+      document.getElementById('writing-pad').value = saved;
+      const w = countWords(saved);
+      document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+    }
+  } catch(e) {}
+}
+
+// ── Phase 6: Quiz ─────────────────────────────────────────────
+const questions = [
+  {
+    q: 'What color is a polar bear\'s skin?',
+    opts: ['Pure white, exactly like its thick fur', 'Black', 'Pink, the same as its tongue and nose', 'Grey with brown patches all over it'],
+    ans: 1,
+    explain: 'Under all that white-looking fur, a polar bear\'s skin is actually black, which helps it soak up the sun\'s warmth.'
+  },
+  {
+    q: 'Why does a polar bear look white?',
+    opts: ['It is coated in a thin layer of frost and snow', 'The bright polar sunshine bleaches its fur white', 'Its clear, hollow hairs scatter the light', 'It is covered in tiny white feathers, not real fur'],
+    ans: 2,
+    explain: 'A polar bear\'s hairs are actually clear and hollow. They scatter light, so the coat looks white — great camouflage on the ice.'
+  },
+  {
+    q: 'What keeps a polar bear warm in freezing water?',
+    opts: ['A thick layer of blubber, or fat', 'Warm ocean currents flowing under the sea ice', 'Shivering its muscles the whole time it is swimming', 'Holding its breath to trap the heat inside its body'],
+    ans: 0,
+    explain: 'A thick layer of fat called blubber — up to about 4 inches deep — keeps a polar bear warm even in freezing water.'
+  },
+  {
+    q: 'How wide are a polar bear\'s paws, and why does that help?',
+    opts: ['Very narrow, so they can slip into a seal\'s hole', 'Small and soft, to move silently while it hunts', 'Long and thin, to dig deep tunnels down in the snow', 'Very wide, to spread its weight on thin ice'],
+    ans: 3,
+    explain: 'A polar bear\'s paws are very wide — up to about 12 inches. They spread its weight like snowshoes so it won\'t break thin ice.'
+  },
+  {
+    q: 'How far away can a polar bear smell a seal?',
+    opts: ['About a mile, even under thick snow', 'About ten steps in front of its nose', 'Only when the seal is right beside it', 'About a hundred miles across the ocean'],
+    ans: 0,
+    explain: 'A polar bear\'s sense of smell is so strong it can find a seal from about a mile away, even buried under thick snow.'
+  },
+  {
+    q: 'What do polar bears mostly eat?',
+    opts: ['Fish they scoop out of cold rushing rivers', 'Grass, roots, and berries on the open tundra', 'Seals', 'Small crabs they find along the rocky shoreline'],
+    ans: 2,
+    explain: 'Polar bears mostly eat seals, often waiting beside breathing holes in the ice for a seal to come up for air.'
+  },
+  {
+    q: 'Why are polar bears considered marine mammals?',
+    opts: ['Because they lay their eggs down in the ocean water', 'Because they breathe underwater using a set of gills', 'Because they only ever drink the salty ocean water', 'Because they swim and hunt out on the sea ice'],
+    ans: 3,
+    explain: 'Polar bears count as marine mammals because they swim long distances and hunt out on the frozen sea ice.'
+  },
+  {
+    q: 'Why does melting sea ice threaten polar bears?',
+    opts: ['Warmer water makes all of their thick fur fall out', 'They need the ice to reach and hunt their food', 'The melting ice turns the whole ocean too salty to drink', 'Without ice, the bright sun burns their black skin'],
+    ans: 1,
+    explain: 'Polar bears hunt from the sea ice. When it melts earlier and forms later, they have less time to catch food.'
+  }
+];
+
+let quizState = {
+  current: 0,
+  answers: {},
+  locked: {}
+};
+
+function buildQuiz() {
+  quizState = { current: 0, answers: {}, locked: {} };
+  renderDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || 'null');
+    if (!saved) return;
+    const finalScore = localStorage.getItem(QKEY);
+    if (finalScore !== null) {
+      quizState.answers = saved.answers || {};
+      quizState.locked = saved.locked || {};
+      quizState.current = saved.current !== undefined ? saved.current : 0;
+      showScore();
+      return;
+    }
+    quizState.answers = saved.answers || {};
+    quizState.locked = saved.locked || {};
+    quizState.current = saved.current !== undefined ? saved.current : 0;
+    renderDots();
+    renderQuestion();
+  } catch(e) {}
+}
+
+function saveQAns() {
+  try {
+    localStorage.setItem(QAKEY, JSON.stringify({
+      answers: quizState.answers,
+      locked: quizState.locked,
+      current: quizState.current
+    }));
+  } catch(e) {}
+}
+
+function renderDots() {
+  const dots = document.getElementById('q-dots');
+  dots.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (quizState.locked[i]) {
+      d.classList.add(quizState.answers[i] === questions[i].ans ? 'correct' : 'incorrect');
+    } else if (i === quizState.current) {
+      d.classList.add('current');
+    } else if (quizState.answers[i] !== undefined) {
+      d.classList.add('answered');
+    }
+    d.title = 'Question ' + (i+1);
+    d.onclick = () => { quizState.current = i; renderDots(); renderQuestion(); };
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const qb = document.getElementById('quiz-body');
+  const qi = quizState.current;
+  const q = questions[qi];
+  const locked = quizState.locked[qi];
+  const chosen = quizState.answers[qi];
+  const letters = ['A','B','C','D'];
+
+  let optsHTML = '';
+  q.opts.forEach((opt, oi) => {
+    let cls = 'opt-btn';
+    if (locked) {
+      if (oi === q.ans) cls += ' correct-ans';
+      else if (oi === chosen && oi !== q.ans) cls += ' wrong-ans';
+    } else if (oi === chosen) {
+      cls += ' chosen';
+    }
+    optsHTML += `<button class="${cls}" ${locked ? 'disabled' : ''} onclick="ansQ(${qi},${oi})">
+      <span class="opt-letter">${letters[oi]}</span>${opt}
+    </button>`;
+  });
+
+  let feedbackHTML = '';
+  if (locked) {
+    const correct = chosen === q.ans;
+    feedbackHTML = `<div class="feedback-box ${correct ? 'good' : 'bad'}">
+      ${correct ? '✓ Correct!' : '✗ Not quite.'} ${q.explain}
+    </div>`;
+  }
+
+  const isLast = qi === questions.length - 1;
+  const allDone = Object.keys(quizState.locked).length === questions.length;
+
+  qb.innerHTML = `
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Question ${qi+1} of ${questions.length}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHTML}</div>
+      ${feedbackHTML}
+      <div class="quiz-nav">
+        ${qi > 0 ? `<button class="btn btn-muted" onclick="navQ(${qi-1})">← Back</button>` : ''}
+        ${locked && !isLast ? `<button class="btn btn-accent" onclick="navQ(${qi+1})">Next →</button>` : ''}
+        ${allDone ? `<button class="btn btn-accent" onclick="showScore()">See Score 🎯</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function ansQ(qi, chosen) {
+  if (quizState.locked[qi]) return;
+  quizState.answers[qi] = chosen;
+  quizState.locked[qi] = true;
+  const correct = chosen === questions[qi].ans;
+  saveQAns();
+  logMistake(correct, questions[qi].q, 'Q' + (qi+1));
+  renderDots();
+  renderQuestion();
+}
+
+function navQ(qi) {
+  quizState.current = qi;
+  renderDots();
+  renderQuestion();
+}
+
+function showScore() {
+  let score = 0;
+  questions.forEach((q, i) => { if (quizState.answers[i] === q.ans) score++; });
+  try { localStorage.setItem(QKEY, score); } catch(e) {}
+
+  const pct = Math.round(score / questions.length * 100);
+  let msg = pct >= 88 ? '🌟 Excellent work!' : pct >= 63 ? '👍 Good job — review the ones you missed.' : '📖 Review the reading and try again.';
+  const letters = ['A','B','C','D'];
+
+  let breakdown = '';
+  questions.forEach((q, i) => {
+    const correct = quizState.answers[i] === q.ans;
+    breakdown += `<div class="score-row">
+      <span class="icon">${correct ? '✅' : '❌'}</span>
+      <div>
+        <div style="font-weight:600">${q.q}</div>
+        ${!correct ? `<div style="color:var(--bad);margin-top:2px">Your answer: ${letters[quizState.answers[i]] || '?'}) ${quizState.answers[i] !== undefined ? q.opts[quizState.answers[i]] : 'Not answered'}</div>` : ''}
+        <div style="color:var(--good);margin-top:2px">Correct: ${letters[q.ans]}) ${q.opts[q.ans]}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="score-board">
+      <div class="score-big">${score}/${questions.length}</div>
+      <div class="score-msg">${pct}% · ${msg}</div>
+      <div class="score-breakdown">${breakdown}</div>
+      <button class="btn btn-muted" style="margin-top:20px" onclick="resetQuiz()">Retake Quiz</button>
+    </div>`;
+  document.getElementById('q-dots').innerHTML = '';
+  markPhaseDone(6);
+}
+
+function resetQuiz() {
+  try { localStorage.removeItem(QKEY); localStorage.removeItem(QAKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ── Phase progress bar ────────────────────────────────────────
+function markPhaseDone(n) {
+  const seg = document.getElementById('seg-'+n);
+  if (seg) { seg.classList.remove('active'); seg.classList.add('done'); }
+}
+
+function scrollToPhase(n) {
+  const el = document.getElementById('phase-'+n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setupPhaseObserver() {
+  const phases = [1,2,3,4,5,6];
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        const n = parseInt(id.replace('phase-',''));
+        phases.forEach(p => {
+          const seg = document.getElementById('seg-'+p);
+          if (!seg) return;
+          if (p === n && !seg.classList.contains('done')) {
+            seg.classList.add('active');
+          } else if (p !== n) {
+            seg.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  phases.forEach(n => {
+    const el = document.getElementById('phase-'+n);
+    if (el) observer.observe(el);
+  });
+}
+
+// ── Auto-save ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  saveQAns();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ── Helpers ───────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── init ──────────────────────────────────────────────────────
+function init() {
+  buildFlipCards();
+  buildMatch();
+  buildSeq();
+  restoreWriting();
+  buildQuiz();
+  restoreQuiz();
+  setupPhaseObserver();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

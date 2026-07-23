@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 15 · Kangaroo 🦘 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 16 · Polar Bear 🐻‍❄️ — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — The Top of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-16-polar-bear.html",desc:"The Arctic (ocean, not continent), Arctic nations, the Inuit, and why polar bears & penguins never meet."},
+      {n:2,emoji:"🔬",title:"Science — Built for the Big Freeze",topic:"Science",time:"45 min",file:"science-lesson-16-polar-bear.html",desc:"Black skin, see-through fur, snowshoe paws, a mile-away nose, blubber — plus a seal-hunt sequencer."},
+      {n:3,emoji:"📖",title:"ELA — Nanuk's Long Winter",topic:"Reading",time:"45 min",file:"ela-lesson-16-polar-bear.html",desc:"A cub learns to hunt with his patient mother. 7 vocab words, context clues, and a patience & persistence theme."},
+      {n:4,emoji:"📐",title:"Math — Patterns & Function Tables",topic:"Number",time:"45 min",file:"math-lesson-16-polar-bear.html",desc:"Number patterns, finding the rule, and input/output tables, with polar bear word problems."},
+      {n:5,emoji:"💻",title:"Coding — Level 13: Panda Pal (Virtual Pet)",topic:"Coding",time:"60 min",file:"coding-lesson-13-pet.html",desc:"Build a living virtual pet whose stats change over time — feed, play & sleep to keep it thriving! 💚"},
+    ]},
+    {label:"Day 15 · Kangaroo 🦘 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — The Land Down Under",topic:"Geography",time:"45 min",file:"social-studies-lesson-15-kangaroo.html",desc:"Australia as country/continent/island, opposite seasons, marsupials, Aboriginal cultures, and the outback."},
       {n:2,emoji:"🔬",title:"Science — Built to Bounce",topic:"Science",time:"45 min",file:"science-lesson-15-kangaroo.html",desc:"Marsupials & the joey, spring-tendon hopping, the tail as a fifth leg, forearm cooling — plus a joey sequencer."},
       {n:3,emoji:"📖",title:"ELA — Joey's First Leap",topic:"Reading",time:"45 min",file:"ela-lesson-15-kangaroo.html",desc:"A young kangaroo learns to hop on his own! 7 vocab words, fact vs. opinion, and a practice-makes-progress theme."},
@@ -253,6 +260,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
+       {n:16,emoji:"🐻‍❄️",title:"Patterns & Function Tables",topic:"Number",time:"45 min",file:"math-lesson-16-polar-bear.html",desc:"Number patterns, finding the rule, and input/output function tables, with polar bear word problems."},
+     ]},
      {label:"Day 15 · Kangaroo 🦘", items:[
        {n:15,emoji:"🦘",title:"Measurement & Unit Conversion",topic:"Number",time:"45 min",file:"math-lesson-15-kangaroo.html",desc:"Length, weight & capacity units; converting between cm, m, km and more, with kangaroo word problems."},
      ]},
@@ -304,6 +314,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
+       {n:16,emoji:"🐻‍❄️",title:"Polar Bear: Built for the Big Freeze",topic:"Science",time:"45 min",file:"science-lesson-16-polar-bear.html",desc:"Black skin, see-through fur, snowshoe paws, mile-away nose, blubber, flip cards, and a seal-hunt sequencer."},
+     ]},
      {label:"Day 15 · Kangaroo 🦘", items:[
        {n:15,emoji:"🦘",title:"Kangaroo: Built to Bounce",topic:"Science",time:"45 min",file:"science-lesson-15-kangaroo.html",desc:"Marsupials & the joey, spring-tendon hopping, tail as a fifth leg, forearm cooling, flip cards, and a joey sequencer."},
      ]},
@@ -353,6 +366,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
+       {n:16,emoji:"🐻‍❄️",title:"Polar Bear: Nanuk's Long Winter",topic:"Reading",time:"45 min",file:"ela-lesson-16-polar-bear.html",desc:"A cub learns to hunt with his patient mother. 7 vocab words, context clues game, and a patience & persistence theme."},
+     ]},
      {label:"Day 15 · Kangaroo 🦘", items:[
        {n:15,emoji:"🦘",title:"Kangaroo: Joey's First Leap",topic:"Reading",time:"45 min",file:"ela-lesson-15-kangaroo.html",desc:"A young kangaroo learns to hop on his own! 7 vocab words, fact vs. opinion game, and a practice-makes-progress theme."},
      ]},
@@ -398,6 +414,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
+       {n:16,emoji:"🐻‍❄️",title:"The Top of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-16-polar-bear.html",desc:"The Arctic (ocean, not continent), Arctic nations, the Inuit, sea ice, and the opposite-pole penguin contrast."},
+     ]},
      {label:"Day 15 · Kangaroo 🦘", items:[
        {n:15,emoji:"🦘",title:"The Land Down Under",topic:"Geography",time:"45 min",file:"social-studies-lesson-15-kangaroo.html",desc:"Australia as country/continent/island, opposite seasons, marsupials, Aboriginal cultures, and the outback."},
      ]},
@@ -461,6 +480,7 @@ const SUBJECTS=[
        {n:10,emoji:"🧭",title:"Level 10: Maze Runner (Coordinates)",topic:"Coding",time:"60 min",file:"coding-lesson-10-maze.html",desc:"Build a maze game — move by row/column coordinates, walls block you with collision checks, design & solve your own maze — Boss the Panda Level 10!"},
        {n:11,emoji:"📖",title:"Level 11: Story Machine (Text)",topic:"Coding",time:"60 min",file:"coding-lesson-11-story.html",desc:"Build a Mad Libs story generator — text/strings, joining words with +, and templates — then make silly personalized stories — Boss the Panda Level 11!"},
        {n:12,emoji:"🗺️",title:"Level 12: Choose Your Adventure (Branching)",topic:"Coding",time:"60 min",file:"coding-lesson-12-adventure.html",desc:"Build a branching story — scenes, choices as if/else branches, and multiple endings; write your own ending and find them all — Boss the Panda Level 12!"},
+       {n:13,emoji:"💚",title:"Level 13: Panda Pal (Virtual Pet)",topic:"Coding",time:"60 min",file:"coding-lesson-13-pet.html",desc:"Build a living virtual pet — an object of stats that change over time via a timer, with feed/play/sleep actions and mood logic — Boss the Panda Level 13!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

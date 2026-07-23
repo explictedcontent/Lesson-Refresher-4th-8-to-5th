@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 16 — Patterns &amp; Function Tables</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* PATTERN DIAGRAM (clean numbers) */
+.pat-seq{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:center;margin:16px 0 4px}
+.pat-chip{
+  background:var(--panel);border:2px solid var(--accent2);border-radius:10px;
+  padding:10px 14px;font-weight:700;font-size:18px;color:var(--ink);
+  min-width:46px;text-align:center;
+}
+.pat-arrow{display:flex;flex-direction:column;align-items:center;color:var(--accent);font-weight:700;font-size:13px;line-height:1.1}
+.pat-arrow .arw{font-size:20px;line-height:1}
+
+/* INPUT / OUTPUT TABLE (clean numbers) */
+.io-wrap{overflow-x:auto;display:flex;justify-content:center}
+.io-table{border-collapse:collapse;margin:14px 0 4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:220px}
+.io-table th{background:var(--panel2);color:var(--accent2);font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:10px 24px}
+.io-table td{padding:10px 24px;text-align:center;font-size:17px;font-weight:700;border-top:1px solid var(--line)}
+.io-table td.out{color:var(--warn)}
+.io-table td.arrow-cell{color:var(--accent);font-size:14px}
+.rule-box{
+  text-align:center;margin:14px auto 0;background:var(--panel);
+  border:2px dashed var(--accent);border-radius:10px;padding:10px 16px;max-width:280px;
+}
+.rule-box .rb-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.rule-box .rb-rule{font-size:22px;font-weight:700;color:var(--accent)}
+
+/* INPUT PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:14px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:200px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:520px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Patterns</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Function Tables</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🐻‍❄️</div>
+  <h1>Math Day 16 — Patterns &amp; Function Tables</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Polar Bear Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick "what comes next" patterns — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — NUMBER PATTERNS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🔢 Phase 2 — Number Patterns <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">Learn how to find the rule of a pattern, then use it to keep it going.</p>
+
+  <div class="teach-card">
+    <h3>📋 Every Pattern Follows a RULE</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">A number pattern changes by the same rule every step — like <strong style="color:var(--accent2)">+2</strong>, <strong style="color:var(--accent2)">×3</strong>, or <strong style="color:var(--accent2)">−5</strong>. To find the rule, look at how you get from one number to the next. Then use that rule to continue.</p>
+
+    <div class="pat-seq">
+      <div class="pat-chip">2</div>
+      <div class="pat-arrow"><span class="arw">→</span>+2</div>
+      <div class="pat-chip">4</div>
+      <div class="pat-arrow"><span class="arw">→</span>+2</div>
+      <div class="pat-chip">6</div>
+      <div class="pat-arrow"><span class="arw">→</span>+2</div>
+      <div class="pat-chip">8</div>
+      <div class="pat-arrow"><span class="arw">→</span>+2</div>
+      <div class="pat-chip" style="border-color:var(--warn)">10</div>
+    </div>
+
+    <div class="pat-seq">
+      <div class="pat-chip">3</div>
+      <div class="pat-arrow"><span class="arw">→</span>×2</div>
+      <div class="pat-chip">6</div>
+      <div class="pat-arrow"><span class="arw">→</span>×2</div>
+      <div class="pat-chip">12</div>
+      <div class="pat-arrow"><span class="arw">→</span>×2</div>
+      <div class="pat-chip">24</div>
+      <div class="pat-arrow"><span class="arw">→</span>×2</div>
+      <div class="pat-chip" style="border-color:var(--warn)">48</div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Adding</span> makes a pattern grow slowly and evenly. <span class="hl">Doubling</span> (×2) makes it grow fast — each number is twice the one before.
+      <span class="hl">Subtracting</span> makes it shrink. Always test your rule on TWO steps to be sure it fits the whole pattern.
+    </div>
+  </div>
+
+  <div class="warmup-card" id="np-container">
+    <div class="warmup-q">
+      <span class="q-num" id="np-q-label">Question 1 of 6</span>
+      <span id="np-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="np-choices"></div>
+    <div class="warmup-feedback" id="np-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="np-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="np-next" onclick="npNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="np-done">✓ Number patterns unlocked!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — FUNCTION TABLES
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>📊 Phase 3 — Function Tables <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">A rule turns every INPUT into an OUTPUT. Learn to read the table, then type the answers.</p>
+
+  <div class="teach-card">
+    <h3>📋 Input → Rule → Output</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">A function table has two columns. You put a number IN, the rule does its job, and a number comes OUT. Here the rule is <strong style="color:var(--accent2)">×3</strong>:</p>
+
+    <div class="io-wrap">
+      <table class="io-table">
+        <tr><th>Input</th><th></th><th>Output</th></tr>
+        <tr><td>1</td><td class="arrow-cell">×3 →</td><td class="out">3</td></tr>
+        <tr><td>2</td><td class="arrow-cell">×3 →</td><td class="out">6</td></tr>
+        <tr><td>4</td><td class="arrow-cell">×3 →</td><td class="out">12</td></tr>
+      </table>
+    </div>
+
+    <div class="rule-box">
+      <div class="rb-label">The Rule</div>
+      <div class="rb-rule">Output = Input × 3</div>
+    </div>
+
+    <div class="teach-note">
+      To <span class="hl">find a missing output</span>, do the rule to the input. To <span class="hl">find the rule</span>, ask "what did I do to the input to get the output?" — try it on every row to make sure it works. Type rules like <span class="hl">×3</span> or <span class="hl">−3</span> (you can also write "multiply by 3" or "subtract 3").
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="ft-label">Question 1 of 5</span>
+    <div class="pa-prompt" id="ft-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="ft-input" type="text" placeholder="Type your answer" autocomplete="off">
+      <button class="btn btn-accent" id="ft-check" onclick="checkFT()">Check</button>
+    </div>
+    <div class="pa-feedback" id="ft-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="ft-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="ft-next" onclick="ftNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="ft-done">✓ Function tables mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🐻‍❄️ Phase 4 — Polar Bear Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems about polar bears. Type your answer, then reveal the step-by-step solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Nicely done.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Pattern Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 quick pattern &amp; rule problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l16-qans";
+const QKEY  = "math-l16-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 16: Patterns & Function Tables|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 16', q: questionText, file: 'math-lesson-16-polar-bear.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// NORMALIZERS
+// ═══════════════════════════════════════════════════════════
+function canonNum(s) {
+  return String(s).replace(/[^0-9]/g, '');
+}
+// normalize typed rule answers: "multiply by 3" -> "x3", "add 5" -> "+5", "subtract 3" -> "-3"
+function canonAns(s) {
+  let t = String(s).toLowerCase().trim();
+  t = t.replace(/multiplied by/g,'x').replace(/multiply by/g,'x').replace(/times/g,'x').replace(/[*×]/g,'x');
+  t = t.replace(/add/g,'+').replace(/plus/g,'+');
+  t = t.replace(/subtract/g,'-').replace(/minus/g,'-').replace(/take away/g,'-').replace(/−/g,'-');
+  t = t.replace(/\s+/g,'');
+  return t;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean numbers, "what comes next")
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "What comes next: 2, 4, 6, 8, ___?",
+    choices: ["12", "10", "9", "16"],
+    correct: 1,
+    explain: "The rule is +2, so after 8 comes 10."
+  },
+  {
+    q: "What comes next: 5, 10, 15, 20, ___?",
+    choices: ["25", "30", "22", "24"],
+    correct: 0,
+    explain: "The rule is +5, so after 20 comes 25."
+  },
+  {
+    q: "What comes next: 3, 6, 9, 12, ___?",
+    choices: ["18", "13", "15", "16"],
+    correct: 2,
+    explain: "The rule is +3, so after 12 comes 15."
+  },
+  {
+    q: "What comes next: 20, 18, 16, 14, ___?",
+    choices: ["16", "13", "10", "12"],
+    correct: 3,
+    explain: "The rule is −2, so after 14 comes 12."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — NUMBER PATTERNS (clean numbers, MC)
+// ═══════════════════════════════════════════════════════════
+const npQs = [
+  { q:"Find the rule: 4, 8, 12, 16 …", choices:["Add 3","Add 4","Multiply by 4","Subtract 4"], correct:1,
+    explain:"Each number is 4 more than the one before, so the rule is Add 4." },
+  { q:"Continue the pattern: 1, 3, 5, 7, ___", choices:["9","10","11","8"], correct:0,
+    explain:"The rule is +2, so after 7 comes 9." },
+  { q:"Find the rule: 100, 90, 80, 70 …", choices:["Subtract 5","Add 10","Subtract 10","Divide by 10"], correct:2,
+    explain:"Each number is 10 less than the one before, so the rule is Subtract 10." },
+  { q:"Continue the pattern: 2, 4, 8, 16, ___", choices:["24","32","20","64"], correct:1,
+    explain:"The rule is double (×2), so after 16 comes 32." },
+  { q:"What is the rule: 6, 12, 18, 24 …", choices:["Add 12","Multiply by 6","Add 6","Add 5"], correct:2,
+    explain:"Each number is 6 more than the one before, so the rule is Add 6." },
+  { q:"Continue the pattern: 50, 45, 40, ___", choices:["35","30","45","55"], correct:0,
+    explain:"The rule is −5, so after 40 comes 35." }
+];
+
+let npIdx = 0, npCorrect = 0, npAnswered = false;
+
+function renderNP() {
+  const q = npQs[npIdx];
+  document.getElementById('np-q-label').textContent = 'Question ' + (npIdx+1) + ' of 6';
+  document.getElementById('np-q-text').textContent = q.q;
+  const fb = document.getElementById('np-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('np-next').classList.add('hidden');
+  npAnswered = false;
+
+  const choicesEl = document.getElementById('np-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerNP(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('np-progress').textContent = npCorrect + ' / 6 correct so far';
+}
+
+function answerNP(idx) {
+  if (npAnswered) return;
+  npAnswered = true;
+  const q = npQs[npIdx];
+  const btns = document.querySelectorAll('#np-choices .choice-btn');
+  const fb = document.getElementById('np-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    npCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('np-progress').textContent = npCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('np-next');
+  nextBtn.classList.remove('hidden');
+  if (npIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishNP;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = npNext;
+  }
+}
+
+function npNext() {
+  npIdx++;
+  if (npIdx < 6) renderNP();
+}
+
+function finishNP() {
+  document.getElementById('np-done').classList.add('show');
+  document.getElementById('np-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — FUNCTION TABLES (clean numbers, typed)
+// ═══════════════════════════════════════════════════════════
+const ftProblems = [
+  { prompt:'Rule: <span class="hl">+5</span>. If input is <span class="hl">7</span>, output is?', accept:['12'], display:'12',
+    hint:'Do the rule to the input: 7 + 5 = 12.' },
+  { prompt:'Rule: <span class="hl">×2</span>. If input is <span class="hl">9</span>, output is?', accept:['18'], display:'18',
+    hint:'Do the rule to the input: 9 × 2 = 18.' },
+  { prompt:'The table shows <span class="hl">3→9, 4→12, 5→15</span>. What is the rule?', accept:['x3'], display:'×3',
+    hint:'Each output is the input times 3, so the rule is ×3.' },
+  { prompt:'Rule: <span class="hl">×4</span>. If input is <span class="hl">6</span>, output is?', accept:['24'], display:'24',
+    hint:'Do the rule to the input: 6 × 4 = 24.' },
+  { prompt:'The table shows <span class="hl">10→7, 8→5, 6→3</span>. What is the rule?', accept:['-3'], display:'−3',
+    hint:'Each output is 3 less than the input, so the rule is −3.' }
+];
+
+let ftIdx = 0, ftCorrect = 0, ftAnswered = false;
+
+function renderFT() {
+  const p = ftProblems[ftIdx];
+  document.getElementById('ft-label').textContent = 'Question ' + (ftIdx+1) + ' of 5';
+  document.getElementById('ft-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('ft-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('ft-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('ft-check').disabled = false;
+  document.getElementById('ft-next').classList.add('hidden');
+  ftAnswered = false;
+  document.getElementById('ft-progress').textContent = ftCorrect + ' / 5 correct so far';
+}
+
+function checkFT() {
+  if (ftAnswered) return;
+  const p = ftProblems[ftIdx];
+  const inp = document.getElementById('ft-input');
+  const raw = inp.value.trim();
+  if (raw === '') { inp.focus(); return; }
+  ftAnswered = true;
+  const val = canonAns(raw);
+  const acceptSet = p.accept.map(canonAns);
+  const correct = acceptSet.indexOf(val) !== -1;
+  const fb = document.getElementById('ft-feedback');
+  inp.disabled = true;
+  document.getElementById('ft-check').disabled = true;
+  if (correct) {
+    ftCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.display + '. ' + p.hint;
+  }
+  document.getElementById('ft-progress').textContent = ftCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('ft-next');
+  nextBtn.classList.remove('hidden');
+  if (ftIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishFT;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = ftNext;
+  }
+}
+
+function ftNext() {
+  ftIdx++;
+  if (ftIdx < 5) renderFT();
+}
+
+function finishFT() {
+  document.getElementById('ft-done').classList.add('show');
+  document.getElementById('ft-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (polar bear data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A polar bear walks <strong>6 miles</strong> across the ice each day. Make a rule for the miles. How many miles does it walk in <strong>5 days</strong>?",
+    solution: [
+      {label:"Rule", text:"Miles = days × 6 (add 6 miles for each day)."},
+      {label:"Solve", math:"6 × 5 = 30"},
+      {label:"Answer", text:"It walks 30 miles in 5 days."},
+      {label:"Check", text:"6, 12, 18, 24, 30 — five steps of +6 ✓"}
+    ]
+  },
+  {
+    text: "A polar bear eats <strong>2 seals</strong> every week. Following that pattern, how many seals does it eat in <strong>8 weeks</strong>?",
+    solution: [
+      {label:"Rule", text:"Seals = weeks × 2."},
+      {label:"Solve", math:"2 × 8 = 16"},
+      {label:"Answer", text:"It eats 16 seals in 8 weeks."},
+      {label:"Check", text:"16 ÷ 8 = 2 seals per week ✓"}
+    ]
+  },
+  {
+    text: "A polar bear cub gains <strong>3 pounds</strong> each week. It started at <strong>20 pounds</strong>. How much does it weigh after <strong>4 weeks</strong>?",
+    solution: [
+      {label:"Plan", text:"First find the pounds gained, then add the starting weight."},
+      {label:"Gained", math:"3 × 4 = 12"},
+      {label:"Total", math:"20 + 12 = 32"},
+      {label:"Answer", text:"After 4 weeks it weighs 32 pounds."},
+      {label:"Check", text:"20 → 23 → 26 → 29 → 32, four steps of +3 ✓"}
+    ]
+  },
+  {
+    text: "A polar bear's fat layer is measured each month: <strong>1 inch, 2 inches, 3 inches, 4 inches</strong>. What is the rule, and what comes in <strong>month 6</strong>?",
+    solution: [
+      {label:"Rule", text:"Add 1 inch each month (Output = month number)."},
+      {label:"Solve", math:"Month 6 → 6 inches"},
+      {label:"Answer", text:"The rule is +1 inch per month; month 6 is 6 inches."},
+      {label:"Check", text:"1, 2, 3, 4, 5, 6 — the inch matches the month ✓"}
+    ]
+  },
+  {
+    text: "A researcher counts polar bears at a bay over four years: <strong>5, 10, 15, 20</strong>. If the pattern continues, how many bears in <strong>year 5</strong>?",
+    solution: [
+      {label:"Rule", text:"Add 5 bears each year."},
+      {label:"Solve", math:"20 + 5 = 25"},
+      {label:"Answer", text:"In year 5 there would be 25 bears."},
+      {label:"Check", text:"5, 10, 15, 20, 25 — five steps of +5 ✓"}
+    ]
+  },
+  {
+    text: "A polar bear can swim <strong>4 miles per hour</strong>. Let input = hours and output = miles. If it swims for <strong>7 hours</strong>, how far does it go?",
+    solution: [
+      {label:"Rule", text:"Output = input × 4 (miles = hours × 4)."},
+      {label:"Solve", math:"4 × 7 = 28"},
+      {label:"Answer", text:"It swims 28 miles in 7 hours."},
+      {label:"Check", text:"28 ÷ 4 = 7 hours ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"Next: 10, 20, 30, ___", choices:["40","50","35"], correct:0 },
+  { q:"Rule for 2, 4, 6, 8?", choices:["Add 4","Add 2","Multiply by 2"], correct:1 },
+  { q:"Next: 7, 14, 21, ___", choices:["28","35","24"], correct:0 },
+  { q:"Rule ×2, input 5 → ?", choices:["7","10","12"], correct:1 },
+  { q:"Next: 30, 25, 20, ___", choices:["15","10","25"], correct:0 },
+  { q:"Rule +7, input 3 → ?", choices:["10","21","13"], correct:0 },
+  { q:"Next: 3, 6, 12, 24, ___", choices:["36","48","30"], correct:1 },
+  { q:"Rule ×5, input 4 → ?", choices:["9","25","20"], correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "What comes next: 4, 8, 12, 16, ___?",
+    opts: ["20", "16", "24", "18"],
+    correct: 0,
+    explain: "The rule is +4, so after 16 comes 20."
+  },
+  {
+    q: "What is the rule: 5, 10, 15, 20?",
+    opts: ["Multiply by 5", "Add 10", "Add 5", "Subtract 5"],
+    correct: 2,
+    explain: "Each number is 5 more than the one before, so the rule is Add 5."
+  },
+  {
+    q: "Rule: ×3. If the input is 6, the output is?",
+    opts: ["9", "24", "36", "18"],
+    correct: 3,
+    explain: "6 × 3 = 18."
+  },
+  {
+    q: "What comes next: 40, 35, 30, ___?",
+    opts: ["25", "35", "20", "30"],
+    correct: 0,
+    explain: "The rule is −5, so after 30 comes 25."
+  },
+  {
+    q: "A polar bear walks 6 miles a day. How far in 5 days?",
+    opts: ["11 miles", "30 miles", "36 miles", "24 miles"],
+    correct: 1,
+    explain: "6 × 5 = 30 miles."
+  },
+  {
+    q: "Table: 2→8, 3→12, 4→16. What is the rule?",
+    opts: ["Add 6", "×4", "+4", "×2"],
+    correct: 1,
+    explain: "Each output is the input times 4, so the rule is ×4."
+  },
+  {
+    q: "Rule: +9. If the input is 4, the output is?",
+    opts: ["36", "5", "94", "13"],
+    correct: 3,
+    explain: "4 + 9 = 13."
+  },
+  {
+    q: "What comes next: 2, 4, 8, 16, ___?",
+    opts: ["24", "64", "32", "20"],
+    correct: 2,
+    explain: "The rule is double (×2), so after 16 comes 32."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Patterns AND function tables — you found every rule.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your rule-finding skills are ice-cold sharp.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the pattern and function table cards, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderNP();
+  renderFT();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+
+  document.getElementById('ft-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkFT();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

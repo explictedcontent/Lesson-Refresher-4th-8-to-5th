@@ -69,6 +69,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Level 10 (`coding-lesson-10-maze.html`): build a maze game (Maze Runner) — row/col coordinates, grid data, collision detection, win check; move/build/solve. Then play it.
 - Level 11 (`coding-lesson-11-story.html`): build a Mad Libs Story Machine — strings/text, concatenation with +, inputs, templates; generate silly personalized stories.
 - Level 12 (`coding-lesson-12-adventure.html`): build a Choose-Your-Own-Adventure — scenes as objects, choices as if/else branches, multiple endings; author your own ending, then play to find them all.
+- Level 13 (`coding-lesson-13-pet.html`): build a virtual pet (Panda Pal) — object stats, care-action functions, setInterval decay (state over time), if-statement mood; keep it thriving.
 
 ## Day themes (completed)
 - Day 2: Red Panda 🐾
@@ -85,11 +86,12 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Day 13: Dolphin 🐬
 - Day 14: Elephant 🐘
 - Day 15: Kangaroo 🦘
+- Day 16: Polar Bear 🐻‍❄️
 
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 3568KB, 88 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 3783KB, 93 lessons)
 Uses inline injection (not iframe) for iOS Safari compatibility.
 
 ## Committing

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 13 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;justify-content:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:14px;color:#e6edf3;margin:10px 0;line-height:1.9;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+/* pet */
+.pet-card{background:linear-gradient(160deg,#12142a,#0a0b16);border:2px solid var(--accent2);border-radius:18px;padding:18px;margin:12px 0;text-align:center}
+.pet-emoji{font-size:76px;line-height:1;transition:transform .2s}
+.pet-emoji.bounce{animation:petb .4s}
+@keyframes petb{0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}}
+.pet-name{font-size:20px;font-weight:900;color:var(--warn);font-family:'Courier New',monospace;margin:4px 0}
+.mood{font-size:15px;font-weight:900;margin:6px 0 4px}
+.statline{display:flex;align-items:center;gap:8px;margin:8px 0}
+.statlbl{font-size:13px;font-weight:900;min-width:96px;text-align:left}
+.bar{flex:1;height:16px;background:#08090f;border:2px solid var(--line);border-radius:8px;overflow:hidden}
+.fill{height:100%;border-radius:6px;transition:width .35s,background .35s}
+.statval{font-size:13px;font-weight:900;min-width:38px;text-align:right;color:var(--muted)}
+.pick{padding:12px 15px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);font-size:30px;cursor:pointer;touch-action:manipulation}
+.pick.sel{border-color:var(--accent2);background:#003328;box-shadow:0 0 0 3px #00e5c833}
+.pick:active{transform:scale(.9)}
+.picker{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.name-input{background:#08090f;border:2px solid var(--accent2);border-radius:10px;padding:10px 14px;font-family:'Courier New',monospace;font-size:17px;color:var(--accent2);font-weight:900;width:220px;outline:none;text-align:center}
+.name-input::placeholder{color:#2a4040;font-weight:700}
+.chip{padding:10px 14px;border-radius:10px;background:var(--panel2);border:2px solid var(--line);font-size:14px;font-weight:900;cursor:pointer;touch-action:manipulation}
+.chip.sel{border-color:var(--accent2);background:#003328;color:var(--accent2)}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px;text-align:center}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 13</div>
+  <div class="mtab" onclick="go(1)" id="tab1">🐣 MEET IT</div>
+  <div class="mtab" onclick="go(2)" id="tab2">📊 THE STATS</div>
+  <div class="mtab" onclick="go(3)" id="tab3">🍜 CARE ACTIONS</div>
+  <div class="mtab" onclick="go(4)" id="tab4">⏳ TIME TICKS</div>
+  <div class="mtab" onclick="go(5)" id="tab5">💚 KEEP IT HAPPY</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼💚</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 13: PANDA PAL</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      Build a <strong style="color:var(--ink)">virtual pet</strong> that's actually ALIVE — its stats change all on their own, over time. Feed it, play with it, and keep it happy. This teaches how programs track things that keep changing!
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: A LIVING PET</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>🐣 <strong>Meet It</strong> — a pet object with stats</div>
+        <div>📊 <strong>The Stats</strong> — bars that track it</div>
+        <div>🍜 <strong>Care Actions</strong> — feed, play, sleep</div>
+        <div>⏳ <strong>Time Ticks</strong> — stats drop over time</div>
+        <div>💚 <strong>Keep It Happy</strong> — care for your pet!</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — MEET IT -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">🐣 Create Your Pet</div>
+    <div class="mission-brief">Your pet is an OBJECT (Level 5!) that holds its stats. Pick a pet and give it a name — then it's officially yours!</div>
+  </div>
+
+  <div class="sec">Pick your pet:</div>
+  <div class="picker" id="petPick">
+    <button class="pick" onclick="pickPet('🐼')">🐼</button>
+    <button class="pick" onclick="pickPet('🐶')">🐶</button>
+    <button class="pick" onclick="pickPet('🐱')">🐱</button>
+    <button class="pick" onclick="pickPet('🐉')">🐉</button>
+    <button class="pick" onclick="pickPet('🦖')">🦖</button>
+    <button class="pick" onclick="pickPet('🐧')">🐧</button>
+  </div>
+  <div style="text-align:center"><input class="name-input" id="petName" placeholder="name your pet..." maxlength="14" oninput="updateCode1()"></div>
+
+  <div class="pet-card" style="max-width:320px;margin:14px auto"><div class="pet-emoji" id="pet1">❓</div><div class="pet-name" id="pn1">???</div></div>
+
+  <div class="code-block" id="code1"><span class="cm">// Pick a pet and name it!</span></div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    Your pet is one <strong style="color:var(--accent2)">object</strong> holding everything about it: its look, its name, and three stats — <span class="prop" style="font-family:monospace">fullness</span>, <span class="prop" style="font-family:monospace">happy</span>, and <span class="prop" style="font-family:monospace">energy</span>. Objects keep related info together (Level 5!).
+  </div>
+
+  <div class="btn-row"><button class="btn go" id="m1go" style="display:none" onclick="go(2)">NEXT: THE STATS →</button></div>
+</div>
+
+<!-- SCREEN 2 — THE STATS -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">📊 Meet the Stats</div>
+    <div class="mission-brief">Three numbers describe how your pet feels, each from 0 to 100. Tap each stat to learn what it means — learn all 3 to continue!</div>
+  </div>
+
+  <div class="pet-card" id="card2"></div>
+
+  <div class="btn-row" id="statChips">
+    <button class="chip" onclick="learnStat('fullness')">🍜 Fullness</button>
+    <button class="chip" onclick="learnStat('happy')">😊 Happiness</button>
+    <button class="chip" onclick="learnStat('energy')">⚡ Energy</button>
+  </div>
+  <div id="statInfo" style="text-align:center;font-weight:800;color:var(--accent2);min-height:24px;margin:6px 0"></div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    Each stat is a number stored in the pet object, shown as a bar. Right now they just sit there — but a real pet gets hungry and tired. To make that happen, you'll need actions and a timer. That's next!
+  </div>
+
+  <div class="btn-row"><button class="btn go" id="m2go" style="display:none" onclick="go(3)">NEXT: CARE ACTIONS →</button></div>
+</div>
+
+<!-- SCREEN 3 — CARE ACTIONS -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">🍜 Add Care Actions</div>
+    <div class="mission-brief">Each action is a FUNCTION (Level 2!) that changes the pet's stats. Try Feed, Play, and Sleep — watch the bars move. Use all three to continue!</div>
+  </div>
+
+  <div class="pet-card" id="card3"></div>
+
+  <div class="btn-row">
+    <button class="btn teal" onclick="act('feed',3)">🍜 Feed</button>
+    <button class="btn warn" onclick="act('play',3)">🎾 Play</button>
+    <button class="btn fire" onclick="act('sleep',3)">😴 Sleep</button>
+  </div>
+
+  <div class="code-block"><span class="kw">function</span> <span class="fn">feed</span>() {
+  pet.<span class="prop">fullness</span> = pet.<span class="prop">fullness</span> + <span class="num">30</span>;
+  <span class="kw">if</span> (pet.<span class="prop">fullness</span> > <span class="num">100</span>) pet.<span class="prop">fullness</span> = <span class="num">100</span>;  <span class="cm">// never over 100</span>
+}</div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    Each button calls a <strong style="color:var(--accent2)">function</strong> that changes a stat. Notice the <span class="hl">if</span> that stops a stat going over 100 — that's called "clamping." Feeding fills the belly; playing costs energy. Actions change the pet's state.
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">🍜</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">You can care for your pet!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: TIME TICKS →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — TIME TICKS -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">⏳ Time Makes It Change</div>
+    <div class="mission-brief">Here's the magic: a TIMER (Level 8!) slowly lowers the stats over time — your pet gets hungry and tired all by itself! Press START and watch. Care for it if a bar gets low.</div>
+  </div>
+
+  <div class="pet-card" id="card4"></div>
+
+  <div class="btn-row">
+    <button class="btn fire" id="tickBtn" onclick="toggleTick()">▶ START TIME</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn teal" onclick="act('feed',4)">🍜 Feed</button>
+    <button class="btn warn" onclick="act('play',4)">🎾 Play</button>
+    <button class="btn fire" onclick="act('sleep',4)">😴 Sleep</button>
+  </div>
+
+  <div class="code-block"><span class="kw">setInterval</span>(<span class="kw">function</span>() {
+  pet.<span class="prop">fullness</span> = pet.<span class="prop">fullness</span> - <span class="num">4</span>;   <span class="cm">// gets hungry over time</span>
+  pet.<span class="prop">energy</span>   = pet.<span class="prop">energy</span>   - <span class="num">3</span>;
+  updateFace();  <span class="cm">// mood changes if a stat is low</span>
+}, <span class="num">1500</span>);</div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    A <strong style="color:var(--accent2)">timer</strong> keeps changing the pet's stats even when you do nothing — that's called STATE changing over time. An <span class="hl">if</span> checks the numbers and picks the pet's mood face. Now it feels alive!
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">⏳</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Your pet is alive — it changes on its own!</div>
+    <button class="btn go xl pulse" style="margin-top:10px" onclick="go(5)">💚 CARE FOR YOUR PET →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — KEEP IT HAPPY -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished App</div>
+    <div class="mission-title">💚 PANDA PAL</div>
+    <div class="mission-brief">You built it! Your pet's stats keep dropping — keep it alive and cared for. Goal: get ALL three stats to 80 or higher at the same time to make it THRIVE! 🌟</div>
+  </div>
+
+  <div class="pet-card" id="card5"></div>
+
+  <div class="btn-row">
+    <button class="btn teal" onclick="act('feed',5)">🍜 Feed</button>
+    <button class="btn warn" onclick="act('play',5)">🎾 Play</button>
+    <button class="btn fire" onclick="act('sleep',5)">😴 Sleep</button>
+  </div>
+  <div class="btn-row"><button class="btn ghost" onclick="resetPet()">↺ Restart pet</button></div>
+
+  <div class="complete-banner" id="m5done">
+    <div style="font-size:40px">🌟</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">YOUR PET IS THRIVING!</div>
+    <p style="margin-top:6px">You built a living pet using an object for its stats, functions for its actions, a timer to change it over time, and if-statements for its mood — that's how apps track anything that keeps changing.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: State &amp; Time</div>
+    <div class="mission-brief">10 rounds on stats, actions, timers, and mood logic. +10 XP each. Keep it up!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l13-qans', QKEY='coding-l13-quiz', WKEY='coding-l13-pet';
+const PREFIX='Coding|Lesson 13: State & Time|';
+let xp=0, cur=0;
+
+let pet={emoji:'🐼',name:'Bao',fullness:70,happy:70,energy:70};
+
+function clamp(v){return Math.max(0,Math.min(100,v));}
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1400);}
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+function go(n){
+  stopTick();
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n===2)drawCard('card2');
+  if(n===3)drawCard('card3');
+  if(n===4){document.getElementById('tickBtn').textContent='▶ START TIME';drawCard('card4');}
+  if(n===5){drawCard('card5');document.getElementById('m5done').classList.remove('show');}
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+
+/* ═══ MOOD & CARD RENDER ══════════════════════════════════ */
+function mood(){
+  const lo=Math.min(pet.fullness,pet.happy,pet.energy);
+  if(lo<=15){
+    if(pet.fullness===lo)return['😖','Starving! Feed me!','var(--bad)'];
+    if(pet.energy===lo)return['😵','Exhausted! Let me sleep!','var(--bad)'];
+    return['😢','So bored! Play with me!','var(--bad)'];
+  }
+  if(pet.fullness<35)return['😋','Getting hungry...','var(--warn)'];
+  if(pet.energy<35)return['🥱','Getting sleepy...','var(--warn)'];
+  if(pet.happy<35)return['🙁','A little bored...','var(--warn)'];
+  if(pet.fullness>=80&&pet.happy>=80&&pet.energy>=80)return['🤩','Thriving and joyful!','var(--good)'];
+  return['🙂','Feeling good!','var(--good)'];
+}
+function barColor(v){return v<35?'var(--bad)':v<70?'var(--warn)':'var(--good)';}
+function drawCard(id){
+  const el=document.getElementById(id);if(!el)return;
+  const [face,text,col]=mood();
+  el.innerHTML=
+    '<div class="pet-emoji" id="face_'+id+'">'+pet.emoji+'</div>'+
+    '<div class="pet-name">'+esc(pet.name)+'</div>'+
+    '<div class="mood" style="color:'+col+'">Feeling: '+face+' '+text+'</div>'+
+    statBar('🍜 Fullness',pet.fullness)+
+    statBar('😊 Happiness',pet.happy)+
+    statBar('⚡ Energy',pet.energy);
+}
+function statBar(lbl,v){
+  return '<div class="statline"><span class="statlbl">'+lbl+'</span>'+
+    '<div class="bar"><div class="fill" style="width:'+v+'%;background:'+barColor(v)+'"></div></div>'+
+    '<span class="statval">'+v+'</span></div>';
+}
+function currentCard(){return cur===2?'card2':cur===3?'card3':cur===4?'card4':cur===5?'card5':null;}
+function refresh(){const id=currentCard();if(id)drawCard(id);}
+
+/* ═══ STEP 1 — MEET IT ════════════════════════════════════ */
+function pickPet(e){
+  pet.emoji=e;
+  document.querySelectorAll('#petPick .pick').forEach(b=>b.classList.toggle('sel',b.textContent===e));
+  document.getElementById('pet1').textContent=e;
+  updateCode1();
+}
+function updateCode1(){
+  const nm=document.getElementById('petName').value.trim();
+  pet.name=nm||'Bao';
+  document.getElementById('pn1').textContent=nm||'???';
+  document.getElementById('pet1').textContent=pet.emoji;
+  document.getElementById('code1').innerHTML='<span class="kw">let</span> pet = {\n  <span class="prop">emoji</span>: <span class="str">"'+pet.emoji+'"</span>,\n  <span class="prop">name</span>: <span class="str">"'+esc(nm||'???')+'"</span>,\n  <span class="prop">fullness</span>: <span class="num">70</span>, <span class="prop">happy</span>: <span class="num">70</span>, <span class="prop">energy</span>: <span class="num">70</span>\n};';
+  if(pet.emoji&&nm&&document.getElementById('m1go').style.display==='none'){
+    document.getElementById('disc1').style.display='block';
+    document.getElementById('m1go').style.display='inline-flex';
+    addXP(20);showToast('🐣 Pet created! +20 XP');
+  }
+}
+
+/* ═══ STEP 2 — THE STATS ══════════════════════════════════ */
+let learned={};
+const STAT_INFO={fullness:'🍜 Fullness: how fed your pet is. It drops as your pet gets hungry.',happy:'😊 Happiness: how cheerful your pet is. Playing raises it.',energy:'⚡ Energy: how rested your pet is. Sleeping refills it.'};
+function learnStat(k){
+  learned[k]=1;
+  document.getElementById('statInfo').textContent=STAT_INFO[k];
+  document.querySelectorAll('#statChips .chip').forEach(c=>{if(c.textContent.toLowerCase().indexOf(k.slice(0,4))>=0)c.classList.add('sel');});
+  if(Object.keys(learned).length>=3){
+    document.getElementById('disc2').style.display='block';
+    if(document.getElementById('m2go').style.display==='none'){document.getElementById('m2go').style.display='inline-flex';addXP(20);showToast('📊 +20 XP');}
+  }
+}
+
+/* ═══ CARE ACTIONS (functions) ════════════════════════════ */
+let usedActions={};
+function act(kind,screen){
+  if(kind==='feed'){pet.fullness=clamp(pet.fullness+30);pet.happy=clamp(pet.happy+2);}
+  else if(kind==='play'){pet.happy=clamp(pet.happy+25);pet.energy=clamp(pet.energy-15);pet.fullness=clamp(pet.fullness-5);}
+  else if(kind==='sleep'){pet.energy=clamp(pet.energy+35);pet.fullness=clamp(pet.fullness-8);}
+  const id=currentCard();
+  if(id){drawCard(id);const f=document.getElementById('face_'+id);if(f){f.classList.remove('bounce');void f.offsetWidth;f.classList.add('bounce');}}
+  if(screen===3){
+    usedActions[kind]=1;
+    document.getElementById('disc3').style.display='block';
+    if(Object.keys(usedActions).length>=3){
+      const b=document.getElementById('m3done');
+      if(b.className.indexOf('show')<0){b.classList.add('show');addXP(25);showToast('🍜 +25 XP');}
+    }
+  }
+  if(screen===5)checkThrive();
+  saveAll();
+}
+
+/* ═══ TIME TICKS (timer) ══════════════════════════════════ */
+let tickTimer=null, tickCount=0;
+function stopTick(){if(tickTimer){clearInterval(tickTimer);tickTimer=null;}const b=document.getElementById('tickBtn');if(b)b.textContent='▶ START TIME';}
+function toggleTick(){
+  if(tickTimer){stopTick();return;}
+  document.getElementById('tickBtn').textContent='⏸ PAUSE';
+  tickTimer=setInterval(()=>doTick(4),1500);
+  document.getElementById('disc4').style.display='block';
+}
+function doTick(screen){
+  pet.fullness=clamp(pet.fullness-4);
+  pet.energy=clamp(pet.energy-3);
+  pet.happy=clamp(pet.happy-3);
+  refresh();
+  if(screen===4){
+    tickCount++;
+    if(tickCount>=4){
+      const b=document.getElementById('m4done');
+      if(b.className.indexOf('show')<0){b.classList.add('show');addXP(25);showToast('⏳ +25 XP');}
+    }
+  }
+  if(screen===5)checkThrive();
+  saveAll();
+}
+
+/* ═══ STEP 5 — KEEP IT HAPPY ══════════════════════════════ */
+let m5ok=false;
+function startLife5(){ if(cur===5 && !tickTimer){ tickTimer=setInterval(()=>doTick(5),1600); } }
+function checkThrive(){
+  if(!m5ok && pet.fullness>=80 && pet.happy>=80 && pet.energy>=80){
+    m5ok=true;
+    document.getElementById('m5done').classList.add('show');
+    addXP(50);showToast('🌟 Thriving! +50 XP');
+  }
+}
+function resetPet(){pet.fullness=70;pet.happy=70;pet.energy=70;refresh();}
+
+/* start life automatically when entering screen 5 */
+const _go=go;
+go=function(n){_go(n); if(n===5){ m5ok=document.getElementById('m5done').className.indexOf('show')>=0; startLife5(); } };
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"Your pet keeps its stats (fullness, happy, energy) together in one:",o:["Object","Timer","Random roll","Single letter"],a:0,e:"An object bundles all of the pet's info — its look, name, and stats — into one neat package. That's Level 5 in action."},
+  {q:"Each care button (Feed, Play, Sleep) is really a:",o:["Function that changes the stats","Brand new pet","Random number","Countdown timer"],a:0,e:"Each action is a function that changes the pet's stats — feed raises fullness, play raises happiness, and so on."},
+  {q:"pet.fullness = pet.fullness + 30, but it can't go over 100. Stopping it at 100 is called:",o:["Clamping","Looping","Guessing","Deleting"],a:0,e:"Clamping keeps a value inside limits — never above 100 or below 0. An if-statement does the checking."},
+  {q:"What makes the pet get hungry even when you do nothing?",o:["A timer lowering the stats over time","A random number","The pet's name","Nothing at all"],a:0,e:"A setInterval timer lowers the stats every little while, so the pet changes on its own — that's state changing over time."},
+  {q:"The numbers that describe how the pet feels right now are its:",o:["State","Colors","Choices","Endings"],a:0,e:"A program's 'state' is its current data — here, the pet's three stat values. Actions and time change the state."},
+  {q:"How does the pet pick its mood face (happy, hungry, sleepy)?",o:["An if-statement checks the stats","It rolls a dice","It never changes","It picks a color"],a:0,e:"If-statements check the numbers: if fullness is low, show the hungry face; if all are high, show the thriving face."},
+  {q:"Playing raises happiness but lowers energy. This means actions can:",o:["Change more than one stat at once","Only ever raise stats","Do nothing","Delete the pet"],a:0,e:"One action can change several stats — playing is fun (more happy) but tiring (less energy). Real trade-offs!"},
+  {q:"If you never feed your pet, over time its fullness will:",o:["Drop toward 0","Rise to 100","Stay exactly the same","Turn into energy"],a:0,e:"The timer keeps subtracting, so without feeding, fullness falls toward 0 and the pet gets very hungry."},
+  {q:"To make your pet THRIVE, you must:",o:["Keep all three stats high at once","Ignore it completely","Only feed it","Let energy hit zero"],a:0,e:"Thriving means balancing all three stats above 80 at the same time — you have to juggle feeding, playing, and resting."},
+  {q:"An object for data, functions for actions, a timer for change, and if-statements for decisions are how apps track:",o:["Anything that keeps changing","Only pets","Only math","Nothing real"],a:0,e:"Game characters, fitness apps, and battery meters all track changing state exactly this way. You built the core idea!"}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 13',q:text,file:'coding-lesson-13-pet.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${esc(q.q)}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${esc(o)}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — PET MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You built a living virtual pet. 💚🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({xp,pet}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stopTick();saveAll();}});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,()=>{stopTick();saveAll();}));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const s=JSON.parse(localStorage.getItem(WKEY)||'{}');if(s.xp)xp=s.xp;if(s.pet&&s.pet.emoji){pet=s.pet;}document.getElementById('xpNum').textContent=xp;}catch(e){}
+  buildQuiz();restoreQuiz();
+}
+init();
+</script>
+</body>
+</html>
