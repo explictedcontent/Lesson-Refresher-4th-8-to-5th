@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 15 — Measurement</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* REFERENCE TABLE */
+.ref-group{margin-top:16px}
+.ref-group .ref-title{font-size:13px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ref-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.ref-table td{padding:9px 12px;font-size:14px;border-bottom:1px solid var(--line)}
+.ref-table tr:last-child td{border-bottom:none}
+.ref-table td.small-u{color:var(--muted);text-align:right;width:44%}
+.ref-table td.eq{color:var(--muted);text-align:center;width:12%;font-weight:700}
+.ref-table td.big-u{color:var(--warn);font-weight:700}
+
+/* DIRECTION DIAGRAM (multiply / divide) */
+.dir-wrap{margin:16px 0 4px;overflow-x:auto}
+.dir-wrap svg{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:block;margin:0 auto}
+
+/* INPUT PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:14px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:200px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:520px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Unit Reference</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Convert+Compare</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🦘</div>
+  <h1>Math Day 15 — Measurement</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Kangaroo Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick measurement facts — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — UNIT REFERENCE + CONVERSION
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>📏 Phase 2 — Unit Reference <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">Learn the key conversions, then practice going from one unit to another.</p>
+
+  <div class="teach-card">
+    <h3>📋 The Conversions You Need to Know</h3>
+
+    <div class="ref-group">
+      <div class="ref-title">Length</div>
+      <table class="ref-table">
+        <tr><td class="small-u">10 millimeters (mm)</td><td class="eq">=</td><td class="big-u">1 centimeter (cm)</td></tr>
+        <tr><td class="small-u">100 centimeters (cm)</td><td class="eq">=</td><td class="big-u">1 meter (m)</td></tr>
+        <tr><td class="small-u">1,000 meters (m)</td><td class="eq">=</td><td class="big-u">1 kilometer (km)</td></tr>
+        <tr><td class="small-u">12 inches (in)</td><td class="eq">=</td><td class="big-u">1 foot (ft)</td></tr>
+        <tr><td class="small-u">3 feet (ft)</td><td class="eq">=</td><td class="big-u">1 yard (yd)</td></tr>
+      </table>
+    </div>
+
+    <div class="ref-group">
+      <div class="ref-title">Weight / Mass</div>
+      <table class="ref-table">
+        <tr><td class="small-u">1,000 grams (g)</td><td class="eq">=</td><td class="big-u">1 kilogram (kg)</td></tr>
+        <tr><td class="small-u">16 ounces (oz)</td><td class="eq">=</td><td class="big-u">1 pound (lb)</td></tr>
+      </table>
+    </div>
+
+    <div class="ref-group">
+      <div class="ref-title">Capacity</div>
+      <table class="ref-table">
+        <tr><td class="small-u">1,000 milliliters (mL)</td><td class="eq">=</td><td class="big-u">1 liter (L)</td></tr>
+      </table>
+    </div>
+
+    <div class="dir-wrap">
+      <svg width="440" height="120" viewBox="0 0 440 120" role="img" aria-label="Big unit to small unit multiply, small unit to big unit divide">
+        <rect x="26" y="46" width="120" height="40" rx="8" fill="#1e2130" stroke="#5bd1c4" stroke-width="2"/>
+        <text x="86" y="71" font-size="15" text-anchor="middle" fill="#5bd1c4" font-weight="700">BIG unit</text>
+        <rect x="294" y="46" width="120" height="40" rx="8" fill="#1e2130" stroke="#ffd166" stroke-width="2"/>
+        <text x="354" y="71" font-size="15" text-anchor="middle" fill="#ffd166" font-weight="700">small unit</text>
+        <path d="M150 54 L288 54" stroke="#ff7a59" stroke-width="3" fill="none" marker-end="url(#ar1)"/>
+        <path d="M290 78 L152 78" stroke="#7bd88f" stroke-width="3" fill="none" marker-end="url(#ar2)"/>
+        <text x="220" y="42" font-size="14" text-anchor="middle" fill="#ff7a59" font-weight="700">× multiply</text>
+        <text x="220" y="103" font-size="14" text-anchor="middle" fill="#7bd88f" font-weight="700">÷ divide</text>
+        <defs>
+          <marker id="ar1" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#ff7a59"/></marker>
+          <marker id="ar2" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 Z" fill="#7bd88f"/></marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="teach-note">
+      Going from a <span class="hl">BIG unit to a small unit, MULTIPLY</span> (there are more small pieces).
+      Example: 3 m → cm is 3 × 100 = 300 cm.
+      Going from a <span class="hl">small unit to a BIG unit, DIVIDE</span> (it takes many small pieces to make one big one).
+      Example: 500 cm → m is 500 ÷ 100 = 5 m.
+    </div>
+  </div>
+
+  <div class="warmup-card" id="cv-container">
+    <div class="warmup-q">
+      <span class="q-num" id="cv-q-label">Question 1 of 6</span>
+      <span id="cv-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="cv-choices"></div>
+    <div class="warmup-feedback" id="cv-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="cv-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="cv-next" onclick="cvNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="cv-done">✓ Conversions unlocked!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — MORE CONVERSIONS + COMPARING
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>⚖️ Phase 3 — Convert &amp; Compare <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">To compare two measurements fairly, change them to the SAME unit first.</p>
+
+  <div class="teach-card">
+    <h3>📋 Compare by Matching the Units</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">You cannot compare different units head-to-head. First convert both to the same unit, then compare the numbers. Which is longer, <strong style="color:var(--accent2)">1 m or 90 cm</strong>?</p>
+
+    <div class="concept-row">
+      <div class="concept-box">
+        <div class="cb-name">Step 1 — Convert</div>
+        <div class="cb-eq">1 m = 100 cm</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Step 2 — Compare</div>
+        <div class="cb-eq">100 cm &gt; 90 cm</div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">Answer</div>
+        <div class="cb-eq">1 m is longer</div>
+      </div>
+    </div>
+
+    <div class="teach-note" style="margin-bottom:0">
+      <span class="hl">Trap:</span> 90 has a bigger number than 1, so it looks bigger — but the UNITS are different.
+      Once both are in centimeters, 100 cm clearly beats 90 cm. Always match units before you judge.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="cc-label">Question 1 of 5</span>
+    <div class="pa-prompt" id="cc-prompt"></div>
+    <div class="pa-input-row">
+      <input class="pa-input" id="cc-input" type="text" inputmode="numeric" placeholder="Type your answer" autocomplete="off">
+      <button class="btn btn-accent" id="cc-check" onclick="checkCC()">Check</button>
+    </div>
+    <div class="pa-feedback" id="cc-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="cc-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="cc-next" onclick="ccNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="cc-done">✓ Converting &amp; comparing mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🦘 Phase 4 — Kangaroo Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems about kangaroos. Type your answer, then reveal the step-by-step solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Great hopping.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Conversion Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 speed conversions — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l15-qans";
+const QKEY  = "math-l15-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 15: Measurement|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 15', q: questionText, file: 'math-lesson-15-kangaroo.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// NUMBER NORMALIZER (accept with or without commas / units)
+// ═══════════════════════════════════════════════════════════
+function canonNum(s) {
+  return String(s).replace(/[^0-9]/g, '');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean numbers)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "How many centimeters are in 1 meter?",
+    choices: ["10", "100", "1,000", "50"],
+    correct: 1,
+    explain: "100 centimeters make 1 meter."
+  },
+  {
+    q: "How many inches are in 1 foot?",
+    choices: ["10", "16", "12", "3"],
+    correct: 2,
+    explain: "There are 12 inches in 1 foot."
+  },
+  {
+    q: "How many meters are in 1 kilometer?",
+    choices: ["1,000", "100", "10", "500"],
+    correct: 0,
+    explain: "1 kilometer = 1,000 meters."
+  },
+  {
+    q: "Which is longer: 1 meter or 1 centimeter?",
+    choices: ["1 centimeter", "1 meter"],
+    correct: 1,
+    explain: "A meter is 100 times longer than a centimeter."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — CONVERSIONS (clean numbers, MC)
+// ═══════════════════════════════════════════════════════════
+const cvQs = [
+  { q:"2 m = ? cm", choices:["2,000","200","20"], correct:1,
+    explain:"Big to small, multiply: 2 × 100 = 200 cm." },
+  { q:"3 km = ? m", choices:["3,000","300","30,000"], correct:0,
+    explain:"Big to small, multiply: 3 × 1,000 = 3,000 m." },
+  { q:"5 ft = ? in", choices:["50","72","60"], correct:2,
+    explain:"12 inches per foot: 5 × 12 = 60 in." },
+  { q:"4 kg = ? g", choices:["400","4,000","40"], correct:1,
+    explain:"Big to small, multiply: 4 × 1,000 = 4,000 g." },
+  { q:"2 L = ? mL", choices:["2,000","200","20,000"], correct:0,
+    explain:"Big to small, multiply: 2 × 1,000 = 2,000 mL." },
+  { q:"24 in = ? ft", choices:["12","3","2"], correct:2,
+    explain:"Small to big, divide: 24 ÷ 12 = 2 ft." }
+];
+
+let cvIdx = 0, cvCorrect = 0, cvAnswered = false;
+
+function renderCV() {
+  const q = cvQs[cvIdx];
+  document.getElementById('cv-q-label').textContent = 'Question ' + (cvIdx+1) + ' of 6';
+  document.getElementById('cv-q-text').textContent = q.q;
+  const fb = document.getElementById('cv-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('cv-next').classList.add('hidden');
+  cvAnswered = false;
+
+  const choicesEl = document.getElementById('cv-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerCV(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('cv-progress').textContent = cvCorrect + ' / 6 correct so far';
+}
+
+function answerCV(idx) {
+  if (cvAnswered) return;
+  cvAnswered = true;
+  const q = cvQs[cvIdx];
+  const btns = document.querySelectorAll('#cv-choices .choice-btn');
+  const fb = document.getElementById('cv-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    cvCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('cv-progress').textContent = cvCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('cv-next');
+  nextBtn.classList.remove('hidden');
+  if (cvIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishCV;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = cvNext;
+  }
+}
+
+function cvNext() {
+  cvIdx++;
+  if (cvIdx < 6) renderCV();
+}
+
+function finishCV() {
+  document.getElementById('cv-done').classList.add('show');
+  document.getElementById('cv-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — CONVERT & COMPARE (clean numbers, typed)
+// ═══════════════════════════════════════════════════════════
+const ccProblems = [
+  { prompt: '<span class="hl">300 cm</span> = ? m', accept:['3'], display:'3 m',
+    hint: 'Small to big, divide: 300 ÷ 100 = 3 m.' },
+  { prompt: '<span class="hl">2 ft</span> = ? in', accept:['24'], display:'24 in',
+    hint: '12 inches per foot: 2 × 12 = 24 in.' },
+  { prompt: 'Which is longer: <span class="hl">1 m or 150 cm</span>?', accept:['150','150cm'], display:'150 cm',
+    hint: '1 m = 100 cm, and 150 cm > 100 cm, so 150 cm is longer.' },
+  { prompt: '<span class="hl">5,000 m</span> = ? km', accept:['5'], display:'5 km',
+    hint: 'Small to big, divide: 5,000 ÷ 1,000 = 5 km.' },
+  { prompt: '<span class="hl">3,000 g</span> = ? kg', accept:['3'], display:'3 kg',
+    hint: 'Small to big, divide: 3,000 ÷ 1,000 = 3 kg.' }
+];
+
+let ccIdx = 0, ccCorrect = 0, ccAnswered = false;
+
+function renderCC() {
+  const p = ccProblems[ccIdx];
+  document.getElementById('cc-label').textContent = 'Question ' + (ccIdx+1) + ' of 5';
+  document.getElementById('cc-prompt').innerHTML = p.prompt;
+  const inp = document.getElementById('cc-input');
+  inp.value = ''; inp.className = 'pa-input'; inp.disabled = false;
+  const fb = document.getElementById('cc-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('cc-check').disabled = false;
+  document.getElementById('cc-next').classList.add('hidden');
+  ccAnswered = false;
+  document.getElementById('cc-progress').textContent = ccCorrect + ' / 5 correct so far';
+}
+
+function checkCC() {
+  if (ccAnswered) return;
+  const p = ccProblems[ccIdx];
+  const inp = document.getElementById('cc-input');
+  const raw = inp.value.trim();
+  if (raw === '') { inp.focus(); return; }
+  ccAnswered = true;
+  const val = canonNum(raw);
+  const acceptSet = p.accept.map(canonNum);
+  const correct = acceptSet.indexOf(val) !== -1;
+  const fb = document.getElementById('cc-feedback');
+  inp.disabled = true;
+  document.getElementById('cc-check').disabled = true;
+  if (correct) {
+    ccCorrect++;
+    inp.classList.add('right');
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + p.hint;
+  } else {
+    inp.classList.add('nope');
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The answer is ' + p.display + '. ' + p.hint;
+  }
+  document.getElementById('cc-progress').textContent = ccCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('cc-next');
+  nextBtn.classList.remove('hidden');
+  if (ccIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishCC;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = ccNext;
+  }
+}
+
+function ccNext() {
+  ccIdx++;
+  if (ccIdx < 5) renderCC();
+}
+
+function finishCC() {
+  document.getElementById('cc-done').classList.add('show');
+  document.getElementById('cc-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (kangaroo data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A kangaroo can leap <strong>8 meters</strong> in one bound. How many <strong>centimeters</strong> is that?",
+    solution: [
+      {label:"Plan", text:"Meters to centimeters is big → small, so multiply by 100."},
+      {label:"Solve", math:"8 × 100 = 800"},
+      {label:"Answer", text:"That leap is 800 centimeters."},
+      {label:"Check", text:"800 ÷ 100 = 8 m ✓"}
+    ]
+  },
+  {
+    text: "A kangaroo hops a trail that is <strong>3 kilometers</strong> long. How many <strong>meters</strong> does it travel?",
+    solution: [
+      {label:"Plan", text:"Kilometers to meters is big → small, so multiply by 1,000."},
+      {label:"Solve", math:"3 × 1,000 = 3,000"},
+      {label:"Answer", text:"It travels 3,000 meters."},
+      {label:"Check", text:"3,000 ÷ 1,000 = 3 km ✓"}
+    ]
+  },
+  {
+    text: "A big male kangaroo stands <strong>2 meters</strong> tall. A fence is <strong>150 centimeters</strong> tall. Is the kangaroo taller than the fence, and by how much?",
+    solution: [
+      {label:"Plan", text:"Match units first: change 2 m into centimeters, then subtract."},
+      {label:"Convert", math:"2 m = 2 × 100 = 200 cm"},
+      {label:"Solve", math:"200 − 150 = 50"},
+      {label:"Answer", text:"Yes — the kangaroo is 50 cm taller than the fence."},
+      {label:"Check", text:"150 + 50 = 200 cm = 2 m ✓"}
+    ]
+  },
+  {
+    text: "A joey weighs about <strong>5 kilograms</strong>. How many <strong>grams</strong> is that?",
+    solution: [
+      {label:"Plan", text:"Kilograms to grams is big → small, so multiply by 1,000."},
+      {label:"Solve", math:"5 × 1,000 = 5,000"},
+      {label:"Answer", text:"The joey weighs about 5,000 grams."},
+      {label:"Check", text:"5,000 ÷ 1,000 = 5 kg ✓"}
+    ]
+  },
+  {
+    text: "A kangaroo drinks <strong>2 liters</strong> of water. How many <strong>milliliters</strong> is that?",
+    solution: [
+      {label:"Plan", text:"Liters to milliliters is big → small, so multiply by 1,000."},
+      {label:"Solve", math:"2 × 1,000 = 2,000"},
+      {label:"Answer", text:"That is 2,000 milliliters."},
+      {label:"Check", text:"2,000 ÷ 1,000 = 2 L ✓"}
+    ]
+  },
+  {
+    text: "A kangaroo made <strong>4 leaps of 5 meters each</strong>. How many <strong>centimeters</strong> did it travel in all?",
+    solution: [
+      {label:"Plan", text:"First find the total meters, then convert to centimeters."},
+      {label:"Total", math:"4 × 5 = 20 m"},
+      {label:"Convert", math:"20 × 100 = 2,000"},
+      {label:"Answer", text:"It travelled 2,000 centimeters in all."},
+      {label:"Check", text:"2,000 ÷ 100 = 20 m = 4 leaps of 5 m ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"1 m = ? cm", choices:["10","100","1,000"], correct:1 },
+  { q:"2 km = ? m", choices:["2,000","200","20,000"], correct:0 },
+  { q:"3 ft = ? in", choices:["36","30","33"], correct:0 },
+  { q:"1 kg = ? g", choices:["100","10,000","1,000"], correct:2 },
+  { q:"5 L = ? mL", choices:["500","5,000","50,000"], correct:1 },
+  { q:"400 cm = ? m", choices:["40","400","4"], correct:2 },
+  { q:"12 in = ? ft", choices:["12","1","2"], correct:1 },
+  { q:"6,000 m = ? km", choices:["6","60","600"], correct:0 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "100 cm = ? m",
+    opts: ["10", "1", "100", "1,000"],
+    correct: 1,
+    explain: "100 cm makes exactly 1 m."
+  },
+  {
+    q: "4 m = ? cm",
+    opts: ["40", "4,000", "400", "44"],
+    correct: 2,
+    explain: "Big to small, multiply: 4 × 100 = 400 cm."
+  },
+  {
+    q: "3 kg = ? g",
+    opts: ["3,000", "300", "30,000", "30"],
+    correct: 0,
+    explain: "Big to small, multiply: 3 × 1,000 = 3,000 g."
+  },
+  {
+    q: "Which is longer: 1 m or 90 cm?",
+    opts: ["90 cm", "1 m", "They are equal", "You cannot compare them"],
+    correct: 1,
+    explain: "1 m = 100 cm, and 100 cm > 90 cm, so 1 m is longer."
+  },
+  {
+    q: "A kangaroo leaps 7 m. How many cm is that?",
+    opts: ["70 cm", "7,000 cm", "77 cm", "700 cm"],
+    correct: 3,
+    explain: "7 × 100 = 700 cm."
+  },
+  {
+    q: "2,000 mL = ? L",
+    opts: ["20", "200", "2", "2,000"],
+    correct: 2,
+    explain: "Small to big, divide: 2,000 ÷ 1,000 = 2 L."
+  },
+  {
+    q: "5 ft = ? in",
+    opts: ["50", "60", "72", "55"],
+    correct: 1,
+    explain: "12 inches per foot: 5 × 12 = 60 in."
+  },
+  {
+    q: "5,000 m = ? km",
+    opts: ["50", "500", "5,000", "5"],
+    correct: 3,
+    explain: "Small to big, divide: 5,000 ÷ 1,000 = 5 km."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'Length, weight, AND capacity conversions — you nailed them all.'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your unit-conversion skills are jumping high like a kangaroo.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the unit reference and conversion cards, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderCV();
+  renderCC();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+
+  document.getElementById('cc-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkCC();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
