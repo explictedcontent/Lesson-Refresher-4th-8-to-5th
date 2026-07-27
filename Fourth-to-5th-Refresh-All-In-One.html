@@ -94,7 +94,7 @@
     padding:9px 14px;font-size:14px;font-weight:700}
   .obar .otitle{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .obar .ospace{flex:1}
-  #lesson-inject{flex:1;}
+  #frame{flex:1;border:0;width:100%;background:#14151d}
 
   @media(max-width:560px){ .hero h1{font-size:25px} .wrap{padding:18px 14px 60px} }
 </style>
@@ -127,7 +127,7 @@
     <div class="ospace"></div>
     <button id="openNew" title="Open in its own tab">⤢ Full screen</button>
   </div>
-  <div id="lesson-inject" style="flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#14151d;position:relative"></div>
+  <iframe id="frame" title="Lesson"></iframe>
 </div>
 
 <script>
@@ -614,85 +614,28 @@ function setTab(k){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-/* ---------------- lesson overlay (inline injection — works on iOS Safari) ---------------- */
+/* ---------------- lesson overlay (srcdoc iframe: isolated per lesson, saves persist) ---------------- */
 const overlay=document.getElementById("overlay");
-const lessonDiv=document.getElementById("lesson-inject");
+const frame=document.getElementById("frame");
 let currentFile=null;
-let _injectedStyles=[];
-let _injectedScripts=[];
-let _floatBtn=null;
-
 function openLesson(file,title){
   currentFile=file;
   document.getElementById("oTitle").textContent=title||"Lesson";
-  _injectLesson(file);
-  overlay.classList.add("on");
-  document.body.style.overflow="hidden";
-  lessonDiv.scrollTop=0;
+  const src=(window.LESSONS&&window.LESSONS[file])||'<p style="color:#fff;padding:40px;text-align:center;font-family:sans-serif">Lesson not found.</p>';
+  frame.srcdoc=src;
+  overlay.classList.add("on"); document.body.style.overflow="hidden";
 }
-
-function _injectLesson(file){
-  const src=window.LESSONS&&window.LESSONS[file];
-  if(!src){ lessonDiv.innerHTML='<p style="color:#fff;padding:40px;text-align:center">Lesson not found.</p>'; return; }
-  const parser=new DOMParser();
-  const doc=parser.parseFromString(src,'text/html');
-  doc.querySelectorAll('style').forEach(s=>{
-    const el=document.createElement('style');
-    el.textContent=s.textContent;
-    el.setAttribute('data-lesson-style','1');
-    document.head.appendChild(el);
-    _injectedStyles.push(el);
-  });
-  let bodyHTML='';
-  doc.body.childNodes.forEach(node=>{
-    if(node.nodeType===1&&node.tagName==='SCRIPT') return;
-    if(node.nodeType===1){ bodyHTML+=node.outerHTML; }
-    else if(node.nodeType===3){ bodyHTML+=node.textContent; }
-  });
-  lessonDiv.innerHTML=bodyHTML;
-  if(!_floatBtn){
-    _floatBtn=document.createElement('button');
-    _floatBtn.textContent='← Hub';
-    _floatBtn.setAttribute('style',
-      'position:fixed;top:10px;left:10px;z-index:99999;'+
-      'background:rgba(30,32,46,.92);color:#f4f5fb;border:1px solid #5bd1c4;'+
-      'border-radius:10px;padding:7px 13px;font-size:14px;font-weight:700;'+
-      'box-shadow:0 4px 14px #0009;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)');
-    _floatBtn.onclick=closeLesson;
-    document.body.appendChild(_floatBtn);
-  }
-  const scripts=Array.from(doc.querySelectorAll('script'));
-  function runNext(i){
-    if(i>=scripts.length) return;
-    const orig=scripts[i];
-    if(orig.src) { runNext(i+1); return; }
-    const el=document.createElement('script');
-    el.textContent=orig.textContent;
-    document.body.appendChild(el);
-    _injectedScripts.push(el);
-    runNext(i+1);
-  }
-  runNext(0);
-}
-
 function closeLesson(){
-  _injectedStyles.forEach(el=>{ if(el.parentNode) el.parentNode.removeChild(el); });
-  _injectedStyles=[];
-  _injectedScripts.forEach(el=>{ if(el.parentNode) el.parentNode.removeChild(el); });
-  _injectedScripts=[];
-  lessonDiv.innerHTML='';
-  if(_floatBtn){ if(_floatBtn.parentNode) _floatBtn.parentNode.removeChild(_floatBtn); _floatBtn=null; }
-  overlay.classList.remove("on");
-  document.body.style.overflow="";
+  // clearing srcdoc navigates the iframe away, firing its pagehide/beforeunload
+  // so the lesson's saveAll() runs one last time before it goes.
+  overlay.classList.remove("on"); frame.removeAttribute("srcdoc"); frame.src="about:blank"; document.body.style.overflow="";
   renderReview();
 }
-
 document.getElementById("backBtn").onclick=closeLesson;
 document.getElementById("openNew").onclick=()=>{
   if(!currentFile) return;
   const src=window.LESSONS&&window.LESSONS[currentFile];
-  if(src){ const w=window.open("","_blank"); w.document.write(src); w.document.close(); }
-  else { window.open(currentFile,"_blank"); }
+  if(src){ const w=window.open("","_blank"); if(w){ w.document.open(); w.document.write(src); w.document.close(); } }
 };
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && overlay.classList.contains("on")) closeLesson(); });
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") renderReview(); });

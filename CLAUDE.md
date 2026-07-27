@@ -93,8 +93,15 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 3995KB, 98 lessons)
-Uses inline injection (not iframe) for iOS Safari compatibility.
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 3994KB, 98 lessons)
+Each lesson is inlined into `window.LESSONS[file]` and opened in a **srcdoc iframe**
+(`frame.srcdoc = window.LESSONS[file]`). This is REQUIRED for saving to work:
+every lesson declares the same top-level names (`const QAKEY`, `let xp`, `function go`…),
+so injecting all their scripts into ONE page throws "Identifier 'QAKEY' has already been
+declared" on the 2nd lesson opened — that lesson never initializes and its 4 auto-save
+listeners never attach ("not saving" bug). A srcdoc iframe gives each lesson its own
+document/script scope (no collisions) while sharing the parent origin, so localStorage
+saving works and persists. Do NOT go back to appending lesson `<script>`s into the hub page.
 
 ## Committing
 Branch: `claude/art-lesson-refresher-rqz9ib`
