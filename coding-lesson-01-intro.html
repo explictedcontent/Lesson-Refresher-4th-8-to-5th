@@ -171,6 +171,7 @@ h2{font-size:20px;font-weight:900;margin-bottom:8px}
   <div class="mtab" onclick="goMission(4)" id="tab4">💥 POWER UP</div>
   <div class="mtab" onclick="goMission(5)" id="tab5">🎯 THE ESCAPE</div>
   <div class="mtab" onclick="goMission(6)" id="tab6">👑 BOSS TEST</div>
+  <div class="mtab" onclick="goMission(7)" id="tab7">🧪 CODE LAB</div>
 </div>
 
 <!-- ════════════════════ MISSION 0 — START ════════════════════ -->
@@ -882,5 +883,164 @@ window.addEventListener('resize',()=>{
   if(cur===1)p1Draw();if(cur===2)p2Draw();if(cur===5)p5Draw();
 });
 </script>
+
+<!-- CODE LAB (added) -->
+<script>window.LAB_CFG={"key":"coding-l1-lab","file":"coding-lesson-01-intro.html","prefix":"Coding|Lesson 1: Variables, If/Else & Loops|","day":"Lesson 1","puzzles":[{"goal":"Store the panda’s name, then show it on screen.","hint":"Make the variable first, then print it.","lines":["let name = \"Boss\"","print(name)"],"traps":["print(Boss)"],"done":"The variable holds \"Boss\" and print shows it."},{"goal":"Give the panda 100 health, then heal it by 20.","hint":"You can’t add to health before it exists.","lines":["let health = 100","health = health + 20"],"traps":["health = + 20"],"done":"health starts at 100, then becomes 120."},{"goal":"If score is 10 or more, print \"You win!\" — otherwise print \"Keep going\".","lines":["if (score >= 10) {","  print(\"You win!\")","} else {","  print(\"Keep going\")","}"],"traps":["if score = 10"],"done":"The if/else picks exactly one message based on score."},{"goal":"Print \"Jump!\" three times using a loop.","hint":"Start the counter, keep looping while it’s under 3.","lines":["for (let i = 0; i < 3; i++) {","  print(\"Jump!\")","}"],"traps":["for (i < 3)"],"done":"The loop repeats the print 3 times."},{"goal":"Count from 1 to 5 and print each number.","lines":["for (let i = 1; i <= 5; i++) {","  print(i)","}"],"traps":["print(\"i\")"],"done":"It prints 1, 2, 3, 4, 5 — note \"i\" in quotes would print the letter!"}]};</script>
+<!-- ═══════════ CODE LAB ENGINE (drop-in, self-contained) ═══════════
+     Paste this <div> where a new mission screen belongs, and this <script>
+     just before </body>. Define window.LAB_CFG before it runs.
+     Requires nothing from the page except (optionally) an XP element by id. -->
+
+<div class="screen" id="sc7">
+  <div class="mission-header" style="border-color:var(--purple,#b06eff);background:linear-gradient(135deg,#0d0620,#12082c)">
+    <div class="mission-tag" style="color:var(--purple,#b06eff)">Code Lab</div>
+    <div class="mission-title">🧪 Build the Code Yourself</div>
+    <div class="mission-brief" id="labBrief">Real coding puzzles. Tap the code lines in the right order to make each program work. Some lines are traps — leave them out!</div>
+  </div>
+  <div class="q-dots" id="labDots"></div>
+  <div id="labArea"></div>
+</div>
+
+<script>
+(function(){
+  const CFG = window.LAB_CFG || {puzzles:[],key:'coding-lab',file:'',prefix:'Coding|Lab|'};
+  const P = CFG.puzzles || [];
+  const KEY = CFG.key;
+  let state = {solved:{}, built:{}};          // built[i] = array of pool-indices placed
+  try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s){state=Object.assign(state,s);} }catch(e){}
+
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+  function bumpXP(n){
+    // reuse the lesson's XP system if present, else no-op visual
+    if(typeof addXP==='function'){ try{addXP(n);return;}catch(e){} }
+    const el=document.getElementById('xpNum'); if(el){ el.textContent=(parseInt(el.textContent||'0',10)||0)+n; }
+  }
+  function toast(m){ if(typeof showToast==='function'){try{showToast(m);return;}catch(e){}} }
+  function logMiss(ok,text,tag){
+    try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');
+      const k=(CFG.prefix||'Coding|Lab|')+tag;
+      if(!ok){ m[k]={subject:'Coding',day:(CFG.day||'Lab'),q:text,file:CFG.file}; } else { delete m[k]; }
+      localStorage.setItem('refresher-mistakes',JSON.stringify(m));
+    }catch(e){}
+  }
+
+  // deterministic shuffle per-puzzle (no Math.random needed for stability across reload)
+  function shuffledPool(p, i){
+    const pool = p.lines.map((t,idx)=>({t, correct:true, ord:idx}))
+      .concat((p.traps||[]).map(t=>({t, correct:false, ord:-1})));
+    // simple index-seeded reorder so it's mixed but stable
+    const seed = (i+1)*7 + pool.length*3;
+    return pool.map((x,k)=>({x,k:(k*seed+13)%pool.length})).sort((a,b)=>a.k-b.k).map(o=>o.x);
+  }
+
+  const pools = P.map((p,i)=>shuffledPool(p,i));
+
+  function renderDots(){
+    document.getElementById('labDots').innerHTML = P.map((_,i)=>{
+      const cls = state.solved[i] ? 'dot ok' : (curP===i?'dot cur':'dot');
+      return `<span class="${cls}"></span>`;
+    }).join('');
+  }
+
+  let curP = 0;
+  // land on first unsolved
+  for(let i=0;i<P.length;i++){ if(!state.solved[i]){ curP=i; break; } if(i===P.length-1) curP=i; }
+
+  function render(){
+    renderDots();
+    if(P.length===0){ document.getElementById('labArea').innerHTML='<p style="color:var(--muted)">No puzzles.</p>'; return; }
+    const p = P[curP];
+    const pool = pools[curP];
+    const built = state.built[curP]||[];
+    const solved = !!state.solved[curP];
+    const usedSet = new Set(built);
+
+    const buildHTML = built.length
+      ? built.map((pi,slot)=>`<div class="lab-line placed" onclick="__lab.remove(${slot})"><span class="lab-num">${slot+1}</span><code>${esc(pool[pi].t)}</code>${solved?'':'<span class="lab-x">✕</span>'}</div>`).join('')
+      : '<div class="lab-empty">Tap code lines below to build your program here ↓</div>';
+
+    const poolHTML = pool.map((ln,pi)=> usedSet.has(pi)
+      ? `<button class="lab-chip used" disabled><code>${esc(ln.t)}</code></button>`
+      : `<button class="lab-chip" onclick="__lab.add(${pi})"><code>${esc(ln.t)}</code></button>`
+    ).join('');
+
+    document.getElementById('labArea').innerHTML =
+      `<div class="lab-goaltag">Puzzle ${curP+1} of ${P.length}</div>`+
+      `<div class="lab-goal">🎯 ${esc(p.goal)}</div>`+
+      (p.hint?`<div class="lab-hint">💡 ${esc(p.hint)}</div>`:'')+
+      `<div class="lab-build" id="labBuild">${buildHTML}</div>`+
+      (solved
+        ? `<div class="q-feedback show ok" style="display:block">✅ ${esc(p.done||'Nice — that program runs perfectly!')}</div>`
+        : `<div class="lab-pool">${poolHTML}</div>`+
+          `<div class="btn-row" style="justify-content:flex-start">`+
+            `<button class="btn go" onclick="__lab.run()">▶ RUN IT</button>`+
+            `<button class="btn ghost" onclick="__lab.clear()">Clear</button>`+
+          `</div>`+
+          `<div class="q-feedback" id="labFb"></div>`)+
+      `<div class="btn-row" style="justify-content:space-between;margin-top:14px">`+
+        (curP>0?`<button class="btn ghost" onclick="__lab.go(${curP-1})">← Prev</button>`:`<span></span>`)+
+        (state.solved[curP] && curP<P.length-1?`<button class="btn teal" onclick="__lab.go(${curP+1})">Next Puzzle →</button>`:
+          (state.solved[curP] && curP===P.length-1?`<span style="color:var(--good,#39e07a);font-weight:900">🏆 Lab complete!</span>`:`<span></span>`))+
+      `</div>`;
+  }
+
+  window.__lab = {
+    add(pi){ const b=state.built[curP]||(state.built[curP]=[]); if(!b.includes(pi)){b.push(pi);save();render();} },
+    remove(slot){ if(state.solved[curP])return; const b=state.built[curP]||[]; b.splice(slot,1); save(); render(); },
+    clear(){ state.built[curP]=[]; save(); render(); },
+    go(i){ curP=i; render(); window.scrollTo&&window.scrollTo(0,0); },
+    run(){
+      const p=P[curP], pool=pools[curP], built=state.built[curP]||[];
+      const gotOrds = built.map(pi=>pool[pi].correct?pool[pi].ord:'X');
+      const want = p.lines.map((_,i)=>i);
+      const ok = gotOrds.length===want.length && gotOrds.every((v,i)=>v===want[i]);
+      const fb=document.getElementById('labFb');
+      if(ok){
+        state.solved[curP]=true; save();
+        logMiss(true,p.goal,'P'+(curP+1));
+        bumpXP(15); toast('🧪 +15 XP');
+        render();
+      } else {
+        logMiss(false,p.goal,'P'+(curP+1));
+        // diagnostic
+        let msg='❌ Not yet — ';
+        if(built.some(pi=>!pool[pi].correct)) msg+='one of those lines is a trap that shouldn’t be in the program. ';
+        else if(built.length<want.length) msg+='you’re missing a line. ';
+        else if(built.length>want.length) msg+='you have too many lines. ';
+        else msg+='right lines, wrong order — think about what has to happen first. ';
+        if(fb){ fb.textContent=msg; fb.className='q-feedback show no'; }
+      }
+    }
+  };
+
+  // save on the same lifecycle events every lesson uses
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') save(); });
+  ['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,save));
+
+  // expose an init so the page can render the lab when its tab opens (or just render now)
+  window.renderLab = render;
+  render();
+})();
+</script>
+
+<style>
+.lab-goaltag{font-size:11px;font-weight:900;color:var(--purple,#b06eff);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.lab-goal{font-size:17px;font-weight:800;line-height:1.45;margin-bottom:8px}
+.lab-hint{font-size:13px;color:var(--muted,#8890b0);margin-bottom:12px;line-height:1.5}
+.lab-build{background:#08090f;border:2px dashed #333a5c;border-radius:12px;padding:10px;margin:10px 0;min-height:54px}
+.lab-empty{color:var(--muted,#8890b0);font-size:13px;text-align:center;padding:14px 6px}
+.lab-line{display:flex;align-items:center;gap:8px;background:#111426;border:1px solid #2a2f4a;border-radius:8px;padding:7px 10px;margin:5px 0;cursor:pointer;font-family:'Courier New',monospace}
+.lab-line.placed:active{transform:scale(.98)}
+.lab-line code{color:#e6edf3;font-size:13.5px;flex:1}
+.lab-num{background:var(--purple,#b06eff);color:#fff;font-weight:900;font-size:11px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-family:sans-serif}
+.lab-x{color:var(--bad,#ff4466);font-weight:900;font-size:13px}
+.lab-pool{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.lab-chip{text-align:left;background:var(--panel2,#1f2135);border:2px solid var(--line,#252840);border-radius:9px;padding:9px 12px;cursor:pointer;transition:.12s}
+.lab-chip:active{transform:scale(.98)}
+.lab-chip.used{opacity:.35;cursor:default}
+.lab-chip code{color:#cfe3ff;font-family:'Courier New',monospace;font-size:13.5px}
+</style>
+
 </body>
 </html>

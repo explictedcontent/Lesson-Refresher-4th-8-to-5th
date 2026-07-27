@@ -57,6 +57,16 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 ## Coding lessons — "Boss the Panda" game style
 - No "lesson", "phase", or "quiz" language visible on screen
 - XP counter fixed top-right, mission language, game copy throughout
+- EVERY coding level ends with a **🧪 CODE LAB** tab (added as the final mission,
+  screen `sc7`/`tab7`): 5 tap-to-order code puzzles where the kid assembles a real
+  program line-by-line, with trap lines to leave out. This exists because the build/quiz
+  screens tap through in ~5–10 min; the Lab adds hands-on, think-required time on task.
+  Engine is a self-contained IIFE (no top-level globals except `window.__lab`/`renderLab`),
+  reads `window.LAB_CFG` (key `coding-l<N>-lab`), reuses the lesson's `addXP`, logs to
+  `refresher-mistakes`, and saves on the same visibilitychange/pagehide/beforeunload/blur
+  events. Source of truth for puzzles + the inserter: scratchpad `lab-data.js` /
+  `insert-lab.js` / `lab-engine.html`. (Note: lesson 08 was missing its closing
+  `</script></body></html>` — repaired.)
 - Level 1 (`coding-lesson-01-intro.html`): variables, if/else, loops, grid challenge
 - Level 2 (`coding-lesson-02-functions.html`): define functions, call them, parameters, return values
 - Level 3 (`coding-lesson-03-lists.html`): lists/arrays — build, index access, loop, push/pop
@@ -93,7 +103,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 3994KB, 98 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 4138KB, 98 lessons)
 Each lesson is inlined into `window.LESSONS[file]` and opened in a **srcdoc iframe**
 (`frame.srcdoc = window.LESSONS[file]`). This is REQUIRED for saving to work:
 every lesson declares the same top-level names (`const QAKEY`, `let xp`, `function go`…),
