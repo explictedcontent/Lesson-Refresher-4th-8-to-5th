@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Real Code Lab 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn)}
+.screen{display:none;padding:16px;max-width:640px;margin:0 auto}
+.screen.active{display:block}
+.mission-header{background:linear-gradient(135deg,#0d0620,#12082c);border:2px solid var(--purple);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--purple);text-transform:uppercase;letter-spacing:.1em}
+.mission-title{font-size:21px;font-weight:900;margin:3px 0}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.goal{background:#0a1c12;border:1px solid var(--good);border-radius:10px;padding:10px 12px;font-size:14px;color:#bff0cf;margin-bottom:12px;line-height:1.5}
+.goal b{color:var(--good)}
+canvas{display:block;background:#0a0b13;border:2px solid var(--line);border-radius:12px;margin:0 auto 12px;max-width:100%}
+.editor-wrap{position:relative;margin-bottom:10px}
+.editor-label{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+textarea.code{width:100%;min-height:120px;background:#08090f;color:#e6edf3;border:2px solid #2a2f4a;border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;font-size:15px;line-height:1.6;resize:vertical;tab-size:2}
+textarea.code:focus{outline:none;border-color:var(--accent2)}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.95)}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:16px}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.console{background:#05060b;border:1px solid #2a2f4a;border-radius:10px;padding:10px 12px;font-family:'Courier New',monospace;font-size:13.5px;color:#9fb0d0;min-height:44px;margin-top:10px;white-space:pre-wrap;line-height:1.6}
+.console .ok{color:var(--good)}
+.console .err{color:var(--bad)}
+.console .say{color:var(--warn)}
+.win-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:12px;padding:14px;text-align:center;margin-top:12px;display:none}
+.win-banner.show{display:block}
+.win-banner h3{color:var(--good);font-size:18px;margin-bottom:4px}
+.hintbox{font-size:13px;color:var(--muted);background:#0f1220;border-left:3px solid var(--warn);padding:8px 12px;border-radius:0 8px 8px 0;margin-top:10px;line-height:1.5}
+.hintbox code,.mission-brief code,.goal code{background:#1a1f36;color:#ffcc88;padding:1px 6px;border-radius:5px;font-family:'Courier New',monospace;font-size:13px}
+.chip{display:inline-block;background:#1a1f36;color:#ffcc88;font-family:'Courier New',monospace;font-size:13px;padding:3px 9px;border-radius:6px;margin:3px 4px 0 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="xp-bar">⚡ <span id="xpNum">0</span> XP</div>
+<div class="mbar" id="mbar"></div>
+
+<div class="screen active" id="sc0">
+  <div class="mission-header">
+    <div class="mission-tag">Real Code · Demo</div>
+    <div class="mission-title">🐼 You Are the Coder</div>
+    <div class="mission-brief">No more tapping blocks. Here you <b>type real JavaScript</b> and the panda does exactly what you write. Type a command, hit <b>RUN</b>, watch it happen. Get it wrong? You’ll get a real error message — just like a real programmer. Ready?</div>
+  </div>
+  <div class="stage">
+    <p style="font-size:14px;color:var(--muted);line-height:1.6">Your commands to move the panda one square:</p>
+    <div style="margin:10px 0"><span class="chip">right()</span><span class="chip">left()</span><span class="chip">up()</span><span class="chip">down()</span><span class="chip">say("hi")</span></div>
+    <div class="btn-row"><button class="btn go" onclick="go(1)">Start Coding 🚀</button></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ STATE ═══════════ */
+const XKEY='coding-real-demo-xp', CKEY='coding-real-demo-code';
+let xp=0, cur=0, codeStore={};
+try{ xp=parseInt(localStorage.getItem(XKEY)||'0',10)||0; }catch(e){}
+try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
+
+function addXP(n){ xp+=n; document.getElementById('xpNum').textContent=xp; saveAll(); }
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
+function saveAll(){ try{localStorage.setItem(XKEY,String(xp));}catch(e){} try{localStorage.setItem(CKEY,JSON.stringify(codeStore));}catch(e){} }
+
+/* ═══════════ CHALLENGES ═══════════ */
+// grid coords: {x,y} 0-based, y down. panda starts at start, must reach goal.
+const LV = [
+  { key:'c1', label:'① MOVE', title:'Move the Panda',
+    goal:'Get the panda 🐼 to the bamboo 🎋. It’s <b>3 squares to the right</b>. Type <code>right()</code> three times (one per line), then hit RUN.',
+    grid:{w:5,h:3}, start:{x:0,y:1}, goal_:{x:3,y:1}, walls:[],
+    starter:'right()\n',
+    hint:'Each right() moves ONE square. You need three of them — put each on its own line.' },
+  { key:'c2', label:'② LOOP', title:'Use a Loop',
+    goal:'The bamboo is now <b>6 squares away</b>. Typing <code>right()</code> six times is boring — real coders use a <b>loop</b>. Run the loop below to move 6 times automatically.',
+    grid:{w:8,h:3}, start:{x:0,y:1}, goal_:{x:6,y:1}, walls:[],
+    starter:'for (let i = 0; i < 6; i++) {\n  right()\n}\n',
+    require:/for\s*\(/, requireMsg:'Try using the for-loop — that’s the whole point of this one!',
+    hint:'The loop repeats right() 6 times. Change the 6 to move a different amount.' },
+  { key:'c3', label:'③ VARIABLE', title:'Store a Number',
+    goal:'Reach the bamboo using a <b>variable</b>. Make a variable <code>steps</code>, then loop that many times. Figure out how many squares across the bamboo is and set <code>steps</code> to it!',
+    grid:{w:9,h:3}, start:{x:0,y:1}, goal_:{x:7,y:1}, walls:[],
+    starter:'let steps = 3\nfor (let i = 0; i < steps; i++) {\n  right()\n}\n',
+    require:/let\s+\w+/, requireMsg:'Use a variable with let — like let steps = 7',
+    hint:'Count the squares from the panda to the bamboo. Set steps to that number.' },
+  { key:'c4', label:'④ TURN', title:'Around the Wall',
+    goal:'A wall 🧱 blocks the path! Get to the bamboo by going <b>right, then up, then right</b>. Mix the commands to find your way around.',
+    grid:{w:6,h:4}, start:{x:0,y:2}, goal_:{x:4,y:0}, walls:[{x:2,y:2},{x:2,y:1}],
+    starter:'right()\nright()\nup()\n',
+    hint:'You can’t walk through 🧱. Go right until you’re past it, then up, then right to the bamboo.' },
+  { key:'c5', label:'⑤ FUNCTION', title:'Make Your Own Command',
+    goal:'Real coders make their OWN commands. Write a function <code>hop()</code> that goes <code>right()</code> then <code>up()</code>. Then call <code>hop()</code> to zig-zag to the bamboo!',
+    grid:{w:6,h:6}, start:{x:0,y:5}, goal_:{x:4,y:1}, walls:[],
+    starter:'function hop() {\n  right()\n  up()\n}\n\nhop()\n',
+    require:/function\s+\w+/, requireMsg:'Define your own function with the word function.',
+    hint:'hop() does two moves. Call hop() four times to climb the stairs to the bamboo.' },
+];
+
+/* ═══════════ BUILD TABS + SCREENS ═══════════ */
+const mbar=document.getElementById('mbar');
+mbar.innerHTML='<div class="mtab active" onclick="go(0)" id="tab0">🐼 START</div>'+
+  LV.map((l,i)=>`<div class="mtab" onclick="go(${i+1})" id="tab${i+1}">${l.label}</div>`).join('');
+
+LV.forEach((l,i)=>{
+  const n=i+1;
+  const sc=document.createElement('div');
+  sc.className='screen'; sc.id='sc'+n;
+  sc.innerHTML=
+    `<div class="mission-header"><div class="mission-tag">Mission ${n}</div>`+
+    `<div class="mission-title">${l.title}</div></div>`+
+    `<div class="stage">`+
+      `<div class="goal">🎯 ${l.goal}</div>`+
+      `<canvas id="cv${n}" width="360" height="240"></canvas>`+
+      `<div class="editor-wrap"><div class="editor-label">✍️ Your code</div>`+
+      `<textarea class="code" id="ed${n}" spellcheck="false" oninput="onEdit('${l.key}',${n})"></textarea></div>`+
+      `<div class="btn-row">`+
+        `<button class="btn go" onclick="runLevel(${n})">▶ RUN</button>`+
+        `<button class="btn ghost" onclick="resetLevel(${n})">↺ Reset panda</button>`+
+        `<button class="btn ghost" onclick="restarter(${n})">Clear code</button>`+
+      `</div>`+
+      `<div class="console" id="con${n}">Ready. Write your code and press RUN.</div>`+
+      `<div class="hintbox">💡 ${l.hint}</div>`+
+      `<div class="win-banner" id="win${n}"><h3>✅ Solved! +25 XP</h3><div style="color:var(--muted);font-size:13px">You wrote real code that worked.</div>`+
+        (n<LV.length?`<div class="btn-row" style="justify-content:center;margin-top:10px"><button class="btn teal" onclick="go(${n+1})">Next Mission →</button></div>`:`<div style="color:var(--good);font-weight:900;margin-top:10px">🏆 Demo complete — this is the new style!</div>`)+
+      `</div>`+
+    `</div>`;
+  document.body.insertBefore(sc, document.querySelector('script'));
+});
+
+/* ═══════════ NAV ═══════════ */
+const world={}; // per-level runtime state
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n>=1){
+    const l=LV[n-1];
+    const ed=document.getElementById('ed'+n);
+    if(ed && ed.value==='') ed.value = (codeStore[l.key]!==undefined?codeStore[l.key]:l.starter);
+    resetLevel(n);
+    for(let i=0;i<n;i++){const t=document.getElementById('tab'+i);if(t)t.classList.add('done');}
+  }
+}
+function onEdit(key,n){ codeStore[key]=document.getElementById('ed'+n).value; clearTimeout(onEdit._h); onEdit._h=setTimeout(saveAll,300); }
+function restarter(n){ const l=LV[n-1]; document.getElementById('ed'+n).value=l.starter; codeStore[l.key]=l.starter; saveAll(); }
+
+/* ═══════════ WORLD / DRAW ═══════════ */
+function cell(l){ return Math.floor(Math.min(360/l.grid.w, 240/l.grid.h)); }
+function resetLevel(n){
+  const l=LV[n-1];
+  world[n]={x:l.start.x,y:l.start.y,solved:world[n]&&world[n].solved};
+  document.getElementById('win'+n).classList.toggle('show', !!(world[n]&&world[n].solved));
+  draw(n);
+}
+function draw(n){
+  const l=LV[n-1]; const c=document.getElementById('cv'+n); const ctx=c.getContext('2d');
+  const cs=cell(l), ox=(c.width-cs*l.grid.w)/2, oy=(c.height-cs*l.grid.h)/2;
+  ctx.clearRect(0,0,c.width,c.height);
+  for(let y=0;y<l.grid.h;y++)for(let x=0;x<l.grid.w;x++){
+    ctx.fillStyle=((x+y)%2)?'#101326':'#0c0e1c';
+    ctx.fillRect(ox+x*cs,oy+y*cs,cs-1,cs-1);
+  }
+  ctx.font=Math.floor(cs*0.6)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  l.walls.forEach(w=>ctx.fillText('🧱',ox+w.x*cs+cs/2,oy+w.y*cs+cs/2));
+  ctx.fillText('🎋',ox+l.goal_.x*cs+cs/2,oy+l.goal_.y*cs+cs/2);
+  const p=world[n];
+  ctx.fillText('🐼',ox+p.x*cs+cs/2,oy+p.y*cs+cs/2);
+}
+
+/* ═══════════ RUN USER CODE (in a Worker, with timeout) ═══════════ */
+const WORKER_SRC=`
+self.onmessage=function(e){
+  var acts=[],count=0;
+  function act(t,a){ if(++count>400){ postMessage({type:'error',msg:'Whoa! That made 400+ moves — is a loop never stopping?'}); throw new Error('__cap'); } acts.push({t:t,a:a}); }
+  var right=function(){act('right')},left=function(){act('left')},up=function(){act('up')},down=function(){act('down')};
+  var say=function(x){act('say',String(x))};
+  try{ eval(e.data); postMessage({type:'done',acts:acts}); }
+  catch(err){ if(err&&err.message!=='__cap') postMessage({type:'error',msg:String(err&&err.message||err)}); }
+};`;
+let workerURL=null;
+try{ workerURL=URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})); }catch(e){}
+
+function con(n,html){ document.getElementById('con'+n).innerHTML=html; }
+function friendly(msg){
+  if(/is not defined/.test(msg)){ const m=msg.match(/(\w+) is not defined/); return `I don’t know the command <b>${m?m[1]:'that'}</b>. Check your spelling — commands are right() left() up() down() say().`; }
+  if(/Unexpected|SyntaxError|missing|token/i.test(msg)) return `Your code has a typo the computer can’t read. Check for a missing <code>)</code> <code>}</code> or a line that isn’t finished. (${msg})`;
+  return msg;
+}
+
+function runLevel(n){
+  const l=LV[n-1]; const code=document.getElementById('ed'+n).value;
+  codeStore[l.key]=code; saveAll();
+  document.getElementById('win'+n).classList.remove('show');
+  if(l.require && !l.require.test(code)){ con(n,`<span class="err">✋ ${l.requireMsg}</span>`); return; }
+  resetLevel(n); con(n,'Running your code…');
+
+  function afterActs(acts){
+    // animate
+    let i=0; const p=world[n];
+    con(n,'');
+    const step=()=>{
+      if(i>=acts.length){ checkWin(n); return; }
+      const a=acts[i++];
+      if(a.t==='say'){ const c=document.getElementById('con'+n); c.innerHTML+=`<span class="say">🐼 says: ${escapeHtml(a.a)}</span>\n`; setTimeout(step,180); return; }
+      let nx=p.x,ny=p.y;
+      if(a.t==='right')nx++; else if(a.t==='left')nx--; else if(a.t==='up')ny--; else if(a.t==='down')ny++;
+      // bounds + walls
+      if(nx<0||ny<0||nx>=l.grid.w||ny>=l.grid.h){ bump(n,'The panda hit the edge of the world! It can’t go there.'); return; }
+      if(l.walls.some(w=>w.x===nx&&w.y===ny)){ bump(n,'The panda bumped into a wall 🧱! Find another way around.'); return; }
+      p.x=nx;p.y=ny; draw(n); setTimeout(step,200);
+    };
+    step();
+  }
+  function bump(n,msg){ draw(n); con(n,`<span class="err">💥 ${msg}</span>`); }
+
+  if(workerURL){
+    const w=new Worker(workerURL);
+    const timer=setTimeout(()=>{ w.terminate(); con(n,`<span class="err">⏱️ Your code ran too long — maybe a loop that never ends. Give it a clear stopping point.</span>`); },1500);
+    w.onmessage=(e)=>{ clearTimeout(timer); w.terminate(); if(e.data.type==='error') con(n,`<span class="err">❌ ${friendly(e.data.msg)}</span>`); else afterActs(e.data.acts); };
+    w.onerror=(e)=>{ clearTimeout(timer); w.terminate(); con(n,`<span class="err">❌ ${friendly(e.message||'error')}</span>`); e.preventDefault&&e.preventDefault(); };
+    w.postMessage(code);
+  } else {
+    // fallback: synchronous with call cap
+    try{
+      const acts=[]; let count=0;
+      const cap=()=>{ if(++count>400) throw new Error('__cap'); };
+      const right=()=>{cap();acts.push({t:'right'})},left=()=>{cap();acts.push({t:'left'})},up=()=>{cap();acts.push({t:'up'})},down=()=>{cap();acts.push({t:'down'})},say=(x)=>{cap();acts.push({t:'say',a:String(x)})};
+      eval(code); afterActs(acts);
+    }catch(err){ con(n, err.message==='__cap'?`<span class="err">Whoa! 400+ moves — is a loop never stopping?</span>`:`<span class="err">❌ ${friendly(String(err.message||err))}</span>`); }
+  }
+}
+function escapeHtml(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+function checkWin(n){
+  const l=LV[n-1], p=world[n];
+  if(p.x===l.goal_.x && p.y===l.goal_.y){
+    const first=!(world[n].solved);
+    world[n].solved=true;
+    con(n,'<span class="ok">✅ You reached the bamboo!</span>');
+    document.getElementById('win'+n).classList.add('show');
+    if(first){ addXP(25); showToast('🎉 +25 XP — real code!'); }
+    document.getElementById('tab'+n).classList.add('done');
+  } else {
+    con(n,`<span class="err">So close — the panda stopped at column ${p.x}, row ${p.y}, but the bamboo is at column ${l.goal_.x}, row ${l.goal_.y}. Adjust your code and RUN again.</span>`);
+  }
+}
+
+/* ═══════════ SAVE LIFECYCLE ═══════════ */
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') saveAll(); });
+window.addEventListener('pagehide',saveAll);
+window.addEventListener('beforeunload',saveAll);
+window.addEventListener('blur',saveAll);
+
+document.getElementById('xpNum').textContent=xp;
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>
