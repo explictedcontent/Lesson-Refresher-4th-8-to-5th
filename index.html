@@ -136,7 +136,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 16 · Polar Bear 🐻‍❄️ — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 17 · Sky Bison 🦬💨 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — A World Built From Real Cultures",topic:"Geography",time:"45 min",file:"social-studies-lesson-17-sky-bison.html",desc:"The real cultures behind the Four Nations (Tibetan monks, Inuit, China, Japan), plus maps & compass directions."},
+      {n:2,emoji:"🔬",title:"Science — Could a Sky Bison Really Fly?",topic:"Science",time:"45 min",file:"science-lesson-17-sky-bison.html",desc:"The real science of flight — lift, weight, thrust & drag, how wings work, thermals — plus a take-off sequencer."},
+      {n:3,emoji:"📖",title:"ELA — Nimbus Learns to Soar",topic:"Reading",time:"45 min",file:"ela-lesson-17-sky-bison.html",desc:"A young sky bison crosses the mountains with his airbender friend. 7 vocab words, point of view, courage theme."},
+      {n:4,emoji:"📐",title:"Math — Coordinate Grid",topic:"Number",time:"45 min",file:"math-lesson-17-sky-bison.html",desc:"Plot & read ordered pairs (x, y) on a map grid — the x & y axes and the origin, with sky bison flight problems."},
+      {n:5,emoji:"💻",title:"Coding — Level 14: Sky Glider (Physics)",topic:"Coding",time:"60 min",file:"coding-lesson-14-flyer.html",desc:"Build a tap-to-fly game — code gravity & speed, flap to rise, dodge clouds, and score — then play it! 🪁"},
+    ]},
+    {label:"Day 16 · Polar Bear 🐻‍❄️ — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — The Top of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-16-polar-bear.html",desc:"The Arctic (ocean, not continent), Arctic nations, the Inuit, and why polar bears & penguins never meet."},
       {n:2,emoji:"🔬",title:"Science — Built for the Big Freeze",topic:"Science",time:"45 min",file:"science-lesson-16-polar-bear.html",desc:"Black skin, see-through fur, snowshoe paws, a mile-away nose, blubber — plus a seal-hunt sequencer."},
       {n:3,emoji:"📖",title:"ELA — Nanuk's Long Winter",topic:"Reading",time:"45 min",file:"ela-lesson-16-polar-bear.html",desc:"A cub learns to hunt with his patient mother. 7 vocab words, context clues, and a patience & persistence theme."},
@@ -260,6 +267,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 17 · Sky Bison 🦬💨", items:[
+       {n:17,emoji:"🦬",title:"Coordinate Grid",topic:"Number",time:"45 min",file:"math-lesson-17-sky-bison.html",desc:"Plot & read ordered pairs (x, y), the x & y axes, and the origin, with sky bison map-flight word problems."},
+     ]},
      {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
        {n:16,emoji:"🐻‍❄️",title:"Patterns & Function Tables",topic:"Number",time:"45 min",file:"math-lesson-16-polar-bear.html",desc:"Number patterns, finding the rule, and input/output function tables, with polar bear word problems."},
      ]},
@@ -314,6 +324,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 17 · Sky Bison 🦬💨", items:[
+       {n:17,emoji:"🦬",title:"Sky Bison: Could It Really Fly?",topic:"Science",time:"45 min",file:"science-lesson-17-sky-bison.html",desc:"The real science of flight — lift, weight, thrust & drag, how wings work, thermals, flip cards, and a take-off sequencer."},
+     ]},
      {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
        {n:16,emoji:"🐻‍❄️",title:"Polar Bear: Built for the Big Freeze",topic:"Science",time:"45 min",file:"science-lesson-16-polar-bear.html",desc:"Black skin, see-through fur, snowshoe paws, mile-away nose, blubber, flip cards, and a seal-hunt sequencer."},
      ]},
@@ -366,6 +379,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 17 · Sky Bison 🦬💨", items:[
+       {n:17,emoji:"🦬",title:"Sky Bison: Nimbus Learns to Soar",topic:"Reading",time:"45 min",file:"ela-lesson-17-sky-bison.html",desc:"A young sky bison crosses the mountains with his airbender friend. 7 vocab words, point-of-view game, courage theme."},
+     ]},
      {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
        {n:16,emoji:"🐻‍❄️",title:"Polar Bear: Nanuk's Long Winter",topic:"Reading",time:"45 min",file:"ela-lesson-16-polar-bear.html",desc:"A cub learns to hunt with his patient mother. 7 vocab words, context clues game, and a patience & persistence theme."},
      ]},
@@ -414,6 +430,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 17 · Sky Bison 🦬💨", items:[
+       {n:17,emoji:"🦬",title:"A World Built From Real Cultures",topic:"Geography",time:"45 min",file:"social-studies-lesson-17-sky-bison.html",desc:"The real cultures behind the Four Nations (Tibetan monks, Inuit, China, Japan), plus maps & compass directions."},
+     ]},
      {label:"Day 16 · Polar Bear 🐻‍❄️", items:[
        {n:16,emoji:"🐻‍❄️",title:"The Top of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-16-polar-bear.html",desc:"The Arctic (ocean, not continent), Arctic nations, the Inuit, sea ice, and the opposite-pole penguin contrast."},
      ]},
@@ -481,6 +500,7 @@ const SUBJECTS=[
        {n:11,emoji:"📖",title:"Level 11: Story Machine (Text)",topic:"Coding",time:"60 min",file:"coding-lesson-11-story.html",desc:"Build a Mad Libs story generator — text/strings, joining words with +, and templates — then make silly personalized stories — Boss the Panda Level 11!"},
        {n:12,emoji:"🗺️",title:"Level 12: Choose Your Adventure (Branching)",topic:"Coding",time:"60 min",file:"coding-lesson-12-adventure.html",desc:"Build a branching story — scenes, choices as if/else branches, and multiple endings; write your own ending and find them all — Boss the Panda Level 12!"},
        {n:13,emoji:"💚",title:"Level 13: Panda Pal (Virtual Pet)",topic:"Coding",time:"60 min",file:"coding-lesson-13-pet.html",desc:"Build a living virtual pet — an object of stats that change over time via a timer, with feed/play/sleep actions and mood logic — Boss the Panda Level 13!"},
+       {n:14,emoji:"🪁",title:"Level 14: Sky Glider (Physics)",topic:"Coding",time:"60 min",file:"coding-lesson-14-flyer.html",desc:"Build a tap-to-fly physics game — code gravity & velocity, flap to rise, collision with clouds, and scoring — Boss the Panda Level 14!"},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 14 🐼</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:.2s;user-select:none;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn);display:flex;align-items:center;gap:5px}
+.xp-flash{animation:xpPop .5s ease-out}
+@keyframes xpPop{0%{transform:scale(1.5);color:#fff}100%{transform:scale(1);color:var(--warn)}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none;animation:toastIn .4s}
+.toast.show{display:block}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%)translateY(20px)}to{opacity:1;transform:translateX(-50%)translateY(0)}}
+.screen{display:none;padding:16px;max-width:620px;margin:0 auto;animation:fadeIn .25s}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mission-header{background:linear-gradient(135deg,#1a0a00,#1f1200);border:2px solid var(--accent);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mission-title{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:4px}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.complete-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:14px;padding:16px;text-align:center;display:none;margin:12px 0;animation:fadeIn .4s}
+.complete-banner.show{display:block}
+.discovery{background:linear-gradient(135deg,#0a0520,#0f0828);border:2px solid var(--purple);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px;line-height:1.6;position:relative}
+.discovery::before{content:'💡 YOU DISCOVERED:';display:block;font-size:11px;font-weight:900;color:var(--purple);letter-spacing:.08em;margin-bottom:6px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;touch-action:manipulation}
+.btn:active{transform:scale(.93)}
+.btn.fire{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:17px;padding:14px 26px}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn.warn{background:var(--warn);border-color:var(--warn);color:#140e00}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.xl{padding:18px 30px;font-size:20px;font-weight:900}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;justify-content:center}
+.pulse{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff553355}50%{box-shadow:0 0 0 10px #ff553300}}
+canvas{display:block;border-radius:14px;margin:0 auto 12px;max-width:100%;border:2px solid var(--line);touch-action:manipulation;cursor:pointer}
+.code-block{background:#08090f;border:1px solid #252840;border-radius:10px;padding:13px 16px;font-family:'Courier New',Courier,monospace;font-size:14px;color:#e6edf3;margin:10px 0;line-height:1.9;overflow-x:auto;white-space:pre-wrap}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.num{color:#79c0ff}.fn{color:#d2a8ff}.prop{color:#7ee787}.hl{background:#ffcc0033;border-radius:4px;padding:1px 4px;color:#ffcc00;font-weight:900}.cm{color:#586070}
+.opt{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;margin:8px 0;cursor:pointer;transition:.15s}
+.opt.correct{background:#041208;border-color:var(--good);color:var(--good)}
+.opt.wrong{background:#130208;border-color:var(--bad);color:var(--bad)}
+.q-feedback{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px;display:none;line-height:1.5}
+.q-feedback.show{display:block}
+.q-feedback.ok{background:#041208;color:var(--good);border:1px solid var(--good)}
+.q-feedback.no{background:#130208;color:var(--bad);border:1px solid var(--bad)}
+.q-dots{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line);transition:.3s}
+.dot.ok{background:var(--good)}.dot.no{background:var(--bad)}.dot.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.score-screen{text-align:center;padding:30px 20px;background:var(--panel2);border-radius:16px;margin:16px 0;border:2px solid var(--warn)}
+.score-num{font-size:70px;font-weight:900;color:var(--good);line-height:1}
+.score-msg{font-size:22px;font-weight:900;margin:12px 0;color:var(--warn)}
+.hud{display:flex;justify-content:center;gap:18px;align-items:center;font-weight:900;font-size:16px;margin:4px auto 6px}
+.sec{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.1em;margin:18px 0 8px;text-align:center}
+p{font-size:15px;line-height:1.6;color:var(--muted);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="xp-bar">⚡ <span class="xp-num" id="xpNum">0</span> XP</div>
+<div class="toast" id="toast"></div>
+
+<div class="mbar">
+  <div class="mtab active" onclick="go(0)" id="tab0">🚀 LEVEL 14</div>
+  <div class="mtab" onclick="go(1)" id="tab1">⬇️ GRAVITY</div>
+  <div class="mtab" onclick="go(2)" id="tab2">🪶 THE FLAP</div>
+  <div class="mtab" onclick="go(3)" id="tab3">☁️ OBSTACLES</div>
+  <div class="mtab" onclick="go(4)" id="tab4">⭐ THE SCORE</div>
+  <div class="mtab" onclick="go(5)" id="tab5">🕹️ PLAY IT!</div>
+  <div class="mtab" onclick="go(6)" id="tab6">👑 BOSS TEST</div>
+</div>
+
+<!-- SCREEN 0 — INTRO -->
+<div class="screen active" id="sc0">
+  <div style="text-align:center;padding:30px 10px 20px">
+    <div style="font-size:72px;margin-bottom:10px">🐼🪁</div>
+    <h2 style="font-size:28px;color:var(--warn);font-weight:900;margin-bottom:6px">LEVEL 14: SKY GLIDER</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:400px;margin:0 auto 18px">
+      Games feel real because of <strong style="color:var(--ink)">PHYSICS</strong> — gravity pulling things down, speed building up. You'll code gravity and a flap, then build a tap-to-fly game where you glide through the sky!
+    </p>
+    <div style="background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;max-width:400px;margin:0 auto 22px;text-align:left">
+      <div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🛠️ You'll build: A FLYER GAME</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:15px">
+        <div>⬇️ <strong>Gravity</strong> — things fall faster and faster</div>
+        <div>🪶 <strong>The Flap</strong> — tap to push up</div>
+        <div>☁️ <strong>Obstacles</strong> — dodge or crash</div>
+        <div>⭐ <strong>The Score</strong> — points for each dodge</div>
+        <div>🕹️ <strong>Play It</strong> — fly as far as you can!</div>
+      </div>
+    </div>
+    <button class="btn fire xl pulse" onclick="go(1)">START BUILDING 🔨</button>
+  </div>
+</div>
+
+<!-- SCREEN 1 — GRAVITY -->
+<div class="screen" id="sc1">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 1 of 4</div>
+    <div class="mission-title">⬇️ Code Gravity</div>
+    <div class="mission-brief">Gravity doesn't pull at a steady speed — it makes things fall FASTER and faster. In code: add a little to the speed each frame, then move by that speed. Press DROP and watch!</div>
+  </div>
+
+  <canvas id="c1"></canvas>
+  <div class="hud">speed: <span id="vel1" style="color:var(--warn)">0</span></div>
+
+  <div class="btn-row"><button class="btn fire xl" onclick="drop1()">⬇️ DROP</button></div>
+
+  <div class="code-block"><span class="kw">let</span> speed = <span class="num">0</span>;
+<span class="kw">function</span> <span class="fn">everyFrame</span>() {
+  speed = speed + gravity;   <span class="cm">// gravity builds up speed</span>
+  y = y + speed;             <span class="cm">// move down by the speed</span>
+}</div>
+
+  <div class="discovery" id="disc1" style="display:none">
+    Gravity adds to the <strong style="color:var(--accent2)">speed</strong> every frame, and the speed moves the position. So the ball falls slowly at first, then faster and faster — just like real gravity! Two lines of code make real physics.
+  </div>
+
+  <div class="btn-row"><button class="btn go" id="m1go" style="display:none" onclick="go(2)">NEXT: THE FLAP →</button></div>
+</div>
+
+<!-- SCREEN 2 — THE FLAP -->
+<div class="screen" id="sc2">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 2 of 4</div>
+    <div class="mission-title">🪶 Add the Flap</div>
+    <div class="mission-brief">Gravity keeps pulling you down — so how do you go up? Tapping sets your speed to a strong UP push. Tap the game (or the FLY button) to stay in the air. Flap 6 times to continue!</div>
+  </div>
+
+  <canvas id="c2"></canvas>
+
+  <div class="btn-row"><button class="btn teal xl" onclick="flap(2)">🪶 FLY</button></div>
+
+  <div class="code-block"><span class="fn">onTap</span>(() => {
+  speed = <span class="num">-8</span>;   <span class="cm">// a negative speed means UP!</span>
+});</div>
+
+  <div class="discovery" id="disc2" style="display:none">
+    A tap sets your <strong style="color:var(--accent2)">speed</strong> to a negative number — and negative means UP on the screen. Then gravity slows you and pulls you back down, so you keep tapping to stay aloft. That's the whole feel of a flying game!
+  </div>
+
+  <div class="btn-row"><button class="btn go" id="m2go" style="display:none" onclick="go(3)">NEXT: OBSTACLES →</button></div>
+</div>
+
+<!-- SCREEN 3 — OBSTACLES -->
+<div class="screen" id="sc3">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 3 of 4</div>
+    <div class="mission-title">☁️ Add Obstacles</div>
+    <div class="mission-brief">Now for a challenge! Clouds scroll toward you with a gap to fly through. If you touch a cloud, you crash — that's collision detection. Fly through 2 gaps to continue!</div>
+  </div>
+
+  <div class="hud">☁️ Passed: <span id="pass3" style="color:var(--warn)">0</span> / 2</div>
+  <canvas id="c3"></canvas>
+
+  <div class="btn-row"><button class="btn teal xl" onclick="flap(3)">🪶 FLY</button><button class="btn ghost" onclick="restart(3)">↺ Retry</button></div>
+
+  <div class="code-block"><span class="kw">if</span> (bird hits a cloud) {
+  crash();   <span class="cm">// collision! start over</span>
+}</div>
+
+  <div class="discovery" id="disc3" style="display:none">
+    The game checks every frame: is the bird touching a cloud? That's <strong style="color:var(--accent2)">collision detection</strong> (Level 10!). Fly through the GAP and you're safe; touch a cloud and you crash. Physics + collision = a real game.
+  </div>
+
+  <div class="complete-banner" id="m3done">
+    <div style="font-size:34px">☁️</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">You dodged the clouds!</div>
+    <button class="btn go" style="margin-top:10px" onclick="go(4)">NEXT: THE SCORE →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4 — THE SCORE -->
+<div class="screen" id="sc4">
+  <div class="mission-header">
+    <div class="mission-tag">Build Step 4 of 4</div>
+    <div class="mission-title">⭐ Add the Score</div>
+    <div class="mission-brief">A game needs a goal! Each time you pass a cloud, an if-statement adds 1 to your score. Score 3 points to continue.</div>
+  </div>
+
+  <div class="hud">⭐ Score: <span id="score4" style="color:var(--good)">0</span> / 3</div>
+  <canvas id="c4"></canvas>
+
+  <div class="btn-row"><button class="btn teal xl" onclick="flap(4)">🪶 FLY</button><button class="btn ghost" onclick="restart(4)">↺ Retry</button></div>
+
+  <div class="code-block"><span class="kw">if</span> (bird passed a cloud) {
+  score = score + <span class="num">1</span>;   <span class="cm">// a point for each dodge!</span>
+}</div>
+
+  <div class="discovery" id="disc4" style="display:none">
+    When a cloud slides past you safely, an <strong style="color:var(--accent2)">if-statement</strong> adds 1 to the score. Physics moves you, collision can end the run, and scoring rewards you — all the pieces of a game working together.
+  </div>
+
+  <div class="complete-banner" id="m4done">
+    <div style="font-size:34px">⭐</div>
+    <div style="font-weight:900;font-size:18px;color:var(--good)">Scoring works — it's a real game!</div>
+    <button class="btn go xl pulse" style="margin-top:10px" onclick="go(5)">🕹️ PLAY THE FULL GAME →</button>
+  </div>
+</div>
+
+<!-- SCREEN 5 — PLAY IT -->
+<div class="screen" id="sc5">
+  <div class="mission-header" style="margin-bottom:10px">
+    <div class="mission-tag">Your Finished Game</div>
+    <div class="mission-title">🕹️ SKY GLIDER</div>
+    <div class="mission-brief">You built it! Tap the sky (or FLY) to flap, and glide through the gaps. Gravity is always pulling — keep tapping! Reach a score of 8 to win. 🪁</div>
+  </div>
+
+  <div class="hud">⭐ <span id="score5" style="color:var(--good)">0</span> / 8 &nbsp;·&nbsp; 🏆 Best: <span id="best5" style="color:var(--warn)">0</span></div>
+  <canvas id="c5"></canvas>
+
+  <div class="btn-row"><button class="btn fire xl" onclick="flap(5)">🪶 FLY</button><button class="btn ghost" onclick="restart(5)">↺ Restart</button></div>
+
+  <div class="complete-banner" id="m5done">
+    <div style="font-size:40px">🏆</div>
+    <div style="font-weight:900;font-size:20px;color:var(--good)">YOU BEAT YOUR OWN GAME!</div>
+    <p style="margin-top:6px">You built a flying game using physics (gravity + speed), events (the flap), collision detection, and a score — the exact ideas behind every action game.</p>
+    <button class="btn warn" style="margin-top:10px" onclick="go(6)">👑 TAKE THE BOSS TEST</button>
+  </div>
+</div>
+
+<!-- SCREEN 6 — BOSS TEST -->
+<div class="screen" id="sc6">
+  <div class="mission-header">
+    <div class="mission-tag">Final Challenge</div>
+    <div class="mission-title">👑 Boss Test: Gravity &amp; Physics</div>
+    <div class="mission-brief">10 rounds on gravity, speed, collision, and scoring. +10 XP each. Fly high!</div>
+  </div>
+  <div class="q-dots" id="qDots"></div>
+  <div id="qArea"></div>
+</div>
+
+<script>
+/* ═══ STATE ═══════════════════════════════════════════════ */
+const QAKEY='coding-l14-qans', QKEY='coding-l14-quiz', WKEY='coding-l14-fly';
+const PREFIX='Coding|Lesson 14: Gravity & Physics|';
+let xp=0, cur=0, best=0;
+
+function addXP(n){xp+=n;const el=document.getElementById('xpNum');el.textContent=xp;el.classList.remove('xp-flash');void el.offsetWidth;el.classList.add('xp-flash');saveAll();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1400);}
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+function go(n){
+  stopLoop();
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n>=1&&n<=5)startScreen(n);
+  for(let i=0;i<n;i++) document.getElementById('tab'+i).classList.add('done');
+}
+
+/* ═══ CANVAS + PHYSICS ════════════════════════════════════ */
+const GRAV=0.55, FLAP=-8, SPEED=2.7, GAP=125, OW=44, BIRDX=78, R=17;
+let loop=null, canvasId=null;
+let by, vel, obstacles, score, passed, running, crashed, flaps, tickN, dropped, m3ok=false,m4ok=false,m5ok=false;
+
+function cv(id){const c=document.getElementById(id);const ctx=c.getContext('2d');c.width=Math.min(480,window.innerWidth-32);c.height=300;return{c,ctx,w:c.width,h:c.height};}
+function stopLoop(){if(loop){clearInterval(loop);loop=null;}}
+
+function startScreen(n){
+  canvasId='c'+n;
+  resetRun(n);
+  const {c}=cv(canvasId);
+  c.onclick=()=>{ if(n>=2)flap(n); };
+  draw(n);
+  if(n===2||n===3||n===4||n===5){ loop=setInterval(()=>tick(n),33); running=true; }
+}
+function resetRun(n){
+  const {h}=cv('c'+n);
+  by=h*0.4; vel=0; obstacles=[]; score=0; passed=0; crashed=false; flaps=0; tickN=0; dropped=false; running=(n!==1);
+  if(n===3)document.getElementById('pass3').textContent='0';
+  if(n===4)document.getElementById('score4').textContent='0';
+  if(n===5){document.getElementById('score5').textContent='0';document.getElementById('best5').textContent=best;}
+}
+function drop1(){ dropped=true; vel=0; if(!loop){loop=setInterval(()=>tick(1),33);} }
+function flap(n){ if(n===1)return; if(crashed){restart(n);return;} vel=FLAP; flaps++;
+  if(n===2){ document.getElementById('disc2').style.display='block';
+    if(flaps>=6 && document.getElementById('m2go').style.display==='none'){document.getElementById('m2go').style.display='inline-flex';addXP(20);showToast('🪶 +20 XP');}
+  }
+}
+function restart(n){ stopLoop(); resetRun(n); const {c}=cv('c'+n); loop=setInterval(()=>tick(n),33); running=true; }
+
+function spawnMaybe(n,w,h){
+  if(n<3)return;
+  const last=obstacles[obstacles.length-1];
+  if(!last || last.x < w-170){
+    const gy=30+Math.floor(Math.random()*(h-60-GAP));
+    obstacles.push({x:w+10,gy:gy,passed:false});
+  }
+}
+function tick(n){
+  const {ctx,w,h}=cv('c'+n);
+  tickN++;
+  // physics
+  if(n===1){
+    if(dropped){ vel+=GRAV; by+=vel; document.getElementById('vel1').textContent=vel.toFixed(1);
+      if(by>=h-16-R){ by=h-16-R; stopLoop(); document.getElementById('disc1').style.display='block';
+        if(document.getElementById('m1go').style.display==='none'){document.getElementById('m1go').style.display='inline-flex';addXP(20);showToast('⬇️ +20 XP');}
+      }
+    }
+    draw(n);return;
+  }
+  if(crashed){draw(n);return;}
+  vel+=GRAV; by+=vel;
+  // bounds
+  if(by>h-16-R){by=h-16-R;vel=0; if(n>=3)doCrash(n);}
+  if(by<R){by=R;vel=0;}
+  // obstacles
+  if(n>=3){
+    spawnMaybe(n,w,h);
+    for(let i=obstacles.length-1;i>=0;i--){
+      const o=obstacles[i];
+      o.x-=SPEED;
+      // collision
+      if(o.x < BIRDX+R && o.x+OW > BIRDX-R){
+        if(by-R < o.gy || by+R > o.gy+GAP){ doCrash(n); }
+      }
+      // pass/score
+      if(!o.passed && o.x+OW < BIRDX-R){
+        o.passed=true; passed++; score++;
+        if(n===3){document.getElementById('pass3').textContent=passed; if(passed>=2)finishMission(3);}
+        if(n===4){document.getElementById('score4').textContent=score; if(score>=3)finishMission(4);}
+        if(n===5){document.getElementById('score5').textContent=score; if(score>best){best=score;document.getElementById('best5').textContent=best;} if(score>=8)finishMission(5);}
+      }
+      if(o.x+OW<-10)obstacles.splice(i,1);
+    }
+  }
+  draw(n);
+}
+function doCrash(n){
+  if(crashed)return;
+  crashed=true;
+  if(n===5&&score>best){best=score;document.getElementById('best5').textContent=best;}
+  showToast('💥 Crash! Tap Retry');
+  saveAll();
+}
+function finishMission(n){
+  if(n===3&&!m3ok){m3ok=true;document.getElementById('disc3').style.display='block';document.getElementById('m3done').classList.add('show');addXP(25);showToast('☁️ +25 XP');}
+  if(n===4&&!m4ok){m4ok=true;document.getElementById('disc4').style.display='block';document.getElementById('m4done').classList.add('show');addXP(25);showToast('⭐ +25 XP');}
+  if(n===5&&!m5ok){m5ok=true;document.getElementById('m5done').classList.add('show');addXP(60);showToast('🏆 +60 XP');stopLoop();}
+}
+function draw(n){
+  const {ctx,w,h}=cv('c'+n);
+  // sky
+  const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#0b1830');g.addColorStop(1,'#0a1420');
+  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  // ground
+  ctx.fillStyle='#0a2016';ctx.fillRect(0,h-16,w,16);
+  ctx.fillStyle='#143020';ctx.fillRect(0,h-18,w,3);
+  // obstacles
+  if(obstacles){
+    obstacles.forEach(o=>{
+      ctx.fillStyle='#3a2140';
+      roundRect(ctx,o.x,0,OW,o.gy,8);ctx.fill();
+      roundRect(ctx,o.x,o.gy+GAP,OW,h-16-(o.gy+GAP),8);ctx.fill();
+      ctx.font='20px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('☁️',o.x+OW/2,o.gy-12);ctx.fillText('☁️',o.x+OW/2,o.gy+GAP+12);
+    });
+  }
+  // bird
+  ctx.font='34px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(crashed?'💫':'🐼',BIRDX,by);
+  if(crashed){ctx.fillStyle='#ffffffcc';ctx.font='bold 18px sans-serif';ctx.fillText('Tap Retry ↺',w/2,h/2);}
+}
+function roundRect(ctx,x,y,w,hh,r){r=Math.min(r,Math.abs(hh)/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+hh,r);ctx.arcTo(x+w,y+hh,x,y+hh,r);ctx.arcTo(x,y+hh,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+/* keyboard */
+document.addEventListener('keydown',e=>{if(e.key===' '&&cur>=2&&cur<=5){e.preventDefault();flap(cur);}});
+
+/* ═══ QUIZ ════════════════════════════════════════════════ */
+const QS=[
+  {q:"In the game, what does gravity do to the bird's speed?",o:["Adds a little to it every frame","Sets it to exactly zero","Makes it a random number","Never changes it"],a:0,e:"Gravity adds to the speed each frame, so the bird falls faster and faster — real acceleration, built from one line of code."},
+  {q:"y = y + speed does what?",o:["Moves the bird by its current speed","Deletes the bird","Picks a random spot","Ends the game"],a:0,e:"Each frame the bird's position changes by its speed. A bigger speed means it moves farther that frame."},
+  {q:"To make the bird go UP when you tap, you set its speed to:",o:["A negative number","A huge positive number","Zero forever","The score"],a:0,e:"On a screen, up is a negative direction, so a tap sets speed to a negative value — the flap pushes the bird upward."},
+  {q:"After you flap, why does the bird slow down and start falling again?",o:["Gravity keeps adding to the speed","The game freezes","You ran out of taps","The score resets"],a:0,e:"Gravity never stops adding to the speed, so your upward flap fades and the bird comes back down. Keep tapping!"},
+  {q:"Checking if the bird touches a cloud is called:",o:["Collision detection","A random roll","A timer","A string"],a:0,e:"Collision detection checks each frame whether the bird overlaps an obstacle. Touch a cloud and you crash."},
+  {q:"When a cloud slides safely past the bird, the code:",o:["Adds 1 to the score","Ends the game","Removes gravity","Slows the clouds"],a:0,e:"An if-statement notices the cloud passed and adds a point. That's how you earn score in the game."},
+  {q:"The bird falls slowly at first, then faster and faster. That speeding up is called:",o:["Acceleration","A loop","A list","A crash"],a:0,e:"Acceleration means the speed keeps increasing. Gravity accelerates the bird downward every frame."},
+  {q:"The game updates the bird and clouds about 30 times a second. That repeating update is the:",o:["Game loop","Score","Single tap","Cloud"],a:0,e:"A loop runs many times a second: move everything, check collisions, redraw. That's the heartbeat of the game."},
+  {q:"If you never tap in the game, the bird will:",o:["Fall and hit the ground","Fly up forever","Stay perfectly still","Score points on its own"],a:0,e:"With no flap, gravity wins and the bird falls to the ground. You have to keep flapping to stay up."},
+  {q:"Gravity, speed, the flap, collision, and score together make:",o:["A real physics game","Only a math worksheet","Only music","Nothing playable"],a:0,e:"Those pieces are the core of every action game with movement and jumping. You built a real one!"}
+];
+
+let qIdx=0,qAns_={},qDone_=false;
+function logMistake(ok,text,title){
+  try{let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');const k=PREFIX+title;
+    if(!ok){m[k]={subject:'Coding',day:'Lesson 14',q:text,file:'coding-lesson-14-flyer.html'};}
+    else{delete m[k];}localStorage.setItem('refresher-mistakes',JSON.stringify(m));}catch(e){}
+}
+function buildQuiz(){
+  document.getElementById('qDots').innerHTML=QS.map((_,i)=>`<span class="dot" id="dot${i}"></span>`).join('');
+  renderQ();
+}
+function renderQ(){
+  if(qDone_){showScore();return;}
+  QS.forEach((_,i)=>{const d=document.getElementById('dot'+i);if(!d)return;d.className='dot'+(qAns_[i]!==undefined?(qAns_[i]===QS[i].a?' ok':' no'):(i===qIdx?' cur':''));});
+  const q=QS[qIdx];
+  document.getElementById('qArea').innerHTML=
+    `<div style="font-size:11px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Round ${qIdx+1} of ${QS.length}</div>`+
+    `<div style="font-size:18px;font-weight:800;margin-bottom:14px;line-height:1.5">${esc(q.q)}</div>`+
+    q.o.map((o,i)=>`<button class="opt" id="opt${i}" onclick="ansQ(${i})">${esc(o)}</button>`).join('')+
+    `<div class="q-feedback" id="qfb"></div>`+
+    `<div id="qnxt" style="display:none;margin-top:12px"><button class="btn ${qIdx===QS.length-1?'warn':'teal'}" onclick="nextQ()">${qIdx===QS.length-1?'🏆 See Score!':'Next →'}</button></div>`;
+  if(qAns_[qIdx]!==undefined){
+    const p=qAns_[qIdx];const ok=p===q.a;
+    document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===p&&!ok)b.classList.add('wrong');});
+    const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+    document.getElementById('qnxt').style.display='block';
+  }
+}
+function ansQ(i){
+  if(qAns_[qIdx]!==undefined)return;
+  const q=QS[qIdx];const ok=i===q.a;
+  qAns_[qIdx]=i;
+  try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}
+  logMistake(ok,q.q,'Q'+(qIdx+1));
+  if(ok)addXP(10);
+  document.querySelectorAll('.opt').forEach((b,bi)=>{b.disabled=true;if(bi===q.a)b.classList.add('correct');if(bi===i&&!ok)b.classList.add('wrong');});
+  const fb=document.getElementById('qfb');fb.textContent=(ok?'✅ CORRECT! ':'❌ Not quite — ')+q.e;fb.className='q-feedback show '+(ok?'ok':'no');
+  document.getElementById('qnxt').style.display='block';
+  const d=document.getElementById('dot'+qIdx);if(d)d.className='dot '+(ok?'ok':'no');
+  if(ok)showToast('+10 XP 🔥');
+}
+function nextQ(){qIdx++;if(qIdx>=QS.length)qDone_=true;try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}renderQ();}
+function showScore(){
+  const c=QS.filter((_,i)=>qAns_[i]===QS[i].a).length;
+  const pct=Math.round(c/QS.length*100);
+  const msg=pct===100?'🏆 PERFECT — PHYSICS MASTER UNLOCKED!':pct>=80?'🔥 CRUSHING IT!':pct>=60?'💪 SOLID WORK!':'🐼 KEEP GRINDING!';
+  document.getElementById('qArea').innerHTML=`<div class="score-screen"><div class="score-num">${c}/${QS.length}</div><div class="score-msg">${msg}</div><p style="color:var(--muted)">${pct}% correct — Total XP: ${xp}</p><p style="color:var(--muted);margin-top:8px">You coded real physics. 🪁🐼</p></div>`;
+  try{localStorage.setItem(QKEY,JSON.stringify({score:c,total:QS.length,pct}));}catch(e){}
+}
+function restoreQuiz(){
+  try{const s=localStorage.getItem(QAKEY);if(!s)return;Object.assign(qAns_,JSON.parse(s));const keys=Object.keys(qAns_).map(Number);if(keys.length>=QS.length){qDone_=true;qIdx=QS.length;}else if(keys.length>0){qIdx=Math.max(...keys)+1;if(qIdx>=QS.length)qDone_=true;}}catch(e){}
+}
+
+/* ─── Safety save ─────────────────────────────────────────── */
+function saveAll(){try{localStorage.setItem(QAKEY,JSON.stringify(qAns_));}catch(e){}try{localStorage.setItem(WKEY,JSON.stringify({xp,best}));}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){stopLoop();saveAll();}});
+['pagehide','beforeunload','blur'].forEach(ev=>window.addEventListener(ev,()=>{stopLoop();saveAll();}));
+
+/* ─── Init ────────────────────────────────────────────────── */
+function init(){
+  try{const s=JSON.parse(localStorage.getItem(WKEY)||'{}');if(s.xp)xp=s.xp;if(s.best)best=s.best;document.getElementById('xpNum').textContent=xp;}catch(e){}
+  buildQuiz();restoreQuiz();
+}
+init();
+window.addEventListener('resize',()=>{if(cur>=1&&cur<=5)draw(cur);});
+</script>
+</body>
+</html>

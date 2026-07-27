@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 17 — Coordinate Grid</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* COORDINATE GRID (clean, no theme) */
+.grid-wrap{display:flex;justify-content:center;margin:16px 0 6px}
+.grid-wrap svg{max-width:360px;width:100%;height:auto;display:block}
+.grid-caption{text-align:center;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* PLOT / READ GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:8px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:200px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:520px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Reading</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Plotting</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🦬💨</div>
+  <h1>Math Day 17 — Coordinate Grid</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Sky Bison Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick coordinate questions — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — READING A COORDINATE GRID
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>📖 Phase 2 — Reading a Coordinate Grid <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">Learn how points work, then read points off the grid.</p>
+
+  <div class="teach-card">
+    <h3>📋 A Point is Written as (x, y)</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">A coordinate grid has two lines called <strong style="color:var(--accent2)">axes</strong>. The <strong style="color:var(--accent2)">x-axis</strong> goes ACROSS (left–right). The <strong style="color:var(--accent2)">y-axis</strong> goes UP and down. Where they meet is the <strong style="color:var(--accent2)">origin</strong> — the point <strong style="color:var(--warn)">(0, 0)</strong>.</p>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">Every point is written as <strong style="color:var(--warn)">(x, y)</strong>. Read it as <strong style="color:var(--accent2)">"across first, then up"</strong> — starting from the origin, count how far across (x), then how far up (y).</p>
+
+    <div class="grid-wrap" id="teach-grid"></div>
+    <div class="grid-caption">Point A is (2, 3): across 2, up 3. Point B is (5, 1). Point C is (6, 6).</div>
+
+    <div class="teach-note">
+      The <span class="hl">first</span> number is ACROSS (the x-axis). The <span class="hl">second</span> number is UP (the y-axis). Order matters: <span class="hl">(2, 3)</span> is NOT the same spot as <span class="hl">(3, 2)</span>!
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="read-label">Question 1 of 6</span>
+    <div class="pa-prompt" id="read-prompt">What are the coordinates of the dot?</div>
+    <div class="grid-wrap" id="read-grid"></div>
+    <div class="warmup-choices" id="read-choices" style="margin-top:8px"></div>
+    <div class="pa-feedback" id="read-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="read-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="read-next" onclick="readNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="read-done">✓ You can read the grid!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — PLOTTING POINTS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>📍 Phase 3 — Plotting Points <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">Now YOU place the point. Tap the grid at the right spot.</p>
+
+  <div class="teach-card">
+    <h3>📋 How to PLOT (x, y)</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">To plot a point like <strong style="color:var(--warn)">(4, 2)</strong>:</p>
+    <div class="concept-row">
+      <div class="concept-box"><div class="cb-name">Step 1</div><div class="cb-eq" style="font-size:13px">Start at the origin (0, 0)</div></div>
+      <div class="concept-box"><div class="cb-name">Step 2</div><div class="cb-eq" style="font-size:13px">Go ACROSS 4 (the x)</div></div>
+      <div class="concept-box"><div class="cb-name">Step 3</div><div class="cb-eq" style="font-size:13px">Go UP 2 (the y)</div></div>
+    </div>
+    <div class="teach-note">
+      Always go <span class="hl">across first</span>, then <span class="hl">up</span> — same order as the numbers in (x, y). Mark the point where you land.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="plot-label">Point 1 of 5</span>
+    <div class="pa-prompt" id="plot-prompt"></div>
+    <div class="grid-wrap" id="plot-grid"></div>
+    <div class="pa-feedback" id="plot-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="plot-progress">0 / 5 correct</span>
+      <button class="btn btn-teal hidden" id="plot-next" onclick="plotNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="plot-done">✓ Plotting mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🦬 Phase 4 — Sky Bison Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 map problems (a map is just a coordinate grid!). Type your answer, then reveal the solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Nicely done.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Coordinate Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 quick coordinate problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l17-qans";
+const QKEY  = "math-l17-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 17: Coordinate Grid|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 17', q: questionText, file: 'math-lesson-17-sky-bison.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// NORMALIZERS
+// ═══════════════════════════════════════════════════════════
+// Pull all numbers out of a string, e.g. "(5, 5)" -> [5,5], "5 5" -> [5,5]
+function numsIn(s) {
+  const m = String(s).match(/\d+/g);
+  return m ? m.map(Number) : [];
+}
+// Compare a typed coordinate answer to a target [x,y] flexibly
+function coordMatch(raw, tx, ty) {
+  const n = numsIn(raw);
+  return n.length >= 2 && n[0] === tx && n[1] === ty;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLEAN COORDINATE GRID BUILDER (no theme)
+// 0..10 on both axes, x across, y up
+// ═══════════════════════════════════════════════════════════
+const SVGNS = 'http://www.w3.org/2000/svg';
+const G_UNIT = 30, G_OX = 40, G_OY = 320; // origin pixel
+function gpx(x){ return G_OX + x * G_UNIT; }
+function gpy(y){ return G_OY - y * G_UNIT; }
+
+function makeGrid(opts) {
+  opts = opts || {};
+  const dots = opts.dots || [];
+  const tappable = !!opts.tappable;
+  const onTap = opts.onTap || null;
+
+  const svg = document.createElementNS(SVGNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 360 360');
+  svg.setAttribute('role', 'img');
+  svg.style.touchAction = 'manipulation';
+
+  // grid lines
+  for (let i = 0; i <= 10; i++) {
+    const vline = document.createElementNS(SVGNS, 'line');
+    vline.setAttribute('x1', gpx(i)); vline.setAttribute('y1', gpy(0));
+    vline.setAttribute('x2', gpx(i)); vline.setAttribute('y2', gpy(10));
+    vline.setAttribute('stroke', i === 0 ? '#5bd1c4' : '#2e3347');
+    vline.setAttribute('stroke-width', i === 0 ? '2.5' : '1');
+    svg.appendChild(vline);
+
+    const hline = document.createElementNS(SVGNS, 'line');
+    hline.setAttribute('x1', gpx(0)); hline.setAttribute('y1', gpy(i));
+    hline.setAttribute('x2', gpx(10)); hline.setAttribute('y2', gpy(i));
+    hline.setAttribute('stroke', i === 0 ? '#5bd1c4' : '#2e3347');
+    hline.setAttribute('stroke-width', i === 0 ? '2.5' : '1');
+    svg.appendChild(hline);
+  }
+
+  // axis number labels
+  for (let i = 0; i <= 10; i++) {
+    const xlab = document.createElementNS(SVGNS, 'text');
+    xlab.setAttribute('x', gpx(i)); xlab.setAttribute('y', G_OY + 15);
+    xlab.setAttribute('fill', '#a7adc4'); xlab.setAttribute('font-size', '9');
+    xlab.setAttribute('text-anchor', 'middle');
+    xlab.textContent = i;
+    svg.appendChild(xlab);
+
+    if (i > 0) {
+      const ylab = document.createElementNS(SVGNS, 'text');
+      ylab.setAttribute('x', G_OX - 10); ylab.setAttribute('y', gpy(i) + 3.5);
+      ylab.setAttribute('fill', '#a7adc4'); ylab.setAttribute('font-size', '9');
+      ylab.setAttribute('text-anchor', 'middle');
+      ylab.textContent = i;
+      svg.appendChild(ylab);
+    }
+  }
+
+  // axis titles
+  const xt = document.createElementNS(SVGNS, 'text');
+  xt.setAttribute('x', gpx(10) + 12); xt.setAttribute('y', G_OY + 4);
+  xt.setAttribute('fill', '#5bd1c4'); xt.setAttribute('font-size', '13');
+  xt.setAttribute('font-weight', '700'); xt.setAttribute('text-anchor', 'middle');
+  xt.textContent = 'x';
+  svg.appendChild(xt);
+
+  const yt = document.createElementNS(SVGNS, 'text');
+  yt.setAttribute('x', G_OX); yt.setAttribute('y', gpy(10) - 8);
+  yt.setAttribute('fill', '#5bd1c4'); yt.setAttribute('font-size', '13');
+  yt.setAttribute('font-weight', '700'); yt.setAttribute('text-anchor', 'middle');
+  yt.textContent = 'y';
+  svg.appendChild(yt);
+
+  // tappable intersections
+  if (tappable && onTap) {
+    for (let x = 0; x <= 10; x++) {
+      for (let y = 0; y <= 10; y++) {
+        const hit = document.createElementNS(SVGNS, 'circle');
+        hit.setAttribute('cx', gpx(x)); hit.setAttribute('cy', gpy(y));
+        hit.setAttribute('r', '13');
+        hit.setAttribute('fill', 'transparent');
+        hit.style.cursor = 'pointer';
+        (function(px, py){
+          hit.addEventListener('click', function(){ onTap(px, py); });
+        })(x, y);
+        svg.appendChild(hit);
+      }
+    }
+  }
+
+  // dots
+  dots.forEach(d => {
+    const c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('cx', gpx(d.x)); c.setAttribute('cy', gpy(d.y));
+    c.setAttribute('r', d.r || 6);
+    c.setAttribute('fill', d.color || '#ff7a59');
+    c.setAttribute('stroke', '#14151d'); c.setAttribute('stroke-width', '1.5');
+    svg.appendChild(c);
+    if (d.label) {
+      const t = document.createElementNS(SVGNS, 'text');
+      t.setAttribute('x', gpx(d.x) + 9); t.setAttribute('y', gpy(d.y) - 7);
+      t.setAttribute('fill', d.color || '#ff7a59'); t.setAttribute('font-size', '11');
+      t.setAttribute('font-weight', '700');
+      t.textContent = d.label;
+      svg.appendChild(t);
+    }
+  });
+
+  return svg;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (clean coordinate basics)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "On a coordinate grid, which way does the x-axis go?",
+    choices: ["Up and down the page", "Across (left to right)", "Diagonally corner to corner", "In a spiral"],
+    correct: 1,
+    explain: "The x-axis runs across, left to right."
+  },
+  {
+    q: "Which way does the y-axis go?",
+    choices: ["Up and down", "Across left to right", "Around in a circle", "Backwards"],
+    correct: 0,
+    explain: "The y-axis runs up and down."
+  },
+  {
+    q: "What are the coordinates of the origin — the corner where the axes meet?",
+    choices: ["(1, 0)", "(0, 1)", "(0, 0)", "(10, 10)"],
+    correct: 2,
+    explain: "The origin is (0, 0) — zero across and zero up."
+  },
+  {
+    q: "In the point (3, 5), which number tells how far ACROSS?",
+    choices: ["3", "5", "8", "35"],
+    correct: 0,
+    explain: "The first number, 3, is the x — how far across."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — READING POINTS (clean grid, MC)
+// ═══════════════════════════════════════════════════════════
+const readQs = [
+  { x:2, y:3, choices:["(3, 2)", "(2, 3)", "(2, 2)", "(3, 3)"], correct:1,
+    explain:"Across 2, up 3, so the point is (2, 3)." },
+  { x:5, y:1, choices:["(1, 5)", "(5, 5)", "(4, 1)", "(5, 1)"], correct:3,
+    explain:"Across 5, up 1, so the point is (5, 1)." },
+  { x:0, y:4, choices:["(0, 4)", "(4, 0)", "(0, 0)", "(4, 4)"], correct:0,
+    explain:"On the y-axis, across 0 and up 4, so it's (0, 4)." },
+  { x:6, y:6, choices:["(6, 0)", "(0, 6)", "(6, 6)", "(3, 6)"], correct:2,
+    explain:"Across 6, up 6, so the point is (6, 6)." },
+  { x:3, y:0, choices:["(0, 3)", "(3, 3)", "(0, 0)", "(3, 0)"], correct:3,
+    explain:"On the x-axis, across 3 and up 0, so it's (3, 0)." },
+  { x:4, y:7, choices:["(7, 4)", "(4, 7)", "(4, 4)", "(7, 7)"], correct:1,
+    explain:"Across 4, up 7, so the point is (4, 7)." }
+];
+
+let readIdx = 0, readCorrect = 0, readAnswered = false;
+
+function renderRead() {
+  const q = readQs[readIdx];
+  document.getElementById('read-label').textContent = 'Question ' + (readIdx+1) + ' of 6';
+  const fb = document.getElementById('read-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('read-next').classList.add('hidden');
+  readAnswered = false;
+
+  const wrap = document.getElementById('read-grid');
+  wrap.innerHTML = '';
+  wrap.appendChild(makeGrid({ dots: [{ x:q.x, y:q.y, color:'#ff7a59' }] }));
+
+  const choicesEl = document.getElementById('read-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerRead(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('read-progress').textContent = readCorrect + ' / 6 correct so far';
+}
+
+function answerRead(idx) {
+  if (readAnswered) return;
+  readAnswered = true;
+  const q = readQs[readIdx];
+  const btns = document.querySelectorAll('#read-choices .choice-btn');
+  const fb = document.getElementById('read-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    readCorrect++;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('read-progress').textContent = readCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('read-next');
+  nextBtn.classList.remove('hidden');
+  if (readIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishRead;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = readNext;
+  }
+}
+
+function readNext() {
+  readIdx++;
+  if (readIdx < 6) renderRead();
+}
+
+function finishRead() {
+  document.getElementById('read-done').classList.add('show');
+  document.getElementById('read-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — PLOTTING POINTS (clean tappable grid)
+// ═══════════════════════════════════════════════════════════
+const plotProblems = [
+  { x:4, y:2 }, { x:1, y:5 }, { x:6, y:3 }, { x:0, y:6 }, { x:3, y:3 }
+];
+
+let plotIdx = 0, plotCorrect = 0, plotAnswered = false;
+
+function renderPlot() {
+  const p = plotProblems[plotIdx];
+  document.getElementById('plot-label').textContent = 'Point ' + (plotIdx+1) + ' of 5';
+  document.getElementById('plot-prompt').innerHTML =
+    'Tap the grid at <span class="hl">(' + p.x + ', ' + p.y + ')</span>';
+  plotAnswered = false;
+  const fb = document.getElementById('plot-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('plot-next').classList.add('hidden');
+
+  const wrap = document.getElementById('plot-grid');
+  wrap.innerHTML = '';
+  wrap.appendChild(makeGrid({ tappable: true, onTap: handlePlotTap }));
+
+  document.getElementById('plot-progress').textContent = plotCorrect + ' / 5 correct so far';
+}
+
+function handlePlotTap(x, y) {
+  if (plotAnswered) return;
+  plotAnswered = true;
+  const p = plotProblems[plotIdx];
+  const correct = (x === p.x && y === p.y);
+  const fb = document.getElementById('plot-feedback');
+
+  const wrap = document.getElementById('plot-grid');
+  wrap.innerHTML = '';
+  if (correct) {
+    plotCorrect++;
+    wrap.appendChild(makeGrid({ dots: [{ x:p.x, y:p.y, color:'#7bd88f', label:'(' + p.x + ', ' + p.y + ')' }] }));
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! You landed on (' + p.x + ', ' + p.y + ').';
+  } else {
+    wrap.appendChild(makeGrid({ dots: [
+      { x:p.x, y:p.y, color:'#7bd88f', label:'goal' },
+      { x:x, y:y, color:'#ff6b81', label:'you' }
+    ]}));
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ You tapped (' + x + ', ' + y + '). The target was (' + p.x + ', ' + p.y + ') — across ' + p.x + ', then up ' + p.y + '.';
+  }
+  document.getElementById('plot-progress').textContent = plotCorrect + ' / 5 correct so far';
+  const nextBtn = document.getElementById('plot-next');
+  nextBtn.classList.remove('hidden');
+  if (plotIdx === 4) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishPlot;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = plotNext;
+  }
+}
+
+function plotNext() {
+  plotIdx++;
+  if (plotIdx < 5) renderPlot();
+}
+
+function finishPlot() {
+  document.getElementById('plot-done').classList.add('show');
+  document.getElementById('plot-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (sky bison data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "On a map grid, a sky bison starts at the origin <strong>(0, 0)</strong> and flies to the Air Temple at <strong>(4, 3)</strong>. How far ACROSS (east) did it travel?",
+    solution: [
+      {label:"Idea", text:"The across distance is the x-coordinate of where it landed."},
+      {label:"Read", math:"Landed at (4, 3) → x = 4"},
+      {label:"Answer", text:"It travelled 4 units across (east)."},
+      {label:"Check", text:"From x = 0 to x = 4 is 4 units ✓"}
+    ]
+  },
+  {
+    text: "Using that same flight to <strong>(4, 3)</strong>, how far UP (north) did the sky bison travel?",
+    solution: [
+      {label:"Idea", text:"The up distance is the y-coordinate of where it landed."},
+      {label:"Read", math:"Landed at (4, 3) → y = 3"},
+      {label:"Answer", text:"It travelled 3 units up (north)."},
+      {label:"Check", text:"From y = 0 to y = 3 is 3 units ✓"}
+    ]
+  },
+  {
+    text: "A flying bison is resting at point <strong>(2, 5)</strong>. It moves <strong>3 units to the right</strong> (east). What is its new point?",
+    solution: [
+      {label:"Idea", text:"Moving right changes the x-coordinate; y stays the same."},
+      {label:"Solve", math:"x: 2 + 3 = 5,  y stays 5"},
+      {label:"Answer", text:"Its new point is (5, 5)."},
+      {label:"Check", text:"It only moved sideways, so up-value 5 didn't change ✓"}
+    ]
+  },
+  {
+    text: "A sky bison is at <strong>(6, 2)</strong>. It flies <strong>4 units up</strong> (north). What is its new coordinate?",
+    solution: [
+      {label:"Idea", text:"Moving up changes the y-coordinate; x stays the same."},
+      {label:"Solve", math:"y: 2 + 4 = 6,  x stays 6"},
+      {label:"Answer", text:"Its new coordinate is (6, 6)."},
+      {label:"Check", text:"It only moved up, so across-value 6 didn't change ✓"}
+    ]
+  },
+  {
+    text: "Two Air Temples are at <strong>(1, 4)</strong> and <strong>(7, 4)</strong>. They are on the same row. How many units apart are they?",
+    solution: [
+      {label:"Idea", text:"Same y (row), so subtract the x-values to get the distance."},
+      {label:"Solve", math:"7 − 1 = 6"},
+      {label:"Answer", text:"They are 6 units apart."},
+      {label:"Check", text:"Both sit on the y = 4 line, so it's a flat, straight-across gap ✓"}
+    ]
+  },
+  {
+    text: "A sky bison flies from <strong>(3, 1)</strong> to <strong>(3, 8)</strong>. Both points have x = 3, so it flew straight up. How many units UP did it go?",
+    solution: [
+      {label:"Idea", text:"Same x (column), so subtract the y-values to get the distance."},
+      {label:"Solve", math:"8 − 1 = 7"},
+      {label:"Answer", text:"It flew 7 units up."},
+      {label:"Check", text:"Both points share x = 3, so the path is a straight vertical line ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"Which axis goes across?", choices:["x-axis","y-axis","origin"], correct:0 },
+  { q:"The point (0, 0) is called the?", choices:["Origin","Corner","Center"], correct:0 },
+  { q:"In (7, 2), how far up?", choices:["7","2","9"], correct:1 },
+  { q:"In (3, 9), how far across?", choices:["9","12","3"], correct:2 },
+  { q:"Start at (2, 2), go 3 right. New point?", choices:["(5, 2)","(2, 5)","(5, 5)"], correct:0 },
+  { q:"Start at (4, 1), go 5 up. New point?", choices:["(9, 1)","(4, 6)","(4, 5)"], correct:1 },
+  { q:"From (2, 3) to (2, 7): how far up?", choices:["5","4","10"], correct:1 },
+  { q:"From (1, 5) to (6, 5): how far across?", choices:["7","6","5"], correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "A point is written as:",
+    opts: ["(y, x) — up then across", "(x, y) — across then up", "(x, y) — up then across the grid", "a single number by itself"],
+    correct: 1,
+    explain: "A point is (x, y): across first, then up."
+  },
+  {
+    q: "The x-axis goes:",
+    opts: ["Across, left to right", "Up and down the grid", "Diagonally across", "In a circle around the origin point"],
+    correct: 0,
+    explain: "The x-axis runs across, left to right."
+  },
+  {
+    q: "What are the coordinates of the origin?",
+    opts: ["(1, 1)", "(10, 10)", "(5, 5)", "(0, 0)"],
+    correct: 3,
+    explain: "The origin is (0, 0)."
+  },
+  {
+    q: "In the point (5, 8), how far up is it?",
+    opts: ["5", "13", "8", "40"],
+    correct: 2,
+    explain: "The second number, 8, is the up (y) value."
+  },
+  {
+    q: "A bison at (2, 4) moves 3 to the right. New point?",
+    opts: ["(5, 4)", "(2, 7)", "(5, 7)", "(2, 1)"],
+    correct: 0,
+    explain: "Right changes x: 2 + 3 = 5, y stays 4, so (5, 4)."
+  },
+  {
+    q: "Temples at (1, 3) and (8, 3): how far apart?",
+    opts: ["9 units", "3 units", "8 units", "7 units"],
+    correct: 3,
+    explain: "Same row, so 8 − 1 = 7 units."
+  },
+  {
+    q: "In (6, 2), which number is the y-coordinate?",
+    opts: ["6", "2", "62", "8"],
+    correct: 1,
+    explain: "The y-coordinate is the second number, 2."
+  },
+  {
+    q: "To plot (3, 5) you go:",
+    opts: ["Up 3, then across 5", "Across 5, then up 3", "Across 3, then up 5", "Start at the top and go down and around"],
+    correct: 2,
+    explain: "Across first (3), then up (5)."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'You can read AND plot every point — yip yip!'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your coordinate skills are soaring like a sky bison.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the reading and plotting cards, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  // teaching grid with labeled sample points
+  const tg = document.getElementById('teach-grid');
+  tg.appendChild(makeGrid({ dots: [
+    { x:2, y:3, color:'#ff7a59', label:'A (2, 3)' },
+    { x:5, y:1, color:'#5bd1c4', label:'B (5, 1)' },
+    { x:6, y:6, color:'#ffd166', label:'C (6, 6)' }
+  ]}));
+
+  renderWarmup();
+  renderRead();
+  renderPlot();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
