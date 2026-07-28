@@ -104,7 +104,7 @@
   <div class="hero">
     <div class="htop"><div class="hicon">🏫</div>
       <div><h1>Summer Refresher Course</h1>
-        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-27 · v2 — Code Labs added to every coding level</div>
+        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-28 · v3 — Day 18 (Gray Wolf) + Level 15: type real code</div>
       </div>
     </div>
     <p>A fun, hands-on review for a 4th-grader heading into 5th grade. Every lesson is interactive — games, a drawing pad, and a timed lesson plan — with a quiz at the end. Pick a subject tab, then a lesson. Wrong quiz answers are saved to the <b>Review</b> tab until they're answered correctly.</p>
@@ -138,7 +138,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 17 · Sky Bison 🦬💨 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 18 · Gray Wolf 🐺 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — Wolves of the Northern World",topic:"Geography",time:"45 min",file:"social-studies-lesson-18-wolf.html",desc:"Where wolves roam across North America, Europe & Asia, Yellowstone, and wolves in world cultures — plus a map activity."},
+      {n:2,emoji:"🔬",title:"Science — How Wolves Changed a River",topic:"Science",time:"45 min",file:"science-lesson-18-wolf.html",desc:"The real Yellowstone trophic cascade, pack life & howls, and endurance-hunting adaptations — plus a cascade builder."},
+      {n:3,emoji:"📖",title:"ELA — The Quietest Wolf",topic:"Reading",time:"45 min",file:"ela-lesson-18-wolf.html",desc:"A pack's runt finds his own quiet strength. 7 vocab words, similes & metaphors, and a belonging theme."},
+      {n:4,emoji:"📐",title:"Math — Decimals",topic:"Number",time:"45 min",file:"math-lesson-18-wolf.html",desc:"Read, compare, round, and add & subtract decimals, with wolf word problems (clean-number tools)."},
+      {n:5,emoji:"💻",title:"Coding — Level 15: Panda Harvest (Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-15-realcode.html",desc:"Type REAL JavaScript to make the panda harvest bamboo — loops, variables, nested loops & your own functions. The new type-and-run coding! 🌾"},
+    ]},
+    {label:"Day 17 · Sky Bison 🦬💨 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — A World Built From Real Cultures",topic:"Geography",time:"45 min",file:"social-studies-lesson-17-sky-bison.html",desc:"The real cultures behind the Four Nations (Tibetan monks, Inuit, China, Japan), plus maps & compass directions."},
       {n:2,emoji:"🔬",title:"Science — Could a Sky Bison Really Fly?",topic:"Science",time:"45 min",file:"science-lesson-17-sky-bison.html",desc:"The real science of flight — lift, weight, thrust & drag, how wings work, thermals — plus a take-off sequencer."},
       {n:3,emoji:"📖",title:"ELA — Nimbus Learns to Soar",topic:"Reading",time:"45 min",file:"ela-lesson-17-sky-bison.html",desc:"A young sky bison crosses the mountains with his airbender friend. 7 vocab words, point of view, courage theme."},
@@ -269,6 +276,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 18 · Gray Wolf 🐺", items:[
+       {n:18,emoji:"🐺",title:"Decimals",topic:"Number",time:"45 min",file:"math-lesson-18-wolf.html",desc:"Read, write, compare, round, and add & subtract decimals (tenths & hundredths), with wolf word problems."},
+     ]},
      {label:"Day 17 · Sky Bison 🦬💨", items:[
        {n:17,emoji:"🦬",title:"Coordinate Grid",topic:"Number",time:"45 min",file:"math-lesson-17-sky-bison.html",desc:"Plot & read ordered pairs (x, y), the x & y axes, and the origin, with sky bison map-flight word problems."},
      ]},
@@ -326,6 +336,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 18 · Gray Wolf 🐺", items:[
+       {n:18,emoji:"🐺",title:"How Wolves Changed a River",topic:"Science",time:"45 min",file:"science-lesson-18-wolf.html",desc:"The real Yellowstone trophic cascade, pack life & 10-mile howls, endurance-hunting adaptations, and a cascade builder."},
+     ]},
      {label:"Day 17 · Sky Bison 🦬💨", items:[
        {n:17,emoji:"🦬",title:"Sky Bison: Could It Really Fly?",topic:"Science",time:"45 min",file:"science-lesson-17-sky-bison.html",desc:"The real science of flight — lift, weight, thrust & drag, how wings work, thermals, flip cards, and a take-off sequencer."},
      ]},
@@ -381,6 +394,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 18 · Gray Wolf 🐺", items:[
+       {n:18,emoji:"🐺",title:"The Quietest Wolf",topic:"Reading",time:"45 min",file:"ela-lesson-18-wolf.html",desc:"A pack's runt finds his own quiet strength. 7 vocab words, a similes & metaphors game, and a belonging theme."},
+     ]},
      {label:"Day 17 · Sky Bison 🦬💨", items:[
        {n:17,emoji:"🦬",title:"Sky Bison: Nimbus Learns to Soar",topic:"Reading",time:"45 min",file:"ela-lesson-17-sky-bison.html",desc:"A young sky bison crosses the mountains with his airbender friend. 7 vocab words, point-of-view game, courage theme."},
      ]},
@@ -432,6 +448,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 18 · Gray Wolf 🐺", items:[
+       {n:18,emoji:"🐺",title:"Wolves of the Northern World",topic:"Geography",time:"45 min",file:"social-studies-lesson-18-wolf.html",desc:"Where wolves roam across North America, Europe & Asia, Yellowstone, wolves in world cultures, and a map activity."},
+     ]},
      {label:"Day 17 · Sky Bison 🦬💨", items:[
        {n:17,emoji:"🦬",title:"A World Built From Real Cultures",topic:"Geography",time:"45 min",file:"social-studies-lesson-17-sky-bison.html",desc:"The real cultures behind the Four Nations (Tibetan monks, Inuit, China, Japan), plus maps & compass directions."},
      ]},
@@ -503,6 +522,10 @@ const SUBJECTS=[
        {n:12,emoji:"🗺️",title:"Level 12: Choose Your Adventure (Branching)",topic:"Coding",time:"60 min",file:"coding-lesson-12-adventure.html",desc:"Build a branching story — scenes, choices as if/else branches, and multiple endings; write your own ending and find them all — Boss the Panda Level 12!"},
        {n:13,emoji:"💚",title:"Level 13: Panda Pal (Virtual Pet)",topic:"Coding",time:"60 min",file:"coding-lesson-13-pet.html",desc:"Build a living virtual pet — an object of stats that change over time via a timer, with feed/play/sleep actions and mood logic — Boss the Panda Level 13!"},
        {n:14,emoji:"🪁",title:"Level 14: Sky Glider (Physics)",topic:"Coding",time:"60 min",file:"coding-lesson-14-flyer.html",desc:"Build a tap-to-fly physics game — code gravity & velocity, flap to rise, collision with clouds, and scoring — Boss the Panda Level 14!"},
+     ]},
+     {label:"✍️ Write Real Code (new!)", items:[
+       {n:15,emoji:"🌾",title:"Level 15: Panda Harvest (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-15-realcode.html",desc:"NEW STYLE — you TYPE real JavaScript and the panda does it! Loops, variables, nested loops & your own functions to harvest every bamboo. Real code, real error messages, run it live."},
+       {n:0,emoji:"🐼",title:"Warm-up: You Are the Coder (Demo)",topic:"Coding",time:"20 min",file:"coding-real-demo.html",desc:"A gentle first taste of typing real code — move the panda with right(), left(), up(), down(), loops & your own function."},
      ]},
    ]},
   {key:"puzzles", emoji:"🧩", name:"Puzzles",

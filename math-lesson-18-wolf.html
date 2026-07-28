@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 18 — Decimals</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* PLACE-VALUE CHART */
+.pv-chart{display:flex;justify-content:center;gap:6px;margin:16px 0 6px;flex-wrap:wrap}
+.pv-col{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:10px 6px;min-width:70px;text-align:center;
+}
+.pv-col .pv-name{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.pv-col .pv-digit{font-size:26px;font-weight:700;color:var(--accent2)}
+.pv-col .pv-val{font-size:11px;color:var(--warn);margin-top:4px}
+.pv-dot{align-self:center;font-size:28px;font-weight:700;color:var(--accent)}
+
+/* NUMBER LINE (clean, no theme) */
+.grid-wrap{display:flex;justify-content:center;margin:16px 0 6px}
+.grid-wrap svg{max-width:380px;width:100%;height:auto;display:block}
+.grid-caption{text-align:center;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:19px;font-weight:600;margin-bottom:8px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:200px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:520px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Place Value</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Compare</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🐺</div>
+  <h1>Math Day 18 — Decimals</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Gray Wolf Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick decimal questions — one at a time. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — PLACE VALUE & READING DECIMALS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>📖 Phase 2 — Place Value & Reading Decimals <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">Learn how decimal places work, then read decimals off a number line.</p>
+
+  <div class="teach-card">
+    <h3>📋 The Decimal Point Splits Whole from Part</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">A <strong style="color:var(--accent2)">decimal</strong> shows a number that is <em>between</em> two whole numbers. The <strong style="color:var(--accent2)">decimal point</strong> separates the whole part (on the left) from the part smaller than 1 (on the right).</p>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">The first place after the point is <strong style="color:var(--warn)">tenths</strong> (one piece out of 10). The next place is <strong style="color:var(--warn)">hundredths</strong> (one piece out of 100). Here is the number <strong style="color:var(--warn)">3.47</strong>:</p>
+
+    <div class="pv-chart">
+      <div class="pv-col"><div class="pv-name">Ones</div><div class="pv-digit">3</div><div class="pv-val">3 wholes</div></div>
+      <div class="pv-dot">.</div>
+      <div class="pv-col"><div class="pv-name">Tenths</div><div class="pv-digit">4</div><div class="pv-val">4 tenths</div></div>
+      <div class="pv-col"><div class="pv-name">Hundredths</div><div class="pv-digit">7</div><div class="pv-val">7 hundredths</div></div>
+    </div>
+    <div class="grid-caption">Read "3.47" as "three and forty-seven hundredths."</div>
+
+    <div class="teach-note">
+      A number line helps you SEE a decimal. Between <span class="hl">0</span> and <span class="hl">1</span> there are 10 equal steps — each one is <span class="hl">one tenth (0.1)</span>. So a dot 4 steps past 0 sits at <span class="hl">0.4</span>.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="read-label">Question 1 of 6</span>
+    <div class="pa-prompt" id="read-prompt">What decimal is the dot sitting on?</div>
+    <div class="grid-wrap" id="read-grid"></div>
+    <div class="warmup-choices" id="read-choices" style="margin-top:8px"></div>
+    <div class="pa-feedback" id="read-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="read-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="read-next" onclick="readNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="read-done">✓ You can read decimals!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — COMPARING DECIMALS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>⚖️ Phase 3 — Comparing Decimals <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">Which decimal is bigger? Watch out — a longer decimal is NOT always the larger one.</p>
+
+  <div class="teach-card">
+    <h3>📋 Compare Place by Place — Tenths First</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:6px">To compare two decimals, line them up and check the biggest place first:</p>
+    <div class="concept-row">
+      <div class="concept-box"><div class="cb-name">Step 1</div><div class="cb-eq" style="font-size:13px">Compare the ones (whole part)</div></div>
+      <div class="concept-box"><div class="cb-name">Step 2</div><div class="cb-eq" style="font-size:13px">If tied, compare the tenths</div></div>
+      <div class="concept-box"><div class="cb-name">Step 3</div><div class="cb-eq" style="font-size:13px">If still tied, compare hundredths</div></div>
+    </div>
+    <div class="teach-note">
+      Trap: is <span class="hl">0.7</span> or <span class="hl">0.68</span> bigger? 0.68 has more digits, but 0.7 = 7 tenths and 0.68 is only 6 tenths (plus a bit). <span class="hl">7 tenths beats 6 tenths</span>, so 0.7 is greater! Tip: give them the same number of places → 0.70 vs 0.68, and 70 &gt; 68.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="comp-label">Round 1 of 6</span>
+    <div class="pa-prompt" id="comp-prompt">Tap the <span class="hl">bigger</span> decimal.</div>
+    <div class="grid-wrap" id="comp-grid"></div>
+    <div class="warmup-choices" id="comp-choices" style="margin-top:8px"></div>
+    <div class="pa-feedback" id="comp-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="comp-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="comp-next" onclick="compNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="comp-done">✓ Comparing mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🐺 Phase 4 — Gray Wolf Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems on adding, subtracting, and rounding decimals. Type your answer, then reveal the solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Nicely done.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Decimal Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 quick decimal problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">8 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 8</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l18-qans";
+const QKEY  = "math-l18-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 18: Gray Wolf|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 18', q: questionText, file: 'math-lesson-18-wolf.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// CLEAN NUMBER-LINE BUILDER (no theme, clean numbers only)
+// ═══════════════════════════════════════════════════════════
+const SVGNS = 'http://www.w3.org/2000/svg';
+const NL_X0 = 22, NL_X1 = 342, NL_Y = 52; // line pixels
+
+function fmtDec(v) {
+  // clean up floating-point noise, then to a short string
+  return (Math.round(v * 1000) / 1000).toString();
+}
+
+function makeNumLine(opts) {
+  opts = opts || {};
+  const min = opts.min, max = opts.max, step = opts.step;
+  const labelEvery = opts.labelEvery || 1;
+  const dots = opts.dots || [];
+
+  const svg = document.createElementNS(SVGNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 364 96');
+  svg.setAttribute('role', 'img');
+  svg.style.touchAction = 'manipulation';
+
+  const nlx = v => NL_X0 + (v - min) / (max - min) * (NL_X1 - NL_X0);
+
+  // main line
+  const base = document.createElementNS(SVGNS, 'line');
+  base.setAttribute('x1', NL_X0); base.setAttribute('y1', NL_Y);
+  base.setAttribute('x2', NL_X1); base.setAttribute('y2', NL_Y);
+  base.setAttribute('stroke', '#5bd1c4'); base.setAttribute('stroke-width', '2.5');
+  svg.appendChild(base);
+
+  // ticks + labels
+  const n = Math.round((max - min) / step);
+  for (let i = 0; i <= n; i++) {
+    const v = min + i * step;
+    const x = nlx(v);
+    const major = (i % labelEvery === 0);
+    const tick = document.createElementNS(SVGNS, 'line');
+    tick.setAttribute('x1', x); tick.setAttribute('x2', x);
+    tick.setAttribute('y1', NL_Y - (major ? 10 : 5));
+    tick.setAttribute('y2', NL_Y + (major ? 10 : 5));
+    tick.setAttribute('stroke', major ? '#a7adc4' : '#2e3347');
+    tick.setAttribute('stroke-width', major ? '1.5' : '1');
+    svg.appendChild(tick);
+
+    if (major) {
+      const lab = document.createElementNS(SVGNS, 'text');
+      lab.setAttribute('x', x); lab.setAttribute('y', NL_Y + 26);
+      lab.setAttribute('fill', '#a7adc4'); lab.setAttribute('font-size', '10');
+      lab.setAttribute('text-anchor', 'middle');
+      lab.textContent = fmtDec(v);
+      svg.appendChild(lab);
+    }
+  }
+
+  // dots
+  dots.forEach(d => {
+    const x = nlx(d.v);
+    const c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', NL_Y);
+    c.setAttribute('r', d.r || 7);
+    c.setAttribute('fill', d.color || '#ff7a59');
+    c.setAttribute('stroke', '#14151d'); c.setAttribute('stroke-width', '2');
+    svg.appendChild(c);
+    if (d.label) {
+      const t = document.createElementNS(SVGNS, 'text');
+      t.setAttribute('x', x); t.setAttribute('y', NL_Y - 16);
+      t.setAttribute('fill', d.color || '#ff7a59'); t.setAttribute('font-size', '12');
+      t.setAttribute('font-weight', '700'); t.setAttribute('text-anchor', 'middle');
+      t.textContent = d.label;
+      svg.appendChild(t);
+    }
+  });
+
+  return svg;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (decimal place-value basics)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "In the number 4.5, the digit 5 is in which place?",
+    choices: ["ones", "tenths", "hundredths", "tens"],
+    correct: 1,
+    explain: "The first place right after the point is the tenths place."
+  },
+  {
+    q: "How do you write 'six tenths' as a decimal?",
+    choices: ["0.6", "6.0", "0.06", "60"],
+    correct: 0,
+    explain: "Six tenths means 6 in the tenths place: 0.6."
+  },
+  {
+    q: "In 0.83, which digit is in the hundredths place?",
+    choices: ["8", "3", "0", "83"],
+    correct: 1,
+    explain: "The second place after the point is hundredths, and that digit is 3."
+  },
+  {
+    q: "Which of these is another way to write 0.4?",
+    choices: ["4 tenths", "4 ones", "4 hundredths", "0 tenths and 4 ones"],
+    correct: 0,
+    explain: "0.4 has a 4 in the tenths place, so it is 4 tenths."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — READING DECIMALS (clean number line, MC)
+// ═══════════════════════════════════════════════════════════
+const readQs = [
+  { min:0, max:1, step:0.1, labelEvery:1, v:0.4,
+    choices:["0.3", "0.4", "4.0", "0.04"], correct:1,
+    explain:"The dot is 4 steps past 0, and each step is a tenth, so 0.4." },
+  { min:0, max:1, step:0.1, labelEvery:1, v:0.7,
+    choices:["0.7", "0.07", "7.0", "0.6"], correct:0,
+    explain:"7 tenths past 0 is 0.7." },
+  { min:0, max:1, step:0.1, labelEvery:1, v:0.9,
+    choices:["0.8", "1.0", "0.9", "0.09"], correct:2,
+    explain:"9 tenths past 0 is 0.9 — one step before 1." },
+  { min:0.3, max:0.4, step:0.01, labelEvery:5, v:0.36,
+    choices:["0.36", "0.63", "0.306", "3.6"], correct:0,
+    explain:"Zoomed in between 0.30 and 0.40, the dot is 6 small steps (hundredths) past 0.30 → 0.36." },
+  { min:0.5, max:0.6, step:0.01, labelEvery:5, v:0.55,
+    choices:["0.505", "0.5", "0.55", "5.5"], correct:2,
+    explain:"Halfway between 0.50 and 0.60 is 0.55." },
+  { min:0, max:1, step:0.1, labelEvery:1, v:0.2,
+    choices:["0.2", "2.0", "0.02", "0.3"], correct:0,
+    explain:"2 tenths past 0 is 0.2." }
+];
+
+let readIdx = 0, readCorrect = 0, readAnswered = false;
+
+function renderRead() {
+  const q = readQs[readIdx];
+  document.getElementById('read-label').textContent = 'Question ' + (readIdx+1) + ' of 6';
+  const fb = document.getElementById('read-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('read-next').classList.add('hidden');
+  readAnswered = false;
+
+  const wrap = document.getElementById('read-grid');
+  wrap.innerHTML = '';
+  wrap.appendChild(makeNumLine({ min:q.min, max:q.max, step:q.step, labelEvery:q.labelEvery,
+    dots: [{ v:q.v, color:'#ff7a59' }] }));
+
+  const choicesEl = document.getElementById('read-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerRead(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('read-progress').textContent = readCorrect + ' / 6 correct so far';
+}
+
+function answerRead(idx) {
+  if (readAnswered) return;
+  readAnswered = true;
+  const q = readQs[readIdx];
+  const btns = document.querySelectorAll('#read-choices .choice-btn');
+  const fb = document.getElementById('read-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    readCorrect++;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('read-progress').textContent = readCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('read-next');
+  nextBtn.classList.remove('hidden');
+  if (readIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishRead;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = readNext;
+  }
+}
+
+function readNext() {
+  readIdx++;
+  if (readIdx < 6) renderRead();
+}
+
+function finishRead() {
+  document.getElementById('read-done').classList.add('show');
+  document.getElementById('read-next').classList.add('hidden');
+  document.getElementById('seg2').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — COMPARING DECIMALS (clean numbers, tap the bigger)
+// ═══════════════════════════════════════════════════════════
+const compProblems = [
+  { a:0.7,  b:0.68 },
+  { a:0.45, b:0.5  },
+  { a:0.36, b:0.4  },
+  { a:0.9,  b:0.89 },
+  { a:0.3,  b:0.25 },
+  { a:0.6,  b:0.62 }
+];
+
+let compIdx = 0, compCorrect = 0, compAnswered = false;
+
+function renderComp() {
+  const p = compProblems[compIdx];
+  document.getElementById('comp-label').textContent = 'Round ' + (compIdx+1) + ' of 6';
+  const fb = document.getElementById('comp-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('comp-next').classList.add('hidden');
+  compAnswered = false;
+
+  const wrap = document.getElementById('comp-grid');
+  wrap.innerHTML = '';
+  wrap.appendChild(makeNumLine({ min:0, max:1, step:0.1, labelEvery:1, dots: [
+    { v:p.a, color:'#ff7a59', label:'A' },
+    { v:p.b, color:'#5bd1c4', label:'B' }
+  ]}));
+
+  const choicesEl = document.getElementById('comp-choices');
+  choicesEl.innerHTML = '';
+  const vals = [{v:p.a, tag:'A', color:'#ff7a59'}, {v:p.b, tag:'B', color:'#5bd1c4'}];
+  vals.forEach((item, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = item.tag + ': <strong style="color:' + item.color + '">' + fmtDec(item.v) + '</strong>';
+    btn.onclick = () => answerComp(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('comp-progress').textContent = compCorrect + ' / 6 correct so far';
+}
+
+function answerComp(idx) {
+  if (compAnswered) return;
+  compAnswered = true;
+  const p = compProblems[compIdx];
+  const correctIdx = p.a > p.b ? 0 : 1; // A is index 0, B is index 1
+  const btns = document.querySelectorAll('#comp-choices .choice-btn');
+  const fb = document.getElementById('comp-feedback');
+  const correct = idx === correctIdx;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correctIdx) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  const bigger = Math.max(p.a, p.b), smaller = Math.min(p.a, p.b);
+  const why = fmtDec(bigger) + ' is greater than ' + fmtDec(smaller)
+    + ' — line them up as ' + bigger.toFixed(2) + ' vs ' + smaller.toFixed(2) + '.';
+  if (correct) {
+    compCorrect++;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + why;
+  } else {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not quite. ' + why;
+  }
+  document.getElementById('comp-progress').textContent = compCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('comp-next');
+  nextBtn.classList.remove('hidden');
+  if (compIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishComp;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = compNext;
+  }
+}
+
+function compNext() {
+  compIdx++;
+  if (compIdx < 6) renderComp();
+}
+
+function finishComp() {
+  document.getElementById('comp-done').classList.add('show');
+  document.getElementById('comp-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (wolf data in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A gray wolf traveled <strong>12.4 km</strong> one day and <strong>9.7 km</strong> the next day. How far did it travel in all?",
+    solution: [
+      {label:"Idea", text:"Add the two distances. Line up the decimal points."},
+      {label:"Solve", math:"12.4 + 9.7 = 22.1"},
+      {label:"Answer", text:"It traveled 22.1 km in all."},
+      {label:"Check", text:"12 + 10 is about 22, so 22.1 km is right ✓"}
+    ]
+  },
+  {
+    text: "A wolf pack's hunting range was <strong>15.3 km</strong> wide. A rival pack pushed in and shrank it by <strong>8.6 km</strong>. How wide is the range now?",
+    solution: [
+      {label:"Idea", text:"Subtract. Line up the decimal points before you take away."},
+      {label:"Solve", math:"15.3 − 8.6 = 6.7"},
+      {label:"Answer", text:"The range is now 6.7 km wide."},
+      {label:"Check", text:"6.7 + 8.6 = 15.3, so it works backward ✓"}
+    ]
+  },
+  {
+    text: "A gray wolf was weighed at <strong>43.7 kg</strong>. Rounded to the nearest <strong>whole kilogram</strong>, about how much does it weigh?",
+    solution: [
+      {label:"Idea", text:"Look at the tenths digit. 5 or more rounds up; less than 5 rounds down."},
+      {label:"Look", math:"43.7 → tenths digit is 7 (that's 5 or more)"},
+      {label:"Answer", text:"Round up to 44 kg."},
+      {label:"Check", text:"43.7 is closer to 44 than to 43 on a number line ✓"}
+    ]
+  },
+  {
+    text: "A wolf's paw print measured <strong>6.48 cm</strong> long. Rounded to the nearest <strong>tenth</strong> of a centimeter, how long is it?",
+    solution: [
+      {label:"Idea", text:"Rounding to a tenth: look at the hundredths digit."},
+      {label:"Look", math:"6.48 → hundredths digit is 8 (that's 5 or more)"},
+      {label:"Answer", text:"Round the tenths up: 6.5 cm."},
+      {label:"Check", text:"6.48 is closer to 6.5 than to 6.4 ✓"}
+    ]
+  },
+  {
+    text: "One night a wolf howled for <strong>3.25 seconds</strong>, then again for <strong>1.4 seconds</strong>. How many seconds of howling was that in total?",
+    solution: [
+      {label:"Idea", text:"Add. Think of 1.4 as 1.40 so both have two decimal places."},
+      {label:"Solve", math:"3.25 + 1.40 = 4.65"},
+      {label:"Answer", text:"That is 4.65 seconds of howling."},
+      {label:"Check", text:"3.25 + 1.40: 25 hundredths + 40 hundredths = 65 hundredths ✓"}
+    ]
+  },
+  {
+    text: "A pack's territory stretched <strong>46.5 km</strong>. After a hard winter, they gave up <strong>19.8 km</strong> of it. How many kilometers of territory remained?",
+    solution: [
+      {label:"Idea", text:"Subtract, lining up the decimal points."},
+      {label:"Solve", math:"46.5 − 19.8 = 26.7"},
+      {label:"Answer", text:"26.7 km remained."},
+      {label:"Check", text:"26.7 + 19.8 = 46.5, back to the start ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"Which is greater?", choices:["0.6","0.59","equal"], correct:0 },
+  { q:"Round 4.7 to the nearest whole.", choices:["4","5","4.7"], correct:1 },
+  { q:"0.3 + 0.4 = ?", choices:["0.7","0.12","0.07"], correct:0 },
+  { q:"0.8 − 0.3 = ?", choices:["0.5","0.11","0.6"], correct:0 },
+  { q:"Round 2.34 to the nearest tenth.", choices:["2.4","2.3","2.0"], correct:1 },
+  { q:"Which is less?", choices:["0.8","0.75","0.9"], correct:1 },
+  { q:"1.5 + 0.6 = ?", choices:["2.1","1.11","2.0"], correct:0 },
+  { q:"0.7 written with hundredths = ?", choices:["0.07","0.70","7.0"], correct:1 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "In the number 3.47, which digit is in the tenths place?",
+    opts: ["4", "3", "7", "1"],
+    correct: 0,
+    explain: "The first digit after the point is the tenths — that's 4."
+  },
+  {
+    q: "Which is greater, 0.5 or 0.48?",
+    opts: ["0.48", "They are equal in value", "0.5", "0.09"],
+    correct: 2,
+    explain: "0.5 = 0.50, and 50 hundredths beats 48 hundredths, so 0.5 is greater."
+  },
+  {
+    q: "Round 7.6 to the nearest whole number.",
+    opts: ["7", "8", "6", "7.6"],
+    correct: 1,
+    explain: "The tenths digit is 6 (5 or more), so round up to 8."
+  },
+  {
+    q: "Round 5.83 to the nearest tenth.",
+    opts: ["5.9", "6.0", "5.8", "5.0"],
+    correct: 2,
+    explain: "The hundredths digit is 3 (less than 5), so the tenths stays: 5.8."
+  },
+  {
+    q: "12.4 + 9.7 = ?",
+    opts: ["22.1", "21.1", "22.11", "21.0"],
+    correct: 0,
+    explain: "Line up the points: 12.4 + 9.7 = 22.1."
+  },
+  {
+    q: "15.3 − 8.6 = ?",
+    opts: ["7.7", "7.3", "6.3", "6.7"],
+    correct: 3,
+    explain: "Line up the points: 15.3 − 8.6 = 6.7."
+  },
+  {
+    q: "Why is 0.7 greater than 0.68?",
+    opts: [
+      "0.68 is actually greater because it simply has more digits after the decimal point",
+      "The two numbers are exactly equal",
+      "0.7 rounds down to 0, so it must be smaller",
+      "0.7 is 7 tenths, and that is more than the 6 tenths in 0.68"
+    ],
+    correct: 3,
+    explain: "0.7 = 0.70 = 70 hundredths, which is more than 68 hundredths. More digits does not mean bigger."
+  },
+  {
+    q: "To add 3.4 + 2.75 correctly, you should:",
+    opts: [
+      "Add all the digits from left to right and forget about the decimal points completely",
+      "Multiply the two numbers together instead of adding",
+      "Line up the decimal points and add, treating 3.4 as 3.40",
+      "Just add 34 and 275"
+    ],
+    correct: 2,
+    explain: "Line up the decimal points (3.40 + 2.75 = 6.15) so each place adds to its match."
+  }
+];
+
+let quizAnswers = new Array(8).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 8, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 8) { msg = 'Perfect score! Outstanding!'; sub = 'You can read, compare, round, and add decimals — the pack howls for you!'; }
+  else if (quizScore >= 6) { msg = 'Great job!'; sub = 'Your decimal skills are running with the pack.'; }
+  else if (quizScore >= 4) { msg = 'Good effort!'; sub = 'Review the problems you missed and try the phases again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back through the place-value and comparing cards, then try again.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 8 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  renderRead();
+  renderComp();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

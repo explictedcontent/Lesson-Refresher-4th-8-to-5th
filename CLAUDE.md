@@ -81,6 +81,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Level 12 (`coding-lesson-12-adventure.html`): build a Choose-Your-Own-Adventure — scenes as objects, choices as if/else branches, multiple endings; author your own ending, then play to find them all.
 - Level 13 (`coding-lesson-13-pet.html`): build a virtual pet (Panda Pal) — object stats, care-action functions, setInterval decay (state over time), if-statement mood; keep it thriving.
 - Level 14 (`coding-lesson-14-flyer.html`): build a tap-to-fly physics game (Sky Glider) — gravity+velocity each frame, flap sets speed up, cloud collision, scoring; then play it.
+- Level 15 (`coding-lesson-15-realcode.html`): **NEW "type real code" style** (parent asked for real coding, not tap-to-order). Kid TYPES actual JavaScript into an editor (`right()`/`left()`/`up()`/`down()`/`say()`, for-loops, variables, nested loops, own functions) and the panda runs it on a grid, harvesting bamboo. User code executes in a **Web Worker** (blob URL) terminated after 1.5s (endless-loop guard) that collects an action list the main thread animates; friendly kid-facing error messages; +25 XP/mission; autosaves typed code (`coding-l15-code`) + XP (`coding-l15-xp`). Works inside the all-in-one srcdoc iframe (Worker + localStorage both OK). `coding-real-demo.html` is the gentler warm-up (move-only). This is the model to convert Levels 1–14 to when asked — based on MakeCode/Minecraft "type code → it happens on screen."
 
 ## Day themes (completed)
 - Day 2: Red Panda 🐾
@@ -99,11 +100,12 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Day 15: Kangaroo 🦘
 - Day 16: Polar Bear 🐻‍❄️
 - Day 17: Sky Bison 🦬💨 (Avatar-themed; real flight science & real cultures behind the Four Nations)
+- Day 18: Gray Wolf 🐺 (real Yellowstone trophic cascade; wolves in world cultures; ELA similes/metaphors; Math decimals)
 
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 4138KB, 98 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 4369KB, 104 lessons)
 Each lesson is inlined into `window.LESSONS[file]` and opened in a **srcdoc iframe**
 (`frame.srcdoc = window.LESSONS[file]`). This is REQUIRED for saving to work:
 every lesson declares the same top-level names (`const QAKEY`, `let xp`, `function go`…),
