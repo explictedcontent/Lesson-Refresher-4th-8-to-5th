@@ -28,6 +28,11 @@ body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans
 .goal{background:#0a1c12;border:1px solid var(--good);border-radius:10px;padding:10px 12px;font-size:14px;color:#bff0cf;margin-bottom:10px;line-height:1.5}
 .goal b{color:var(--good)}
 .counter{text-align:center;font-weight:900;font-size:14px;color:var(--warn);margin-bottom:8px}
+.teach{background:linear-gradient(135deg,#0a0f24,#0d1430);border:2px solid var(--accent2);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.teach-title{font-size:13px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.teach-body{font-size:14.5px;line-height:1.65;color:#dfe6f5}
+.teach-body b{color:var(--warn)}
+.teach-ex{background:#05060b;border:1px solid #2a2f4a;border-radius:8px;padding:10px 12px;margin-top:10px;font-family:'Courier New',monospace;font-size:13px;color:#9fe8d8;white-space:pre;overflow-x:auto;line-height:1.5}
 canvas{display:block;background:#0a0b13;border:2px solid var(--line);border-radius:12px;margin:0 auto 12px;max-width:100%}
 .editor-wrap{position:relative;margin-bottom:10px}
 .editor-label{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
@@ -61,11 +66,23 @@ textarea.code:focus{outline:none;border-color:var(--accent2)}
   <div class="mission-header">
     <div class="mission-tag">Real Code · Level 15</div>
     <div class="mission-title">🐼 Panda Harvest</div>
-    <div class="mission-brief">You already made the panda move with real code. Now you’ll make it <b>collect</b> — sweep up every bamboo 🎋 on the field. You’ll use <b>loops</b>, then loops <b>inside</b> loops, to do a LOT with just a few lines of code. Type real JavaScript, hit RUN, watch it harvest.</div>
+    <div class="mission-brief">You’re going to <b>type real code</b> and the panda will do it. Your job: sweep up every bamboo 🎋 on the field. Each mission teaches <b>one new idea</b> and explains it in plain English first — nothing tricky, no surprises.</div>
   </div>
   <div class="stage">
-    <p style="font-size:14px;color:var(--muted);line-height:1.6">Your commands (each moves the panda one square — it grabs any bamboo it lands on):</p>
+    <div class="teach">
+      <div class="teach-title">🧠 Start here — how this works</div>
+      <div class="teach-body">
+        You write <b>commands</b> in the box. A command is just an order for the panda. This one means “take one step to the right”:
+        <pre class="teach-ex">right()</pre>
+        Three rules, and that’s honestly it:<br>
+        1️⃣ Put <b>one command per line</b>.<br>
+        2️⃣ The computer reads your lines <b>top to bottom</b>, like a to-do list.<br>
+        3️⃣ Press <b>▶ RUN</b> and watch it happen. Wrong? Just fix it and RUN again — that’s what real coders do all day.
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6">Your commands (each moves the panda ONE square — it grabs any bamboo it lands on):</p>
     <div style="margin:10px 0"><span class="chip">right()</span><span class="chip">left()</span><span class="chip">up()</span><span class="chip">down()</span><span class="chip">say("hi")</span></div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px">💬 Lines starting with <span class="chip">//</span> are <b>notes to yourself</b>. The computer skips them — they’re just there to explain things.</p>
     <div class="btn-row"><button class="btn go" onclick="go(1)">Start Harvest 🌾</button></div>
   </div>
 </div>
@@ -80,7 +97,22 @@ try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
 
 function addXP(n){ xp+=n; document.getElementById('xpNum').textContent=xp; saveAll(); }
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
-function saveAll(){ try{localStorage.setItem(XKEY,String(xp));}catch(e){} try{localStorage.setItem(CKEY,JSON.stringify(codeStore));}catch(e){} }
+/* Defensive save: never destroy work that's already stored.
+   - XP only ever goes UP (keeps the higher of stored vs in-memory).
+   - Typed code is MERGED with whatever is already saved, so older
+     missions' code (and any earlier version's keys) are preserved. */
+function saveAll(){
+  try{
+    const storedXp=parseInt(localStorage.getItem(XKEY)||'0',10)||0;
+    localStorage.setItem(XKEY,String(Math.max(storedXp,xp)));
+  }catch(e){}
+  try{
+    let stored={};
+    try{ stored=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){ stored={}; }
+    const merged=Object.assign({},stored,codeStore); // in-memory wins for keys it has
+    localStorage.setItem(CKEY,JSON.stringify(merged));
+  }catch(e){}
+}
 function logMistake(ok,text,title){
   try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}'); const k=PREFIX+title;
     if(!ok){ m[k]={subject:'Coding',day:'Level 15',q:text,file:'coding-lesson-15-realcode.html'}; } else { delete m[k]; }
@@ -88,43 +120,73 @@ function logMistake(ok,text,title){
   }catch(e){}
 }
 
-/* ═══════════ CHALLENGES ═══════════ */
+/* ═══════════ CHALLENGES ═══════════
+   Design rule: EVERY mission explains itself in plain English first.
+   No % (remainder), no nested loops, no tricks. One new idea at a time. */
 const LV = [
-  { key:'m1', label:'① ROW', title:'Harvest a Row',
-    goal:'Grab all <b>4 bamboo</b> in the row to the right. Instead of typing <code>right()</code> four times, use a <b>loop</b>.',
-    grid:{w:5,h:3}, start:{x:0,y:1}, walls:[],
-    bamboo:[{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:4,y:1}],
-    starter:'for (let i = 0; i < 4; i++) {\n  right()\n}\n',
-    require:/for\s*\(/, requireMsg:'Use the for-loop — that’s the trick that makes this easy!',
-    hint:'The loop runs right() 4 times. The panda grabs each bamboo it steps on.' },
-  { key:'m2', label:'② DIAGONAL', title:'Climb the Diagonal',
-    goal:'The bamboo climbs like stairs — up and to the right. Put <b>two commands in one loop</b>: <code>right()</code> AND <code>up()</code>.',
-    grid:{w:5,h:5}, start:{x:0,y:4}, walls:[],
-    bamboo:[{x:1,y:3},{x:2,y:2},{x:3,y:1},{x:4,y:0}],
-    starter:'for (let i = 0; i < 4; i++) {\n  right()\n  up()\n}\n',
-    require:/for\s*\(/, requireMsg:'Use one loop with both right() and up() inside it.',
-    hint:'Each time through the loop the panda goes right once and up once — a perfect diagonal.' },
-  { key:'m3', label:'③ VARIABLE', title:'Store the Length',
-    goal:'This row is longer. Use a <b>variable</b> called <code>len</code> for how many bamboo there are, then loop that many times. Count them and set <code>len</code> right!',
+  { key:'m1v2', label:'① TYPE IT', title:'Type Your First Commands',
+    goal:'Grab the <b>3 bamboo</b> to the right. Type <code>right()</code> on its own line, once for each step.',
+    teach:{
+      title:'What am I looking at?',
+      body:'<b>right()</b> is a <b>command</b> — an order you give the panda. It means “take ONE step to the right.”<br><br>The panda picks up any bamboo 🎋 it steps on.<br><br>Put <b>one command per line</b>. The computer reads your lines from the <b>top down</b>, like a to-do list.',
+      example:'right()   ← step 1\nright()   ← step 2'
+    },
+    grid:{w:4,h:3}, start:{x:0,y:1}, walls:[],
+    bamboo:[{x:1,y:1},{x:2,y:1},{x:3,y:1}],
+    starter:'right()\nright()\n',
+    hint:'There are 3 bamboo, so you need 3 lines of right(). One is missing — add it!' },
+
+  { key:'m2v2', label:'② LOOP', title:'Let the Loop Repeat It',
+    goal:'Now there are <b>5 bamboo</b>. Typing <code>right()</code> five times is a pain — a <b>loop</b> repeats it for you.',
+    teach:{
+      title:'What is a loop?',
+      body:'A <b>loop</b> is how you say “do this again and again” without typing it over and over.<br><br>Read the loop below out loud like this:<br>“<b>Repeat 5 times:</b> take a step right.”<br><br>The only part you need to care about is <b>the number</b> — that’s how many times it repeats. Everything between the <b>{ }</b> curly braces is what gets repeated.',
+      example:'for (let i = 0; i < 5; i++) {\n                    ↑\n         repeat 5 times\n  right()   ← the thing being repeated\n}'
+    },
+    grid:{w:6,h:3}, start:{x:0,y:1}, walls:[],
+    bamboo:[{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:4,y:1},{x:5,y:1}],
+    starter:'// Repeat 5 times: step right\nfor (let i = 0; i < 5; i++) {\n  right()\n}\n',
+    require:/for\s*\(/, requireMsg:'Keep the loop — that’s what this mission is teaching!',
+    hint:'The 5 in the loop means "repeat 5 times." Press RUN and watch it step 5 times by itself.' },
+
+  { key:'m3v2', label:'③ CHANGE IT', title:'Change the Number',
+    goal:'Same loop, longer row! <b>Count the bamboo</b>, then change the number in the loop so the panda grabs every one.',
+    teach:{
+      title:'You control the loop',
+      body:'The number in the loop is the <b>repeat count</b>. Change that one number and the panda repeats a different number of times.<br><br>Right now it says <b>3</b>, but there are more bamboo than that. <b>Count them on the field above</b>, then type that number in place of the 3.<br><br>Guessing is fine! Press RUN, see what happens, and fix it. That’s exactly what real programmers do.',
+      example:'for (let i = 0; i < 3; i++) {\n                    ↑\n      change THIS number'
+    },
     grid:{w:8,h:3}, start:{x:0,y:1}, walls:[],
     bamboo:[{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:4,y:1},{x:5,y:1},{x:6,y:1},{x:7,y:1}],
-    starter:'let len = 3\nfor (let i = 0; i < len; i++) {\n  right()\n}\n',
-    require:/let\s+\w+/, requireMsg:'Make a variable with let — like let len = 7',
-    hint:'Count the bamboo in the row, then set len to that number.' },
-  { key:'m4', label:'④ NESTED', title:'Sweep the Whole Field',
-    goal:'A whole <b>field</b> of bamboo! A loop <b>inside</b> a loop sweeps it row by row. Run the code below and watch — then try changing a number to make it work perfectly.',
-    grid:{w:3,h:3}, start:{x:0,y:0}, walls:[],
-    bamboo:[{x:1,y:0},{x:2,y:0},{x:2,y:1},{x:1,y:1},{x:0,y:1},{x:0,y:2},{x:1,y:2},{x:2,y:2}],
-    starter:'for (let row = 0; row < 3; row++) {\n  for (let i = 0; i < 2; i++) {\n    if (row % 2 === 0) { right() } else { left() }\n  }\n  if (row < 2) { down() }\n}\n',
-    require:/for[\s\S]*for/, requireMsg:'Keep the loop-inside-a-loop (two for-loops).',
-    hint:'The outer loop counts rows; the inner loop walks across each row. It snakes down the field grabbing everything.' },
-  { key:'m5', label:'⑤ FUNCTION', title:'Make a Harvest Command',
-    goal:'Real coders build their own commands. Write a function <code>grabRow()</code> that moves <code>right()</code> 3 times, then use it to clear both rows. (Move <code>down()</code> and go back <code>left()</code> between rows, or invent your own path!)',
+    starter:'// Count the bamboo, then fix this number!\nfor (let i = 0; i < 3; i++) {\n  right()\n}\n',
+    require:/for\s*\(/, requireMsg:'Keep the loop and just change the number.',
+    hint:'Count the bamboo in the row — there are 7. So the loop should repeat 7 times.' },
+
+  { key:'m4v2', label:'④ TWO MOVES', title:'Two Moves in One Loop',
+    goal:'The bamboo climbs like <b>stairs</b> — right, up, right, up. Put <b>two commands inside</b> the same loop.',
+    teach:{
+      title:'A loop can repeat MORE than one line',
+      body:'Everything inside the <b>{ }</b> gets repeated — you can put as many commands in there as you want.<br><br>Read this one as:<br>“<b>Repeat 4 times:</b> step right, then step up.”<br><br>Each trip through the loop the panda does <b>both</b> moves, so it climbs the stairs one step at a time.',
+      example:'for (let i = 0; i < 4; i++) {\n  right()   ← both of these\n  up()      ← happen each repeat\n}'
+    },
+    grid:{w:5,h:5}, start:{x:0,y:4}, walls:[],
+    bamboo:[{x:1,y:3},{x:2,y:2},{x:3,y:1},{x:4,y:0}],
+    starter:'// Repeat 4 times: go right, then go up\nfor (let i = 0; i < 4; i++) {\n  right()\n  up()\n}\n',
+    require:/for\s*\(/, requireMsg:'Use one loop with both right() and up() inside it.',
+    hint:'Press RUN and watch — each repeat moves the panda right once and up once, making a staircase.' },
+
+  { key:'m5v2', label:'⑤ YOUR COMMAND', title:'Invent Your Own Command',
+    goal:'Real coders make their <b>own</b> commands. <code>grabRow()</code> is a command YOU invented — use it to clear the top row, then get the bottom row.',
+    teach:{
+      title:'What is a function?',
+      body:'A <b>function</b> lets you bundle a few commands together and give them <b>one name</b>. After that, you just call the name.<br><br>Below, <code>grabRow()</code> is your own new command meaning “step right 3 times.”<br><br>Two parts to notice:<br>1️⃣ The <b>recipe</b> (function grabRow() { … }) — this just <i>describes</i> it, nothing happens yet.<br>2️⃣ <b>Calling it</b> (writing grabRow() by itself) — THIS is what actually runs it.',
+      example:'function grabRow() {   ← the recipe\n  right()\n  right()\n  right()\n}\n\ngrabRow()              ← actually do it!'
+    },
     grid:{w:4,h:2}, start:{x:0,y:0}, walls:[],
     bamboo:[{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:3,y:1},{x:2,y:1},{x:1,y:1},{x:0,y:1}],
-    starter:'function grabRow() {\n  right()\n  right()\n  right()\n}\n\ngrabRow()\ndown()\nleft()\nleft()\nleft()\n',
-    require:/function\s+\w+/, requireMsg:'Define your own command with the word function.',
-    hint:'grabRow() clears a row. After the first row, drop down() and sweep back with left() to grab the bottom row.' },
+    starter:'// 1. The recipe for your new command:\nfunction grabRow() {\n  right()\n  right()\n  right()\n}\n\n// 2. Use it! Clear the top row:\ngrabRow()\n\n// 3. Now drop down and sweep back left:\ndown()\nleft()\nleft()\nleft()\n',
+    require:/function\s+\w+/, requireMsg:'Keep your own command (the function) — that’s the lesson here!',
+    hint:'grabRow() clears the top row. Then down() drops a row, and three left() moves sweep back for the rest.' },
 ];
 
 /* ═══════════ BUILD TABS + SCREENS ═══════════ */
@@ -141,6 +203,10 @@ LV.forEach((l,i)=>{
     `<div class="mission-title">${l.title}</div></div>`+
     `<div class="stage">`+
       `<div class="goal">🎯 ${l.goal}</div>`+
+      (l.teach?`<div class="teach"><div class="teach-title">🧠 ${l.teach.title}</div>`+
+        `<div class="teach-body">${l.teach.body}</div>`+
+        (l.teach.example?`<pre class="teach-ex">${escapeHtml(l.teach.example)}</pre>`:'')+
+      `</div>`:'')+
       `<div class="counter" id="cnt${n}"></div>`+
       `<canvas id="cv${n}" width="360" height="260"></canvas>`+
       `<div class="editor-wrap"><div class="editor-label">✍️ Your code</div>`+
