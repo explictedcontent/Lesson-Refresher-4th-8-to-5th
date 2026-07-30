@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 19 — Volume</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* FORMULA BANNER */
+.formula-banner{
+  text-align:center;font-size:clamp(18px,4.5vw,24px);font-weight:700;color:var(--warn);
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;margin:14px 0 4px;letter-spacing:.02em;
+}
+
+/* SOLID / GRID DRAWINGS (clean, no theme) */
+.grid-wrap{display:flex;justify-content:center;margin:16px 0 6px}
+.grid-wrap svg{max-width:340px;width:100%;height:auto;display:block}
+.grid-caption{text-align:center;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* CUBE BUILDER (clean numbers only — no theme inside the tool) */
+.builder{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.cb-row{display:flex;align-items:center;gap:12px;margin:10px 0}
+.cb-row label{width:78px;font-size:13px;color:var(--muted);font-weight:600}
+.cb-row input[type=range]{flex:1;min-width:0;accent-color:var(--accent);height:32px}
+.cb-num{width:34px;text-align:center;font-weight:700;font-size:18px;color:var(--accent2)}
+.cb-readout{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;margin-top:12px;font-size:14px;text-align:center;color:var(--muted);
+}
+.cb-readout b{color:var(--ink)}
+.cb-formula{font-size:clamp(16px,4vw,20px);font-weight:700;color:var(--warn);margin-top:8px}
+.cb-challenge{
+  margin-top:14px;padding:12px 14px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);text-align:center;font-size:15px;
+}
+.cb-challenge .cb-target{font-size:22px;font-weight:700;color:var(--accent2)}
+
+/* PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.pa-prompt{text-align:center;font-size:18px;font-weight:600;margin-bottom:8px;line-height:1.4}
+.pa-prompt .hl{color:var(--accent)}
+.pa-input-row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pa-input{
+  width:200px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:18px;text-align:center;
+  min-height:44px;transition:border-color .15s;
+}
+.pa-input:focus{outline:none;border-color:var(--accent2)}
+.pa-input.right{border-color:var(--good);color:var(--good)}
+.pa-input.nope{border-color:var(--bad);color:var(--bad)}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:520px;margin:0 auto;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Cube Builder</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Formula</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🦊🔥</div>
+  <h1>Math Day 19 — Volume of Rectangular Prisms</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Nine-Tailed Fox Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick questions about what volume is and how we label it. Pick the right answer!</p>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — CUBE BUILDER (counting unit cubes & layers)
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🧊 Phase 2 — Counting Unit Cubes <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">Volume is how much space is INSIDE a solid. Build prisms and count the cubes.</p>
+
+  <div class="teach-card">
+    <h3>📋 Area is Flat. Volume is Full.</h3>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px"><strong style="color:var(--accent2)">Area</strong> measures a flat surface — how many <strong style="color:var(--warn)">square units</strong> cover it. Nothing fits inside a flat shape, because a flat shape has no inside.</p>
+
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px"><strong style="color:var(--accent2)">Volume</strong> measures a solid — how many <strong style="color:var(--warn)">cubic units</strong> fit inside it. A <strong style="color:var(--warn)">unit cube</strong> is a cube that is 1 unit long, 1 unit wide, and 1 unit tall. Its volume is exactly 1 cubic unit.</p>
+
+    <div class="concept-row">
+      <div class="concept-box"><div class="cb-name">Length</div><div class="cb-eq" style="font-size:13px">how far across (1-D)</div></div>
+      <div class="concept-box"><div class="cb-name">Area</div><div class="cb-eq" style="font-size:13px">square units (2-D, flat)</div></div>
+      <div class="concept-box"><div class="cb-name">Volume</div><div class="cb-eq" style="font-size:13px">cubic units (3-D, solid)</div></div>
+    </div>
+
+    <div class="teach-note">
+      The fastest way to count cubes: find <span class="hl">ONE layer</span> first, then multiply by the <span class="hl">number of layers</span>. If a layer holds 12 cubes and the prism is 3 layers tall, that is <span class="hl">12 × 3 = 36 cubic units</span> — no need to count one cube at a time.
+    </div>
+  </div>
+
+  <div class="builder">
+    <span class="ag-label">Cube Builder — drag the sliders and watch the cubes</span>
+    <div class="grid-wrap" id="cb-view"></div>
+
+    <div class="cb-row">
+      <label for="cb-l">Length</label>
+      <input type="range" id="cb-l" min="1" max="6" step="1" value="2">
+      <span class="cb-num" id="cb-lv">2</span>
+    </div>
+    <div class="cb-row">
+      <label for="cb-w">Width</label>
+      <input type="range" id="cb-w" min="1" max="5" step="1" value="2">
+      <span class="cb-num" id="cb-wv">2</span>
+    </div>
+    <div class="cb-row">
+      <label for="cb-h">Height</label>
+      <input type="range" id="cb-h" min="1" max="5" step="1" value="2">
+      <span class="cb-num" id="cb-hv">2</span>
+    </div>
+
+    <div class="cb-readout">
+      <div id="cb-layer"></div>
+      <div id="cb-layers"></div>
+      <div class="cb-formula" id="cb-formula"></div>
+    </div>
+
+    <div class="cb-challenge" id="cb-challenge">
+      <div id="cb-target-line"></div>
+      <div class="pa-feedback" id="cb-feedback" style="margin-top:8px"></div>
+      <button class="btn btn-teal hidden" id="cb-next" style="margin-top:8px">Next Challenge →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="cb-done">✓ All 5 builds complete! You can count cubes by layers.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — THE FORMULA
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>✖️ Phase 3 — The Volume Formula <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">V = l × w × h — and how to work backwards to find a missing dimension.</p>
+
+  <div class="teach-card">
+    <h3>📋 V = length × width × height</h3>
+
+    <div class="formula-banner">V = l × w × h</div>
+
+    <p style="font-size:14px;color:var(--muted);margin-top:10px;margin-bottom:8px"><strong style="color:var(--accent2)">Why it works:</strong> length × width tells you how many cubes fit in <em>one layer</em> on the bottom. Multiplying by the height tells you how many layers there are. So the formula is really just <strong style="color:var(--warn)">"cubes in a layer × number of layers"</strong> — counting, done fast.</p>
+
+    <div class="concept-row">
+      <div class="concept-box"><div class="cb-name">Step 1</div><div class="cb-eq" style="font-size:13px">l × w = one layer of cubes</div></div>
+      <div class="concept-box"><div class="cb-name">Step 2</div><div class="cb-eq" style="font-size:13px">× h = all the layers</div></div>
+      <div class="concept-box"><div class="cb-name">Step 3</div><div class="cb-eq" style="font-size:13px">label it cubic units</div></div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Labels matter.</span> If the sides are in centimeters, the volume is in <span class="hl">cubic centimeters (cm³)</span>. Inches give <span class="hl">cubic inches (in³)</span>. Plain units give <span class="hl">cubic units</span> or units³. Writing "square cm" for a volume is wrong — squares are flat, cubes are solid.
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Missing a dimension?</span> Divide. If V = 24, l = 4, and w = 2, then one layer is 4 × 2 = 8 cubes, so the number of layers is <span class="hl">24 ÷ 8 = 3</span>. The height is 3 units. Always check: 4 × 2 × 3 = 24 ✓
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="form-label">Question 1 of 6</span>
+    <div class="pa-prompt" id="form-prompt"></div>
+    <div class="grid-wrap" id="form-grid"></div>
+    <div class="warmup-choices" id="form-choices" style="margin-top:8px"></div>
+    <div class="pa-feedback" id="form-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="form-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="form-next" onclick="formNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="form-done">✓ Formula mastered!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🦊 Phase 4 — Nine-Tailed Fox Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 volume problems from the shrine of the nine-tailed fox. Type your answer, then reveal the solution.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Nicely done.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>⚡ Phase 5 — Volume Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 quick volume problems — pick the right answer fast!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>📝 Phase 6 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(6 min)</span></h2>
+  <p class="phase-meta">10 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 10</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l19-qans";
+const QKEY  = "math-l19-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 19: Nine-Tailed Fox|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 19', q: questionText, file: 'math-lesson-19-nine-tailed-fox.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// CLEAN 3-D SOLID BUILDER (no theme, clean numbers only)
+// Isometric projection: viewer sits above +x/+y, so the visible
+// faces of every unit cube are the top (+z), right (+x), left (+y).
+// ═══════════════════════════════════════════════════════════
+const SVGNS = 'http://www.w3.org/2000/svg';
+const TOP_FILL = '#5bd1c4', RIGHT_FILL = '#2f8b83', LEFT_FILL = '#1f6560';
+
+function makeSolid(l, w, h, opts) {
+  opts = opts || {};
+  const cubes = opts.cubes !== false;
+  const u = opts.unit || 15;
+  const a = u, b = u / 2, c = u;
+  const proj = (x, y, z) => [ (x - y) * a, (x + y) * b - z * c ];
+
+  const svg = document.createElementNS(SVGNS, 'svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', l + ' by ' + w + ' by ' + h + ' rectangular prism');
+
+  const pts = [];      // for bounds
+  const polys = [];    // {p:[[x,y]...], fill}
+  const texts = [];    // {x,y,anchor,txt}
+
+  function quad(p, fill) {
+    p.forEach(q => pts.push(q));
+    polys.push({ p: p, fill: fill });
+  }
+
+  if (cubes) {
+    const list = [];
+    for (let x = 0; x < l; x++)
+      for (let y = 0; y < w; y++)
+        for (let z = 0; z < h; z++) {
+          // skip cubes completely hidden behind their +x/+y/+z neighbours
+          if (x < l - 1 && y < w - 1 && z < h - 1) continue;
+          list.push([x, y, z]);
+        }
+    // painter's algorithm: farthest (smallest x+y+z) drawn first
+    list.sort((p, q) => (p[0]+p[1]+p[2]) - (q[0]+q[1]+q[2]));
+    list.forEach(function(cbe) {
+      const x = cbe[0], y = cbe[1], z = cbe[2];
+      quad([proj(x,y,z+1), proj(x+1,y,z+1), proj(x+1,y+1,z+1), proj(x,y+1,z+1)], TOP_FILL);
+      quad([proj(x+1,y,z), proj(x+1,y+1,z), proj(x+1,y+1,z+1), proj(x+1,y,z+1)], RIGHT_FILL);
+      quad([proj(x,y+1,z), proj(x+1,y+1,z), proj(x+1,y+1,z+1), proj(x,y+1,z+1)], LEFT_FILL);
+    });
+  } else {
+    quad([proj(0,0,h), proj(l,0,h), proj(l,w,h), proj(0,w,h)], TOP_FILL);
+    quad([proj(l,0,0), proj(l,w,0), proj(l,w,h), proj(l,0,h)], RIGHT_FILL);
+    quad([proj(0,w,0), proj(l,w,0), proj(l,w,h), proj(0,w,h)], LEFT_FILL);
+  }
+
+  const lab = opts.labels;
+  if (lab) {
+    if (lab.l) {
+      const p = proj(l/2, w, 0);
+      texts.push({ x: p[0] + 2, y: p[1] + 15, anchor: 'middle', txt: lab.l });
+    }
+    if (lab.w) {
+      const p = proj(l, w/2, 0);
+      texts.push({ x: p[0] + 10, y: p[1] + 14, anchor: 'start', txt: lab.w });
+    }
+    if (lab.h) {
+      const p = proj(0, w, h/2);
+      texts.push({ x: p[0] - 12, y: p[1] + 5, anchor: 'end', txt: lab.h });
+    }
+    texts.forEach(t => { pts.push([t.x - 34, t.y - 12]); pts.push([t.x + 34, t.y + 6]); });
+  }
+
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  pts.forEach(p => {
+    if (p[0] < minX) minX = p[0];
+    if (p[0] > maxX) maxX = p[0];
+    if (p[1] < minY) minY = p[1];
+    if (p[1] > maxY) maxY = p[1];
+  });
+  const pad = 12;
+  const vbW = (maxX - minX) + pad * 2;
+  const vbH = (maxY - minY) + pad * 2;
+  svg.setAttribute('viewBox', (minX - pad) + ' ' + (minY - pad) + ' ' + vbW + ' ' + vbH);
+  svg.style.maxHeight = '260px';
+
+  polys.forEach(function(f) {
+    const poly = document.createElementNS(SVGNS, 'polygon');
+    poly.setAttribute('points', f.p.map(q => q[0].toFixed(2) + ',' + q[1].toFixed(2)).join(' '));
+    poly.setAttribute('fill', f.fill);
+    poly.setAttribute('stroke', '#14151d');
+    poly.setAttribute('stroke-width', cubes ? '1' : '1.6');
+    poly.setAttribute('stroke-linejoin', 'round');
+    svg.appendChild(poly);
+  });
+
+  texts.forEach(function(t) {
+    const el = document.createElementNS(SVGNS, 'text');
+    el.setAttribute('x', t.x.toFixed(2));
+    el.setAttribute('y', t.y.toFixed(2));
+    el.setAttribute('fill', '#ffd166');
+    el.setAttribute('font-size', '14');
+    el.setAttribute('font-weight', '700');
+    el.setAttribute('text-anchor', t.anchor);
+    el.textContent = t.txt;
+    svg.appendChild(el);
+  });
+
+  return svg;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (what volume is + units)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "What does VOLUME measure?",
+    choices: [
+      "The distance all the way around a flat shape",
+      "The amount of space inside a 3-D solid",
+      "The flat surface that a shape covers",
+      "How heavy an object feels when you lift it"
+    ],
+    correct: 1,
+    explain: "Volume is the space INSIDE a solid — how much fits in it."
+  },
+  {
+    q: "Area is measured in square units. Volume is measured in ___.",
+    choices: ["cubic units", "square units", "flat units", "single units"],
+    correct: 0,
+    explain: "Volume fills space in 3 directions, so we count CUBIC units."
+  },
+  {
+    q: "A cube that is 1 unit long, 1 unit wide, and 1 unit tall is called a…",
+    choices: ["square unit", "cubic centimeter", "unit cube", "flat tile"],
+    correct: 2,
+    explain: "That is a unit cube, and its volume is exactly 1 cubic unit."
+  },
+  {
+    q: "Which label is written correctly for the volume of a box?",
+    choices: ["24 cm", "24 square cm", "24 cm around", "24 cubic cm"],
+    correct: 3,
+    explain: "Volume is always in cubic units — here, 24 cubic cm (24 cm³)."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — CUBE BUILDER (clean numbers only, no theme)
+// ═══════════════════════════════════════════════════════════
+const cbTargets = [12, 20, 18, 24, 30];
+let cbTargetIdx = 0;
+let cbSolvedCount = 0;
+let cbCurrentSolved = false;
+
+function cbDims() {
+  return {
+    l: parseInt(document.getElementById('cb-l').value, 10),
+    w: parseInt(document.getElementById('cb-w').value, 10),
+    h: parseInt(document.getElementById('cb-h').value, 10)
+  };
+}
+
+function renderBuilder() {
+  const d = cbDims();
+  document.getElementById('cb-lv').textContent = d.l;
+  document.getElementById('cb-wv').textContent = d.w;
+  document.getElementById('cb-hv').textContent = d.h;
+
+  const view = document.getElementById('cb-view');
+  view.innerHTML = '';
+  view.appendChild(makeSolid(d.l, d.w, d.h, { cubes: true, unit: 17 }));
+
+  const layer = d.l * d.w;
+  const vol = layer * d.h;
+  document.getElementById('cb-layer').innerHTML =
+    'One layer: <b>' + d.l + ' × ' + d.w + ' = ' + layer + '</b> cubes';
+  document.getElementById('cb-layers').innerHTML =
+    'Number of layers (height): <b>' + d.h + '</b>';
+  document.getElementById('cb-formula').textContent =
+    'V = ' + d.l + ' × ' + d.w + ' × ' + d.h + ' = ' + vol + ' cubic units';
+
+  checkBuilderChallenge(vol);
+}
+
+function renderBuilderTarget() {
+  const line = document.getElementById('cb-target-line');
+  if (cbTargetIdx >= cbTargets.length) {
+    line.innerHTML = '<b>All challenges complete!</b> Keep building any prism you like.';
+    return;
+  }
+  line.innerHTML = 'Challenge ' + (cbTargetIdx + 1) + ' of ' + cbTargets.length +
+    ' — build a prism with a volume of <span class="cb-target">' + cbTargets[cbTargetIdx] + '</span> cubic units';
+}
+
+function checkBuilderChallenge(vol) {
+  if (cbTargetIdx >= cbTargets.length) return;
+  const fb = document.getElementById('cb-feedback');
+  const nextBtn = document.getElementById('cb-next');
+  if (cbCurrentSolved) return;
+  if (vol === cbTargets[cbTargetIdx]) {
+    cbCurrentSolved = true;
+    cbSolvedCount++;
+    const d = cbDims();
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Built it! ' + d.l + ' × ' + d.w + ' × ' + d.h + ' = ' + vol + ' cubic units.';
+    nextBtn.classList.remove('hidden');
+    nextBtn.textContent = (cbTargetIdx === cbTargets.length - 1) ? 'Finish ✓' : 'Next Challenge →';
+  } else {
+    fb.className = 'pa-feedback';
+    fb.textContent = '';
+  }
+}
+
+function builderNextChallenge() {
+  const fb = document.getElementById('cb-feedback');
+  const nextBtn = document.getElementById('cb-next');
+  cbTargetIdx++;
+  cbCurrentSolved = false;
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  nextBtn.classList.add('hidden');
+  renderBuilderTarget();
+  if (cbTargetIdx >= cbTargets.length) {
+    document.getElementById('cb-done').classList.add('show');
+    document.getElementById('seg2').classList.add('done');
+  } else {
+    // a new target might already be met by the current sliders
+    const d = cbDims();
+    checkBuilderChallenge(d.l * d.w * d.h);
+  }
+}
+
+function initBuilder() {
+  ['cb-l', 'cb-w', 'cb-h'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', renderBuilder);
+    el.addEventListener('change', renderBuilder);
+  });
+  document.getElementById('cb-next').onclick = builderNextChallenge;
+  renderBuilderTarget();
+  renderBuilder();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — FORMULA PRACTICE (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const formQs = [
+  {
+    q: "Find the volume of this prism. Each little cube is 1 cubic unit.",
+    draw: { l:4, w:3, h:2, cubes:true },
+    choices: ["9 cubic units", "24 cubic units", "14 cubic units", "12 cubic units"],
+    correct: 1,
+    explain: "One layer is 4 × 3 = 12 cubes, and there are 2 layers: 12 × 2 = 24 cubic units."
+  },
+  {
+    q: "A box is 5 units long, 2 units wide, and 3 units high. What is its volume?",
+    draw: { l:5, w:2, h:3, cubes:false, labels:{ l:'l = 5', w:'w = 2', h:'h = 3' } },
+    choices: ["30 cubic units", "10 cubic units", "25 cubic units", "32 cubic units"],
+    correct: 0,
+    explain: "V = 5 × 2 × 3. First 5 × 2 = 10 in a layer, then 10 × 3 = 30 cubic units."
+  },
+  {
+    q: "A prism has a volume of 24 cubic units. It is 4 units long and 2 units wide. What is its height?",
+    draw: null,
+    choices: ["6 units", "12 units", "3 units", "2 units"],
+    correct: 2,
+    explain: "One layer is 4 × 2 = 8 cubes. 24 ÷ 8 = 3, so the height is 3 units. Check: 4 × 2 × 3 = 24 ✓"
+  },
+  {
+    q: "Find the volume of this prism: length 6, width 3, height 4.",
+    draw: { l:6, w:3, h:4, cubes:false, labels:{ l:'l = 6', w:'w = 3', h:'h = 4' } },
+    choices: ["13 cubic units", "36 cubic units", "24 cubic units", "72 cubic units"],
+    correct: 3,
+    explain: "6 × 3 = 18 cubes in one layer, and 18 × 4 = 72 cubic units."
+  },
+  {
+    q: "A prism has a volume of 40 cubic units. It is 5 units long and 2 units high. How wide is it?",
+    draw: null,
+    choices: ["4 units", "8 units", "20 units", "10 units"],
+    correct: 0,
+    explain: "5 × 2 = 10, and 40 ÷ 10 = 4, so the width is 4 units. Check: 5 × 4 × 2 = 40 ✓"
+  },
+  {
+    q: "The bottom layer of this prism holds 12 cubes and the prism is 3 layers tall. What is the volume?",
+    draw: { l:4, w:3, h:3, cubes:true },
+    choices: ["15 cubic units", "36 cubic units", "12 cubic units", "30 cubic units"],
+    correct: 1,
+    explain: "12 cubes in a layer × 3 layers = 36 cubic units (that is 4 × 3 × 3)."
+  }
+];
+
+let formIdx = 0, formCorrect = 0, formAnswered = false;
+
+function renderForm() {
+  const q = formQs[formIdx];
+  document.getElementById('form-label').textContent = 'Question ' + (formIdx+1) + ' of 6';
+  document.getElementById('form-prompt').textContent = q.q;
+  const fb = document.getElementById('form-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('form-next').classList.add('hidden');
+  formAnswered = false;
+
+  const wrap = document.getElementById('form-grid');
+  wrap.innerHTML = '';
+  if (q.draw) {
+    wrap.appendChild(makeSolid(q.draw.l, q.draw.w, q.draw.h, {
+      cubes: q.draw.cubes, labels: q.draw.labels, unit: 16
+    }));
+  }
+
+  const choicesEl = document.getElementById('form-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerForm(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('form-progress').textContent = formCorrect + ' / 6 correct so far';
+}
+
+function answerForm(idx) {
+  if (formAnswered) return;
+  formAnswered = true;
+  const q = formQs[formIdx];
+  const btns = document.querySelectorAll('#form-choices .choice-btn');
+  const fb = document.getElementById('form-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    formCorrect++;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('form-progress').textContent = formCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('form-next');
+  nextBtn.classList.remove('hidden');
+  if (formIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishForm;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = formNext;
+  }
+}
+
+function formNext() {
+  formIdx++;
+  if (formIdx < 6) renderForm();
+}
+
+function finishForm() {
+  document.getElementById('form-done').classList.add('show');
+  document.getElementById('form-next').classList.add('hidden');
+  document.getElementById('seg3').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — WORD PROBLEMS (fox legend appears in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "In an old legend, a nine-tailed fox guards a stone chest hidden in a mountain shrine. The chest is <strong>5 units</strong> long, <strong>3 units</strong> wide, and <strong>2 units</strong> high. What is the volume of the chest?",
+    solution: [
+      {label:"Idea", text:"Volume of a rectangular prism = length × width × height."},
+      {label:"Layer", math:"5 × 3 = 15 cubes in one layer"},
+      {label:"Solve", math:"15 × 2 = 30"},
+      {label:"Answer", text:"The chest has a volume of 30 cubic units."},
+      {label:"Check", text:"2 layers of 15 cubes really is 30 cubes ✓"}
+    ]
+  },
+  {
+    text: "Villagers leave rice for the nine-tailed fox in a wooden offering box shaped like a rectangular prism. It is <strong>4 cm</strong> long, <strong>4 cm</strong> wide, and <strong>6 cm</strong> tall. How many cubic centimeters of rice can it hold?",
+    solution: [
+      {label:"Idea", text:"Multiply all three dimensions: V = l × w × h."},
+      {label:"Layer", math:"4 × 4 = 16 cubic cm in one layer"},
+      {label:"Solve", math:"16 × 6 = 96"},
+      {label:"Answer", text:"It holds 96 cubic centimeters (96 cm³) of rice."},
+      {label:"Check", text:"The sides are in cm, so the volume label must be cubic cm ✓"}
+    ]
+  },
+  {
+    text: "The shrine has two chests. Chest A is <strong>5 by 4 by 2</strong> units. Chest B is <strong>6 by 2 by 3</strong> units. Which chest holds more, and by how many cubic units?",
+    solution: [
+      {label:"Idea", text:"Find each volume, then subtract to compare."},
+      {label:"Chest A", math:"5 × 4 × 2 = 40 cubic units"},
+      {label:"Chest B", math:"6 × 2 × 3 = 36 cubic units"},
+      {label:"Compare", math:"40 − 36 = 4"},
+      {label:"Answer", text:"Chest A holds more, by 4 cubic units."},
+      {label:"Check", text:"A longer side does not always mean more volume — you must multiply all three ✓"}
+    ]
+  },
+  {
+    text: "A tall lantern box at the fox shrine has a volume of <strong>48 cubic units</strong>. Its base is <strong>6 units</strong> long and <strong>4 units</strong> wide. How tall is the box?",
+    solution: [
+      {label:"Idea", text:"Work backwards: find the base layer, then divide."},
+      {label:"Layer", math:"6 × 4 = 24 cubes in one layer"},
+      {label:"Solve", math:"48 ÷ 24 = 2"},
+      {label:"Answer", text:"The box is 2 units tall."},
+      {label:"Check", text:"6 × 4 × 2 = 48 ✓"}
+    ]
+  },
+  {
+    text: "Storytellers pack carved fox masks into a crate. One layer holds <strong>15 masks</strong> (5 across and 3 deep), and the crate is <strong>4 layers</strong> tall. If each mask fills exactly one cubic unit of space, what is the volume of the crate?",
+    solution: [
+      {label:"Idea", text:"Cubes in one layer × number of layers = volume."},
+      {label:"Solve", math:"15 × 4 = 60"},
+      {label:"Answer", text:"The crate has a volume of 60 cubic units."},
+      {label:"Check", text:"Same as the formula: 5 × 3 × 4 = 60 ✓"}
+    ]
+  },
+  {
+    text: "The shrine keeper owns <strong>3 identical</strong> treasure boxes. Each one is <strong>4 units</strong> long, <strong>3 units</strong> wide, and <strong>2 units</strong> high. What is the total volume of all 3 boxes together?",
+    solution: [
+      {label:"Idea", text:"Find one box first, then multiply by how many boxes there are."},
+      {label:"One box", math:"4 × 3 × 2 = 24 cubic units"},
+      {label:"Solve", math:"24 × 3 = 72"},
+      {label:"Answer", text:"All 3 boxes together hold 72 cubic units."},
+      {label:"Check", text:"24 + 24 + 24 = 72 ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"2 × 3 × 4 = ?", choices:["24","9","14"], correct:0 },
+  { q:"Volume of a 5 × 5 × 2 prism?", choices:["25","50","12"], correct:1 },
+  { q:"Volume is measured in…", choices:["cubic units","square units","flat units"], correct:0 },
+  { q:"One layer = 6 cubes, 3 layers. Volume?", choices:["9","18","63"], correct:1 },
+  { q:"V = 3 × 3 × 3 = ?", choices:["9","18","27"], correct:2 },
+  { q:"V = 20, l = 5, w = 2. Height?", choices:["2","4","10"], correct:0 },
+  { q:"1 × 7 × 2 = ?", choices:["9","14","72"], correct:1 },
+  { q:"V = 6 × 2 × 5 = ?", choices:["30","12","60"], correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg5').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "What does volume measure?",
+    opts: [
+      "The number of unit squares that cover a flat shape",
+      "The amount of space inside a 3-D solid",
+      "The total distance all the way around the outside",
+      "How much a solid object weighs when you lift it"
+    ],
+    correct: 1,
+    explain: "Volume is the space inside a solid, counted in cubic units."
+  },
+  {
+    q: "What is the volume of a prism that is 4 units long, 3 units wide, and 2 units high?",
+    opts: ["12 cubic units", "14 cubic units", "24 cubic units", "9 cubic units"],
+    correct: 2,
+    explain: "4 × 3 = 12 in one layer, and 12 × 2 = 24 cubic units."
+  },
+  {
+    q: "Which formula finds the volume of a rectangular prism?",
+    opts: ["V = l × w × h", "V = l + w + h", "V = l × w", "V = 2 × (l + w)"],
+    correct: 0,
+    explain: "V = l × w × h. (l × w is a flat area; adding the sides is not volume at all.)"
+  },
+  {
+    q: "A box is filled with unit cubes. The bottom layer holds 10 cubes and there are 4 layers. What is the volume?",
+    opts: ["10 cubic units", "14 cubic units", "4 cubic units", "40 cubic units"],
+    correct: 3,
+    explain: "Cubes in one layer × number of layers: 10 × 4 = 40 cubic units."
+  },
+  {
+    q: "A prism has a volume of 24 cubic units. It is 4 units long and 2 units wide. How tall is it?",
+    opts: ["6 units", "3 units", "12 units", "18 units"],
+    correct: 1,
+    explain: "One layer is 4 × 2 = 8 cubes, and 24 ÷ 8 = 3, so the height is 3 units."
+  },
+  {
+    q: "A box measures 6 cm by 3 cm by 2 cm. Which label is written correctly for its volume?",
+    opts: ["36 cubic centimeters", "36 square centimeters", "36 centimeters around", "36 centimeters of area"],
+    correct: 0,
+    explain: "6 × 3 × 2 = 36, and since the sides are in cm the volume is 36 cubic centimeters."
+  },
+  {
+    q: "Box A is 5 by 4 by 2 units. Box B is 6 by 3 by 2 units. Which one holds more?",
+    opts: [
+      "Box B, because it has a longer length of 6 units",
+      "They hold exactly the same amount of space inside",
+      "Box A, because 40 cubic units is more than 36",
+      "Box B, because 36 cubic units is more than 40"
+    ],
+    correct: 2,
+    explain: "Box A = 5 × 4 × 2 = 40 and Box B = 6 × 3 × 2 = 36, so Box A holds more."
+  },
+  {
+    q: "Why does multiplying length × width × height give the volume?",
+    opts: [
+      "Because adding the three sides together gives the total number of cubes",
+      "Because every rectangular prism always has exactly three faces you can see",
+      "Because volume and area are two different names for the very same thing",
+      "Because l × w counts one layer of cubes, and × h counts all the layers"
+    ],
+    correct: 3,
+    explain: "l × w is the cubes in one layer; multiplying by h stacks those layers up."
+  },
+  {
+    q: "A cube measures 3 units on every edge. What is its volume?",
+    opts: ["27 cubic units", "9 cubic units", "12 cubic units", "18 cubic units"],
+    correct: 0,
+    explain: "3 × 3 × 3 = 27 cubic units."
+  },
+  {
+    q: "Two identical crates each measure 4 units by 3 units by 2 units. What is their total volume?",
+    opts: ["24 cubic units", "18 cubic units", "48 cubic units", "9 cubic units"],
+    correct: 2,
+    explain: "Each crate is 4 × 3 × 2 = 24 cubic units, and 24 × 2 = 48 cubic units."
+  }
+];
+
+let quizAnswers = new Array(10).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 10, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 10) { msg = 'Perfect score! Outstanding!'; sub = 'You can count cubes, use V = l × w × h, and find missing dimensions. Nine tails of respect!'; }
+  else if (quizScore >= 8) { msg = 'Great job!'; sub = 'Your volume skills are strong — just double-check your labels.'; }
+  else if (quizScore >= 6) { msg = 'Good effort!'; sub = 'Review the problems you missed, then try the Cube Builder again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back to Phase 2 and build a few prisms, then redo the formula practice.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg6').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 10 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  initBuilder();
+  renderForm();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

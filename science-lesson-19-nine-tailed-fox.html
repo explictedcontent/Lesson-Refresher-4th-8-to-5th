@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Day 19 — Nine-Tailed Fox</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+a{color:var(--accent2)}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;align-items:center}
+.ph-seg{flex:1;height:8px;border-radius:4px;background:var(--line);transition:background .3s,transform .2s;cursor:pointer;position:relative}
+.ph-seg.done{background:var(--good)}
+.ph-seg.active{background:var(--accent2);transform:scaleY(1.4)}
+.ph-label{font-size:11px;color:var(--muted);white-space:nowrap;margin-left:4px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+.phase-section{margin-bottom:48px;scroll-margin-top:60px}
+.phase-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.phase-meta{font-size:13px;color:var(--muted);margin-bottom:20px}
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;color:var(--accent2);border:1px solid var(--line)}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.card-sm{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+
+/* Flip cards — Phase 1 (mystery cards) */
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.flip-card{height:150px;cursor:pointer;perspective:900px;border-radius:var(--radius)}
+.flip-inner{width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;position:relative}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;border:2px solid var(--line)}
+.flip-front{background:var(--panel2);color:var(--accent2);flex-direction:column;gap:6px}
+.flip-front .big-num{font-weight:800;font-size:34px;color:var(--ink);letter-spacing:-1px}
+.flip-back{background:var(--panel);transform:rotateY(180deg);flex-direction:column;gap:8px}
+.flip-back .answer{font-weight:700;font-size:15px;color:var(--accent2)}
+.flip-back .explain{font-size:13px;color:var(--muted)}
+.flip-hint{position:absolute;bottom:8px;right:12px;font-size:11px;color:var(--accent);opacity:.85}
+
+/* Reading passage */
+.passage{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;line-height:1.8}
+.passage h3{color:var(--accent2);font-size:15px;margin:20px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+.passage h3:first-child{margin-top:0}
+.passage p{margin-bottom:12px;color:var(--ink)}
+.passage strong{color:var(--warn)}
+.passage .fact-pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--accent2);margin:2px 3px}
+
+/* Match game — Phase 3 */
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.match-wrap{grid-template-columns:1fr}}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-item{min-height:44px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);cursor:pointer;font-size:14px;transition:border-color .2s,background .2s,transform .15s;user-select:none;display:flex;align-items:center}
+.match-item:hover{border-color:var(--accent2)}
+.match-item.selected{border-color:var(--accent2);background:rgba(91,209,196,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.85}
+.match-item.wrong{animation:shake .35s}
+.match-score{font-size:15px;font-weight:600;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 22px;border-radius:8px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* Sequencer — Phase 4 */
+.seq-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.seq-intro{font-size:15px;line-height:1.6;margin-bottom:16px}
+.seq-list{display:flex;flex-direction:column;gap:8px}
+.seq-item{min-height:44px;padding:12px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .2s,background .2s,transform .15s;user-select:none;text-align:left}
+.seq-item:hover{border-color:var(--accent2)}
+.seq-num{min-width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.seq-item.picked .seq-num{background:var(--accent);color:#fff}
+.seq-item.correct-pos{border-color:var(--good);background:rgba(123,216,143,.12)}
+.seq-item.wrong-pos{animation:shake .35s;border-color:var(--bad);background:rgba(255,107,129,.1)}
+.seq-bonus{padding:16px;border-radius:8px;margin-top:14px;border-left:4px solid var(--accent2);background:rgba(91,209,196,.1);font-size:14px;line-height:1.6}
+.seq-bonus strong{color:var(--accent2)}
+
+/* Writing pad — Phase 5 */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:15px;font-family:inherit;line-height:1.7;padding:14px;resize:vertical;outline:none;transition:border-color .2s}
+.writing-area:focus{border-color:var(--accent2)}
+.writing-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:var(--muted)}
+.saved-indicator{color:var(--good);opacity:0;transition:opacity .3s}
+.saved-indicator.show{opacity:1}
+
+/* Quiz — Phase 6 */
+.progress-dots{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line);transition:background .2s}
+.dot.answered{background:var(--accent2)}
+.dot.current{background:var(--accent);transform:scale(1.25)}
+.dot.correct{background:var(--good)}
+.dot.incorrect{background:var(--bad)}
+.quiz-q{font-size:17px;font-weight:600;margin-bottom:16px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.opt-btn{min-height:44px;padding:11px 16px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:15px;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:10px}
+.opt-btn:hover:not(:disabled){border-color:var(--accent2)}
+.opt-btn.chosen{border-color:var(--accent2);background:rgba(91,209,196,.1)}
+.opt-btn.correct-ans{border-color:var(--good);background:rgba(123,216,143,.12)}
+.opt-btn.wrong-ans{border-color:var(--bad);background:rgba(255,107,129,.1)}
+.opt-btn:disabled{cursor:default}
+.opt-letter{min-width:26px;height:26px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.feedback-box{padding:12px 16px;border-radius:8px;margin-bottom:12px;font-size:14px;border-left:4px solid}
+.feedback-box.good{background:rgba(123,216,143,.1);border-color:var(--good);color:var(--good)}
+.feedback-box.bad{background:rgba(255,107,129,.1);border-color:var(--bad);color:var(--bad)}
+.quiz-nav{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.score-board{text-align:center;padding:32px 20px}
+.score-big{font-size:56px;font-weight:800;color:var(--accent2)}
+.score-msg{font-size:18px;color:var(--muted);margin-top:8px}
+.score-breakdown{margin-top:24px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.score-row{display:flex;gap:12px;align-items:flex-start;font-size:14px;padding:8px 12px;border-radius:8px;background:var(--panel2)}
+.score-row .icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* Misc */
+.divider{height:1px;background:var(--line);margin:24px 0}
+.tip-box{background:var(--panel2);border:1px solid var(--accent2);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+.tip-box strong{color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<!-- Phase progress bar -->
+<div id="phase-bar">
+  <div class="ph-seg active" id="seg-1" onclick="scrollToPhase(1)" title="Phase 1: Mystery Flip Cards"></div>
+  <div class="ph-seg" id="seg-2" onclick="scrollToPhase(2)" title="Phase 2: Core Reading"></div>
+  <div class="ph-seg" id="seg-3" onclick="scrollToPhase(3)" title="Phase 3: Fox-Words Match"></div>
+  <div class="ph-seg" id="seg-4" onclick="scrollToPhase(4)" title="Phase 4: Mousing Pounce Builder"></div>
+  <div class="ph-seg" id="seg-5" onclick="scrollToPhase(5)" title="Phase 5: Writing Pad"></div>
+  <div class="ph-seg" id="seg-6" onclick="scrollToPhase(6)" title="Phase 6: Quiz"></div>
+  <span class="ph-label">🦊 Nine-Tailed Fox</span>
+</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:36px;padding-top:8px">
+    <div style="font-size:52px;margin-bottom:8px">🦊🔥</div>
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">One Tail, Nine Superpowers</div>
+    <div style="color:var(--muted);font-size:14px;margin-top:4px">Science · Day 19 · Approx. 38 min</div>
+    <div style="color:var(--accent2);font-size:14px;margin-top:10px;font-weight:600">Legends gave the fox nine tails. What does a REAL fox do with just one?</div>
+  </div>
+
+  <!-- ══════════════ PHASE 1 ══════════════ -->
+  <section class="phase-section" id="phase-1">
+    <div class="phase-title">
+      <span class="badge">Phase 1</span>
+      Mystery Flip Cards
+    </div>
+    <div class="phase-meta">5 min · Tap each card to reveal the real fox-science fact</div>
+
+    <div class="flip-grid" id="flip-grid"></div>
+
+    <div class="tip-box" style="margin-top:16px">
+      <strong>Guess first!</strong> Storytellers around the world gave the legendary nine-tailed fox extra tails because they thought one tail could never be enough for such a clever animal. They were wrong. Before you flip each card, try to guess: how high can a fox jump? How cold can an Arctic fox get before it even starts to shiver?
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 2 ══════════════ -->
+  <section class="phase-section" id="phase-2">
+    <div class="phase-title">
+      <span class="badge">Phase 2</span>
+      Core Reading
+    </div>
+    <div class="phase-meta">10 min · Read carefully — quiz questions come from this passage</div>
+
+    <div class="passage">
+      <p style="font-size:19px;font-weight:700;color:var(--ink);margin-bottom:16px">One Tail, Nine Superpowers</p>
+
+      <h3>A Legend With Nine Tails</h3>
+      <p>For hundreds of years, storytellers in Japan, China, and Korea told tales about a legendary fox with <strong>nine tails</strong> — a creature so powerful it could shake the ground. Why nine? Because in those stories, extra tails meant extra power. People watched real foxes outsmart hunters, vanish into the dark, and pop up where nobody expected, and they figured an animal that tricky must be hiding something magical.</p>
+      <p>Here is the twist. A real fox has exactly <strong>one</strong> tail. And that one tail is doing more jobs at once than most people ever notice. Scientists call these useful body features <strong>adaptations</strong>. Let's take the legend apart and count the real superpowers.</p>
+
+      <h3>Superpower 1: The Balance Bar</h3>
+      <p>A fox's tail — hunters call it the <strong>brush</strong> — is about a third of the animal's whole length. When a fox sprints and then cuts sharply to the side, it flicks that heavy tail the <strong>opposite</strong> way. The tail works as a <strong>counterweight</strong>, pushing back against the turn so the fox doesn't tip over and roll. It also works like a <strong>rudder</strong> on a boat, steering the body in mid-air. That is why a fox can trot along the top of a narrow fence or a thin branch without falling.</p>
+      <p>Foxes are not the only animals using this trick. A <strong>cheetah</strong> swings its long tail to steer through hairpin turns while chasing a gazelle. A <strong>squirrel</strong> balances on wires with its fluffy tail. A <strong>kangaroo</strong> plants its thick tail on the ground like a fifth leg and actually pushes off with it while walking slowly. Same body part, same basic physics, three very different animals.</p>
+
+      <h3>Superpower 2: The Built-In Blanket</h3>
+      <p>Watch a fox go to sleep outside in the snow. It curls up into a tight circle, then sweeps that bushy tail forward and lays it right across its <strong>nose and paws</strong>. The tail becomes a blanket. The thick fur traps a layer of warm air, so the fox breathes air it has already heated instead of freezing air, and its bare paw pads stay tucked out of the wind. A fox can nap through a snowstorm and wake up with a little dome of snow over it — a snow roof that helps hold the heat in.</p>
+
+      <h3>Superpower 3: Talking Without a Sound</h3>
+      <p>A tail is also a <strong>signal flag</strong>. Foxes read each other's tails the way you read a face. A tail held high and stiff, or arched over the back, can mean confidence or a challenge. A tail tucked low between the legs means "I'm nervous, don't start anything." A tail lashing side to side is a warning to back off. Most red foxes also have a bright <strong>white tip</strong> on the end of the tail, which flashes like a beacon in dim light and helps cubs keep track of a parent moving through tall grass. Nine tails would just be nine things to trip over. One tail, three jobs — balance, warmth, and messages.</p>
+
+      <h3>The Impossible Pounce</h3>
+      <p>The <strong>red fox</strong> is the most widespread wild carnivore on Earth — it lives across North America, Europe, Asia, and North Africa, more of the planet than any other wild meat-eater. Its most famous move is the <strong>mousing pounce</strong>. In winter, a fox stands perfectly still in a snowy field and swivels its ears until it hears a mouse rustling <strong>under</strong> the snow, where it cannot see a thing. Then it crouches, launches almost straight up — a red fox can leap roughly a yard high — and dives <strong>head-first</strong>, front paws tucked together, punching through the snow crust onto prey it never actually saw.</p>
+      <p>Then researchers noticed something strange. They recorded hundreds of pounces and found that foxes did not aim in random directions. They strongly preferred to pounce facing roughly <strong>north-northeast</strong>, and those north-facing pounces succeeded far more often than pounces aimed other ways. The leading explanation is that red foxes may be able to sense <strong>Earth's magnetic field</strong> — the same invisible force that swings a compass needle — and use it like a built-in aiming line to judge distance to a sound they cannot see. Scientists are still testing the idea, which is exactly how real science works.</p>
+
+      <h3>Same Animal, Different Worlds</h3>
+      <p>Now compare three foxes that are close cousins but live in wildly different places.</p>
+      <p>The <strong>Arctic fox</strong> lives on frozen tundra. Its coat changes with the seasons — brown or gray in summer to match rock and dirt, then thick and <strong>white</strong> in winter to match snow. That is <strong>camouflage</strong> that swaps twice a year. It has the warmest fur of any mammal, plus <strong>short ears</strong>, a <strong>short muzzle</strong>, and fur growing right on the bottoms of its feet. An Arctic fox does not even begin to shiver until the air drops near <strong>−70°C (−94°F)</strong>.</p>
+      <p>The <strong>fennec fox</strong> lives in the Sahara Desert and is the <strong>smallest fox in the world</strong> — small enough to sit in your two hands. Its ears are enormous, up to about <strong>6 inches</strong> long on a body barely 16 inches long. Those giant ears are packed with blood vessels close to the surface, so heat leaks out of them into the air and cools the whole animal, like a radiator. The same ears give it hearing sharp enough to track insects and small animals moving <strong>underground</strong>. Its feet are furry too — but for the opposite reason as the Arctic fox's. Fennec foot fur is a shield against burning sand.</p>
+
+      <h3>The Big Idea: Adaptation</h3>
+      <p>Look at those ears again. Desert fox: <strong>huge</strong> ears, because big ears with lots of surface area <strong>let heat escape</strong>, and in the Sahara, dumping heat keeps you alive. Arctic fox: <strong>tiny</strong> ears, because small ears have less surface for heat to leak out of, and on the tundra, <strong>holding heat in</strong> keeps you alive. Same body part, opposite sizes, opposite climates. Fur color follows the same rule — it matches whatever the animal needs to hide against.</p>
+      <p>That's the real magic. Not nine tails. One tail doing three jobs, ears sized to a climate, a coat that changes with the calendar, and a nose that may read the planet's magnetic field. Legends had to invent extra parts. Evolution just makes the parts you already have do more.</p>
+
+      <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="fact-pill">🦊 One tail, three jobs</span>
+        <span class="fact-pill">⚖️ Tail = counterweight &amp; rudder</span>
+        <span class="fact-pill">🧣 Tail over nose &amp; paws</span>
+        <span class="fact-pill">🧭 Pounces face north-northeast</span>
+        <span class="fact-pill">❄️ Arctic fox: warmest mammal fur</span>
+        <span class="fact-pill">🏜️ Fennec ears ≈ 6 inches</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 3 ══════════════ -->
+  <section class="phase-section" id="phase-3">
+    <div class="phase-title">
+      <span class="badge">Phase 3</span>
+      Fox-Words Match
+    </div>
+    <div class="phase-meta">8 min · Tap a word on the left, then tap what it means on the right</div>
+
+    <div class="match-wrap">
+      <div class="match-col" id="match-left"></div>
+      <div class="match-col" id="match-right"></div>
+    </div>
+    <div class="match-score" id="match-score"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-muted" id="retry-btn" onclick="retryWrong()" style="display:none">Retry unmatched</button>
+      <button class="btn btn-muted" onclick="resetMatch()">Reset all</button>
+    </div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Tip:</strong> If you get one wrong, the "Retry unmatched" button appears so you can try again without starting over.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 4 ══════════════ -->
+  <section class="phase-section" id="phase-4">
+    <div class="phase-title">
+      <span class="badge">Phase 4</span>
+      Mousing Pounce Builder
+    </div>
+    <div class="phase-meta">10 min · Put the red fox's snow-diving hunt in the right order</div>
+
+    <div id="seq-body"></div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Think it through:</strong> The fox cannot SEE the mouse — it is buried under the snow. So what sense has to come first? What does the fox do with its body before it can leap? And what is the very last thing that happens, once it is already under the snow?
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 5 ══════════════ -->
+  <section class="phase-section" id="phase-5">
+    <div class="phase-title">
+      <span class="badge">Phase 5</span>
+      Writing Pad
+    </div>
+    <div class="phase-meta">5 min · Write at least 5 sentences</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--accent2)">Your prompt:</div>
+      <p style="font-size:15px;line-height:1.7">Legends gave the fox nine tails because people thought one tail could not possibly be enough. Real science says otherwise: one tail balances, one tail warms, one tail sends messages.</p>
+      <p style="font-size:15px;line-height:1.7;margin-top:8px">Write an argument to the storytellers: a real fox does not need nine tails. Use at least <strong>three</strong> real adaptations from the reading (tail jobs, ear size, coat color, the pounce) and explain how each one helps a fox survive. Then say which adaptation you think is the most impressive, and why. <strong>(At least 5 sentences.)</strong></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="A real fox does not need nine tails, because its one tail already…" oninput="onWritingInput()"></textarea>
+    <div class="writing-footer">
+      <span id="word-count">0 words</span>
+      <span class="saved-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 6 ══════════════ -->
+  <section class="phase-section" id="phase-6">
+    <div class="phase-title">
+      <span class="badge">Phase 6</span>
+      Quiz
+    </div>
+    <div class="phase-meta">5 min · 10 questions · One at a time</div>
+
+    <div class="progress-dots" id="q-dots"></div>
+    <div id="quiz-body"></div>
+  </section>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// ── Storage keys ──────────────────────────────────────────────
+const QAKEY = 'science-l19-qans';
+const QKEY  = 'science-l19-quiz';
+const WKEY  = 'science-l19-writing';
+
+// ── logMistake ────────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Science|Day 19: Nine-Tailed Fox|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Science', day: 'Day 19', q: questionText, file: 'science-lesson-19-nine-tailed-fox.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ── Phase 1: Mystery Flip Cards ───────────────────────────────
+const flipCards = [
+  {
+    num: '1 TAIL',
+    answer: 'Three jobs at once',
+    explain: 'The legend gave the fox nine tails. A real fox has one — and it works as a balance bar, a blanket, and a signal flag.'
+  },
+  {
+    num: '~1 YARD',
+    answer: 'How high a fox leaps',
+    explain: 'In the mousing pounce a red fox springs roughly a yard straight up, then dives head-first through the snow crust onto prey it cannot see.'
+  },
+  {
+    num: 'NNE',
+    answer: 'The favorite pounce direction',
+    explain: 'Researchers found red foxes prefer to pounce facing roughly north-northeast, and land those pounces far more often — hinting they sense Earth\'s magnetic field.'
+  },
+  {
+    num: '−94°F',
+    answer: 'Before an Arctic fox shivers',
+    explain: 'Arctic foxes have the warmest fur of any mammal. They do not even start shivering until temperatures near −70°C (−94°F).'
+  },
+  {
+    num: '6 INCHES',
+    answer: 'A fennec fox\'s ears',
+    explain: 'On a body only about 16 inches long, those giant ears dump body heat into the desert air and pick up prey moving underground.'
+  },
+  {
+    num: 'WORLDWIDE',
+    answer: 'The red fox\'s range',
+    explain: 'The red fox is the most widespread wild carnivore on Earth, living across North America, Europe, Asia and North Africa.'
+  }
+];
+
+function buildFlipCards() {
+  const grid = document.getElementById('flip-grid');
+  grid.innerHTML = '';
+  flipCards.forEach((fc, i) => {
+    grid.innerHTML += `
+      <div class="flip-card" id="fc-${i}" onclick="flipCard(${i})" role="button" tabindex="0" aria-label="Flip card ${i+1}" onkeydown="if(event.key==='Enter'||event.key===' ')flipCard(${i})">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="big-num">${fc.num}</span>
+            <span class="flip-hint">tap to reveal</span>
+          </div>
+          <div class="flip-back">
+            <span class="answer">${fc.answer}</span>
+            <span class="explain">${fc.explain}</span>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function flipCard(i) {
+  document.getElementById('fc-'+i).classList.toggle('flipped');
+}
+
+// ── Phase 3: Fox-Words Match ──────────────────────────────────
+const matchPairs = [
+  { left: 'Adaptation', right: 'A body feature that fits where an animal lives' },
+  { left: 'Counterweight', right: 'Weight swung one way to balance a turn the other way' },
+  { left: 'Camouflage', right: 'Coloring that helps an animal blend into its background' },
+  { left: 'Mousing pounce', right: 'A high leap and head-first dive into the snow' },
+  { left: 'Fennec fox', right: 'The smallest fox, built to shed desert heat' },
+  { left: 'Arctic fox', right: 'The fox with the warmest fur of any mammal' },
+  { left: 'Magnetic field', right: 'The invisible force a compass needle points along' }
+];
+
+let matchState = {
+  selectedLeft: null,
+  selectedRight: null,
+  matched: new Set(),
+  score: 0
+};
+
+function buildMatch() {
+  const leftCol = document.getElementById('match-left');
+  const rightCol = document.getElementById('match-right');
+  leftCol.innerHTML = '';
+  rightCol.innerHTML = '';
+
+  const leftOrder = shuffle([...Array(matchPairs.length).keys()]);
+  const rightOrder = shuffle([...Array(matchPairs.length).keys()]);
+
+  leftOrder.forEach(i => {
+    leftCol.innerHTML += `<div class="match-item" id="ml-${i}" onclick="selectLeft(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectLeft(${i})">${matchPairs[i].left}</div>`;
+  });
+  rightOrder.forEach(i => {
+    rightCol.innerHTML += `<div class="match-item" id="mr-${i}" onclick="selectRight(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectRight(${i})">${matchPairs[i].right}</div>`;
+  });
+}
+
+function selectLeft(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedLeft !== null) {
+    const prev = document.getElementById('ml-'+matchState.selectedLeft);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedLeft = i;
+  document.getElementById('ml-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function selectRight(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedRight !== null) {
+    const prev = document.getElementById('mr-'+matchState.selectedRight);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedRight = i;
+  document.getElementById('mr-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function tryMatch() {
+  const { selectedLeft: l, selectedRight: r } = matchState;
+  if (l === null || r === null) return;
+
+  if (l === r) {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(l);
+    matchState.score++;
+    matchState.selectedLeft = null;
+    matchState.selectedRight = null;
+    updateMatchScore();
+  } else {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.add('wrong'); rEl.classList.add('wrong');
+    setTimeout(() => {
+      lEl.classList.remove('wrong','selected');
+      rEl.classList.remove('wrong','selected');
+      matchState.selectedLeft = null;
+      matchState.selectedRight = null;
+      document.getElementById('retry-btn').style.display = 'inline-flex';
+    }, 400);
+  }
+}
+
+function updateMatchScore() {
+  const total = matchPairs.length;
+  const s = matchState.score;
+  const el = document.getElementById('match-score');
+  if (s === total) {
+    el.innerHTML = `<span style="color:var(--good)">🎉 All ${total} matched! Fox-words expert!</span>`;
+    document.getElementById('retry-btn').style.display = 'none';
+    markPhaseDone(3);
+  } else {
+    el.textContent = `${s} / ${total} matched`;
+  }
+}
+
+function retryWrong() {
+  if (matchState.selectedLeft !== null) {
+    const lEl = document.getElementById('ml-'+matchState.selectedLeft);
+    if (lEl) lEl.classList.remove('selected');
+  }
+  if (matchState.selectedRight !== null) {
+    const rEl = document.getElementById('mr-'+matchState.selectedRight);
+    if (rEl) rEl.classList.remove('selected');
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+  document.getElementById('retry-btn').style.display = 'none';
+}
+
+function resetMatch() {
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set(), score: 0 };
+  document.getElementById('match-score').textContent = '';
+  document.getElementById('retry-btn').style.display = 'none';
+  buildMatch();
+}
+
+// ── Phase 4: Mousing Pounce Builder ───────────────────────────
+// Correct order (order value = the real step number, 1..6)
+const seqStages = [
+  { order: 1, text: 'The fox freezes in the snowy field and swivels its ears to listen' },
+  { order: 2, text: 'It hears a mouse rustling under the snow, where it cannot see' },
+  { order: 3, text: 'It lines its body up, facing roughly north-northeast' },
+  { order: 4, text: 'It crouches low, then springs about a yard straight into the air' },
+  { order: 5, text: 'It tucks its front paws together and dives head-first through the crust' },
+  { order: 6, text: 'It lands on prey it never actually saw — and the tail steadies the landing' }
+];
+
+// seqState.slots holds the stage indexes the player has placed, in order
+let seqState = { slots: [], solved: false };
+
+function buildSeq() {
+  seqState = { slots: [], solved: false };
+  renderSeq();
+}
+
+function renderSeq() {
+  const body = document.getElementById('seq-body');
+
+  if (seqState.solved) {
+    let orderedHTML = '';
+    seqState.slots.forEach((si, pos) => {
+      orderedHTML += `<div class="seq-item correct-pos"><span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span></div>`;
+    });
+    body.innerHTML = `
+      <div class="seq-wrap">
+        <div class="seq-intro">🦊 <strong>Pounce nailed it!</strong> Here is the whole hunt, step by step:</div>
+        <div class="seq-list">${orderedHTML}</div>
+        <div class="seq-bonus">
+          <strong>Notice what the fox never does: look at its target. It hunts by ear, aims by direction, and lands blind. Researchers found the north-northeast pounces succeed far more often, which is why they suspect red foxes can sense Earth's magnetic field and use it to judge distance.</strong>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-muted" onclick="buildSeq()">Try Again</button></div>
+      </div>`;
+    markPhaseDone(4);
+    return;
+  }
+
+  // Build the "choices remaining" list (shuffled once per game) and the placed list
+  if (!seqState.shuffled) {
+    seqState.shuffled = shuffle([...Array(seqStages.length).keys()]);
+  }
+
+  let choicesHTML = '';
+  seqState.shuffled.forEach(si => {
+    if (seqState.slots.includes(si)) return; // already placed
+    choicesHTML += `<button class="seq-item" onclick="placeStage(${si})">
+      <span class="seq-num">?</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  let placedHTML = '';
+  seqState.slots.forEach((si, pos) => {
+    const cls = seqState.checked ? (seqStages[si].order === pos+1 ? ' correct-pos' : ' wrong-pos') : '';
+    placedHTML += `<button class="seq-item${cls}" onclick="removeStage(${pos})">
+      <span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  const allPlaced = seqState.slots.length === seqStages.length;
+
+  body.innerHTML = `
+    <div class="seq-wrap">
+      <div class="seq-intro">🦊 Deep snow, a hidden mouse, and one red fox. <strong>Tap the steps in the order they happen.</strong></div>
+      ${seqState.slots.length ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Your hunt (tap a step to remove it):</div><div class="seq-list" style="margin-bottom:16px">${placedHTML}</div>` : ''}
+      ${choicesHTML ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Steps to place:</div><div class="seq-list">${choicesHTML}</div>` : ''}
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        ${allPlaced ? `<button class="btn btn-accent" onclick="checkSeq()">Check Order</button>` : ''}
+        <button class="btn btn-muted" onclick="buildSeq()">Reset</button>
+      </div>
+    </div>`;
+}
+
+function placeStage(si) {
+  seqState.checked = false;
+  seqState.slots.push(si);
+  renderSeq();
+}
+
+function removeStage(pos) {
+  seqState.checked = false;
+  seqState.slots.splice(pos, 1);
+  renderSeq();
+}
+
+function checkSeq() {
+  const allCorrect = seqState.slots.every((si, pos) => seqStages[si].order === pos+1);
+  if (allCorrect) {
+    seqState.solved = true;
+    renderSeq();
+  } else {
+    seqState.checked = true;
+    renderSeq();
+    // clear the red marks after the shake so kid can rearrange
+    setTimeout(() => { seqState.checked = false; renderSeq(); }, 900);
+  }
+}
+
+// ── Phase 5: Writing Pad ──────────────────────────────────────
+let writeTimer = null;
+
+function countWords(txt) {
+  const t = txt.trim();
+  return t === '' ? 0 : t.split(/\s+/).length;
+}
+
+function onWritingInput() {
+  const txt = document.getElementById('writing-pad').value;
+  const w = countWords(txt);
+  document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(saveWriting, 300);
+}
+
+function saveWriting() {
+  try {
+    localStorage.setItem(WKEY, document.getElementById('writing-pad').value);
+    const ind = document.getElementById('save-indicator');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 1500);
+  } catch(e) {}
+}
+
+function restoreWriting() {
+  try {
+    const saved = localStorage.getItem(WKEY);
+    if (saved) {
+      document.getElementById('writing-pad').value = saved;
+      const w = countWords(saved);
+      document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+    }
+  } catch(e) {}
+}
+
+// ── Phase 6: Quiz ─────────────────────────────────────────────
+const questions = [
+  {
+    q: 'Why does a fox lay its bushy tail across its nose and paws when it sleeps in the snow?',
+    opts: ['The tail glows faintly in the dark, which keeps night predators from coming near the sleeping fox', 'It uses the tail like a shovel to dig a brand-new tunnel down through the deepest snow', 'It works like a blanket, trapping a layer of warm air over its nose and bare paw pads', 'The tail soaks up melting snow so the fox has something to drink in the morning'],
+    ans: 2,
+    explain: 'The thick tail fur traps a layer of warm air, so the fox breathes air it has already heated and its bare paw pads stay out of the wind.'
+  },
+  {
+    q: 'What does a fox\'s tail do when the fox cuts sharply to the side at full speed?',
+    opts: ['It swings the other way as a counterweight, so the fox does not tip over', 'It pushes hard against the ground like a fifth leg to make the fox run much faster', 'It spins in a fast circle so the fox can lift off the ground for a second or two', 'It makes a loud whistling sound that startles whatever animal the fox is chasing'],
+    ans: 0,
+    explain: 'The heavy tail swings opposite the turn as a counterweight, and works like a rudder to steer the body in mid-air.'
+  },
+  {
+    q: 'What is the white tip on a red fox\'s tail useful for?',
+    opts: ['It is packed with sharp bristles the fox uses to defend itself from bigger predators', 'It stores extra body fat that the fox slowly lives off of all through the long winter', 'It scrapes snow off the trail behind the fox so nothing can follow its tracks home', 'It flashes like a bright signal that cubs can follow through tall grass in dim light'],
+    ans: 3,
+    explain: 'The bright white tip flashes like a beacon in low light, which helps cubs keep track of a parent moving through tall grass.'
+  },
+  {
+    q: 'Why does the fennec fox have such enormous ears?',
+    opts: ['Because giant ears make it look far more frightening to the predators of the Sahara Desert', 'They let body heat escape into the air, and they pick up sounds from underground', 'Because it uses them like a pair of wide fans to blow loose sand away from its burrow', 'They shade its eyes from the desert sun so it can hunt in the middle of a bright day'],
+    ans: 1,
+    explain: 'Blood vessels near the surface of those big ears let heat escape into the air, cooling the fox, and the same ears hear prey moving underground.'
+  },
+  {
+    q: 'Why does the Arctic fox have short ears and a short muzzle?',
+    opts: ['So it can squeeze into the narrow cracks between rocks along the frozen northern shoreline', 'Because it hunts by feeling sounds that travel up through the sea ice under its paws', 'Less surface area on the ears and muzzle means less body heat escapes into the cold', 'So that other Arctic foxes will think it looks much bigger and stronger than it really is'],
+    ans: 2,
+    explain: 'Small ears and a short muzzle have less surface for heat to leak from, which helps the fox hold warmth in on the freezing tundra.'
+  },
+  {
+    q: 'What is the red fox\'s "mousing pounce"?',
+    opts: ['It rolls onto its back and waits for a curious mouse to wander right up close to it', 'It digs a wide tunnel with its front paws and chases the mouse underground for a mile', 'It climbs to the top of a tall pine tree and drops straight down onto whatever is below', 'It listens for hidden prey under the snow, then leaps up and dives in head-first'],
+    ans: 3,
+    explain: 'The fox hears a mouse under the snow, springs about a yard straight up, and dives head-first through the crust onto prey it never saw.'
+  },
+  {
+    q: 'What surprising pattern did researchers find in red fox pounces?',
+    opts: ['Foxes always pounce straight downhill so that gravity can help them land a good deal harder', 'Foxes strongly prefer to pounce while facing roughly north-northeast, not at random', 'Foxes only pounce when the sun is directly behind them so their shadow will not be spotted', 'Foxes turn three complete circles before every pounce, no matter which way they were facing'],
+    ans: 1,
+    explain: 'Recording hundreds of pounces showed foxes strongly favored a north-northeast direction — and those pounces succeeded far more often.'
+  },
+  {
+    q: 'What is the leading explanation for that north-northeast preference?',
+    opts: ['Red foxes may be able to sense Earth\'s magnetic field and use it as an aiming line', 'The north wind carries the smell of every mouse in the whole field straight to the fox\'s nose', 'Mice in cold places only ever dig their tunnels running exactly north and south, never sideways', 'The snow on the north side of any field is always thinner and much easier to break through'],
+    ans: 0,
+    explain: 'Scientists think red foxes may sense Earth\'s magnetic field and use it like a built-in aiming line. The idea is still being tested — that is how real science works.'
+  },
+  {
+    q: 'How does an Arctic fox\'s coat change between summer and winter?',
+    opts: ['It sheds every bit of fur in winter and grows a thick layer of fat under the skin instead', 'It stays exactly the same shade of bright white all year long, in every single season', 'It turns bright red in winter so that other Arctic foxes can spot it easily across the snow', 'It goes from brown or gray in summer to a thick white coat that matches winter snow'],
+    ans: 3,
+    explain: 'That is camouflage that swaps twice a year — brown or gray to match summer rock and dirt, white to match winter snow.'
+  },
+  {
+    q: 'Big ears in the desert and small ears in the Arctic are both examples of what?',
+    opts: ['Camouflage, which is the coloring an animal uses to blend into the background around it', 'Hibernation, which is the long deep sleep some animals use to survive the coldest months', 'Adaptations — body features that are shaped to fit the climate an animal lives in', 'Migration, which is when a whole group of animals travels somewhere warmer every single year'],
+    ans: 2,
+    explain: 'An adaptation is a body feature suited to where an animal lives. Big ears shed heat in the desert; small ears hold heat in on the tundra.'
+  }
+];
+
+let quizState = {
+  current: 0,
+  answers: {},
+  locked: {}
+};
+
+function buildQuiz() {
+  quizState = { current: 0, answers: {}, locked: {} };
+  renderDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || 'null');
+    if (!saved) return;
+    const finalScore = localStorage.getItem(QKEY);
+    if (finalScore !== null) {
+      quizState.answers = saved.answers || {};
+      quizState.locked = saved.locked || {};
+      quizState.current = saved.current !== undefined ? saved.current : 0;
+      showScore();
+      return;
+    }
+    quizState.answers = saved.answers || {};
+    quizState.locked = saved.locked || {};
+    quizState.current = saved.current !== undefined ? saved.current : 0;
+    renderDots();
+    renderQuestion();
+  } catch(e) {}
+}
+
+function saveQAns() {
+  try {
+    localStorage.setItem(QAKEY, JSON.stringify({
+      answers: quizState.answers,
+      locked: quizState.locked,
+      current: quizState.current
+    }));
+  } catch(e) {}
+}
+
+function renderDots() {
+  const dots = document.getElementById('q-dots');
+  dots.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (quizState.locked[i]) {
+      d.classList.add(quizState.answers[i] === questions[i].ans ? 'correct' : 'incorrect');
+    } else if (i === quizState.current) {
+      d.classList.add('current');
+    } else if (quizState.answers[i] !== undefined) {
+      d.classList.add('answered');
+    }
+    d.title = 'Question ' + (i+1);
+    d.onclick = () => { quizState.current = i; renderDots(); renderQuestion(); };
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const qb = document.getElementById('quiz-body');
+  const qi = quizState.current;
+  const q = questions[qi];
+  const locked = quizState.locked[qi];
+  const chosen = quizState.answers[qi];
+  const letters = ['A','B','C','D'];
+
+  let optsHTML = '';
+  q.opts.forEach((opt, oi) => {
+    let cls = 'opt-btn';
+    if (locked) {
+      if (oi === q.ans) cls += ' correct-ans';
+      else if (oi === chosen && oi !== q.ans) cls += ' wrong-ans';
+    } else if (oi === chosen) {
+      cls += ' chosen';
+    }
+    optsHTML += `<button class="${cls}" ${locked ? 'disabled' : ''} onclick="ansQ(${qi},${oi})">
+      <span class="opt-letter">${letters[oi]}</span>${opt}
+    </button>`;
+  });
+
+  let feedbackHTML = '';
+  if (locked) {
+    const correct = chosen === q.ans;
+    feedbackHTML = `<div class="feedback-box ${correct ? 'good' : 'bad'}">
+      ${correct ? '✓ Correct!' : '✗ Not quite.'} ${q.explain}
+    </div>`;
+  }
+
+  const isLast = qi === questions.length - 1;
+  const allDone = Object.keys(quizState.locked).length === questions.length;
+
+  qb.innerHTML = `
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Question ${qi+1} of ${questions.length}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHTML}</div>
+      ${feedbackHTML}
+      <div class="quiz-nav">
+        ${qi > 0 ? `<button class="btn btn-muted" onclick="navQ(${qi-1})">← Back</button>` : ''}
+        ${locked && !isLast ? `<button class="btn btn-accent" onclick="navQ(${qi+1})">Next →</button>` : ''}
+        ${allDone ? `<button class="btn btn-accent" onclick="showScore()">See Score 🎯</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function ansQ(qi, chosen) {
+  if (quizState.locked[qi]) return;
+  quizState.answers[qi] = chosen;
+  quizState.locked[qi] = true;
+  const correct = chosen === questions[qi].ans;
+  saveQAns();
+  logMistake(correct, questions[qi].q, 'Q' + (qi+1));
+  renderDots();
+  renderQuestion();
+}
+
+function navQ(qi) {
+  quizState.current = qi;
+  renderDots();
+  renderQuestion();
+}
+
+function showScore() {
+  let score = 0;
+  questions.forEach((q, i) => { if (quizState.answers[i] === q.ans) score++; });
+  try { localStorage.setItem(QKEY, score); } catch(e) {}
+
+  const pct = Math.round(score / questions.length * 100);
+  let msg = pct >= 88 ? '🌟 Excellent work!' : pct >= 63 ? '👍 Good job — review the ones you missed.' : '📖 Review the reading and try again.';
+  const letters = ['A','B','C','D'];
+
+  let breakdown = '';
+  questions.forEach((q, i) => {
+    const correct = quizState.answers[i] === q.ans;
+    breakdown += `<div class="score-row">
+      <span class="icon">${correct ? '✅' : '❌'}</span>
+      <div>
+        <div style="font-weight:600">${q.q}</div>
+        ${!correct ? `<div style="color:var(--bad);margin-top:2px">Your answer: ${letters[quizState.answers[i]] || '?'}) ${quizState.answers[i] !== undefined ? q.opts[quizState.answers[i]] : 'Not answered'}</div>` : ''}
+        <div style="color:var(--good);margin-top:2px">Correct: ${letters[q.ans]}) ${q.opts[q.ans]}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="score-board">
+      <div class="score-big">${score}/${questions.length}</div>
+      <div class="score-msg">${pct}% · ${msg}</div>
+      <div class="score-breakdown">${breakdown}</div>
+      <button class="btn btn-muted" style="margin-top:20px" onclick="resetQuiz()">Retake Quiz</button>
+    </div>`;
+  document.getElementById('q-dots').innerHTML = '';
+  markPhaseDone(6);
+}
+
+function resetQuiz() {
+  try { localStorage.removeItem(QKEY); localStorage.removeItem(QAKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ── Phase progress bar ────────────────────────────────────────
+function markPhaseDone(n) {
+  const seg = document.getElementById('seg-'+n);
+  if (seg) { seg.classList.remove('active'); seg.classList.add('done'); }
+}
+
+function scrollToPhase(n) {
+  const el = document.getElementById('phase-'+n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setupPhaseObserver() {
+  const phases = [1,2,3,4,5,6];
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        const n = parseInt(id.replace('phase-',''));
+        phases.forEach(p => {
+          const seg = document.getElementById('seg-'+p);
+          if (!seg) return;
+          if (p === n && !seg.classList.contains('done')) {
+            seg.classList.add('active');
+          } else if (p !== n) {
+            seg.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  phases.forEach(n => {
+    const el = document.getElementById('phase-'+n);
+    if (el) observer.observe(el);
+  });
+}
+
+// ── Auto-save ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  saveQAns();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ── Helpers ───────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── init ──────────────────────────────────────────────────────
+function init() {
+  buildFlipCards();
+  buildMatch();
+  buildSeq();
+  restoreWriting();
+  buildQuiz();
+  restoreQuiz();
+  setupPhaseObserver();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

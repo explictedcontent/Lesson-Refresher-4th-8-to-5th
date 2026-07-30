@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 16 — Panda Painter 🎨</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn)}
+.screen{display:none;padding:16px;max-width:640px;margin:0 auto}
+.screen.active{display:block}
+.mission-header{background:linear-gradient(135deg,#0d0620,#12082c);border:2px solid var(--purple);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--purple);text-transform:uppercase;letter-spacing:.1em}
+.mission-title{font-size:21px;font-weight:900;margin:3px 0}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.goal{background:#0a1c12;border:1px solid var(--good);border-radius:10px;padding:10px 12px;font-size:14px;color:#bff0cf;margin-bottom:10px;line-height:1.5}
+.goal b{color:var(--good)}
+.teach{background:linear-gradient(135deg,#0a0f24,#0d1430);border:2px solid var(--accent2);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.teach-title{font-size:13px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.teach-body{font-size:14.5px;line-height:1.65;color:#dfe6f5}
+.teach-body b{color:var(--warn)}
+.teach-ex{background:#05060b;border:1px solid #2a2f4a;border-radius:8px;padding:10px 12px;margin-top:10px;font-family:'Courier New',monospace;font-size:13px;color:#9fe8d8;white-space:pre;overflow-x:auto;line-height:1.5}
+.canvas-row{display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.canvas-box{text-align:center}
+.canvas-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+canvas{display:block;background:#0a0b13;border:2px solid var(--line);border-radius:10px;margin:0 auto}
+canvas.target{border-color:var(--warn);opacity:.95}
+.editor-wrap{position:relative;margin-bottom:10px}
+.editor-label{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+textarea.code{width:100%;min-height:130px;background:#08090f;color:#e6edf3;border:2px solid #2a2f4a;border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;font-size:15px;line-height:1.6;resize:vertical;tab-size:2}
+textarea.code:focus{outline:none;border-color:var(--accent2)}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.95)}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:16px}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.console{background:#05060b;border:1px solid #2a2f4a;border-radius:10px;padding:10px 12px;font-family:'Courier New',monospace;font-size:13.5px;color:#9fb0d0;min-height:44px;margin-top:10px;white-space:pre-wrap;line-height:1.6}
+.console .ok{color:var(--good)}
+.console .err{color:var(--bad)}
+.console .say{color:var(--warn)}
+.win-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:12px;padding:14px;text-align:center;margin-top:12px;display:none}
+.win-banner.show{display:block}
+.win-banner h3{color:var(--good);font-size:18px;margin-bottom:4px}
+.hintbox{font-size:13px;color:var(--muted);background:#0f1220;border-left:3px solid var(--warn);padding:8px 12px;border-radius:0 8px 8px 0;margin-top:10px;line-height:1.5}
+.hintbox code,.mission-brief code,.goal code{background:#1a1f36;color:#ffcc88;padding:1px 6px;border-radius:5px;font-family:'Courier New',monospace;font-size:13px}
+.chip{display:inline-block;background:#1a1f36;color:#ffcc88;font-family:'Courier New',monospace;font-size:13px;padding:3px 9px;border-radius:6px;margin:3px 4px 0 0}
+.swatch{display:inline-flex;align-items:center;gap:5px;background:#1a1f36;border-radius:6px;padding:3px 9px;margin:3px 4px 0 0;font-family:'Courier New',monospace;font-size:12.5px;color:#ffcc88}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid #0006}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="xp-bar">⚡ <span id="xpNum">0</span> XP</div>
+<div class="mbar" id="mbar"></div>
+
+<div class="screen active" id="sc0">
+  <div class="mission-header">
+    <div class="mission-tag">Real Code · Level 16</div>
+    <div class="mission-title">🎨 Panda Painter</div>
+    <div class="mission-brief">Same deal as last level — you <b>type real code</b>. This time the panda holds a paintbrush. You'll match the picture on the right by writing code. One new idea per mission, explained first.</div>
+  </div>
+  <div class="stage">
+    <div class="teach">
+      <div class="teach-title">🧠 Start here — how painting works</div>
+      <div class="teach-body">
+        The panda stands on a grid. <b>paint()</b> colors the square it's standing on, and <b>right()</b> moves it one square over.
+        <pre class="teach-ex">paint("red")   ← color THIS square red
+right()        ← move one square right</pre>
+        Notice the word inside the parentheses: <b>"red"</b>. That's an <b>input</b> — extra information you hand to a command so it knows what to do. Words go in <b>quotes</b>.<br><br>
+        Your goal each mission: make <b>YOUR PICTURE</b> (left) match the <b>GOAL</b> (right). Press RUN to see it happen.
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6">Your commands:</p>
+    <div style="margin:8px 0"><span class="chip">paint("red")</span><span class="chip">right()</span><span class="chip">left()</span><span class="chip">up()</span><span class="chip">down()</span></div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-top:10px">Colors you can use:</p>
+    <div style="margin:8px 0">
+      <span class="swatch"><i class="dot" style="background:#ff4466"></i>"red"</span>
+      <span class="swatch"><i class="dot" style="background:#4a9eff"></i>"blue"</span>
+      <span class="swatch"><i class="dot" style="background:#39e07a"></i>"green"</span>
+      <span class="swatch"><i class="dot" style="background:#ffcc00"></i>"yellow"</span>
+      <span class="swatch"><i class="dot" style="background:#b06eff"></i>"purple"</span>
+      <span class="swatch"><i class="dot" style="background:#ffffff"></i>"white"</span>
+    </div>
+    <div class="btn-row"><button class="btn go" onclick="go(1)">Start Painting 🖌️</button></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ STATE ═══════════ */
+const XKEY='coding-l16-xp', CKEY='coding-l16-code';
+const PREFIX='Coding|Level 16: Panda Painter|';
+const COLORS={red:'#ff4466',blue:'#4a9eff',green:'#39e07a',yellow:'#ffcc00',purple:'#b06eff',white:'#ffffff'};
+let xp=0, cur=0, codeStore={};
+try{ xp=parseInt(localStorage.getItem(XKEY)||'0',10)||0; }catch(e){}
+try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
+
+function addXP(n){ xp+=n; document.getElementById('xpNum').textContent=xp; saveAll(); }
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
+/* Defensive save: XP only goes up, typed code merges with what's stored. */
+function saveAll(){
+  try{ const s=parseInt(localStorage.getItem(XKEY)||'0',10)||0; localStorage.setItem(XKEY,String(Math.max(s,xp))); }catch(e){}
+  try{ let st={}; try{ st=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){ st={}; }
+    localStorage.setItem(CKEY,JSON.stringify(Object.assign({},st,codeStore))); }catch(e){}
+}
+function logMistake(ok,text,title){
+  try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}'); const k=PREFIX+title;
+    if(!ok){ m[k]={subject:'Coding',day:'Level 16',q:text,file:'coding-lesson-16-painter.html'}; } else { delete m[k]; }
+    localStorage.setItem('refresher-mistakes',JSON.stringify(m));
+  }catch(e){}
+}
+function escapeHtml(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+/* ═══════════ MISSIONS ═══════════
+   One new idea each, explained in plain English first.
+   target: array of {x,y,c} squares that must be painted that color. */
+const LV = [
+  { key:'p1', label:'① PAINT', title:'Paint Your First Square',
+    teach:{ title:'What does paint() do?',
+      body:'<b>paint("red")</b> colors the square the panda is standing on.<br><br>The word in the middle — <b>"red"</b> — is an <b>input</b>. It tells the command WHICH color to use. Change that word and you get a different color.<br><br>Words always go inside <b>quotes</b>: <b>"red"</b>, not red.',
+      example:'paint("red")\n       ↑\n   the input' },
+    goal:'Paint the first square <b>red</b>, then move right and paint the next one <b>blue</b>. Match the goal picture!',
+    grid:{w:4,h:1}, start:{x:0,y:0},
+    target:[{x:0,y:0,c:'red'},{x:1,y:0,c:'blue'}],
+    starter:'paint("red")\nright()\n',
+    hint:'You painted red and moved right — now you just need one more line: paint("blue")' },
+
+  { key:'p2', label:'② LOOP', title:'Paint a Whole Row',
+    teach:{ title:'Use a loop so you don\'t repeat yourself',
+      body:'You could type paint and right five times... or use a <b>loop</b>.<br><br>Read it as: “<b>Repeat 5 times:</b> paint this square green, then step right.”<br><br>Everything inside the <b>{ }</b> happens every single repeat.',
+      example:'for (let i = 0; i < 5; i++) {\n                    ↑\n         repeat 5 times\n  paint("green")\n  right()\n}' },
+    goal:'Paint the first <b>5 squares</b> of the row <b>green</b>. (The last square stays blank — that\'s where the panda parks.)',
+    grid:{w:6,h:1}, start:{x:0,y:0},
+    target:[{x:0,y:0,c:'green'},{x:1,y:0,c:'green'},{x:2,y:0,c:'green'},{x:3,y:0,c:'green'},{x:4,y:0,c:'green'}],
+    starter:'// Repeat 5 times: paint green, then move right\nfor (let i = 0; i < 5; i++) {\n  paint("green")\n  right()\n}\n',
+    require:/for\s*\(/, requireMsg:'Keep the loop — that\'s what this mission teaches!',
+    hint:'Press RUN and watch the loop paint all 5 squares by itself.' },
+
+  { key:'p3', label:'③ VARIABLE', title:'Store a Color',
+    teach:{ title:'A variable can hold a WORD, not just a number',
+      body:'A <b>variable</b> is a labeled box that remembers something for you.<br><br><b>let color = "purple"</b> puts the word "purple" in a box named <b>color</b>. After that, writing <b>paint(color)</b> paints with whatever is in the box.<br><br>Why bother? Change that ONE line at the top and the whole picture changes colors. Try it!<br><br>⚠️ Notice: <b>paint(color)</b> has NO quotes — you want what\'s IN the box. <b>paint("color")</b> with quotes would try to paint the literal word "color", which isn\'t a color at all.',
+      example:'let color = "purple"   ← put purple in the box\n\npaint(color)           ← use what\'s in the box' },
+    goal:'The goal squares are <b>yellow</b>, but the code paints purple. Change <b>one word</b> at the top to fix them all.',
+    grid:{w:5,h:1}, start:{x:0,y:0},
+    target:[{x:0,y:0,c:'yellow'},{x:1,y:0,c:'yellow'},{x:2,y:0,c:'yellow'},{x:3,y:0,c:'yellow'}],
+    starter:'let color = "purple"\n\n// Repeat 4 times: paint with the color in the box\nfor (let i = 0; i < 4; i++) {\n  paint(color)\n  right()\n}\n',
+    require:/let\s+\w+/, requireMsg:'Keep the variable (the let line) — just change the color word.',
+    hint:'Change "purple" to "yellow" on the very first line. One word fixes all 4 squares.' },
+
+  { key:'p4', label:'④ GO DOWN', title:'Paint a Square Block',
+    teach:{ title:'Move down and paint another row',
+      body:'To fill a block you paint one row, then drop to the next row and paint that one.<br><br>After a row you\'re at the far end, so you have to walk back <b>left()</b> before painting the next row — just like moving your hand back to the start of a new line when you write.',
+      example:'// row 1\npaint("blue")\nright()\npaint("blue")\n\n// drop down and come back\ndown()\nleft()' },
+    goal:'Paint a <b>2×2 blue block</b> — the top two squares and the bottom two squares.',
+    grid:{w:3,h:2}, start:{x:0,y:0},
+    target:[{x:0,y:0,c:'blue'},{x:1,y:0,c:'blue'},{x:0,y:1,c:'blue'},{x:1,y:1,c:'blue'}],
+    starter:'// Top row:\npaint("blue")\nright()\npaint("blue")\n\n// Drop down and go back left:\ndown()\nleft()\n\n// Bottom row: (finish this part!)\npaint("blue")\n',
+    hint:'After down() and left() you\'re at the start of the bottom row. Paint it, move right, and paint again.' },
+
+  { key:'p5', label:'⑤ YOUR COMMAND', title:'A Command With an Input',
+    teach:{ title:'Make your OWN command that takes an input',
+      body:'Last level you made your own command. Now make one that takes an <b>input</b>, just like paint() does.<br><br><b>function stripe(c)</b> creates your command. The <b>c</b> is a blank space waiting to be filled in.<br><br>When you call <b>stripe("red")</b>, the word "red" gets dropped into <b>c</b> everywhere it appears inside. Call it again with "blue" and the same code paints blue instead. One recipe, any color!',
+      example:'function stripe(c) {   ← c is the blank\n  paint(c)\n  right()\n  paint(c)\n}\n\nstripe("red")    ← c becomes "red"' },
+    goal:'Paint the top row <b>red</b> and the bottom row <b>blue</b> — using your <code>stripe()</code> command twice with different colors.',
+    grid:{w:3,h:2}, start:{x:0,y:0},
+    target:[{x:0,y:0,c:'red'},{x:1,y:0,c:'red'},{x:0,y:1,c:'blue'},{x:1,y:1,c:'blue'}],
+    starter:'// Your own command — c is the color blank:\nfunction stripe(c) {\n  paint(c)\n  right()\n  paint(c)\n}\n\n// Top row in red:\nstripe("red")\n\n// Move to the bottom row:\ndown()\nleft()\n\n// Bottom row in blue: (add it!)\n',
+    require:/function\s+\w+/, requireMsg:'Keep your own command (the function) — that\'s the lesson here!',
+    hint:'Add one line at the end: stripe("blue")' },
+];
+
+/* ═══════════ BUILD TABS + SCREENS ═══════════ */
+const mbar=document.getElementById('mbar');
+mbar.innerHTML='<div class="mtab active" onclick="go(0)" id="tab0">🐼 START</div>'+
+  LV.map((l,i)=>`<div class="mtab" onclick="go(${i+1})" id="tab${i+1}">${l.label}</div>`).join('');
+
+LV.forEach((l,i)=>{
+  const n=i+1;
+  const sc=document.createElement('div');
+  sc.className='screen'; sc.id='sc'+n;
+  sc.innerHTML=
+    `<div class="mission-header"><div class="mission-tag">Mission ${n}</div>`+
+    `<div class="mission-title">${l.title}</div></div>`+
+    `<div class="stage">`+
+      `<div class="goal">🎯 ${l.goal}</div>`+
+      (l.teach?`<div class="teach"><div class="teach-title">🧠 ${l.teach.title}</div>`+
+        `<div class="teach-body">${l.teach.body}</div>`+
+        (l.teach.example?`<pre class="teach-ex">${escapeHtml(l.teach.example)}</pre>`:'')+
+      `</div>`:'')+
+      `<div class="canvas-row">`+
+        `<div class="canvas-box"><div class="canvas-label">🖌️ Your picture</div><canvas id="cv${n}"></canvas></div>`+
+        `<div class="canvas-box"><div class="canvas-label">🎯 Goal</div><canvas class="target" id="tg${n}"></canvas></div>`+
+      `</div>`+
+      `<div class="editor-wrap"><div class="editor-label">✍️ Your code</div>`+
+      `<textarea class="code" id="ed${n}" spellcheck="false" oninput="onEdit('${l.key}',${n})"></textarea></div>`+
+      `<div class="btn-row">`+
+        `<button class="btn go" onclick="runLevel(${n})">▶ RUN</button>`+
+        `<button class="btn ghost" onclick="resetLevel(${n})">↺ Reset canvas</button>`+
+        `<button class="btn ghost" onclick="restarter(${n})">Clear code</button>`+
+      `</div>`+
+      `<div class="console" id="con${n}">Ready. Write your code and press RUN.</div>`+
+      `<div class="hintbox">💡 ${l.hint}</div>`+
+      `<div class="win-banner" id="win${n}"><h3>✅ Perfect match! +25 XP</h3><div style="color:var(--muted);font-size:13px">Your code painted exactly the right picture.</div>`+
+        (n<LV.length?`<div class="btn-row" style="justify-content:center;margin-top:10px"><button class="btn teal" onclick="go(${n+1})">Next Mission →</button></div>`:`<div style="color:var(--good);font-weight:900;margin-top:10px">🏆 Level 16 complete — you're painting with code!</div>`)+
+      `</div>`+
+    `</div>`;
+  document.body.insertBefore(sc, document.querySelector('script'));
+});
+
+/* ═══════════ WORLD / DRAW ═══════════ */
+const world={};
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n>=1){
+    const l=LV[n-1]; const ed=document.getElementById('ed'+n);
+    if(ed && ed.value==='') ed.value = (codeStore[l.key]!==undefined?codeStore[l.key]:l.starter);
+    resetLevel(n); drawTarget(n);
+    for(let i=0;i<n;i++){const t=document.getElementById('tab'+i);if(t)t.classList.add('done');}
+  }
+}
+function onEdit(key,n){ codeStore[key]=document.getElementById('ed'+n).value; clearTimeout(onEdit._h); onEdit._h=setTimeout(saveAll,300); }
+function restarter(n){ const l=LV[n-1]; document.getElementById('ed'+n).value=l.starter; codeStore[l.key]=l.starter; saveAll(); }
+
+function cellSize(l){ return Math.max(26, Math.min(46, Math.floor(240/Math.max(l.grid.w,l.grid.h)))); }
+function sizeCanvas(c,l){ const cs=cellSize(l); c.width=l.grid.w*cs+2; c.height=l.grid.h*cs+2; return cs; }
+function key(x,y){ return x+','+y; }
+
+function resetLevel(n){
+  const l=LV[n-1];
+  world[n]={x:l.start.x,y:l.start.y,paint:{},solved:world[n]&&world[n].solved};
+  document.getElementById('win'+n).classList.toggle('show', !!(world[n]&&world[n].solved));
+  draw(n);
+}
+function gridDraw(ctx,l,cs,painted,panda){
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+  for(let y=0;y<l.grid.h;y++)for(let x=0;x<l.grid.w;x++){
+    const c=painted[key(x,y)];
+    ctx.fillStyle=c?COLORS[c]:'#12142400';
+    ctx.fillRect(1+x*cs,1+y*cs,cs-1,cs-1);
+    if(!c){ ctx.fillStyle=((x+y)%2)?'#101326':'#0c0e1c'; ctx.fillRect(1+x*cs,1+y*cs,cs-1,cs-1); }
+    ctx.strokeStyle='#2a2f4a'; ctx.lineWidth=1;
+    ctx.strokeRect(1.5+x*cs,1.5+y*cs,cs-2,cs-2);
+  }
+  if(panda){
+    ctx.font=Math.floor(cs*0.62)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🐼',1+panda.x*cs+cs/2,1+panda.y*cs+cs/2);
+  }
+}
+function draw(n){
+  const l=LV[n-1]; const c=document.getElementById('cv'+n);
+  const cs=sizeCanvas(c,l); const w=world[n];
+  gridDraw(c.getContext('2d'),l,cs,w.paint,{x:w.x,y:w.y});
+}
+function drawTarget(n){
+  const l=LV[n-1]; const c=document.getElementById('tg'+n);
+  const cs=sizeCanvas(c,l); const painted={};
+  l.target.forEach(t=>painted[key(t.x,t.y)]=t.c);
+  gridDraw(c.getContext('2d'),l,cs,painted,null);
+}
+
+/* ═══════════ RUN USER CODE (Worker + timeout) ═══════════ */
+const WORKER_SRC=`
+self.onmessage=function(e){
+  var acts=[],count=0;
+  function act(t,a){ if(++count>500){ postMessage({type:'error',msg:'Whoa! That made 500+ steps — is a loop never stopping?'}); throw new Error('__cap'); } acts.push({t:t,a:a}); }
+  var right=function(){act('right')},left=function(){act('left')},up=function(){act('up')},down=function(){act('down')};
+  var paint=function(c){ act('paint', c===undefined?undefined:String(c)) };
+  var say=function(x){act('say',String(x))};
+  try{ eval(e.data); postMessage({type:'done',acts:acts}); }
+  catch(err){ if(err&&err.message!=='__cap') postMessage({type:'error',msg:String(err&&err.message||err)}); }
+};`;
+let workerURL=null;
+try{ workerURL=URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})); }catch(e){}
+
+function con(n,html){ document.getElementById('con'+n).innerHTML=html; }
+function friendly(msg){
+  if(/is not defined/.test(msg)){
+    const m=msg.match(/(\w+) is not defined/); const name=m?m[1]:'that';
+    if(Object.keys(COLORS).indexOf(name)>=0) return `You wrote <b>${name}</b> without quotes. Colors are words, so they need quotes: <code>paint("${name}")</code>.`;
+    return `I don’t know the command <b>${name}</b>. Check your spelling — you can use paint() right() left() up() down().`;
+  }
+  if(/Unexpected|SyntaxError|missing|token/i.test(msg)) return `Your code has a typo the computer can’t read. Check for a missing <code>)</code> or <code>}</code> or an unfinished line. (${msg})`;
+  return msg;
+}
+
+function runLevel(n){
+  const l=LV[n-1]; const code=document.getElementById('ed'+n).value;
+  codeStore[l.key]=code; saveAll();
+  document.getElementById('win'+n).classList.remove('show');
+  if(l.require && !l.require.test(code)){ con(n,`<span class="err">✋ ${l.requireMsg}</span>`); return; }
+  resetLevel(n); con(n,'Running your code…');
+
+  function afterActs(acts){
+    let i=0; const w=world[n];
+    con(n,'');
+    const step=()=>{
+      if(i>=acts.length){ checkWin(n); return; }
+      const a=acts[i++];
+      if(a.t==='say'){ const c=document.getElementById('con'+n); c.innerHTML+=`<span class="say">🐼 says: ${escapeHtml(a.a)}</span>\n`; setTimeout(step,140); return; }
+      if(a.t==='paint'){
+        if(a.a===undefined){ con(n,`<span class="err">✋ paint() needs a color inside the parentheses — like paint("red").</span>`); return; }
+        if(!COLORS[a.a]){ con(n,`<span class="err">❌ "${escapeHtml(a.a)}" isn’t a color I know. Try: red, blue, green, yellow, purple, white.</span>`); return; }
+        w.paint[key(w.x,w.y)]=a.a; draw(n); setTimeout(step,150); return;
+      }
+      let nx=w.x,ny=w.y;
+      if(a.t==='right')nx++; else if(a.t==='left')nx--; else if(a.t==='up')ny--; else if(a.t==='down')ny++;
+      if(nx<0||ny<0||nx>=l.grid.w||ny>=l.grid.h){ draw(n); con(n,`<span class="err">💥 The panda walked off the edge of the canvas! Check how many times you move.</span>`); return; }
+      w.x=nx;w.y=ny; draw(n); setTimeout(step,150);
+    };
+    step();
+  }
+
+  if(workerURL){
+    const wk=new Worker(workerURL);
+    const timer=setTimeout(()=>{ wk.terminate(); con(n,`<span class="err">⏱️ Your code ran too long — maybe a loop that never ends. Give it a clear stopping point.</span>`); },1500);
+    wk.onmessage=(e)=>{ clearTimeout(timer); wk.terminate(); if(e.data.type==='error') con(n,`<span class="err">❌ ${friendly(e.data.msg)}</span>`); else afterActs(e.data.acts); };
+    wk.onerror=(e)=>{ clearTimeout(timer); wk.terminate(); con(n,`<span class="err">❌ ${friendly(e.message||'error')}</span>`); e.preventDefault&&e.preventDefault(); };
+    wk.postMessage(code);
+  } else {
+    try{
+      const acts=[]; let count=0;
+      const cap=()=>{ if(++count>500) throw new Error('__cap'); };
+      const right=()=>{cap();acts.push({t:'right'})},left=()=>{cap();acts.push({t:'left'})},up=()=>{cap();acts.push({t:'up'})},down=()=>{cap();acts.push({t:'down'})};
+      const paint=(c)=>{cap();acts.push({t:'paint',a:c===undefined?undefined:String(c)})};
+      const say=(x)=>{cap();acts.push({t:'say',a:String(x)})};
+      eval(code); afterActs(acts);
+    }catch(err){ con(n, err.message==='__cap'?`<span class="err">Whoa! 500+ steps — is a loop never stopping?</span>`:`<span class="err">❌ ${friendly(String(err.message||err))}</span>`); }
+  }
+}
+
+function checkWin(n){
+  const l=LV[n-1], w=world[n];
+  // every target square must be painted the right color, and nothing extra painted
+  let missing=0, wrong=0;
+  const want={}; l.target.forEach(t=>want[key(t.x,t.y)]=t.c);
+  Object.keys(want).forEach(k=>{ if(!w.paint[k]) missing++; else if(w.paint[k]!==want[k]) wrong++; });
+  let extra=0;
+  Object.keys(w.paint).forEach(k=>{ if(!want[k]) extra++; });
+
+  if(missing===0 && wrong===0 && extra===0){
+    const first=!(world[n].solved);
+    world[n].solved=true;
+    con(n,'<span class="ok">✅ Your picture matches the goal exactly!</span>');
+    document.getElementById('win'+n).classList.add('show');
+    logMistake(true,l.title,'M'+n);
+    if(first){ addXP(25); showToast('🎨 +25 XP — nice code!'); }
+    document.getElementById('tab'+n).classList.add('done');
+  } else {
+    logMistake(false,l.title,'M'+n);
+    let msg='Not a match yet — ';
+    if(missing) msg+=`${missing} square${missing>1?'s':''} still need painting. `;
+    if(wrong) msg+=`${wrong} square${wrong>1?'s are':' is'} the wrong color. `;
+    if(extra) msg+=`${extra} square${extra>1?'s':''} got painted that shouldn’t be. `;
+    con(n,`<span class="err">${msg}Compare your picture to the goal and RUN again.</span>`);
+  }
+}
+
+/* ═══════════ SAVE LIFECYCLE ═══════════ */
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') saveAll(); });
+window.addEventListener('pagehide',saveAll);
+window.addEventListener('beforeunload',saveAll);
+window.addEventListener('blur',saveAll);
+
+document.getElementById('xpNum').textContent=xp;
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>

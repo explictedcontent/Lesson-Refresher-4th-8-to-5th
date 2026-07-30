@@ -104,7 +104,7 @@
   <div class="hero">
     <div class="htop"><div class="hicon">🏫</div>
       <div><h1>Summer Refresher Course</h1>
-        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-28 · v4 — Day 18 + Level 15 rewritten to explain itself</div>
+        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-29 · v5 — Day 19 (Nine-Tailed Fox) + Level 16: Panda Painter</div>
       </div>
     </div>
     <p>A fun, hands-on review for a 4th-grader heading into 5th grade. Every lesson is interactive — games, a drawing pad, and a timed lesson plan — with a quiz at the end. Pick a subject tab, then a lesson. Wrong quiz answers are saved to the <b>Review</b> tab until they're answered correctly.</p>
@@ -138,7 +138,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 18 · Gray Wolf 🐺 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 19 · Nine-Tailed Fox 🦊🔥 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — The Fox Legend That Crossed a Continent",topic:"Geography",time:"45 min",file:"social-studies-lesson-19-nine-tailed-fox.html",desc:"Japan's four main islands, Mount Fuji & the Ring of Fire, plus the REAL nine-tailed fox legend in Japan, China & Korea."},
+      {n:2,emoji:"🔬",title:"Science — One Tail, Nine Superpowers",topic:"Science",time:"45 min",file:"science-lesson-19-nine-tailed-fox.html",desc:"What a tail is really for, the red fox's mousing pounce, and how arctic & fennec foxes are built for their climates."},
+      {n:3,emoji:"📖",title:"ELA — The Fox Who Held the Flame",topic:"Reading",time:"45 min",file:"ela-lesson-19-nine-tailed-fox.html",desc:"A young fox spirit learns that real strength is control. 7 vocab words, main idea & supporting details."},
+      {n:4,emoji:"📐",title:"Math — Volume",topic:"Number",time:"45 min",file:"math-lesson-19-nine-tailed-fox.html",desc:"Counting unit cubes, layers, and V = l × w × h — plus finding a missing dimension (clean-number tools)."},
+      {n:5,emoji:"💻",title:"Coding — Level 16: Panda Painter (Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-16-painter.html",desc:"Type REAL JavaScript to paint pictures — commands with inputs, loops, variables that hold words, and your own command with an input! 🎨"},
+    ]},
+    {label:"Day 18 · Gray Wolf 🐺 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Wolves of the Northern World",topic:"Geography",time:"45 min",file:"social-studies-lesson-18-wolf.html",desc:"Where wolves roam across North America, Europe & Asia, Yellowstone, and wolves in world cultures — plus a map activity."},
       {n:2,emoji:"🔬",title:"Science — How Wolves Changed a River",topic:"Science",time:"45 min",file:"science-lesson-18-wolf.html",desc:"The real Yellowstone trophic cascade, pack life & howls, and endurance-hunting adaptations — plus a cascade builder."},
       {n:3,emoji:"📖",title:"ELA — The Quietest Wolf",topic:"Reading",time:"45 min",file:"ela-lesson-18-wolf.html",desc:"A pack's runt finds his own quiet strength. 7 vocab words, similes & metaphors, and a belonging theme."},
@@ -276,6 +283,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
+       {n:19,emoji:"🦊",title:"Volume",topic:"Number",time:"45 min",file:"math-lesson-19-nine-tailed-fox.html",desc:"Volume of rectangular prisms — count unit cubes, use layers, apply V = l × w × h, and find a missing dimension."},
+     ]},
      {label:"Day 18 · Gray Wolf 🐺", items:[
        {n:18,emoji:"🐺",title:"Decimals",topic:"Number",time:"45 min",file:"math-lesson-18-wolf.html",desc:"Read, write, compare, round, and add & subtract decimals (tenths & hundredths), with wolf word problems."},
      ]},
@@ -336,6 +346,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
+       {n:19,emoji:"🦊",title:"One Tail, Nine Superpowers",topic:"Science",time:"45 min",file:"science-lesson-19-nine-tailed-fox.html",desc:"What tails are really for, the red fox mousing pounce & magnetic north, and arctic vs fennec fox climate adaptations."},
+     ]},
      {label:"Day 18 · Gray Wolf 🐺", items:[
        {n:18,emoji:"🐺",title:"How Wolves Changed a River",topic:"Science",time:"45 min",file:"science-lesson-18-wolf.html",desc:"The real Yellowstone trophic cascade, pack life & 10-mile howls, endurance-hunting adaptations, and a cascade builder."},
      ]},
@@ -394,6 +407,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
+       {n:19,emoji:"🦊",title:"The Fox Who Held the Flame",topic:"Reading",time:"45 min",file:"ela-lesson-19-nine-tailed-fox.html",desc:"A young fox spirit learns that real strength is control. 7 vocab words, main idea & supporting details, self-control theme."},
+     ]},
      {label:"Day 18 · Gray Wolf 🐺", items:[
        {n:18,emoji:"🐺",title:"The Quietest Wolf",topic:"Reading",time:"45 min",file:"ela-lesson-18-wolf.html",desc:"A pack's runt finds his own quiet strength. 7 vocab words, a similes & metaphors game, and a belonging theme."},
      ]},
@@ -448,6 +464,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
+       {n:19,emoji:"🦊",title:"The Fox Legend That Crossed a Continent",topic:"Geography",time:"45 min",file:"social-studies-lesson-19-nine-tailed-fox.html",desc:"Japan's islands, Mount Fuji & the Ring of Fire, plus the real nine-tailed fox legend across Japan, China & Korea."},
+     ]},
      {label:"Day 18 · Gray Wolf 🐺", items:[
        {n:18,emoji:"🐺",title:"Wolves of the Northern World",topic:"Geography",time:"45 min",file:"social-studies-lesson-18-wolf.html",desc:"Where wolves roam across North America, Europe & Asia, Yellowstone, wolves in world cultures, and a map activity."},
      ]},
@@ -525,6 +544,7 @@ const SUBJECTS=[
      ]},
      {label:"✍️ Write Real Code (new!)", items:[
        {n:15,emoji:"🌾",title:"Level 15: Panda Harvest (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-15-realcode.html",desc:"NEW STYLE — you TYPE real JavaScript and the panda does it! Loops, variables, nested loops & your own functions to harvest every bamboo. Real code, real error messages, run it live."},
+       {n:16,emoji:"🎨",title:"Level 16: Panda Painter (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-16-painter.html",desc:"Type real JavaScript to paint pictures and match the goal — commands with inputs, loops, variables that hold words, and your own command with an input."},
        {n:0,emoji:"🐼",title:"Warm-up: You Are the Coder (Demo)",topic:"Coding",time:"20 min",file:"coding-real-demo.html",desc:"A gentle first taste of typing real code — move the panda with right(), left(), up(), down(), loops & your own function."},
      ]},
    ]},
