@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 17 — Panda Decides 🤔</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn)}
+.screen{display:none;padding:16px;max-width:640px;margin:0 auto}
+.screen.active{display:block}
+.mission-header{background:linear-gradient(135deg,#0d0620,#12082c);border:2px solid var(--purple);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--purple);text-transform:uppercase;letter-spacing:.1em}
+.mission-title{font-size:21px;font-weight:900;margin:3px 0}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.goal{background:#0a1c12;border:1px solid var(--good);border-radius:10px;padding:10px 12px;font-size:14px;color:#bff0cf;margin-bottom:10px;line-height:1.5}
+.goal b{color:var(--good)}
+.teach{background:linear-gradient(135deg,#0a0f24,#0d1430);border:2px solid var(--accent2);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.teach-title{font-size:13px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.teach-body{font-size:14.5px;line-height:1.65;color:#dfe6f5}
+.teach-body b{color:var(--warn)}
+.teach-ex{background:#05060b;border:1px solid #2a2f4a;border-radius:8px;padding:10px 12px;margin-top:10px;font-family:'Courier New',monospace;font-size:13px;color:#9fe8d8;white-space:pre;overflow-x:auto;line-height:1.5}
+.counter{text-align:center;font-weight:900;font-size:14px;color:var(--warn);margin-bottom:8px}
+canvas{display:block;background:#0a0b13;border:2px solid var(--line);border-radius:12px;margin:0 auto 12px;max-width:100%}
+.editor-wrap{margin-bottom:10px}
+.editor-label{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+textarea.code{width:100%;min-height:140px;background:#08090f;color:#e6edf3;border:2px solid #2a2f4a;border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;font-size:15px;line-height:1.6;resize:vertical;tab-size:2}
+textarea.code:focus{outline:none;border-color:var(--accent2)}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.95)}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:16px}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.console{background:#05060b;border:1px solid #2a2f4a;border-radius:10px;padding:10px 12px;font-family:'Courier New',monospace;font-size:13.5px;color:#9fb0d0;min-height:44px;margin-top:10px;white-space:pre-wrap;line-height:1.6}
+.console .ok{color:var(--good)}
+.console .err{color:var(--bad)}
+.console .say{color:var(--warn)}
+.win-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:12px;padding:14px;text-align:center;margin-top:12px;display:none}
+.win-banner.show{display:block}
+.win-banner h3{color:var(--good);font-size:18px;margin-bottom:4px}
+.hintbox{font-size:13px;color:var(--muted);background:#0f1220;border-left:3px solid var(--warn);padding:8px 12px;border-radius:0 8px 8px 0;margin-top:10px;line-height:1.5}
+.hintbox code,.mission-brief code,.goal code{background:#1a1f36;color:#ffcc88;padding:1px 6px;border-radius:5px;font-family:'Courier New',monospace;font-size:13px}
+.chip{display:inline-block;background:#1a1f36;color:#ffcc88;font-family:'Courier New',monospace;font-size:13px;padding:3px 9px;border-radius:6px;margin:3px 4px 0 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="xp-bar">⚡ <span id="xpNum">0</span> XP</div>
+<div class="mbar" id="mbar"></div>
+
+<div class="screen active" id="sc0">
+  <div class="mission-header">
+    <div class="mission-tag">Real Code · Level 17</div>
+    <div class="mission-title">🤔 Panda Decides</div>
+    <div class="mission-brief">Until now your code did the same thing every time. Now it will <b>look around and decide</b>. That's the idea behind every game, app, and robot — code that checks something, then chooses what to do.</div>
+  </div>
+  <div class="stage">
+    <div class="teach">
+      <div class="teach-title">🧠 Start here — the new idea</div>
+      <div class="teach-body">
+        There's a new command: <b>blocked()</b>. It doesn't move the panda — it <b>asks a question</b>:<br><br>
+        “<i>Is there a wall 🧱 right next to me, on my right?</i>”<br><br>
+        The answer comes back as <b>true</b> (yes) or <b>false</b> (no). Those two words are how code says yes and no.
+        <pre class="teach-ex">blocked()  →  true    (yes, a wall is there)
+blocked()  →  false   (no, the way is clear)</pre>
+        In the missions you'll use that answer to <b>decide</b> what the panda does next.
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6">Your commands:</p>
+    <div style="margin:8px 0"><span class="chip">right()</span><span class="chip">left()</span><span class="chip">up()</span><span class="chip">down()</span><span class="chip">blocked()</span><span class="chip">say(...)</span></div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:10px">The panda grabs any 💎 gem it steps on. Clear every gem to win.</p>
+    <div class="btn-row"><button class="btn go" onclick="go(1)">Start Deciding 🤔</button></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ STATE ═══════════ */
+const XKEY='coding-l17-xp', CKEY='coding-l17-code';
+const PREFIX='Coding|Level 17: Panda Decides|';
+let xp=0, cur=0, codeStore={};
+try{ xp=parseInt(localStorage.getItem(XKEY)||'0',10)||0; }catch(e){}
+try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
+
+function addXP(n){ xp+=n; document.getElementById('xpNum').textContent=xp; saveAll(); }
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
+/* Defensive save: XP only goes up; typed code merges with what's stored. */
+function saveAll(){
+  try{ const s=parseInt(localStorage.getItem(XKEY)||'0',10)||0; localStorage.setItem(XKEY,String(Math.max(s,xp))); }catch(e){}
+  try{ let st={}; try{ st=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){ st={}; }
+    localStorage.setItem(CKEY,JSON.stringify(Object.assign({},st,codeStore))); }catch(e){}
+}
+function logMistake(ok,text,title){
+  try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}'); const k=PREFIX+title;
+    if(!ok){ m[k]={subject:'Coding',day:'Level 17',q:text,file:'coding-lesson-17-decisions.html'}; } else { delete m[k]; }
+    localStorage.setItem('refresher-mistakes',JSON.stringify(m));
+  }catch(e){}
+}
+function escapeHtml(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+/* ═══════════ MISSIONS ═══════════
+   One new idea per mission, explained in plain English first.
+   blocked() = is the square directly to my RIGHT a wall (or the edge)? */
+const LV = [
+  { key:'d1', label:'① TRUE/FALSE', title:'Ask a Question',
+    teach:{ title:'true and false',
+      body:'<b>blocked()</b> looks at the square directly to the panda\'s <b>right</b> and answers <b>true</b> or <b>false</b>.<br><br>You can print that answer with <b>say()</b> to see it with your own eyes. Right now nothing is blocking the panda, so it will say <b>false</b>.<br><br>true and false are how code says <b>yes</b> and <b>no</b>. That\'s all they are.',
+      example:'say(blocked())   ← prints true or false' },
+    goal:'Run the code to <b>see</b> what <code>blocked()</code> answers. Then move right and grab both 💎 gems.',
+    grid:{w:4,h:1}, start:{x:0,y:0}, walls:[],
+    gems:[{x:1,y:0},{x:2,y:0}],
+    starter:'// This prints the answer so you can see it:\nsay(blocked())\n\n// Now go get the gems:\nright()\n',
+    require:/say\s*\(/, requireMsg:'Keep the say(blocked()) line — seeing the answer is the point of this one!',
+    hint:'It says false because nothing is in the way. You need TWO right() moves to grab both gems.' },
+
+  { key:'d2', label:'② IF', title:'Only If',
+    teach:{ title:'What is an if?',
+      body:'An <b>if</b> runs code <b>only when</b> the answer is true. If it\'s false, that code is skipped entirely.<br><br>Read this out loud as: “<b>If</b> I\'m blocked, <b>then</b> go up.”<br><br>Now there IS a wall 🧱 to the panda\'s right, so <b>blocked()</b> is true — which means <b>up()</b> will run.',
+      example:'if (blocked()) {\n  up()      ← only runs when the answer is true\n}' },
+    goal:'A wall is in the way! Use the <code>if</code> to step up, then move right to grab the 💎 gem.',
+    grid:{w:4,h:2}, start:{x:0,y:1}, walls:[{x:1,y:1}],
+    gems:[{x:1,y:0}],
+    starter:'// If a wall is on my right, step up:\nif (blocked()) {\n  up()\n}\n\n// Now finish it — move right to the gem!\n',
+    require:/if\s*\(/, requireMsg:'Keep the if — that\'s the whole lesson here!',
+    hint:'After the if runs up(), the panda is above the wall. Add one line: right()' },
+
+  { key:'d3', label:'③ ELSE', title:'Otherwise, Do This',
+    teach:{ title:'if ... else = two choices',
+      body:'<b>else</b> means “<b>otherwise</b>.” It gives the code a second path.<br><br>Read it as: “<b>If</b> I\'m blocked, go up. <b>Otherwise</b>, go right.”<br><br>Exactly ONE of the two runs every time — never both. The panda checks, then picks.',
+      example:'if (blocked()) {\n  up()      ← when true\n} else {\n  right()   ← when false\n}' },
+    goal:'Get both 💎 gems. The same if/else works every step — you just need <b>enough of them</b>.',
+    grid:{w:5,h:2}, start:{x:0,y:1}, walls:[{x:2,y:1}],
+    gems:[{x:1,y:1},{x:2,y:0}],
+    starter:'// Step 1:\nif (blocked()) {\n  up()\n} else {\n  right()\n}\n\n// Step 2:\nif (blocked()) {\n  up()\n} else {\n  right()\n}\n\n// Step 3 — copy the same block one more time!\n',
+    require:/else/, requireMsg:'Keep the else — that\'s what this mission teaches.',
+    hint:'You need THREE of those if/else blocks: right, then up over the wall, then right onto the last gem.' },
+
+  { key:'d4', label:'④ LOOP + IF', title:'Decide Over and Over',
+    teach:{ title:'Put the decision INSIDE a loop',
+      body:'Copying that block over and over was tedious — so put it in a <b>loop</b>.<br><br>Now the panda re-checks <b>every single step</b>: blocked? go up. Not blocked? go right. It climbs the whole staircase on its own.<br><br>This combo — a <b>loop</b> that makes a <b>decision</b> each time — is how real game characters and robots work.',
+      example:'for (let i = 0; i < 8; i++) {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}' },
+    goal:'A whole staircase of 💎 gems — <b>8 of them</b>. The loop below only repeats 4 times, so it stops halfway. <b>Fix the number.</b>',
+    grid:{w:5,h:5}, start:{x:0,y:4},
+    walls:[{x:1,y:4},{x:2,y:3},{x:3,y:2},{x:4,y:1}],
+    gems:[{x:0,y:3},{x:1,y:3},{x:1,y:2},{x:2,y:2},{x:2,y:1},{x:3,y:1},{x:3,y:0},{x:4,y:0}],
+    starter:'// Repeat the decision — but how many times?\nfor (let i = 0; i < 4; i++) {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}\n',
+    require:/for[\s\S]*if/, requireMsg:'Keep the loop with the if/else inside it.',
+    hint:'There are 8 gems and each repeat grabs one. Change the 4 to an 8.' },
+
+  { key:'d5', label:'⑤ YOUR COMMAND', title:'Name Your Decision',
+    teach:{ title:'Wrap a decision in your own command',
+      body:'You can put a whole decision inside your <b>own command</b> and give it a name.<br><br><b>stepSmart()</b> below means “take one smart step — up if I\'m blocked, right if I\'m not.”<br><br>Once it has a name, your main code reads like plain English: repeat <b>stepSmart()</b> six times. Naming things is a real coder superpower — it hides the messy details.',
+      example:'function stepSmart() {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}\n\nstepSmart()   ← take one smart step' },
+    goal:'Grab all <b>6 gems</b> using your own <code>stepSmart()</code> command inside a loop.',
+    grid:{w:4,h:4}, start:{x:0,y:3},
+    walls:[{x:1,y:3},{x:2,y:2},{x:3,y:1}],
+    gems:[{x:0,y:2},{x:1,y:2},{x:1,y:1},{x:2,y:1},{x:2,y:0},{x:3,y:0}],
+    starter:'// Your own command — one smart step:\nfunction stepSmart() {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}\n\n// Now use it 6 times. Add the loop below!\n',
+    require:/function\s+\w+/, requireMsg:'Keep your own command (the function) — that\'s the lesson here.',
+    hint:'Write: for (let i = 0; i < 6; i++) { stepSmart() }' },
+];
+
+/* ═══════════ BUILD TABS + SCREENS ═══════════ */
+const mbar=document.getElementById('mbar');
+mbar.innerHTML='<div class="mtab active" onclick="go(0)" id="tab0">🐼 START</div>'+
+  LV.map((l,i)=>`<div class="mtab" onclick="go(${i+1})" id="tab${i+1}">${l.label}</div>`).join('');
+
+LV.forEach((l,i)=>{
+  const n=i+1;
+  const sc=document.createElement('div');
+  sc.className='screen'; sc.id='sc'+n;
+  sc.innerHTML=
+    `<div class="mission-header"><div class="mission-tag">Mission ${n}</div>`+
+    `<div class="mission-title">${l.title}</div></div>`+
+    `<div class="stage">`+
+      `<div class="goal">🎯 ${l.goal}</div>`+
+      (l.teach?`<div class="teach"><div class="teach-title">🧠 ${l.teach.title}</div>`+
+        `<div class="teach-body">${l.teach.body}</div>`+
+        (l.teach.example?`<pre class="teach-ex">${escapeHtml(l.teach.example)}</pre>`:'')+
+      `</div>`:'')+
+      `<div class="counter" id="cnt${n}"></div>`+
+      `<canvas id="cv${n}" width="360" height="280"></canvas>`+
+      `<div class="editor-wrap"><div class="editor-label">✍️ Your code</div>`+
+      `<textarea class="code" id="ed${n}" spellcheck="false" oninput="onEdit('${l.key}',${n})"></textarea></div>`+
+      `<div class="btn-row">`+
+        `<button class="btn go" onclick="runLevel(${n})">▶ RUN</button>`+
+        `<button class="btn ghost" onclick="resetLevel(${n})">↺ Reset</button>`+
+        `<button class="btn ghost" onclick="restarter(${n})">Clear code</button>`+
+      `</div>`+
+      `<div class="console" id="con${n}">Ready. Write your code and press RUN.</div>`+
+      `<div class="hintbox">💡 ${l.hint}</div>`+
+      `<div class="win-banner" id="win${n}"><h3>✅ All gems collected! +25 XP</h3><div style="color:var(--muted);font-size:13px">Your code looked around and made the right call.</div>`+
+        (n<LV.length?`<div class="btn-row" style="justify-content:center;margin-top:10px"><button class="btn teal" onclick="go(${n+1})">Next Mission →</button></div>`:`<div style="color:var(--good);font-weight:900;margin-top:10px">🏆 Level 17 complete — your code can think!</div>`)+
+      `</div>`+
+    `</div>`;
+  document.body.insertBefore(sc, document.querySelector('script'));
+});
+
+/* ═══════════ WORLD / DRAW ═══════════ */
+const world={};
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n>=1){
+    const l=LV[n-1]; const ed=document.getElementById('ed'+n);
+    if(ed && ed.value==='') ed.value = (codeStore[l.key]!==undefined?codeStore[l.key]:l.starter);
+    resetLevel(n);
+    for(let i=0;i<n;i++){const t=document.getElementById('tab'+i);if(t)t.classList.add('done');}
+  }
+}
+function onEdit(key,n){ codeStore[key]=document.getElementById('ed'+n).value; clearTimeout(onEdit._h); onEdit._h=setTimeout(saveAll,300); }
+function restarter(n){ const l=LV[n-1]; document.getElementById('ed'+n).value=l.starter; codeStore[l.key]=l.starter; saveAll(); }
+
+function key(x,y){ return x+','+y; }
+function cell(l){ return Math.floor(Math.min(340/l.grid.w, 260/l.grid.h)); }
+function resetLevel(n){
+  const l=LV[n-1];
+  world[n]={x:l.start.x,y:l.start.y,got:new Set(),solved:world[n]&&world[n].solved};
+  document.getElementById('win'+n).classList.toggle('show', !!(world[n]&&world[n].solved));
+  updateCounter(n); draw(n);
+}
+function updateCounter(n){
+  const l=LV[n-1], w=world[n];
+  document.getElementById('cnt'+n).textContent='💎 '+w.got.size+' / '+l.gems.length+' collected';
+}
+function draw(n){
+  const l=LV[n-1]; const c=document.getElementById('cv'+n); const ctx=c.getContext('2d');
+  const cs=cell(l), ox=(c.width-cs*l.grid.w)/2, oy=(c.height-cs*l.grid.h)/2;
+  ctx.clearRect(0,0,c.width,c.height);
+  for(let y=0;y<l.grid.h;y++)for(let x=0;x<l.grid.w;x++){
+    ctx.fillStyle=((x+y)%2)?'#101326':'#0c0e1c';
+    ctx.fillRect(ox+x*cs,oy+y*cs,cs-1,cs-1);
+  }
+  ctx.font=Math.floor(cs*0.55)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  l.walls.forEach(o=>ctx.fillText('🧱',ox+o.x*cs+cs/2,oy+o.y*cs+cs/2));
+  const w=world[n];
+  l.gems.forEach(g=>{ if(!w.got.has(key(g.x,g.y))) ctx.fillText('💎',ox+g.x*cs+cs/2,oy+g.y*cs+cs/2); });
+  ctx.fillText('🐼',ox+w.x*cs+cs/2,oy+w.y*cs+cs/2);
+}
+
+/* ═══════════ RUN USER CODE ═══════════
+   The Worker SIMULATES the world so blocked() can answer truthfully.
+   It returns the panda's position after each move; the page just replays them. */
+const WORKER_SRC=`
+self.onmessage=function(e){
+  var code=e.data.code, L=e.data.lvl;
+  var x=L.start.x, y=L.start.y, W=L.grid.w, H=L.grid.h;
+  var walls={}; L.walls.forEach(function(o){ walls[o.x+','+o.y]=1; });
+  var acts=[], count=0;
+  function cap(){ if(++count>600){ postMessage({type:'error',msg:'Whoa! That made 600+ steps — is a loop never stopping?'}); throw new Error('__cap'); } }
+  function move(dx,dy,name){
+    cap();
+    var nx=x+dx, ny=y+dy;
+    if(nx<0||ny<0||nx>=W||ny>=H){ postMessage({type:'error',msg:'The panda tried to walk off the edge of the world with '+name+'().'}); throw new Error('__stop'); }
+    if(walls[nx+','+ny]){ postMessage({type:'error',msg:'The panda walked straight into a wall with '+name+'(). Check the wall before moving!'}); throw new Error('__stop'); }
+    x=nx; y=ny; acts.push({t:'m',x:x,y:y});
+  }
+  var right=function(){move(1,0,'right')}, left=function(){move(-1,0,'left')};
+  var up=function(){move(0,-1,'up')}, down=function(){move(0,1,'down')};
+  var blocked=function(){ cap(); var nx=x+1; return (nx>=W) || !!walls[nx+','+y]; };
+  var say=function(v){ cap(); acts.push({t:'s',a:String(v)}); };
+  try{ eval(code); postMessage({type:'done',acts:acts}); }
+  catch(err){ if(err&&err.message!=='__cap'&&err.message!=='__stop') postMessage({type:'error',msg:String(err&&err.message||err)}); }
+};`;
+let workerURL=null;
+try{ workerURL=URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})); }catch(e){}
+
+function con(n,html){ document.getElementById('con'+n).innerHTML=html; }
+/* Append instead of replace, so anything the panda said stays visible
+   under the final result (mission 1 is all about SEEING true/false). */
+function conAdd(n,html){ const el=document.getElementById('con'+n); el.innerHTML += (el.innerHTML?'\n':'') + html; }
+function friendly(msg){
+  if(/is not defined/.test(msg)){
+    const m=msg.match(/(\w+) is not defined/); const nm=m?m[1]:'that';
+    return `I don’t know <b>${nm}</b>. You can use right() left() up() down() blocked() say().`;
+  }
+  if(/Unexpected|SyntaxError|missing|token/i.test(msg)) return `Your code has a typo the computer can’t read. Check for a missing <code>)</code> or <code>}</code>. (${msg})`;
+  return msg;
+}
+
+function runLevel(n){
+  const l=LV[n-1]; const code=document.getElementById('ed'+n).value;
+  codeStore[l.key]=code; saveAll();
+  document.getElementById('win'+n).classList.remove('show');
+  if(l.require && !l.require.test(code)){ con(n,`<span class="err">✋ ${l.requireMsg}</span>`); return; }
+  resetLevel(n); con(n,'Running your code…');
+
+  function play(acts){
+    let i=0; const w=world[n];
+    con(n,'');
+    const grab=()=>{ const k=key(w.x,w.y); if(l.gems.some(g=>g.x===w.x&&g.y===w.y)&&!w.got.has(k)){ w.got.add(k); updateCounter(n); } };
+    grab();
+    const step=()=>{
+      if(i>=acts.length){ checkWin(n); return; }
+      const a=acts[i++];
+      if(a.t==='s'){
+        const c=document.getElementById('con'+n);
+        c.innerHTML+=`<span class="say">🐼 says: ${escapeHtml(a.a)}</span>\n`;
+        setTimeout(step,220); return;
+      }
+      w.x=a.x; w.y=a.y; grab(); draw(n); setTimeout(step,190);
+    };
+    step();
+  }
+
+  if(workerURL){
+    const wk=new Worker(workerURL);
+    const timer=setTimeout(()=>{ wk.terminate(); con(n,`<span class="err">⏱️ Your code ran too long — maybe a loop that never ends.</span>`); },1500);
+    wk.onmessage=(e)=>{ clearTimeout(timer); wk.terminate();
+      if(e.data.type==='error') con(n,`<span class="err">❌ ${friendly(e.data.msg)}</span>`); else play(e.data.acts); };
+    wk.onerror=(e)=>{ clearTimeout(timer); wk.terminate(); con(n,`<span class="err">❌ ${friendly(e.message||'error')}</span>`); e.preventDefault&&e.preventDefault(); };
+    wk.postMessage({code:code, lvl:{grid:l.grid,start:l.start,walls:l.walls}});
+  } else {
+    // fallback: same simulation on the main thread
+    try{
+      let x=l.start.x,y=l.start.y; const W=l.grid.w,H=l.grid.h;
+      const walls={}; l.walls.forEach(o=>walls[key(o.x,o.y)]=1);
+      const acts=[]; let count=0;
+      const cap=()=>{ if(++count>600) throw new Error('__cap'); };
+      const mv=(dx,dy,nm)=>{ cap(); const nx=x+dx,ny=y+dy;
+        if(nx<0||ny<0||nx>=W||ny>=H) throw new Error('The panda tried to walk off the edge of the world with '+nm+'().');
+        if(walls[key(nx,ny)]) throw new Error('The panda walked straight into a wall with '+nm+'().');
+        x=nx;y=ny;acts.push({t:'m',x,y}); };
+      const right=()=>mv(1,0,'right'), left=()=>mv(-1,0,'left'), up=()=>mv(0,-1,'up'), down=()=>mv(0,1,'down');
+      const blocked=()=>{ cap(); const nx=x+1; return (nx>=W)||!!walls[key(nx,y)]; };
+      const say=(v)=>{ cap(); acts.push({t:'s',a:String(v)}); };
+      eval(code); play(acts);
+    }catch(err){ con(n, err.message==='__cap'?`<span class="err">Whoa! 600+ steps — is a loop never stopping?</span>`:`<span class="err">❌ ${friendly(String(err.message||err))}</span>`); }
+  }
+}
+
+function checkWin(n){
+  const l=LV[n-1], w=world[n];
+  if(w.got.size===l.gems.length){
+    const first=!(world[n].solved);
+    world[n].solved=true;
+    conAdd(n,'<span class="ok">✅ Every gem collected!</span>');
+    document.getElementById('win'+n).classList.add('show');
+    logMistake(true,l.title,'M'+n);
+    if(first){ addXP(25); showToast('🤔 +25 XP — smart code!'); }
+    document.getElementById('tab'+n).classList.add('done');
+  } else {
+    logMistake(false,l.title,'M'+n);
+    conAdd(n,`<span class="err">Not yet — you collected ${w.got.size} of ${l.gems.length} gems. Adjust your code and RUN again.</span>`);
+  }
+}
+
+/* ═══════════ SAVE LIFECYCLE ═══════════ */
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') saveAll(); });
+window.addEventListener('pagehide',saveAll);
+window.addEventListener('beforeunload',saveAll);
+window.addEventListener('blur',saveAll);
+
+document.getElementById('xpNum').textContent=xp;
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>

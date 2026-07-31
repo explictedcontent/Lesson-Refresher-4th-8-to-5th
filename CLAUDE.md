@@ -83,6 +83,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Level 14 (`coding-lesson-14-flyer.html`): build a tap-to-fly physics game (Sky Glider) — gravity+velocity each frame, flap sets speed up, cloud collision, scoring; then play it.
 - Level 15 (`coding-lesson-15-realcode.html`): **NEW "type real code" style** (parent asked for real coding, not tap-to-order). Kid TYPES actual JavaScript into an editor (`right()`/`left()`/`up()`/`down()`/`say()`, for-loops, variables, nested loops, own functions) and the panda runs it on a grid, harvesting bamboo. User code executes in a **Web Worker** (blob URL) terminated after 1.5s (endless-loop guard) that collects an action list the main thread animates; friendly kid-facing error messages; +25 XP/mission; autosaves typed code (`coding-l15-code`) + XP (`coding-l15-xp`). Works inside the all-in-one srcdoc iframe (Worker + localStorage both OK). `coding-real-demo.html` is the gentler warm-up (move-only). This is the model to convert Levels 1–14 to when asked — based on MakeCode/Minecraft "type code → it happens on screen."
 - Level 16 (`coding-lesson-16-painter.html`): type-real-code, **Panda Painter**. `paint("red")` colors the current square; kid matches a GOAL canvas shown beside their own. Teaches: commands that take an **input/argument**, loops, variables holding **words** (`let color = "yellow"`, then `paint(color)` — no quotes), moving to a second row, and **your own function with a parameter** (`function stripe(c)`). Same Worker sandbox + 1.5s guard; colors limited to red/blue/green/yellow/purple/white; targeted friendly errors (e.g. `paint(red)` without quotes → "Colors are words, so they need quotes").
+- Level 17 (`coding-lesson-17-decisions.html`): type-real-code, **Panda Decides** — if/else. Adds `blocked()`, which returns **true/false** for "is the square to my RIGHT a wall or the edge?". Ramp: see true/false with `say(blocked())` → `if` → `if/else` → decision **inside a loop** (staircase) → wrap the decision in your own `stepSmart()` function. IMPORTANT: because `blocked()` depends on live position, the **Worker simulates the world** (receives grid/start/walls, tracks x/y, validates moves) and returns the panda's position after each move; the page just replays them. Console APPENDS the result so `say()` output stays visible.
 - **TEACHING STANDARD for all future coding levels** (parent feedback: an adult couldn't follow the old nested-loop/`%` mission, so the kid was just tapping through): ONE new idea per mission; a plain-English **🧠 teach card** BEFORE any code explaining what it means, with a small annotated example; `//` comments inside the starter code; NO unexplained tricks (no `%`, no nested loops for beginners); and some missions ship **intentionally incomplete** so the kid must read/count/fix rather than just press RUN. Missions must be solvable exactly as the teach card describes — verify each intended solution actually wins.
 
 ## Day themes (completed)
@@ -104,11 +105,12 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 - Day 17: Sky Bison 🦬💨 (Avatar-themed; real flight science & real cultures behind the Four Nations)
 - Day 18: Gray Wolf 🐺 (real Yellowstone trophic cascade; wolves in world cultures; ELA similes/metaphors; Math decimals)
 - Day 19: Nine-Tailed Fox 🦊🔥 (Naruto-themed; REAL fox science + real kitsune/huli jing/kumiho folklore & Japan geography; ELA main idea & details; Math volume)
+- Day 20: Dragon 🐉 (real animals behind the legend — Komodo/Draco/bombardier beetle + science self-correction; dragons across China/Wales/Indonesia; ELA making inferences; Math order of operations)
 
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 4617KB, 109 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 4881KB, 114 lessons)
 Each lesson is inlined into `window.LESSONS[file]` and opened in a **srcdoc iframe**
 (`frame.srcdoc = window.LESSONS[file]`). This is REQUIRED for saving to work:
 every lesson declares the same top-level names (`const QAKEY`, `let xp`, `function go`…),

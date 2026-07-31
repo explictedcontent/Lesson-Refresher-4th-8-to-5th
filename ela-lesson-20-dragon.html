@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELA Day 20 — Dragon 🐉</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.65;min-height:100vh;}
+a{color:var(--accent2);text-decoration:none;}
+h1{font-size:1.7rem;font-weight:800;color:var(--accent);}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:8px;}
+h3{font-size:1.05rem;font-weight:600;}
+p{margin-bottom:.8em;}
+strong{color:var(--warn);}
+
+/* LAYOUT */
+#app{max-width:780px;margin:0 auto;padding:0 0 80px;}
+
+/* PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+}
+.pb-seg{
+  flex:1;min-width:60px;height:8px;border-radius:4px;
+  background:var(--line);cursor:pointer;transition:background .3s;
+  position:relative;
+}
+.pb-seg.done{background:var(--good);}
+.pb-seg.active{background:var(--accent2);}
+.pb-seg:hover::after{
+  content:attr(data-label);position:absolute;top:14px;left:50%;
+  transform:translateX(-50%);background:var(--panel2);
+  color:var(--ink);font-size:.72rem;padding:2px 7px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;z-index:200;
+}
+#pb-title{font-size:.8rem;color:var(--muted);width:100%;text-align:center;margin-top:2px;}
+
+/* HEADER */
+#hero{padding:28px 16px 16px;text-align:center;}
+#hero .day-badge{display:inline-block;background:var(--panel2);color:var(--accent2);
+  border-radius:20px;padding:3px 14px;font-size:.8rem;font-weight:700;margin-bottom:8px;}
+#hero p{color:var(--muted);font-size:.95rem;}
+
+/* PHASE SECTIONS */
+.phase{padding:0 16px;display:none;}
+.phase.visible{display:block;}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-top:4px;}
+.phase-num{width:36px;height:36px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.phase-title{font-size:1.1rem;font-weight:700;}
+.phase-time{font-size:.8rem;color:var(--muted);margin-left:auto;}
+
+/* CARDS */
+.card{background:var(--panel);border-radius:var(--radius);padding:18px;margin-bottom:12px;border:1px solid var(--line);}
+
+/* FACT CARDS */
+.fact-card{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+.fact-card.revealed{border-color:var(--accent2);}
+.fact-front{padding:18px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:60px;}
+.fact-icon{font-size:1.6rem;flex-shrink:0;}
+.fact-hint{color:var(--muted);font-size:.88rem;margin-left:auto;flex-shrink:0;}
+.fact-body{display:none;padding:0 18px 18px;}
+.fact-card.revealed .fact-body{display:block;}
+.fact-text{color:var(--ink);font-size:.97rem;margin-bottom:12px;}
+.fact-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.fact-btn{border:none;border-radius:8px;padding:8px 16px;font-size:.88rem;cursor:pointer;
+  background:var(--panel2);color:var(--ink);transition:background .2s;min-height:44px;}
+.fact-btn:hover{background:var(--line);}
+.fact-btn.knew{background:var(--good);color:#111;}
+.fact-btn.new{background:var(--accent2);color:#111;}
+
+/* READING PASSAGE */
+.passage{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);line-height:1.8;}
+.passage h3{color:var(--accent2);font-size:1.15rem;margin-bottom:14px;}
+.vocab-word{background:rgba(91,209,196,.15);color:var(--accent2);border-radius:4px;
+  padding:1px 5px;font-weight:600;cursor:help;position:relative;border-bottom:1px dashed var(--accent2);}
+.vocab-word:hover::after{
+  content:attr(data-def);position:absolute;bottom:calc(100%+4px);left:50%;
+  transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent2);
+  color:var(--ink);font-size:.78rem;padding:5px 9px;border-radius:7px;
+  white-space:normal;max-width:220px;text-align:center;pointer-events:none;z-index:50;
+  font-weight:400;line-height:1.4;
+}
+
+/* COMPREHENSION ACCORDION */
+.accord-item{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:10px;overflow:hidden;}
+.accord-q{padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:.97rem;min-height:54px;}
+.accord-arrow{margin-left:auto;color:var(--muted);transition:transform .3s;flex-shrink:0;}
+.accord-item.open .accord-arrow{transform:rotate(90deg);}
+.accord-a{display:none;padding:0 18px 16px;color:var(--muted);font-size:.93rem;line-height:1.65;}
+.accord-item.open .accord-a{display:block;}
+
+/* VOCABULARY MATCH */
+.vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.vocab-tile{
+  background:var(--panel2);border-radius:10px;padding:14px;min-height:54px;
+  border:2px solid var(--line);cursor:pointer;text-align:center;
+  font-size:.9rem;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;line-height:1.4;
+}
+.vocab-tile:hover:not(.matched):not(.selected){border-color:var(--muted);}
+.vocab-tile.selected{border-color:var(--accent);background:rgba(255,122,89,.12);}
+.vocab-tile.matched{border-color:var(--good);background:rgba(123,216,143,.12);
+  color:var(--good);pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease;}
+.vocab-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:8px;}
+
+/* INFERENCE PRACTICE */
+.se-card{background:var(--panel);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--line);}
+.se-para{background:var(--panel2);border-left:3px solid var(--accent2);border-radius:8px;
+  padding:12px 14px;font-size:.93rem;line-height:1.7;color:var(--ink);margin-bottom:12px;}
+.se-stmt{font-size:.97rem;margin-bottom:12px;font-weight:500;}
+.se-btns{display:flex;flex-direction:column;gap:8px;}
+.se-btn{width:100%;min-height:44px;border:2px solid var(--line);border-radius:8px;
+  background:transparent;color:var(--ink);cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .2s;padding:10px 12px;text-align:left;line-height:1.4;}
+.se-btn:hover:not(:disabled){border-color:var(--muted);}
+.se-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good);}
+.se-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad);}
+.se-feedback{font-size:.82rem;margin-top:8px;min-height:20px;}
+.se-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:12px;}
+.se-part{font-size:.85rem;font-weight:700;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.06em;margin:22px 0 10px;}
+
+/* WRITING PAD */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:2px solid var(--line);
+  border-radius:var(--radius);padding:16px;color:var(--ink);font-size:.97rem;
+  line-height:1.7;resize:vertical;font-family:inherit;outline:none;
+  transition:border-color .2s;}
+.writing-area:focus{border-color:var(--accent2);}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;
+  margin-top:8px;font-size:.82rem;color:var(--muted);}
+.save-indicator{color:var(--good);font-size:.8rem;opacity:0;transition:opacity .4s;}
+.save-indicator.show{opacity:1;}
+
+/* QUIZ */
+.quiz-progress{display:flex;gap:6px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+.q-dot{width:14px;height:14px;border-radius:50%;background:var(--line);transition:background .3s;}
+.q-dot.active{background:var(--accent);}
+.q-dot.correct{background:var(--good);}
+.q-dot.wrong{background:var(--bad);}
+.quiz-q{font-size:1.05rem;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;}
+.quiz-opt{
+  background:var(--panel2);border:2px solid var(--line);border-radius:10px;
+  padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);
+  font-size:.95rem;min-height:54px;transition:border-color .2s,background .2s;
+  width:100%;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--muted);}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.12);}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);}
+.quiz-feedback{min-height:28px;font-size:.88rem;margin-top:10px;padding:6px 10px;
+  border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(123,216,143,.1);color:var(--good);}
+.quiz-feedback.wrong{background:rgba(255,107,129,.1);color:var(--bad);}
+.quiz-next{margin-top:14px;background:var(--accent);border:none;border-radius:10px;
+  padding:12px 28px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;
+  min-height:48px;display:none;}
+.quiz-next:hover{background:#e8693e;}
+.quiz-result{text-align:center;padding:24px 0;}
+.quiz-result .score-big{font-size:3rem;font-weight:800;color:var(--accent2);}
+.quiz-result .score-label{color:var(--muted);margin-top:4px;}
+.quiz-result .score-msg{margin-top:14px;font-size:1rem;}
+
+/* NAV BUTTONS */
+.phase-nav{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+.btn-primary{background:var(--accent);border:none;border-radius:10px;
+  padding:12px 26px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;min-height:48px;}
+.btn-primary:hover{background:#e8693e;}
+.btn-ghost{background:transparent;border:2px solid var(--line);border-radius:10px;
+  padding:10px 20px;color:var(--muted);font-size:.95rem;cursor:pointer;min-height:48px;}
+.btn-ghost:hover{border-color:var(--muted);color:var(--ink);}
+
+/* UTILITY */
+.divider{height:1px;background:var(--line);margin:20px 0;}
+.tag{display:inline-block;border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:700;}
+.tag-phase{background:rgba(91,209,196,.15);color:var(--accent2);}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .vocab-grid{grid-template-columns:1fr;}
+  h1{font-size:1.35rem;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PHASE BAR -->
+  <div id="phase-bar">
+    <div class="pb-seg" data-phase="1" data-label="Warm-Up"></div>
+    <div class="pb-seg" data-phase="2" data-label="Reading"></div>
+    <div class="pb-seg" data-phase="3" data-label="Comprehension"></div>
+    <div class="pb-seg" data-phase="4" data-label="Vocabulary"></div>
+    <div class="pb-seg" data-phase="5" data-label="Making Inferences"></div>
+    <div class="pb-seg" data-phase="6" data-label="Writing"></div>
+    <div class="pb-seg" data-phase="7" data-label="Quiz"></div>
+    <div id="pb-title">Phase 1 — Warm-Up</div>
+  </div>
+
+  <!-- HERO -->
+  <div id="hero">
+    <div class="day-badge">ELA · Day 20</div>
+    <h1>🐉 Dragon</h1>
+    <p>Reading · Vocabulary · Writing · Quiz</p>
+  </div>
+
+  <!-- ======================== PHASE 1 ======================== -->
+  <section class="phase visible" id="phase-1">
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div>
+        <div class="phase-title">Warm-Up Fact Cards</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+      <div class="phase-time">4 cards</div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each card to reveal the fact, then tell us what you thought!</p>
+
+    <div class="fact-card" id="fc-1">
+      <div class="fact-front" onclick="revealFact('fc-1')">
+        <span class="fact-icon">🦴</span>
+        <span style="font-weight:600;">"Dragon Bones" Were Fossils</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">For centuries, people who dug up giant bones had no word for "dinosaur" yet — so they called them <strong>dragon bones</strong>. Some of the first fossils ever studied in China and Europe were labeled dragon remains. A real mystery, filed under the wrong name.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-1')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-1')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-2">
+      <div class="fact-front" onclick="revealFact('fc-2')">
+        <span class="fact-icon">🐉</span>
+        <span style="font-weight:600;">Not Every Dragon Is a Monster</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">In many European tales, dragons are treasure-hoarding monsters. But in China, Korea, and Vietnam, dragons are usually <strong>water spirits</strong> — long, wingless, and wise — who bring rain to the rice fields. Same word, totally different reputation.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-2')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-2')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-3">
+      <div class="fact-front" onclick="revealFact('fc-3')">
+        <span class="fact-icon">🦎</span>
+        <span style="font-weight:600;">Real Dragons Exist (Sort Of)</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">The <strong>Komodo dragon</strong> is a real lizard that grows about 10 feet long. And a little lizard called <em>Draco</em> — the "flying dragon" — stretches skin between its <strong>ribs</strong> and glides tree to tree. It doesn't flap. It sails.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-3')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-3')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-4">
+      <div class="fact-front" onclick="revealFact('fc-4')">
+        <span class="fact-icon">🧠</span>
+        <span style="font-weight:600;">Scary Stories Travel Faster</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Your brain hangs onto frightening news harder than calm news — it's a built-in safety setting. That's why a scary rumor races through a school in one morning while the <strong>boring, true explanation</strong> takes weeks to catch up.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-4')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-4')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-primary" onclick="goPhase(2)">Next: Reading →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 2 ======================== -->
+  <section class="phase" id="phase-2">
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <div>
+        <div class="phase-title">Reading Passage</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="passage">
+      <h3>The Dragon Who Roared a Warning</h3>
+
+      <p><strong>Part 1 — What Everybody Knew</strong></p>
+
+      <p>Everybody in Copperbrook knew about the dragon.</p>
+
+      <p>They knew she had cracked the stone bridge two springs ago. They knew she had flattened the barley in Miller Ashby's field. They knew she had torn open the sheep pen on the night of the big storm, and that the goats had never come home.</p>
+
+      <p>Nobody had actually <em>seen</em> her do any of it.</p>
+
+      <p>But the story got passed from porch to porch until it was polished smooth, and by the time it reached Wren Halloway it did not sound like a <span class="vocab-word" data-def="a story people pass around that might not be true">rumor</span> at all. It sounded like a fact. Wren was eleven, and she had grown up with one iron rule: never, ever climb past the shale shelf on Old Grindle.</p>
+
+      <p><strong>Part 2 — The Goat Track</strong></p>
+
+      <p>Then Biscuit went missing.</p>
+
+      <p>Biscuit was a small, stubborn goat with one bent horn, and she was Wren's — hers to feed, hers to find. The morning after the thaw, there was a fresh gap in the fence and a line of hoofprints heading straight up the mountain.</p>
+
+      <p>Wren <span class="vocab-word" data-def="to pause because you are unsure or afraid">hesitated</span> at the bottom of the goat track for a long, long time. Then she went anyway, one <span class="vocab-word" data-def="careful, because something might be dangerous">cautious</span> step at a time, promising herself she would turn back the second she heard anything.</p>
+
+      <p>Halfway up, she stopped. The trail ahead was buried under a spill of broken stone — gray, <span class="vocab-word" data-def="sharp and uneven, with rough edges and points">jagged</span> pieces, thousands of them, still loose enough to slide under her boots. It smelled like wet rock. It did not smell like smoke.</p>
+
+      <p><strong>Part 3 — The Dragon on the Shale</strong></p>
+
+      <p>She found Biscuit at the top of the spill, calmly eating moss. And behind Biscuit, she found the dragon.</p>
+
+      <p>Wren's whole body went cold.</p>
+
+      <p>The dragon was the color of storm clouds, longer than the schoolhouse, with a ridge of dull spines and eyes like two lit lanterns. And the dragon was — backing away.</p>
+
+      <p>She had pressed herself flat against the cliff. Her wings were clamped tight, her tail curled around her feet, and the low sound she made was shaky. She was making herself small — in front of an eleven-year-old girl holding a goat rope.</p>
+
+      <p>"You're scared of <em>me</em>," Wren said out loud, before she could stop herself.</p>
+
+      <p>The dragon's head tilted. "My mother told me about your kind." Her voice was like a door dragging over gravel. "Iron hooks. Nets. She said a dragon who goes near the village does not come back." The tail curled tighter. "So I have never gone near it."</p>
+
+      <p>Wren opened her mouth to say <em>that's ridiculous</em> — and heard, inside her head, the exact same voice her own village used about dragons.</p>
+
+      <p><strong>Part 4 — The Wrong Story</strong></p>
+
+      <p>"They say you smashed our bridge," Wren said.</p>
+
+      <p>"I have never touched your bridge." The dragon — her name was Sorrel — lifted one enormous foot. <em>Three</em> toes. Three thick claws, each as long as Wren's arm.</p>
+
+      <p>Wren thought about the sheep pen. She had seen those marks herself: small paired scratches, four narrow toes, low to the ground. Nothing even close to this.</p>
+
+      <p>She looked back down the slope at the long gray spill of shale, and something clicked into place so hard it almost hurt.</p>
+
+      <p>"The bridge cracked two springs ago," she said slowly. "After the thaw. Ashby's field went flat after the thaw. The pen came apart the night of the storm." She spun around. "It's not you. It's the <em>mountain</em>. When the ice melts, this whole shelf lets go and comes down on us."</p>
+
+      <p>"It comes down every year," Sorrel said. "I roar when I feel it start."</p>
+
+      <p>Wren stared at her. The roaring. That awful roaring in the dark that made every family in Copperbrook bolt their shutters and blame the dragon.</p>
+
+      <p>"That's a <em>warning</em>," Wren whispered. "You've been warning us this whole time."</p>
+
+      <p>"Nobody ever came out," said Sorrel. "So I started shoving the biggest stones sideways, away from your houses. It takes all night." She looked at her own claws. "It is the only thing I know how to do for you."</p>
+
+      <p>And there it was: the deep gouges torn in the hillside, the ones the village called claw marks from an attack. They were not attack marks. They were the marks of something bracing itself and pushing.</p>
+
+      <p><strong>Part 5 — Two Bells</strong></p>
+
+      <p>Getting Copperbrook to listen took three days.</p>
+
+      <p>Wren did not bring a story. She brought <span class="vocab-word" data-def="facts or clues that show what really happened">evidence</span>: a jar of gray shale from the spill, a paper tracing of the scratches on the sheep pen, and Ivo the trapper, who squinted at the tracing and admitted the marks belonged to a wildcat — a mother who had denned under the henhouse that spring with three kittens, and who came out fighting when the dogs found her.</p>
+
+      <p>"An <span class="vocab-word" data-def="something you believe is true without checking whether it is">assumption</span>," said Granny Pell, turning the jar of stone over in her hands, "is just a rumor you've told yourself."</p>
+
+      <p>They built a low wall of stacked stone above the barley field that summer. Sorrel set the boulders into place; she could put one down as gently as an egg.</p>
+
+      <p>That autumn the shelf let go early, in a hard rain, and Sorrel roared. This time Copperbrook heard her and ran, and every single person got out. Afterward the bell in the square rang twice.</p>
+
+      <p>Once for danger. Once for thank you.</p>
+
+      <p>Wren stood in the wet grass, <span class="vocab-word" data-def="the light, easy feeling you get when a worry goes away">relieved</span> all the way down to her boots, and watched a dragon the color of storm clouds fold her wings up on the ridge — the most feared creature in the valley, who had been up there the whole time, alone, doing her best, waiting for somebody to come and check.</p>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(1)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(3)">Next: Comprehension →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 3 ======================== -->
+  <section class="phase" id="phase-3">
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <div>
+        <div class="phase-title">Comprehension Check</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each question to reveal the answer. Think about your answer first!</p>
+
+    <div class="accord-item" id="acc-1">
+      <div class="accord-q" onclick="toggleAccord('acc-1')">
+        <span>1.</span> What did the people of Copperbrook believe about the dragon, and how did they know it?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">They believed she cracked the bridge, flattened the barley field, and tore open the sheep pen. But nobody had actually seen her do any of it — the story just got passed from porch to porch until it sounded like a fact.</div>
+    </div>
+
+    <div class="accord-item" id="acc-2">
+      <div class="accord-q" onclick="toggleAccord('acc-2')">
+        <span>2.</span> Why was Sorrel afraid of Wren?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Because of stories too. Sorrel's mother told her that humans carry iron hooks and nets, and that a dragon who goes near the village never comes back. Both sides were scared of a story, not a person.</div>
+    </div>
+
+    <div class="accord-item" id="acc-3">
+      <div class="accord-q" onclick="toggleAccord('acc-3')">
+        <span>3.</span> What two clues made Wren realize the dragon did not wreck the sheep pen?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">The pen marks were small paired scratches from four narrow toes, low to the ground — and Sorrel's foot has three claws, each as long as Wren's arm. The marks could not possibly match.</div>
+    </div>
+
+    <div class="accord-item" id="acc-4">
+      <div class="accord-q" onclick="toggleAccord('acc-4')">
+        <span>4.</span> What was really causing the damage, and what was the roaring?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Rockslides. Every spring the melting ice loosens the shale shelf and it comes down toward the village. The roaring was Sorrel's warning — and she had also been shoving the biggest boulders away from the houses all night long.</div>
+    </div>
+
+    <div class="accord-item" id="acc-5">
+      <div class="accord-q" onclick="toggleAccord('acc-5')">
+        <span>5.</span> What is the THEME (big idea) of the story?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Don't judge someone by a rumor. Check the clues yourself. Fear grows in the space where understanding is missing — and once Wren looked at real evidence, the monster turned out to be a neighbor.</div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(2)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(4)">Next: Vocabulary →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 4 ======================== -->
+  <section class="phase" id="phase-4">
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <div>
+        <div class="phase-title">Vocabulary Match</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap a <strong style="color:var(--accent);">word</strong>, then tap its <strong style="color:var(--accent2);">definition</strong>. Match all 7 pairs!</p>
+
+    <div class="vocab-grid" id="vocab-grid"></div>
+    <div class="vocab-score" id="vocab-score">0 / 7 matched</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(3)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(5)">Next: Making Inferences →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 5 ======================== -->
+  <section class="phase" id="phase-5">
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <div>
+        <div class="phase-title">Making Inferences</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--accent2);">🔍 What Is an Inference?</h3>
+      <p style="font-size:.95rem;">An <strong>INFERENCE</strong> is a smart guess about something the author <em>didn't say out loud</em>. You figure it out by putting two things together:</p>
+      <p style="font-size:1rem;text-align:center;background:var(--panel2);border-radius:8px;padding:12px;margin-bottom:12px;">
+        <strong>Clues in the text</strong> ➕ <strong>What I already know</strong> ➡️ <strong>My inference</strong>
+      </p>
+      <p style="font-size:.95rem;"><strong>Worked example:</strong></p>
+      <p style="font-size:.93rem;background:var(--panel2);border-left:3px solid var(--accent2);border-radius:8px;padding:12px 14px;">"Sorrel pressed herself against the cliff. Her wings were clamped tight. Her tail curled around her feet, and the low sound she made was shaky."</p>
+      <p style="font-size:.93rem;color:var(--muted);margin-bottom:12px;">
+        🔎 <strong>Clues:</strong> pressed flat, wings clamped, tail curled in, shaky sound.<br>
+        🧠 <strong>What I know:</strong> people and animals shrink and shake when they're scared.<br>
+        ✅ <strong>Inference:</strong> Sorrel is frightened — even though the author never writes the word "frightened."
+      </p>
+      <p style="font-size:.95rem;margin-bottom:0;"><strong>Two traps to watch out for:</strong><br>
+      <span style="color:var(--muted);">🪤 <strong>No evidence</strong> — a guess that <em>sounds</em> good but nothing in the text supports it.<br>
+      🪤 <strong>Too far</strong> — stretching one small clue into a huge claim the text never gets near.</span></p>
+      <p style="font-size:.9rem;color:var(--warn);margin-top:12px;margin-bottom:0;">Golden rule: if you can't point to the clue, it's not an inference — it's just a guess.</p>
+    </div>
+
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Ten challenges. First read a scene and pick the <strong>best inference</strong>. Then find the <strong>clue that is real evidence</strong> for an inference. Wrong? Shake it off and try again!</p>
+
+    <div id="se-container"></div>
+    <div class="se-score" id="se-score">0 / 10 answered correctly</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(4)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(6)">Next: Writing →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 6 ======================== -->
+  <section class="phase" id="phase-6">
+    <div class="phase-header">
+      <div class="phase-num">6</div>
+      <div>
+        <div class="phase-title">Writing Pad</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--warn);">✏️ Your Writing Prompt</h3>
+      <p style="font-size:.95rem;line-height:1.7;">Wren was completely wrong about Sorrel until she went and looked for herself. Write about <strong>a time you were wrong about someone (or something) once you got to know them</strong>. What did you believe at first, what changed your mind, and how did you feel afterward?</p>
+      <p style="font-size:.95rem;line-height:1.7;">Then show off the skill: <strong>write two CLUES a reader could use to infer how your character feels — without ever naming the feeling.</strong> (Think about what they do with their hands, their voice, their eyes, or their feet.) Use at least <strong>3 vocabulary words</strong>. <strong>(At least 5 sentences total.)</strong></p>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:0;">Vocabulary words: <em>rumor, hesitate, cautious, jagged, evidence, assumption, relieved</em></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here… Remember: at least 5 sentences, 3 vocab words, plus two clues that show a feeling without naming it!"></textarea>
+    <div class="writing-meta">
+      <span id="word-count" style="color:var(--muted);">0 words</span>
+      <span class="save-indicator" id="save-indicator">✓ Saved</span>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(5)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(7)">Next: Quiz →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 7 ======================== -->
+  <section class="phase" id="phase-7">
+    <div class="phase-header">
+      <div class="phase-num">7</div>
+      <div>
+        <div class="phase-title">Quiz</div>
+        <span class="tag tag-phase">3 min</span>
+      </div>
+    </div>
+
+    <div class="quiz-progress" id="quiz-dots"></div>
+    <div id="quiz-body"></div>
+
+    <div class="phase-nav" style="margin-top:16px;">
+      <button class="btn-ghost" onclick="goPhase(6)">← Back</button>
+    </div>
+  </section>
+
+</div><!-- #app -->
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────
+const QAKEY = "ela-l20-qans";
+const QKEY  = "ela-l20-quiz";
+const WKEY  = "ela-l20-writing";
+
+// ─── MISTAKE LOGGER ───────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'ELA|Day 20: Dragon|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'ELA', day: 'Day 20', q: questionText, file: 'ela-lesson-20-dragon.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── PHASE NAV ────────────────────────────────────────────────
+let currentPhase = 1;
+const PHASE_LABELS = ['','Warm-Up','Reading','Comprehension','Vocabulary','Making Inferences','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('visible');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('visible');
+  document.getElementById('phase-' + n).scrollIntoView({behavior:'smooth', block:'start'});
+  updatePhaseBar();
+  if (n === 4) buildVocab();
+  if (n === 5) buildSE();
+  if (n === 7) { buildQuiz(); restoreQuiz(); }
+}
+
+function updatePhaseBar() {
+  const segs = document.querySelectorAll('.pb-seg');
+  segs.forEach(s => {
+    const p = parseInt(s.dataset.phase);
+    s.classList.remove('active','done');
+    if (p === currentPhase) s.classList.add('active');
+    else if (p < currentPhase) s.classList.add('done');
+  });
+  document.getElementById('pb-title').textContent = 'Phase ' + currentPhase + ' — ' + PHASE_LABELS[currentPhase];
+}
+
+document.querySelectorAll('.pb-seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+updatePhaseBar();
+
+// ─── PHASE 1: FACT CARDS ─────────────────────────────────────
+function revealFact(id) {
+  document.getElementById(id).classList.add('revealed');
+}
+function reactFact(btn, type, id) {
+  const card = document.getElementById(id);
+  card.querySelectorAll('.fact-btn').forEach(b => { b.classList.remove('knew','new'); });
+  btn.classList.add(type);
+}
+
+// ─── PHASE 3: ACCORDION ───────────────────────────────────────
+function toggleAccord(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ─── SHUFFLE HELPER ───────────────────────────────────────────
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─── PHASE 4: VOCABULARY MATCH ────────────────────────────────
+const vocabPairs = [
+  { word: 'rumor',      def: 'a story people pass around that might not be true' },
+  { word: 'hesitate',   def: 'to pause because you are unsure or afraid' },
+  { word: 'cautious',   def: 'careful, because something might be dangerous' },
+  { word: 'jagged',     def: 'sharp and uneven, with rough edges and points' },
+  { word: 'evidence',   def: 'facts or clues that show what really happened' },
+  { word: 'assumption', def: 'something you believe is true without checking whether it is' },
+  { word: 'relieved',   def: 'the light, easy feeling you get when a worry goes away' },
+];
+
+let vocabSelected = null;
+let vocabMatched = 0;
+
+function buildVocab() {
+  const grid = document.getElementById('vocab-grid');
+  if (grid.children.length > 0) return; // already built
+
+  const words = shuffleArr(vocabPairs.map(p => ({ text: p.word, type: 'word', pair: p.word })));
+  const defs  = shuffleArr(vocabPairs.map(p => ({ text: p.def,  type: 'def',  pair: p.word })));
+
+  // interleave: left column = words, right column = defs
+  const all = [];
+  for (let i = 0; i < words.length; i++) {
+    all.push(words[i]);
+    all.push(defs[i]);
+  }
+
+  grid.innerHTML = '';
+  all.forEach((item, idx) => {
+    const tile = document.createElement('div');
+    tile.className = 'vocab-tile';
+    tile.dataset.type = item.type;
+    tile.dataset.pair = item.pair;
+    tile.dataset.idx  = idx;
+    tile.textContent = item.text;
+    tile.addEventListener('click', () => vocabClick(tile));
+    grid.appendChild(tile);
+  });
+}
+
+function vocabClick(tile) {
+  if (tile.classList.contains('matched') || tile.classList.contains('selected')) return;
+
+  if (!vocabSelected) {
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  const prev = vocabSelected;
+
+  // Same type — swap selection
+  if (prev.dataset.type === tile.dataset.type) {
+    prev.classList.remove('selected');
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  // Check match
+  if (prev.dataset.pair === tile.dataset.pair) {
+    prev.classList.remove('selected');
+    prev.classList.add('matched');
+    tile.classList.add('matched');
+    vocabSelected = null;
+    vocabMatched++;
+    document.getElementById('vocab-score').textContent = vocabMatched + ' / 7 matched';
+    if (vocabMatched === 7) {
+      document.getElementById('vocab-score').style.color = 'var(--good)';
+      document.getElementById('vocab-score').textContent = '🎉 All 7 matched! Great job!';
+    }
+  } else {
+    // Wrong
+    [prev, tile].forEach(t => {
+      t.classList.add('shake');
+      t.addEventListener('animationend', () => t.classList.remove('shake'), {once:true});
+    });
+    prev.classList.remove('selected');
+    vocabSelected = null;
+  }
+}
+
+// ─── PHASE 5: MAKING INFERENCES ───────────────────────────────
+// Part A: read a scene, pick the BEST inference.
+// Part B: find the clue that is real EVIDENCE for an inference.
+const ccItems = [
+  {
+    part: 'Part A — Pick the Best Inference',
+    para: 'Milo stood at the edge of the pool with his towel still wrapped tight around his shoulders. Everyone else was already splashing in the deep end. When his friend called his name, he laughed a little too loudly and said the water looked cold.',
+    stmt: 'What is the best inference about Milo?',
+    choices: [
+      { t: 'The pool water is far too cold today for anyone in the whole group to swim in.', ok: false },
+      { t: 'Milo feels nervous about getting into the water in front of everybody.', ok: true },
+      { t: 'Milo is easily the fastest swimmer of all the kids at the pool today.', ok: false },
+    ],
+    why: 'Clues: towel still on, standing out while everyone else swims, a laugh that is too loud. Add what you know about nerves. The text never says the water is actually cold — that is his excuse, not a fact.'
+  },
+  {
+    para: 'Nadia turned her key and stepped inside. The kitchen light was already on. Her mom’s boots sat by the door, still dripping, and the kettle on the stove had just started to hiss.',
+    stmt: 'What is the best inference?',
+    choices: [
+      { t: 'Nadia forgot to switch off the kitchen light before she left this morning.', ok: false },
+      { t: 'Nadia’s mother has been home all afternoon cooking a big dinner for guests.', ok: false },
+      { t: 'Nadia’s mom got home only a few minutes before Nadia did.', ok: true },
+    ],
+    why: 'Boots still dripping + a kettle only just starting to hiss = recently. "All afternoon" and "forgot the light" both crash into those clues.'
+  },
+  {
+    para: 'Coach Ruiz read the list out loud. Ben stared straight ahead and did not move. Then he picked up his bag, said "good game, guys," and walked to the bus by himself with his hood up.',
+    stmt: 'What is the best inference about Ben?',
+    choices: [
+      { t: 'Ben is disappointed because he did not hear his name on the list.', ok: true },
+      { t: 'Ben is in a big hurry to get home so he can start on his homework.', ok: false },
+      { t: 'Coach Ruiz was reading a list of players who lost their bags at practice.', ok: false },
+    ],
+    why: 'Freezing, going quiet, hood up, walking alone right after a list is read — those clues all point the same direction. Nothing hints at homework.'
+  },
+  {
+    para: 'Sorrel pressed herself flat against the cliff and clamped her wings tight. Her tail curled around her feet. She made herself small, and the low sound coming out of her was shaky.',
+    stmt: 'What is the best inference about Sorrel in this moment?',
+    choices: [
+      { t: 'Sorrel is getting ready to attack Wren the second the girl looks away.', ok: false },
+      { t: 'Sorrel has injured one of her wings and cannot open it up all the way.', ok: false },
+      { t: 'Sorrel is frightened of Wren, even though Sorrel is far bigger.', ok: true },
+    ],
+    why: 'Shrinking, clamping, shaking — fear clues. The hurt-wing guess sounds reasonable, but the text gives you zero evidence for it. That is the trap.'
+  },
+  {
+    para: 'Wren opened her mouth to say "that’s ridiculous" — and heard, inside her head, the exact same voice her own village used about dragons.',
+    stmt: 'What is the best inference about Wren here?',
+    choices: [
+      { t: 'Wren has decided that Sorrel’s mother was a liar who made up scary tales.', ok: false },
+      { t: 'Wren realizes her own village tells the very same kind of unfair story.', ok: true },
+      { t: 'Wren is about to start shouting at Sorrel for lying about the sheep pen.', ok: false },
+    ],
+    why: 'She was going to call Sorrel’s fear ridiculous and then stopped — because "the exact same voice" is the clue that her side does it too.'
+  },
+  {
+    part: 'Part B — Which Clue Is the Evidence?',
+    stmt: 'Inference: "The dragon did NOT wreck the sheep pen." Which clue is the real evidence?',
+    choices: [
+      { t: 'Sorrel lives high up on the mountain, above the loose gray shale shelf.', ok: false },
+      { t: 'The pen marks were small paired scratches from four narrow toes.', ok: true },
+      { t: 'Sorrel told Wren that she had never once touched the village’s stone bridge.', ok: false },
+    ],
+    why: 'Sorrel has three claws as long as Wren’s arm, so tiny four-toed scratches cannot be hers. What someone says about themselves is a claim; the marks are evidence.'
+  },
+  {
+    stmt: 'Inference: "The damage came from the mountain, not a dragon." Which clue is the real evidence?',
+    choices: [
+      { t: 'Sorrel is longer than the schoolhouse and has eyes like two lit lanterns.', ok: false },
+      { t: 'Biscuit the goat was standing at the top of the spill, calmly eating moss.', ok: false },
+      { t: 'Every disaster happened right after the thaw or after a big storm.', ok: true },
+    ],
+    why: 'Timing is the clue. Melting ice and heavy rain loosen the shale, so the damage follows the WEATHER — not the dragon.'
+  },
+  {
+    stmt: 'Inference: "Sorrel has been trying to help the village." Which clue is the real evidence?',
+    choices: [
+      { t: 'She roars when the shelf starts to slide and shoves the big stones aside.', ok: true },
+      { t: 'Her mother warned her that the people in the village carry hooks and nets.', ok: false },
+      { t: 'She is the color of storm clouds and has a long ridge of dull gray spines.', ok: false },
+    ],
+    why: 'Warning + moving boulders away from the houses is helping, even though nobody in the village ever understood it that way.'
+  },
+  {
+    stmt: 'Inference: "Wren was frightened at the start of her climb." Which clue is the real evidence?',
+    choices: [
+      { t: 'Wren was eleven years old, and Biscuit the goat belonged to her alone.', ok: false },
+      { t: 'Wren found a spill of broken gray stone lying across the whole goat track.', ok: false },
+      { t: 'She hesitated a long time and moved one cautious step at a time.', ok: true },
+    ],
+    why: 'Hesitating and moving carefully are fear clues about WREN. The shale spill is a clue about the mountain, not about her feelings.'
+  },
+  {
+    stmt: 'Inference: "The villagers changed their minds about Sorrel." Which clue is the real evidence?',
+    choices: [
+      { t: 'Sorrel could set an enormous boulder down as gently as somebody setting an egg.', ok: false },
+      { t: 'After the slide, the village bell rang twice — for danger, and for thanks.', ok: true },
+      { t: 'Miller Ashby’s barley field was flattened during the thaw two springs ago.', ok: false },
+    ],
+    why: 'A second bell that means "thank you" is the village doing something new. The gentle boulder is about Sorrel, not about what the villagers believe.'
+  },
+];
+
+let ccCorrectCount = 0;
+const ccSolved = {};
+
+function buildSE() {
+  const container = document.getElementById('se-container');
+  if (container.children.length > 0) return;
+
+  ccItems.forEach((item, i) => {
+    if (item.part) {
+      const h = document.createElement('div');
+      h.className = 'se-part';
+      h.textContent = item.part;
+      container.appendChild(h);
+    }
+    const card = document.createElement('div');
+    card.className = 'se-card';
+    card.id = 'se-' + i;
+    let html = '';
+    if (item.para) html += '<div class="se-para">' + item.para + '</div>';
+    html += '<div class="se-stmt">' + (i+1) + '. ' + item.stmt + '</div><div class="se-btns">';
+    item.choices.forEach(ch => {
+      html += '<button class="se-btn" data-correct="' + (ch.ok ? '1' : '0') + '" onclick="ansSE(' + i + ', this)">' + ch.t + '</button>';
+    });
+    html += '</div><div class="se-feedback" id="sef-' + i + '"></div>';
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function ansSE(i, btn) {
+  const card = document.getElementById('se-' + i);
+  const feedback = document.getElementById('sef-' + i);
+  const correct = (btn.dataset.correct === '1');
+
+  if (correct) {
+    card.querySelectorAll('.se-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === '1') b.classList.add('correct');
+    });
+    feedback.style.color = 'var(--good)';
+    feedback.textContent = '✓ Correct! ' + (ccItems[i].why || '');
+    if (!ccSolved[i]) {
+      ccSolved[i] = true;
+      ccCorrectCount++;
+      const sc = document.getElementById('se-score');
+      sc.textContent = ccCorrectCount + ' / 10 answered correctly';
+      if (ccCorrectCount === 10) {
+        sc.style.color = 'var(--good)';
+        sc.textContent = '🎉 All 10 correct! You are an inference detective!';
+      }
+    }
+  } else {
+    // Wrong — shake and let them retry
+    btn.classList.add('wrong','shake');
+    btn.addEventListener('animationend', () => btn.classList.remove('shake'), {once:true});
+    feedback.style.color = 'var(--bad)';
+    feedback.textContent = '✗ Not quite — ask yourself: which CLUE in the text actually proves this? If you cannot point to one, it is a guess, not an inference. Try again!';
+    setTimeout(() => { btn.classList.remove('wrong'); }, 900);
+  }
+}
+
+// ─── PHASE 6: WRITING PAD ─────────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(saveWriting, 300);
+  });
+}
+
+function updateWordCount() {
+  const val = document.getElementById('writing-pad').value.trim();
+  const words = val ? val.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = words + ' word' + (words !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const val = document.getElementById('writing-pad').value;
+  localStorage.setItem(WKEY, val);
+  const ind = document.getElementById('save-indicator');
+  ind.classList.add('show');
+  setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+// ─── PHASE 7: QUIZ ────────────────────────────────────────────
+const quizData = [
+  {
+    q: 'The story about the dragon was a "rumor." A rumor is:',
+    opts: [
+      'A written report that has been carefully checked by several people',
+      'A rule that everyone in a village agrees to follow',
+      'A story people pass around that might not be true',
+      'A loud sound rolling down off a mountainside',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'Wren brought "evidence" to the village. Evidence means:',
+    opts: [
+      'Facts or clues that show what really happened',
+      'A feeling you get about somebody the very first time you meet them',
+      'A story that gets repeated until everybody believes that it is true',
+      'A heavy tool used for moving stones',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'Granny Pell says an "assumption" is just a rumor you told yourself. An assumption is:',
+    opts: [
+      'A careful plan you make after you have gathered all of the facts',
+      'A warning shouted out loud so that other people can hear it too',
+      'A question you ask an expert',
+      'Something you believe without checking whether it is true',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'Wren "hesitated" at the bottom of the goat track. To hesitate is:',
+    opts: [
+      'To run as fast as you possibly can toward something dangerous',
+      'To pause because you are unsure or afraid',
+      'To shout loudly for help',
+      'To climb a steep mountain trail without ever stopping to rest',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'The stone on the trail was "jagged." Jagged means:',
+    opts: [
+      'Smooth and rounded from many years of rolling around in a river',
+      'Warm to the touch, like a rock sitting in the sun',
+      'Sharp and uneven, with rough edges that catch your hand',
+      'Buried so deep underground that nobody can see it at all',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'An INFERENCE is:',
+    opts: [
+      'Something the author states directly, word for word, right on the page',
+      'A smart guess from text clues plus what you already know',
+      'Any wild guess at all, even when the story gives you nothing to go on',
+      'The list of characters at the front of a book',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'Read this: "Dev shoved his lunch bag into his locker without opening it and put his head down on his desk." What is the best inference?',
+    opts: [
+      'Dev packed a sandwich this morning that he does not like the taste of',
+      'Dev is in trouble with his teacher for something that happened earlier',
+      'Dev forgot his lunch bag at home this morning',
+      'Dev is upset about something, or he is not feeling well today',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'Which detail is the strongest EVIDENCE that Sorrel did not wreck the sheep pen?',
+    opts: [
+      'The pen marks came from four narrow toes; Sorrel has three huge claws',
+      'Sorrel told Wren that she had never once gone anywhere near Copperbrook',
+      'Sorrel is the color of storm clouds and is longer than the village schoolhouse',
+      'Wren found her goat eating moss up on the mountain',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'What was really causing the damage in Copperbrook?',
+    opts: [
+      'A dragon who flew down from the mountain each spring to hunt the goats',
+      'A flood from the river on the far side of the valley',
+      'Rockslides coming off the shale shelf after the ice melted',
+      'A mother wildcat who cracked the stone bridge and flattened the barley',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'What is the big lesson (theme) of this story?',
+    opts: [
+      'Dragons are always friendly, and every scary story you hear is completely false',
+      'Check the clues yourself instead of believing a rumor',
+      'You should never climb up a mountain alone, no matter what you are looking for',
+      'Goats are hard to keep inside a fence',
+    ],
+    correct: 1,
+  },
+];
+
+let quizBuilt = false;
+let quizAnswers = {};
+let quizCurrent = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  if (quizBuilt) return;
+  quizBuilt = true;
+
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  quizData.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot-' + i;
+    dots.appendChild(d);
+  });
+
+  renderQuestion(0);
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (!saved || !Object.keys(saved).length) return;
+    quizAnswers = saved;
+
+    // Find last answered
+    let lastAnswered = -1;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] !== undefined) lastAnswered = i;
+    }
+
+    if (lastAnswered < 0) return;
+
+    // Replay all answered questions to update dots
+    for (let i = 0; i <= lastAnswered; i++) {
+      if (quizAnswers[i] !== undefined) {
+        const correct = quizAnswers[i] === quizData[i].correct;
+        const dot = document.getElementById('dot-' + i);
+        if (dot) {
+          dot.classList.remove('active');
+          dot.classList.add(correct ? 'correct' : 'wrong');
+        }
+      }
+    }
+
+    // Check if all answered
+    if (Object.keys(quizAnswers).length >= quizData.length) {
+      const savedResult = localStorage.getItem(QKEY);
+      if (savedResult) {
+        showQuizResult(JSON.parse(savedResult));
+        quizDone = true;
+        return;
+      }
+    }
+
+    // Go to next unanswered
+    let nextQ = 0;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] === undefined) { nextQ = i; break; }
+    }
+    quizCurrent = nextQ;
+    const dot = document.getElementById('dot-' + nextQ);
+    if (dot) { dot.classList.remove('correct','wrong'); dot.classList.add('active'); }
+    renderQuestion(nextQ);
+  } catch(e) {}
+}
+
+function renderQuestion(idx) {
+  const body = document.getElementById('quiz-body');
+  const q = quizData[idx];
+
+  body.innerHTML = `
+    <div class="quiz-q">${idx + 1}. ${q.q}</div>
+    <div class="quiz-opts" id="qopts-${idx}">
+      ${q.opts.map((o, oi) => `
+        <button class="quiz-opt" data-oi="${oi}" onclick="ansQ(${idx},${oi})">${o}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb-${idx}"></div>
+    <button class="quiz-next" id="qnext-${idx}" onclick="nextQuestion(${idx})">${idx < quizData.length - 1 ? 'Next Question →' : 'See Results 🎉'}</button>
+  `;
+}
+
+function ansQ(qIdx, optIdx) {
+  if (quizAnswers[qIdx] !== undefined) return; // already answered
+
+  const q = quizData[qIdx];
+  const correct = (optIdx === q.correct);
+
+  quizAnswers[qIdx] = optIdx;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, q.q, 'Main Quiz Q' + (qIdx + 1));
+
+  // Style options
+  const opts = document.querySelectorAll(`#qopts-${qIdx} .quiz-opt`);
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === optIdx && !correct) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById('qfb-' + qIdx);
+  fb.classList.add('show', correct ? 'correct' : 'wrong');
+  fb.textContent = correct ? '✓ Correct!' : '✗ The correct answer was: ' + q.opts[q.correct];
+
+  // Update dot
+  const dot = document.getElementById('dot-' + qIdx);
+  dot.classList.remove('active');
+  dot.classList.add(correct ? 'correct' : 'wrong');
+
+  // Show next button
+  document.getElementById('qnext-' + qIdx).style.display = 'inline-block';
+}
+
+function nextQuestion(fromIdx) {
+  const next = fromIdx + 1;
+  if (next >= quizData.length) {
+    finishQuiz();
+    return;
+  }
+  quizCurrent = next;
+  document.getElementById('dot-' + next).classList.add('active');
+  renderQuestion(next);
+}
+
+function finishQuiz() {
+  let score = 0;
+  quizData.forEach((q, i) => { if (quizAnswers[i] === q.correct) score++; });
+  const result = { score, total: quizData.length, pct: Math.round(score / quizData.length * 100) };
+  try { localStorage.setItem(QKEY, JSON.stringify(result)); } catch(e) {}
+  showQuizResult(result);
+}
+
+function showQuizResult(result) {
+  const body = document.getElementById('quiz-body');
+  let msg = '';
+  if (result.pct >= 90) msg = 'Incredible! You read the clues like Wren reads a mountain. 🐉🔍';
+  else if (result.pct >= 75) msg = 'Great job! Your inference detective skills are getting sharp! 🐉';
+  else if (result.pct >= 60) msg = 'Good effort! Reread the passage and hunt for the clues. 📖';
+  else msg = 'Keep going — go back through the story, find the evidence, and try again! 💪';
+
+  body.innerHTML = `
+    <div class="quiz-result">
+      <div class="score-big">${result.score} / ${result.total}</div>
+      <div class="score-label">${result.pct}% correct</div>
+      <div class="score-msg">${msg}</div>
+      ${result.pct < 100 ? `<button class="btn-primary" style="margin-top:20px;" onclick="retakeQuiz()">Retake Quiz ↺</button>` : ''}
+    </div>
+  `;
+}
+
+function retakeQuiz() {
+  quizAnswers = {};
+  quizBuilt = false;
+  quizDone = false;
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── SAVE ALL ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── INIT ─────────────────────────────────────────────────────
+initWriting();
+</script>
+</body>
+</html>

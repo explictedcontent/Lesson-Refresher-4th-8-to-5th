@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 20 — Order of Operations</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:520px){.warmup-choices{grid-template-columns:1fr}}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* ORDER LIST */
+.order-list{margin-top:14px;display:grid;gap:10px}
+.order-step{
+  display:flex;align-items:center;gap:12px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+}
+.order-num{
+  flex:0 0 32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;
+  font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.order-txt{font-size:14px;line-height:1.5}
+.order-txt b{color:var(--warn)}
+.order-txt .lr{color:var(--accent2);font-weight:700}
+
+/* FORMULA BANNER */
+.formula-banner{
+  text-align:center;font-size:clamp(18px,4.5vw,24px);font-weight:700;color:var(--warn);
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;margin:14px 0 4px;letter-spacing:.02em;
+}
+
+/* WORKED EXAMPLES */
+.work-ex{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin-top:14px;
+}
+.work-ex .we-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:8px}
+.work-line{font-size:clamp(16px,4.2vw,20px);font-weight:700;padding:5px 0;line-height:1.7;color:var(--ink)}
+.work-line .hl-step{background:rgba(255,209,102,.22);color:var(--warn);border-radius:6px;padding:2px 7px}
+.work-line .why{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
+.work-line.final{color:var(--good)}
+
+/* STEP SOLVER + PLACER (clean numbers only — no theme inside the tools) */
+.builder{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.expr-line{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:7px;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:16px 12px;margin:10px 0;font-size:clamp(20px,5.5vw,28px);font-weight:700;
+  min-height:78px;
+}
+.tok{color:var(--ink);padding:0 3px}
+.tok-paren{color:var(--warn)}
+.tok-op{
+  background:var(--panel2);border:2px solid var(--line);color:var(--accent2);
+  border-radius:8px;padding:4px 12px;font-weight:700;font-size:inherit;
+  min-width:46px;min-height:46px;line-height:1;transition:border-color .12s,background .12s;
+}
+.tok-op:hover:not(:disabled){border-color:var(--accent2);background:rgba(91,209,196,.12)}
+.tok-op.bad{border-color:var(--bad);color:var(--bad);background:rgba(255,107,129,.12)}
+.tok-op.good{border-color:var(--good);color:var(--good);background:rgba(123,216,143,.15)}
+.tok-op:disabled{cursor:default;opacity:.75}
+.step-log{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:10px 14px;font-size:14px;color:var(--muted);min-height:44px;
+}
+.step-log .log-row{padding:3px 0}
+.step-log .log-row b{color:var(--good)}
+.step-log .log-row .arrow{color:var(--accent2)}
+.step-log .log-empty{color:var(--muted);font-style:italic}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:560px;margin:10px auto 0;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-feedback.tip{background:rgba(255,209,102,.12);color:var(--warn)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px;flex-wrap:wrap}
+.tool-target{
+  margin-top:4px;padding:12px 14px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);text-align:center;font-size:15px;
+}
+.tool-target .tt-num{font-size:24px;font-weight:700;color:var(--accent2)}
+.pl-slot{
+  background:transparent;border:2px dashed var(--line);color:var(--muted);
+  border-radius:8px;padding:2px 7px;font-size:inherit;font-weight:700;
+  opacity:.45;min-height:46px;min-width:30px;transition:all .12s;
+}
+.pl-slot.ready{opacity:.95;border-color:var(--accent2);color:var(--accent2)}
+.pl-slot.on{opacity:1;border-style:solid;border-color:var(--warn);color:var(--warn);background:rgba(255,209,102,.14)}
+.pl-slot:disabled{cursor:default}
+.pl-read{
+  text-align:center;font-size:15px;color:var(--muted);margin-top:6px;min-height:26px;
+}
+.pl-read b{color:var(--ink)}
+
+/* PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.pa-prompt{text-align:center;font-size:20px;font-weight:700;margin-bottom:8px;line-height:1.5}
+.pa-prompt .hl{color:var(--accent)}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Step Solver</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Parentheses</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Practice</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(7)" id="seg7">7. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🐉</div>
+  <h1>Math Day 20 — Order of Operations</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Dragon Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick questions about WHY math needs an agreed order — and what that order is.</p>
+
+  <div class="teach-card">
+    <h3>📋 Why We Need a Rule at All</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">Look at this: <strong style="color:var(--warn)">2 + 3 × 4</strong></p>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">If you add first, you get 5 × 4 = <strong style="color:var(--bad)">20</strong>. If you multiply first, you get 2 + 12 = <strong style="color:var(--good)">14</strong>. Same expression, two different answers!</p>
+    <p style="font-size:14px;color:var(--muted)">That would be a disaster — a builder and an engineer reading the same plan would get different numbers. So mathematicians all over the world agreed on <strong style="color:var(--accent2)">one order</strong>. Everyone follows it, so everyone gets the same answer. (For 2 + 3 × 4, the agreed answer is <strong style="color:var(--good)">14</strong>.)</p>
+  </div>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — STEP SOLVER (interactive tool, clean numbers)
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🔎 Phase 2 — The Step Solver <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">Learn the order, then tap the operation that must be done FIRST and watch the expression shrink.</p>
+
+  <div class="teach-card">
+    <h3>📋 The Agreed Order</h3>
+
+    <div class="order-list">
+      <div class="order-step">
+        <div class="order-num">1</div>
+        <div class="order-txt"><b>Parentheses ( )</b> — do everything inside them first, no matter where they sit in the problem.</div>
+      </div>
+      <div class="order-step">
+        <div class="order-num">2</div>
+        <div class="order-txt"><b>Multiply &amp; Divide</b> — these two are the <span class="lr">same level</span>. Do them in the order you meet them, working <span class="lr">left to right</span>.</div>
+      </div>
+      <div class="order-step">
+        <div class="order-num">3</div>
+        <div class="order-txt"><b>Add &amp; Subtract</b> — also the <span class="lr">same level</span> as each other. Again, work <span class="lr">left to right</span>.</div>
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">The famous memory trick:</span> <b>PEMDAS</b> — “<b>P</b>lease <b>E</b>xcuse <b>M</b>y <b>D</b>ear <b>A</b>unt <b>S</b>ally” = Parentheses, Exponents, Multiply, Divide, Add, Subtract. (Exponents are the little raised numbers like 5², which you will meet later — this lesson sticks to parentheses, ×, ÷, +, −.)
+    </div>
+
+    <div class="teach-note" style="border-color:var(--bad)">
+      <span class="hl" style="color:var(--bad)">⚠️ The #1 mistake with PEMDAS.</span> The letters make it look like M beats D, and A beats S. <b>That is not true.</b> Multiply and divide are <span class="hl">tied</span> — so are add and subtract. When two tied operations are both waiting, you do the one that is <span class="hl">further LEFT</span> first.
+      <div style="margin-top:8px">
+        <div style="font-size:15px">12 ÷ 3 × 2 → the ÷ is further left, so <b style="color:var(--good)">12 ÷ 3 = 4</b>, then 4 × 2 = <b style="color:var(--good)">8</b>. (Doing 3 × 2 first would wrongly give 2.)</div>
+        <div style="font-size:15px;margin-top:4px">10 − 4 + 3 → the − is further left, so <b style="color:var(--good)">10 − 4 = 6</b>, then 6 + 3 = <b style="color:var(--good)">9</b>. (Doing 4 + 3 first would wrongly give 3.)</div>
+      </div>
+    </div>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — one step at a time</div>
+      <div class="work-line">2 + <span class="hl-step">3 × 4</span><span class="why">× outranks +, so multiply first</span></div>
+      <div class="work-line"><span class="hl-step">2 + 12</span><span class="why">now only the addition is left</span></div>
+      <div class="work-line final">= 14</div>
+    </div>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — with parentheses at the END</div>
+      <div class="work-line">8 + 12 ÷ <span class="hl-step">(2 + 2)</span><span class="why">parentheses first, even though they are last in line</span></div>
+      <div class="work-line">8 + <span class="hl-step">12 ÷ 4</span><span class="why">÷ outranks +</span></div>
+      <div class="work-line"><span class="hl-step">8 + 3</span></div>
+      <div class="work-line final">= 11</div>
+    </div>
+  </div>
+
+  <div class="builder">
+    <span class="ag-label">Step Solver — tap the operation that must be done FIRST</span>
+    <div class="tool-target" id="ss-target"></div>
+    <div class="expr-line" id="ss-expr"></div>
+    <div class="step-log" id="ss-log"></div>
+    <div class="pa-feedback" id="ss-feedback"></div>
+    <div class="pa-nav">
+      <button class="btn btn-muted" id="ss-reset" type="button">↺ Start this one over</button>
+      <button class="btn btn-teal hidden" id="ss-next" type="button">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="ss-done">✓ All 6 expressions solved! You can find the first step every time.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — PARENTHESES POWER (interactive placer, clean numbers)
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>🔗 Phase 3 — Parentheses Power <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">Parentheses are a "do me first" sign. Move them and the answer changes.</p>
+
+  <div class="teach-card">
+    <h3>📋 Same Numbers, Different Answer</h3>
+
+    <div class="concept-row">
+      <div class="concept-box">
+        <div class="cb-name">No parentheses</div>
+        <div class="cb-eq">2 + 3 × 4<br>= 2 + 12<br>= <span style="color:var(--good)">14</span></div>
+      </div>
+      <div class="concept-box">
+        <div class="cb-name">With parentheses</div>
+        <div class="cb-eq">(2 + 3) × 4<br>= 5 × 4<br>= <span style="color:var(--good)">20</span></div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--muted);margin-top:14px">Exactly the same numbers and signs — but the parentheses <strong style="color:var(--accent2)">promoted</strong> the addition to the front of the line, and the answer jumped from 14 to 20. That is why writers of math problems use parentheses: they let you <em>choose</em> what happens first.</p>
+
+    <div class="teach-note">
+      <span class="hl">Two traps to watch for.</span><br>
+      1. Parentheses come first <span class="hl">even when they are at the end</span> of the expression: in 20 − (3 + 5) you still do 3 + 5 first.<br>
+      2. Once the inside of the parentheses becomes one number, the parentheses have done their job and simply disappear: (2 + 3) × 4 → 5 × 4.
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Nested parentheses?</span> If one pair sits inside another, start with the <span class="hl">innermost</span> pair and work your way out. You will see more of that in 5th grade.
+    </div>
+  </div>
+
+  <div class="builder">
+    <span class="ag-label">Parentheses Placer — tap a ( then a ) to hit the target answer</span>
+    <div class="tool-target" id="pl-target"></div>
+    <div class="expr-line" id="pl-expr"></div>
+    <div class="pl-read" id="pl-read"></div>
+    <div class="pa-feedback" id="pl-feedback"></div>
+    <div class="pa-nav">
+      <button class="btn btn-muted" id="pl-clear" type="button">↺ Clear parentheses</button>
+      <button class="btn btn-teal hidden" id="pl-next" type="button">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="pl-done">✓ All 5 puzzles solved! You can control the order with parentheses.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — PRACTICE
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>✖️ Phase 4 — Practice Set <span style="font-size:13px;color:var(--muted);font-weight:400">(10 min)</span></h2>
+  <p class="phase-meta">6 questions. Slow down and name the first step before you pick.</p>
+
+  <div class="pa-game">
+    <span class="ag-label" id="pr-label">Question 1 of 6</span>
+    <div class="pa-prompt" id="pr-prompt"></div>
+    <div class="warmup-choices" id="pr-choices" style="margin-top:8px"></div>
+    <div class="pa-feedback" id="pr-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="pr-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="pr-next" onclick="practiceNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="pr-done">✓ Practice complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>🐉 Phase 5 — Dragon Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems from the dragon's mountain. Write the expression, then solve it in the right order.</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Nicely done.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>⚡ Phase 6 — Order Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">8 quick ones — but still find the first step before you answer!</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 8 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 7 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase7">
+  <h2>📝 Phase 7 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(6 min)</span></h2>
+  <p class="phase-meta">10 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 10</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l20-qans";
+const QKEY  = "math-l20-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 20: Dragon|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 20', q: questionText, file: 'math-lesson-20-dragon.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// EXPRESSION ENGINE (clean numbers only — powers both tools)
+// Tokens: {k:'n',v:Number} {k:'o',v:'+|−|×|÷'} {k:'l'} {k:'r'}
+// ═══════════════════════════════════════════════════════════
+function fmt(n) {
+  if (Number.isInteger(n)) return String(n);
+  return String(Math.round(n * 100) / 100);
+}
+
+function tokenize(arr) {
+  return arr.map(function(s) {
+    if (s === '(') return { k:'l' };
+    if (s === ')') return { k:'r' };
+    if (s === '+' || s === '−' || s === '×' || s === '÷') return { k:'o', v:s };
+    return { k:'n', v:Number(s) };
+  });
+}
+
+// The part of the expression we are allowed to work in right now:
+// the INNERMOST parentheses if there are any, otherwise the whole thing.
+function activeRange(tk) {
+  let lp = -1;
+  for (let i = 0; i < tk.length; i++) if (tk[i].k === 'l') lp = i;
+  if (lp === -1) return { lo:0, hi:tk.length - 1, lp:-1, rp:-1 };
+  let rp = -1;
+  for (let i = lp + 1; i < tk.length; i++) if (tk[i].k === 'r') { rp = i; break; }
+  if (rp === -1) return { lo:0, hi:tk.length - 1, lp:-1, rp:-1 };
+  return { lo:lp + 1, hi:rp - 1, lp:lp, rp:rp };
+}
+
+// Index of the operation that MUST be done next.
+function nextOpIndex(tk) {
+  const r = activeRange(tk);
+  for (let i = r.lo; i <= r.hi; i++)
+    if (tk[i].k === 'o' && (tk[i].v === '×' || tk[i].v === '÷')) return i;
+  for (let i = r.lo; i <= r.hi; i++)
+    if (tk[i].k === 'o' && (tk[i].v === '+' || tk[i].v === '−')) return i;
+  return -1;
+}
+
+// ( 7 ) → 7   (parentheses vanish once their job is done)
+function stripParens(tk) {
+  const out = tk.slice();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i + 2 < out.length; i++) {
+      if (out[i].k === 'l' && out[i+1].k === 'n' && out[i+2].k === 'r') {
+        out.splice(i, 3, out[i+1]);
+        changed = true;
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+function compute(a, op, b) {
+  if (op === '+') return a + b;
+  if (op === '−') return a - b;
+  if (op === '×') return a * b;
+  return a / b;
+}
+
+function applyStep(tk, i) {
+  const a = tk[i-1].v, b = tk[i+1].v, op = tk[i].v;
+  const res = compute(a, op, b);
+  let out = tk.slice(0, i-1).concat([{ k:'n', v:res }]).concat(tk.slice(i+2));
+  out = stripParens(out);
+  return { tokens: out, line: fmt(a) + ' ' + op + ' ' + fmt(b) + ' = ' + fmt(res) };
+}
+
+function evalTokens(tk) {
+  let t = stripParens(tk.slice());
+  let guard = 0;
+  while (guard++ < 60) {
+    const c = nextOpIndex(t);
+    if (c < 0) break;
+    t = applyStep(t, c).tokens;
+  }
+  return (t.length === 1 && t[0].k === 'n') ? t[0].v : NaN;
+}
+
+function exprStr(tk) {
+  let s = '';
+  tk.forEach(function(t, i) {
+    const piece = t.k === 'n' ? fmt(t.v) : (t.k === 'o' ? t.v : (t.k === 'l' ? '(' : ')'));
+    if (i === 0) { s += piece; return; }
+    const prev = tk[i-1];
+    if (prev.k === 'l' || t.k === 'r') s += piece;
+    else s += ' ' + piece;
+  });
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP (why the rule exists + what the order is)
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "Ali says 2 + 3 × 4 = 20. Ben says it equals 14. Why can't both be right?",
+    choices: [
+      "Because there is one agreed order, so there is one answer",
+      "Because Ali used a calculator and Ben solved his in his head",
+      "Because you can never add and multiply in the same expression",
+      "Because the larger answer is always the correct one in math"
+    ],
+    correct: 0,
+    explain: "Math has one agreed order of operations. Here it says multiply first, so the answer is 14."
+  },
+  {
+    q: "Which of these do you always take care of FIRST?",
+    choices: ["Addition", "Parentheses", "Multiplication", "Subtraction"],
+    correct: 1,
+    explain: "Parentheses are step 1 — do what is inside them before anything else."
+  },
+  {
+    q: "After the parentheses are finished, what comes next?",
+    choices: [
+      "All of the addition, from left to right across the problem",
+      "Whichever operation happens to use the biggest numbers",
+      "Multiplication and division, working from left to right",
+      "Subtraction first, because it undoes what addition does"
+    ],
+    correct: 2,
+    explain: "Step 2 is multiply and divide, left to right. Add and subtract wait until step 3."
+  },
+  {
+    q: "In 8 − 3 + 2, which operation do you do first?",
+    choices: [
+      "3 + 2, because addition comes before subtraction",
+      "Either one — both ways give the same answer here",
+      "2 first, because you always begin at the right end",
+      "8 − 3, because + and − are done left to right"
+    ],
+    correct: 3,
+    explain: "+ and − are tied, so go left to right: 8 − 3 = 5, then 5 + 2 = 7. (Adding first would give 3 — wrong!)"
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — STEP SOLVER (clean numbers only, no theme)
+// ═══════════════════════════════════════════════════════════
+const ssPuzzles = [
+  { expr: ['2','+','3','×','4'],               note: "Two operations, two different levels." },
+  { expr: ['10','−','4','+','3'],              note: "Careful — + and − are TIED. Left to right!" },
+  { expr: ['12','÷','3','×','2'],              note: "× and ÷ are TIED too. Left to right!" },
+  { expr: ['(','5','+','3',')','×','2'],       note: "Parentheses are shouting 'me first!'" },
+  { expr: ['8','+','12','÷','(','2','+','2',')'], note: "Parentheses count even when they are at the END." },
+  { expr: ['4','×','(','10','−','7',')','+','5'], note: "Three operations. One at a time." }
+];
+
+let ssIdx = 0;
+let ssTokens = [];
+let ssLog = [];
+let ssSolvedCount = 0;
+let ssDoneThis = false;
+
+function renderSolver() {
+  const wrap = document.getElementById('ss-expr');
+  wrap.innerHTML = '';
+  ssTokens.forEach(function(t, i) {
+    if (t.k === 'o') {
+      const b = document.createElement('button');
+      b.className = 'tok-op';
+      b.type = 'button';
+      b.textContent = t.v;
+      b.disabled = ssDoneThis;
+      b.onclick = function(){ solverTap(i, b); };
+      wrap.appendChild(b);
+    } else {
+      const s = document.createElement('span');
+      s.className = 'tok' + (t.k === 'l' || t.k === 'r' ? ' tok-paren' : '');
+      s.textContent = t.k === 'n' ? fmt(t.v) : (t.k === 'l' ? '(' : ')');
+      wrap.appendChild(s);
+    }
+  });
+
+  const log = document.getElementById('ss-log');
+  if (ssLog.length === 0) {
+    log.innerHTML = '<div class="log-row log-empty">Your steps will appear here…</div>';
+  } else {
+    log.innerHTML = ssLog.map(function(r, i) {
+      return '<div class="log-row">Step ' + (i+1) + ': <b>' + r.line + '</b> <span class="arrow">→</span> ' + r.after + '</div>';
+    }).join('');
+  }
+}
+
+function renderSolverTarget() {
+  const el = document.getElementById('ss-target');
+  if (ssIdx >= ssPuzzles.length) {
+    el.innerHTML = '<b>All 6 solved!</b> You found the first step every time.';
+    return;
+  }
+  el.innerHTML = 'Expression <span class="tt-num">' + (ssIdx+1) + '</span> of ' + ssPuzzles.length +
+    '<div style="font-size:13px;color:var(--muted);margin-top:4px">' + ssPuzzles[ssIdx].note + '</div>';
+}
+
+function loadSolver(i) {
+  ssIdx = i;
+  ssTokens = tokenize(ssPuzzles[i].expr);
+  ssLog = [];
+  ssDoneThis = false;
+  const fb = document.getElementById('ss-feedback');
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  document.getElementById('ss-next').classList.add('hidden');
+  renderSolverTarget();
+  renderSolver();
+}
+
+function solverTap(i, btn) {
+  if (ssDoneThis) return;
+  const fb = document.getElementById('ss-feedback');
+  const correctIdx = nextOpIndex(ssTokens);
+
+  if (i === correctIdx) {
+    const step = applyStep(ssTokens, i);
+    ssTokens = step.tokens;
+    ssLog.push({ line: step.line, after: exprStr(ssTokens) });
+
+    if (ssTokens.length === 1) {
+      ssDoneThis = true;
+      ssSolvedCount++;
+      fb.className = 'pa-feedback show ok';
+      fb.textContent = '✓ Solved! ' + exprStr(tokenize(ssPuzzles[ssIdx].expr)) + ' = ' + fmt(ssTokens[0].v);
+      const nb = document.getElementById('ss-next');
+      nb.classList.remove('hidden');
+      nb.textContent = (ssIdx === ssPuzzles.length - 1) ? 'Finish ✓' : 'Next →';
+    } else {
+      fb.className = 'pa-feedback show ok';
+      fb.textContent = '✓ Right step! ' + step.line + '. Now find the next one.';
+    }
+    renderSolver();
+    return;
+  }
+
+  // Wrong tap — explain gently, using the reason it is wrong
+  const r = activeRange(ssTokens);
+  const tapped = ssTokens[i].v;
+  const right = correctIdx >= 0 ? ssTokens[correctIdx].v : '';
+  let msg;
+
+  if (r.lp !== -1 && (i < r.lo || i > r.hi)) {
+    msg = '✗ Parentheses first! Finish everything inside the ( ) before you touch the ' + tapped + ' outside them.';
+  } else if ((tapped === '+' || tapped === '−') && (right === '×' || right === '÷')) {
+    msg = '✗ Not yet. ' + right + ' outranks ' + tapped + ' — multiplication and division are done before addition and subtraction.';
+  } else if (i > correctIdx) {
+    msg = '✗ Right level, wrong spot. ' + tapped + ' and ' + right + ' are tied, so you work LEFT to RIGHT — start with the ' + right + ' further to the left.';
+  } else {
+    msg = '✗ Not this one yet. Check the order: parentheses, then × and ÷ left to right, then + and − left to right.';
+  }
+  fb.className = 'pa-feedback show no';
+  fb.textContent = msg;
+
+  btn.classList.add('bad');
+  setTimeout(function(){ btn.classList.remove('bad'); }, 700);
+}
+
+function solverNext() {
+  if (ssIdx >= ssPuzzles.length - 1) {
+    document.getElementById('ss-done').classList.add('show');
+    document.getElementById('seg2').classList.add('done');
+    document.getElementById('ss-next').classList.add('hidden');
+    ssIdx = ssPuzzles.length;
+    renderSolverTarget();
+    return;
+  }
+  loadSolver(ssIdx + 1);
+}
+
+function initSolver() {
+  document.getElementById('ss-next').onclick = solverNext;
+  document.getElementById('ss-reset').onclick = function() {
+    if (ssIdx < ssPuzzles.length) loadSolver(ssIdx);
+  };
+  loadSolver(0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — PARENTHESES PLACER (clean numbers only, no theme)
+// base = alternating number, operator, number, …
+// ═══════════════════════════════════════════════════════════
+const plPuzzles = [
+  { base: ['2','+','3','×','4'],  target: 20, hint: "You need the addition to happen first." },
+  { base: ['10','−','2','+','3'], target: 5,  hint: "Group the two numbers being taken away together." },
+  { base: ['3','×','4','+','2'],  target: 18, hint: "Make the 3 multiply a bigger number." },
+  { base: ['6','+','6','÷','3'],  target: 4,  hint: "Divide a total instead of just one part." },
+  { base: ['20','÷','5','−','1'], target: 5,  hint: "Shrink the number you are dividing BY." }
+];
+
+let plIdx = 0;
+let plOpen = null;
+let plClose = null;
+let plTries = 0;
+let plSolvedThis = false;
+
+function plBuildTokens(open, close) {
+  const base = plPuzzles[plIdx].base;
+  const arr = base.slice();
+  if (open !== null && close !== null) {
+    arr.splice(close * 2 + 1, 0, ')');
+    arr.splice(open * 2, 0, '(');
+  }
+  return tokenize(arr);
+}
+
+function plNumCount() {
+  return Math.ceil(plPuzzles[plIdx].base.length / 2);
+}
+
+function renderPlacer() {
+  const p = plPuzzles[plIdx];
+  document.getElementById('pl-target').innerHTML =
+    'Puzzle ' + (plIdx+1) + ' of ' + plPuzzles.length + ' — make this expression equal <span class="tt-num">' + p.target + '</span>';
+
+  const wrap = document.getElementById('pl-expr');
+  wrap.innerHTML = '';
+  const n = plNumCount();
+
+  for (let j = 0; j < n; j++) {
+    // open-paren slot before number j
+    const ob = document.createElement('button');
+    ob.type = 'button';
+    ob.className = 'pl-slot' + (plOpen === j ? ' on' : (plOpen === null ? ' ready' : ''));
+    ob.textContent = '(';
+    ob.disabled = plSolvedThis;
+    ob.onclick = function(){ plTapOpen(j); };
+    wrap.appendChild(ob);
+
+    const s = document.createElement('span');
+    s.className = 'tok';
+    s.textContent = p.base[j*2];
+    wrap.appendChild(s);
+
+    // close-paren slot after number j
+    const cb = document.createElement('button');
+    cb.type = 'button';
+    const ready = (plOpen !== null && j > plOpen && plClose === null);
+    cb.className = 'pl-slot' + (plClose === j ? ' on' : (ready ? ' ready' : ''));
+    cb.textContent = ')';
+    cb.disabled = plSolvedThis;
+    cb.onclick = function(){ plTapClose(j); };
+    wrap.appendChild(cb);
+
+    if (j < n - 1) {
+      const op = document.createElement('span');
+      op.className = 'tok';
+      op.style.color = 'var(--accent2)';
+      op.textContent = p.base[j*2 + 1];
+      wrap.appendChild(op);
+    }
+  }
+
+  const read = document.getElementById('pl-read');
+  if (plOpen !== null && plClose !== null) {
+    const tk = plBuildTokens(plOpen, plClose);
+    read.innerHTML = 'Right now it reads: <b>' + exprStr(tk) + ' = ' + fmt(evalTokens(tk)) + '</b>';
+  } else {
+    const tk = plBuildTokens(null, null);
+    read.innerHTML = 'With no parentheses: <b>' + exprStr(tk) + ' = ' + fmt(evalTokens(tk)) + '</b>';
+  }
+}
+
+function plTapOpen(j) {
+  if (plSolvedThis) return;
+  plOpen = j;
+  plClose = null;
+  const fb = document.getElementById('pl-feedback');
+  fb.className = 'pa-feedback show tip';
+  fb.textContent = 'Opening parenthesis placed. Now tap a ) to the right of it.';
+  renderPlacer();
+}
+
+function plTapClose(j) {
+  if (plSolvedThis) return;
+  const fb = document.getElementById('pl-feedback');
+  if (plOpen === null) {
+    fb.className = 'pa-feedback show tip';
+    fb.textContent = 'Tap an opening ( first, then a closing ) after it.';
+    return;
+  }
+  if (j <= plOpen) {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ The ) has to come AFTER the ( — pick one further to the right.';
+    return;
+  }
+  plClose = j;
+  const tk = plBuildTokens(plOpen, plClose);
+  const val = evalTokens(tk);
+  const p = plPuzzles[plIdx];
+  renderPlacer();
+
+  if (val === p.target) {
+    plSolvedThis = true;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Got it! ' + exprStr(tk) + ' = ' + fmt(val) + '.';
+    const nb = document.getElementById('pl-next');
+    nb.classList.remove('hidden');
+    nb.textContent = (plIdx === plPuzzles.length - 1) ? 'Finish ✓' : 'Next →';
+    renderPlacer();
+  } else {
+    plTries++;
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ That gives ' + exprStr(tk) + ' = ' + fmt(val) + ', but the target is ' + p.target + '.' +
+      (plTries >= 2 ? ' Hint: ' + p.hint : ' Clear it and try a different spot.');
+  }
+}
+
+function plClear() {
+  if (plSolvedThis) return;
+  plOpen = null; plClose = null;
+  const fb = document.getElementById('pl-feedback');
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  renderPlacer();
+}
+
+function plLoad(i) {
+  plIdx = i;
+  plOpen = null; plClose = null;
+  plTries = 0;
+  plSolvedThis = false;
+  const fb = document.getElementById('pl-feedback');
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  document.getElementById('pl-next').classList.add('hidden');
+  renderPlacer();
+}
+
+function plNext() {
+  if (plIdx >= plPuzzles.length - 1) {
+    document.getElementById('pl-done').classList.add('show');
+    document.getElementById('seg3').classList.add('done');
+    document.getElementById('pl-next').classList.add('hidden');
+    return;
+  }
+  plLoad(plIdx + 1);
+}
+
+function initPlacer() {
+  document.getElementById('pl-clear').onclick = plClear;
+  document.getElementById('pl-next').onclick = plNext;
+  plLoad(0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — PRACTICE (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const practiceQs = [
+  {
+    q: "5 + 2 × 3 = ?",
+    choices: ["21", "16", "30", "11"],
+    correct: 3,
+    explain: "× first: 2 × 3 = 6, then 5 + 6 = 11. (Adding first would give the wrong answer, 21.)"
+  },
+  {
+    q: "In 7 + 2 × 5, which step comes FIRST?",
+    choices: [
+      "7 + 2, because it is on the left side",
+      "2 × 5, because × comes before +",
+      "Either one — the answer is the same both ways",
+      "5 × anything, since 5 is the largest number here"
+    ],
+    correct: 1,
+    explain: "Multiplication outranks addition: 2 × 5 = 10, then 7 + 10 = 17."
+  },
+  {
+    q: "12 ÷ 3 × 2 = ?",
+    choices: ["8", "2", "72", "18"],
+    correct: 0,
+    explain: "× and ÷ are tied, so go left to right: 12 ÷ 3 = 4, then 4 × 2 = 8."
+  },
+  {
+    q: "10 − 4 + 3 = ?",
+    choices: ["3", "17", "9", "11"],
+    correct: 2,
+    explain: "+ and − are tied, so go left to right: 10 − 4 = 6, then 6 + 3 = 9."
+  },
+  {
+    q: "(6 + 2) × 5 = ?",
+    choices: ["13", "40", "16", "30"],
+    correct: 1,
+    explain: "Parentheses first: 6 + 2 = 8, then 8 × 5 = 40."
+  },
+  {
+    q: "8 + 12 ÷ (2 + 2) = ?",
+    choices: ["5", "10", "11", "20"],
+    correct: 2,
+    explain: "Parentheses first: 2 + 2 = 4. Then ÷ before +: 12 ÷ 4 = 3, so 8 + 3 = 11."
+  }
+];
+
+let prIdx = 0, prCorrect = 0, prAnswered = false;
+
+function renderPractice() {
+  const q = practiceQs[prIdx];
+  document.getElementById('pr-label').textContent = 'Question ' + (prIdx+1) + ' of 6';
+  document.getElementById('pr-prompt').textContent = q.q;
+  const fb = document.getElementById('pr-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('pr-next').classList.add('hidden');
+  prAnswered = false;
+
+  const choicesEl = document.getElementById('pr-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerPractice(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('pr-progress').textContent = prCorrect + ' / 6 correct so far';
+}
+
+function answerPractice(idx) {
+  if (prAnswered) return;
+  prAnswered = true;
+  const q = practiceQs[prIdx];
+  const btns = document.querySelectorAll('#pr-choices .choice-btn');
+  const fb = document.getElementById('pr-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    prCorrect++;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('pr-progress').textContent = prCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('pr-next');
+  nextBtn.classList.remove('hidden');
+  if (prIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishPractice;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = practiceNext;
+  }
+}
+
+function practiceNext() {
+  prIdx++;
+  if (prIdx < 6) renderPractice();
+}
+
+function finishPractice() {
+  document.getElementById('pr-done').classList.add('show');
+  document.getElementById('pr-next').classList.add('hidden');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — WORD PROBLEMS (dragons appear in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A young dragon's hoard starts with <strong>12 gold coins</strong>. Every night for <strong>5 nights</strong> it drags home <strong>8 more coins</strong>. Write one expression for the total and solve it.",
+    solution: [
+      {label:"Expression", math:"12 + 5 × 8"},
+      {label:"Step 1", text:"Multiplication outranks addition, so handle 5 × 8 first."},
+      {label:"Step 1", math:"5 × 8 = 40"},
+      {label:"Step 2", math:"12 + 40 = 52"},
+      {label:"Answer", text:"The hoard holds 52 gold coins."},
+      {label:"Check", text:"Adding first would give 17 × 8 = 136 — that would mean all 12 starting coins got multiplied too ✗"}
+    ]
+  },
+  {
+    text: "At the mountain lake, <strong>3 dragons</strong> each catch <strong>6 fish</strong>, and <strong>2 more dragons</strong> each catch <strong>4 fish</strong>. How many fish were caught in all?",
+    solution: [
+      {label:"Expression", math:"3 × 6 + 2 × 4"},
+      {label:"Step 1", text:"Do both multiplications first, left to right."},
+      {label:"Step 1", math:"3 × 6 = 18"},
+      {label:"Step 2", math:"2 × 4 = 8"},
+      {label:"Step 3", math:"18 + 8 = 26"},
+      {label:"Answer", text:"The dragons caught 26 fish."},
+      {label:"Check", text:"The + waits its turn — it joins the two groups only after each group is counted ✓"}
+    ]
+  },
+  {
+    text: "A dragon rider carries a purse of <strong>30 silver coins</strong>. She buys <strong>3 jars</strong> of scale polish that cost <strong>7 coins each</strong>. How many coins are left in the purse?",
+    solution: [
+      {label:"Expression", math:"30 − 3 × 7"},
+      {label:"Step 1", text:"Multiply before you subtract — first find the total cost."},
+      {label:"Step 1", math:"3 × 7 = 21"},
+      {label:"Step 2", math:"30 − 21 = 9"},
+      {label:"Answer", text:"She has 9 silver coins left."},
+      {label:"Check", text:"Subtracting first would give 27 × 7 = 189, which is more than she started with ✗"}
+    ]
+  },
+  {
+    text: "A dragon can carry exactly <strong>4 passengers</strong> per trip. There are <strong>5 knights</strong> and <strong>3 squires</strong> waiting at the tower. How many trips does the dragon need? (Careful — you will need parentheses.)",
+    solution: [
+      {label:"Expression", math:"(5 + 3) ÷ 4"},
+      {label:"Step 1", text:"Parentheses first: you must combine the passengers BEFORE dividing them into trips."},
+      {label:"Step 1", math:"5 + 3 = 8"},
+      {label:"Step 2", math:"8 ÷ 4 = 2"},
+      {label:"Answer", text:"The dragon needs 2 trips."},
+      {label:"Check", text:"Without parentheses, 5 + 3 ÷ 4 would divide only the squires — the parentheses fix that ✓"}
+    ]
+  },
+  {
+    text: "Inside the cave there are <strong>6 stone shelves</strong>, and each shelf holds <strong>9 rubies</strong>. A thief sneaks in and steals <strong>14 rubies</strong>. How many rubies are left?",
+    solution: [
+      {label:"Expression", math:"6 × 9 − 14"},
+      {label:"Step 1", text:"Multiply first to find how many rubies there were to begin with."},
+      {label:"Step 1", math:"6 × 9 = 54"},
+      {label:"Step 2", math:"54 − 14 = 40"},
+      {label:"Answer", text:"40 rubies are left."},
+      {label:"Check", text:"54 − 14 = 40, and 40 + 14 = 54 ✓"}
+    ]
+  },
+  {
+    text: "A dragon flies for <strong>3 hours</strong>, lands to rest, then flies <strong>2 more hours</strong>. It always flies <strong>40 miles</strong> in an hour. Two students write different expressions: Mia writes <strong>40 × (3 + 2)</strong> and Leo writes <strong>40 × 3 + 40 × 2</strong>. Who is right?",
+    solution: [
+      {label:"Mia", math:"40 × (3 + 2) = 40 × 5 = 200"},
+      {label:"Leo", math:"40 × 3 + 40 × 2 = 120 + 80 = 200"},
+      {label:"Answer", text:"Both are right — each one equals 200 miles."},
+      {label:"Why", text:"Mia adds the hours first (parentheses), then multiplies once. Leo multiplies each flight separately, then adds. Different routes, same destination."},
+      {label:"Watch out", text:"40 × 3 + 2 WITHOUT parentheses would be 120 + 2 = 122 — the parentheses are what make Mia's version work ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg5').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"2 + 3 × 4 = ?",        choices:["20","14","24"], correct:1 },
+  { q:"(2 + 3) × 4 = ?",      choices:["20","14","9"],  correct:0 },
+  { q:"10 − 4 + 3 = ?",       choices:["3","17","9"],   correct:2 },
+  { q:"12 ÷ 3 × 2 = ?",       choices:["8","2","18"],   correct:0 },
+  { q:"6 + 8 ÷ 2 = ?",        choices:["7","10","14"],  correct:1 },
+  { q:"In 8 − 2 × 3, do the ___ first.", choices:["8 − 2","2 × 3","either one"], correct:1 },
+  { q:"5 × (4 − 1) = ?",      choices:["19","20","15"], correct:2 },
+  { q:"20 ÷ 4 + 1 = ?",       choices:["6","4","20"],   correct:0 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(8).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/8';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg6').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 7 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "Why did mathematicians agree on an order of operations?",
+    opts: [
+      "So that everyone solving the same expression gets the same answer",
+      "Because addition is a much harder skill than multiplication is",
+      "So that every math problem will always have a whole-number answer",
+      "Because parentheses are the only symbols that really matter in math"
+    ],
+    correct: 0,
+    explain: "Without one shared order, 2 + 3 × 4 could be 14 or 20. One rule means one answer."
+  },
+  {
+    q: "2 + 3 × 4 = ?",
+    opts: ["20", "14", "24", "9"],
+    correct: 1,
+    explain: "Multiply first: 3 × 4 = 12, then 2 + 12 = 14."
+  },
+  {
+    q: "Which step comes first in 12 ÷ 3 × 2?",
+    opts: [
+      "3 × 2, because multiplication always beats division",
+      "12 ÷ 3, because × and ÷ are done left to right",
+      "Either one, since × and ÷ give the same result here",
+      "2 first, because you always start from the right side"
+    ],
+    correct: 1,
+    explain: "× and ÷ are the same level, so go left to right: 12 ÷ 3 = 4, then 4 × 2 = 8."
+  },
+  {
+    q: "(2 + 3) × 4 = ?",
+    opts: ["14", "24", "9", "20"],
+    correct: 3,
+    explain: "Parentheses first: 2 + 3 = 5, then 5 × 4 = 20."
+  },
+  {
+    q: "10 − 4 + 3 = ?",
+    opts: ["3", "17", "9", "11"],
+    correct: 2,
+    explain: "+ and − are tied, so left to right: 10 − 4 = 6, then 6 + 3 = 9."
+  },
+  {
+    q: "Sally says PEMDAS means you always multiply before you divide. Is she right?",
+    opts: [
+      "Yes — the M comes before the D, so multiply first every time",
+      "Yes, but only when the expression also contains parentheses",
+      "No, because division is actually done before every other step",
+      "No — × and ÷ are the same level, so you go left to right"
+    ],
+    correct: 3,
+    explain: "PEMDAS is only a memory trick. Multiply and divide are tied; so are add and subtract."
+  },
+  {
+    q: "8 + 12 ÷ (2 + 2) = ?",
+    opts: ["11", "5", "20", "10"],
+    correct: 0,
+    explain: "Parentheses first: 2 + 2 = 4. Then 12 ÷ 4 = 3, so 8 + 3 = 11."
+  },
+  {
+    q: "Where do the parentheses go to make 3 × 4 + 2 equal 18?",
+    opts: ["(3 × 4) + 2", "3 × 4 + (2)", "3 × (4 + 2)", "(3 × 4 + 2)"],
+    correct: 2,
+    explain: "3 × (4 + 2) = 3 × 6 = 18. Every other choice still works out to 14."
+  },
+  {
+    q: "20 ÷ (3 + 2) − 1 = ?",
+    opts: ["7", "4", "1", "3"],
+    correct: 3,
+    explain: "Parentheses first: 3 + 2 = 5. Then 20 ÷ 5 = 4, and 4 − 1 = 3."
+  },
+  {
+    q: "Which expression equals 14?",
+    opts: ["(2 + 3) × 4", "2 + 3 × 4", "2 × 3 + 4", "(2 + 3) + 4"],
+    correct: 1,
+    explain: "2 + 3 × 4 = 2 + 12 = 14. The others give 20, 10, and 9."
+  }
+];
+
+let quizAnswers = new Array(10).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 10, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 10) { msg = 'Perfect score! Outstanding!'; sub = 'Parentheses, ×/÷ left to right, +/− left to right — you own the order. Dragon-level focus!'; }
+  else if (quizScore >= 8) { msg = 'Great job!'; sub = 'Strong work — just keep an eye on the tied operations (× with ÷, + with −).'; }
+  else if (quizScore >= 6) { msg = 'Good effort!'; sub = 'Review the ones you missed, then run through the Step Solver again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back to Phase 2 and tap through all 6 expressions one step at a time.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg7').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 10 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  initSolver();
+  initPlacer();
+  renderPractice();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

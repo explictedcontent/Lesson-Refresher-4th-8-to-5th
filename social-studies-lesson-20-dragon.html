@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Studies Day 20 — Dragons Around the World</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:6px;align-items:center}
+.seg{flex:1;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s,transform .2s;cursor:pointer}
+.seg.done{background:var(--good)}
+.seg.active{background:var(--accent);transform:scaleY(1.4)}
+.phase-label{font-size:11px;color:var(--muted);white-space:nowrap;min-width:fit-content;margin-left:8px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:20px 16px 60px}
+.phase{display:none}
+.phase.active{display:block}
+h1{font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:12px;margin-top:24px}
+h3{font-size:1.05rem;font-weight:600;color:var(--warn);margin-bottom:8px}
+.phase-header{margin-bottom:24px}
+.phase-header .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.phase-header p{color:var(--muted);font-size:.95rem}
+
+/* Cards */
+.card{background:var(--panel);border-radius:var(--radius);padding:20px;margin-bottom:var(--gap);border:1px solid var(--line)}
+.card p{color:var(--muted);font-size:.95rem;line-height:1.65}
+
+/* True/False cards */
+.tf-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.tf-card{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:20px;cursor:pointer;transition:border-color .2s,background .2s;min-height:44px}
+.tf-card:hover{border-color:var(--accent2)}
+.tf-card.correct{border-color:var(--good);background:rgba(123,216,143,.08)}
+.tf-card.wrong{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tf-card .tf-statement{font-size:1rem;font-weight:600;margin-bottom:10px}
+.tf-btns{display:flex;gap:10px;margin-top:10px}
+.tf-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;min-height:44px;transition:opacity .2s}
+.tf-btn.true-btn{background:var(--accent2);color:#111}
+.tf-btn.false-btn{background:var(--accent);color:#fff}
+.tf-btn:disabled{opacity:.5;cursor:default}
+.tf-feedback{margin-top:10px;font-size:.875rem;padding:8px 12px;border-radius:6px;display:none}
+.tf-feedback.show{display:block}
+.tf-feedback.correct{background:rgba(123,216,143,.15);color:var(--good)}
+.tf-feedback.wrong{background:rgba(255,107,129,.15);color:var(--bad)}
+
+/* Reading passage */
+.reading-passage{background:var(--panel);border-radius:var(--radius);padding:24px;border:1px solid var(--line);line-height:1.8}
+.reading-passage p{margin-bottom:14px;color:#dce0f0}
+.reading-passage p:last-child{margin-bottom:0}
+.reading-passage strong{color:var(--warn)}
+.reading-passage em{color:var(--accent2)}
+.vocab-box{background:var(--panel2);border-left:3px solid var(--accent2);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.vocab-box span{font-weight:700;color:var(--accent2)}
+.facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.fact-tile{background:var(--panel2);border-radius:10px;padding:14px;text-align:center}
+.fact-tile .num{font-size:1.5rem;font-weight:800;color:var(--accent2)}
+.fact-tile .lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+.compare-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.88rem}
+.compare-table th{background:var(--panel2);color:var(--accent2);text-align:left;padding:10px;border:1px solid var(--line);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.compare-table td{padding:10px;border:1px solid var(--line);color:#dce0f0;vertical-align:top}
+.compare-table tr td:first-child{color:var(--warn);font-weight:600}
+
+/* Map interactive */
+.map-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.map-instructions{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.map-region{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;user-select:none}
+.map-region:hover:not(.locked){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.map-region .ricon{font-size:1.4rem}
+.map-region .rname{font-size:.82rem;font-weight:600;line-height:1.25}
+.map-region.correct{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default}
+.map-region.wrong{border-color:var(--bad);background:rgba(255,107,129,.1);animation:shake .35s}
+.map-question{font-size:1rem;font-weight:600;margin-bottom:12px;text-align:center;color:var(--ink)}
+.map-score{font-size:.95rem;color:var(--muted);margin:14px 0 4px;text-align:center}
+.map-score span{color:var(--accent2);font-weight:700}
+.map-feedback{text-align:center;font-size:.9rem;font-weight:600;min-height:22px;margin-top:8px}
+.map-feedback.good{color:var(--good)}
+.map-feedback.bad{color:var(--warn)}
+
+/* Match game */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:14px 12px;cursor:pointer;text-align:center;font-size:.875rem;line-height:1.4;min-height:70px;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;user-select:none}
+.match-item:hover:not(.matched){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.match-item.selected{border-color:var(--warn);background:rgba(255,209,102,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.7}
+.match-item.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.match-score{font-size:1rem;color:var(--muted);margin-bottom:14px}
+.match-score span{color:var(--accent2);font-weight:700}
+.col-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;text-align:center}
+
+/* Timeline order */
+.timeline-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.tl-item{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .3s,background .3s}
+.tl-item.shake{animation:shake .35s}
+.tl-item.right{border-color:var(--good);background:rgba(123,216,143,.1)}
+.tl-item.wrong-pos{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tl-num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--panel2);color:var(--muted);font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.tl-item.right .tl-num{background:var(--good);color:#111}
+.tl-item.wrong-pos .tl-num{background:var(--bad);color:#fff}
+.tl-text{flex:1;font-size:.9rem;line-height:1.45}
+.tl-btns{display:flex;flex-direction:column;gap:6px}
+.tl-move{width:44px;height:44px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;font-size:1rem;cursor:pointer;transition:border-color .2s}
+.tl-move:hover:not(:disabled){border-color:var(--accent2)}
+.tl-move:disabled{opacity:.3;cursor:default}
+.tl-check-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.check-btn{background:var(--accent2);color:#111;border:none;border-radius:8px;padding:12px 22px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.check-btn:hover{opacity:.88}
+.tl-result{font-weight:700;font-size:.95rem}
+.tl-result.perfect{color:var(--good)}
+.tl-result.partial{color:var(--warn)}
+
+/* Writing pad */
+.writing-wrap{position:relative}
+textarea{width:100%;min-height:200px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:var(--radius);padding:16px;font-size:1rem;line-height:1.7;resize:vertical;font-family:inherit;transition:border-color .2s}
+textarea:focus{outline:none;border-color:var(--accent2)}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;color:var(--muted)}
+.save-indicator{color:var(--good);font-weight:600;opacity:0;transition:opacity .4s}
+.save-indicator.show{opacity:1}
+
+/* Quiz */
+.quiz-progress{display:flex;gap:6px;margin-bottom:20px}
+.q-dot{width:28px;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s}
+.q-dot.answered-correct{background:var(--good)}
+.q-dot.answered-wrong{background:var(--bad)}
+.q-dot.current{background:var(--accent)}
+.quiz-q{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);margin-bottom:14px}
+.quiz-q .q-num{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.quiz-q .q-text{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:16px}
+.choice-btn{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:8px;font-size:.95rem;cursor:pointer;color:var(--ink);transition:border-color .2s,background .2s;min-height:44px;line-height:1.4}
+.choice-btn:hover:not(:disabled){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.12);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.choice-btn:disabled{cursor:default}
+.q-explanation{margin-top:12px;font-size:.875rem;padding:10px 14px;border-radius:8px;background:rgba(91,209,196,.1);color:var(--accent2);display:none}
+.q-explanation.show{display:block}
+.quiz-nav{display:flex;gap:10px;margin-top:6px}
+.quiz-nav button{flex:1;padding:12px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.q-prev-btn{background:var(--panel2);color:var(--ink)}
+.q-next-btn{background:var(--accent);color:#fff}
+.q-next-btn:disabled{opacity:.5;cursor:default}
+.quiz-result{text-align:center;padding:28px 20px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-top:16px;display:none}
+.quiz-result.show{display:block}
+.result-score{font-size:2.8rem;font-weight:800;color:var(--accent2);margin-bottom:8px}
+.result-msg{font-size:1rem;color:var(--muted);margin-bottom:16px}
+.retry-btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;min-height:44px}
+.retry-btn:hover{border-color:var(--accent)}
+
+/* Nav buttons */
+.nav-btns{display:flex;gap:10px;margin-top:28px}
+.nav-btn{flex:1;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;min-height:44px;transition:opacity .2s}
+.nav-btn:hover{opacity:.88}
+.btn-prev{background:var(--panel2);color:var(--ink);border:2px solid var(--line)}
+.btn-next{background:var(--accent);color:#fff}
+@media(max-width:480px){.match-grid{grid-template-columns:1fr}.facts-grid{grid-template-columns:1fr}.match-item{min-height:56px}.compare-table{font-size:.8rem}}
+</style>
+</head>
+<body>
+
+<div id="phase-bar">
+  <div class="seg" data-phase="0" title="Warm-Up"></div>
+  <div class="seg" data-phase="1" title="Reading"></div>
+  <div class="seg" data-phase="2" title="Map"></div>
+  <div class="seg" data-phase="3" title="Match Game"></div>
+  <div class="seg" data-phase="4" title="Dragon Timeline"></div>
+  <div class="seg" data-phase="5" title="Writing"></div>
+  <div class="seg" data-phase="6" title="Quiz"></div>
+  <span class="phase-label" id="phase-label">Warm-Up</span>
+</div>
+
+<div class="container">
+
+<!-- PHASE 1: Warm-Up -->
+<div class="phase active" id="phase-0">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 1 of 7 &bull; 5 min</div>
+    <h1>🐉 Dragon Warm-Up</h1>
+    <p>Tap TRUE or FALSE for each statement. You'll get instant feedback!</p>
+  </div>
+  <div class="tf-grid" id="tf-grid"></div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-next" onclick="goPhase(1)">Start Reading &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 2: Reading -->
+<div class="phase" id="phase-1">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 2 of 7 &bull; 10 min</div>
+    <h1>Dragons Around the World</h1>
+    <p>Read carefully — the quiz and activities come from this passage.</p>
+  </div>
+  <div class="reading-passage">
+    <p>Say the word <strong>dragon</strong> and almost everybody pictures something. But here is the surprising part: people in different parts of the world picture <em>completely different creatures</em>. A dragon in a Chinese painting and a dragon in an old English story barely look alike, and they do not <em>mean</em> the same thing either. That is why dragons are a great way to study <strong>cultural geography</strong> — the study of how the beliefs, stories, and traditions of people change from place to place on the map.</p>
+
+    <p><strong>Start in China.</strong> The Chinese dragon is called the <em>lóng</em>. It is usually shown as a long, winding creature that looks a bit like a serpent, with four short legs, whiskers, and antlers like a deer — and, importantly, <strong>no wings</strong>. It does not need them; in the stories it simply flies. The Chinese dragon is closely tied to <strong>water</strong>: rivers, lakes, clouds, and especially <strong>rain</strong>. In old tales, dragon kings live in the seas and decide whether rain falls on the farmers' fields. Because rain means a good harvest, the dragon is usually a symbol of <strong>good fortune, strength, and protection</strong> — not a monster to be destroyed. For centuries the dragon was also the emblem of China's emperors.</p>
+
+    <p>China is a huge country in <strong>East Asia</strong>. Two great rivers cross it: the <strong>Yangtze</strong>, the longest river in Asia at about <strong>6,300 kilometers</strong>, and the <strong>Yellow River</strong> (Huang He) in the north, often called the cradle of Chinese civilization because farming villages grew along it thousands of years ago. Rivers matter so much in China that it makes sense its most famous legendary creature is a water creature.</p>
+
+    <p>You can still see the dragon in living traditions. At <strong>Lunar New Year</strong>, teams of dancers carry a long cloth-and-bamboo dragon on poles and make it ripple through the streets — the <em>dragon dance</em>. And every year at the <strong>Dragon Boat Festival</strong>, teams race long, narrow boats with carved dragon heads, paddling to the beat of a drum, while families eat sticky rice dumplings called <em>zongzi</em>. Dragon boat racing began in China and is now a real sport in dozens of countries.</p>
+
+    <div class="vocab-box"><span>Culture:</span> the beliefs, stories, food, and traditions shared by a group of people. &nbsp; <span>Folklore:</span> traditional stories passed down through generations. &nbsp; <span>Symbol:</span> something that stands for a bigger idea. &nbsp; <span>Archipelago:</span> a large group or chain of islands. &nbsp; <span>Compare:</span> tell how two things are alike. &nbsp; <span>Contrast:</span> tell how two things are different.</div>
+
+    <p><strong>Now travel west to Europe.</strong> In European legends the dragon is almost the opposite. It is usually <strong>winged</strong> like a giant bat, it <strong>breathes fire</strong>, and it often <strong>guards a hoard of treasure</strong> in a cave. In these stories the dragon is the monster and a knight or hero is sent to fight it. The old English poem <em>Beowulf</em> ends with a battle against a treasure-guarding dragon, and the legend of Saint George tells of a knight who defeats one.</p>
+
+    <p>But European dragons are not always the villain. <strong>Wales</strong> — one of the four countries that make up the <strong>United Kingdom</strong>, along with England, Scotland, and Northern Ireland — puts a dragon on its <strong>actual national flag</strong>. It is called <em>Y Ddraig Goch</em>, "the red dragon," and it stands on a green and white background. It became the official flag in <strong>1959</strong>, and you can watch it fly over Cardiff or wave at a Welsh rugby match today. So in Wales the dragon is a proud symbol of the nation, not a beast to be slain.</p>
+
+    <p><strong>Next, a dragon that is completely real.</strong> The <strong>Komodo dragon</strong> is not a legend at all — it is a living lizard, the largest lizard on Earth, growing to about <strong>3 meters</strong> (10 feet) long. It has a long forked tongue, a heavy tail, and a slow, swinging walk. It cannot fly and it does not breathe fire, but it is a powerful hunter, and scientists have found that it has venom glands in its lower jaw.</p>
+
+    <p>Komodo dragons live wild in only one country: <strong>Indonesia</strong>, in <strong>Southeast Asia</strong>. Indonesia is an enormous <strong>archipelago</strong> — a nation made of more than <strong>17,000 islands</strong> stretched along the equator, with its capital, Jakarta, on the island of Java. The dragons live on just a few of those islands, including <strong>Komodo</strong>, <strong>Rinca</strong>, and part of <strong>Flores</strong>. Because their home is so small, Indonesia created <strong>Komodo National Park</strong> in <strong>1980</strong> to protect them, and in <strong>1991</strong> UNESCO named the park a World Heritage Site. That is a real <em>civics</em> lesson: a government made rules so a living thing that exists nowhere else would not disappear.</p>
+
+    <p><strong>Dragon-like beings show up in many other places, too</strong> — but it is important not to squash them all together. In ancient <strong>Mesoamerica</strong> (today's Mexico and Central America), peoples including the <strong>Maya</strong> and the <strong>Aztec</strong> honored a <strong>feathered serpent</strong>, a snake covered in bright quetzal-bird feathers, connected with wind, learning, and life. The Aztec called this being <em>Quetzalcoatl</em>; the Maya called a related figure <em>Kukulkan</em>, and a great stepped pyramid at Chichén Itzá is named for him. In South and Southeast Asia, serpent beings called <em>nāga</em> appear in Hindu and Buddhist traditions and are carved along temple stairways. These are <strong>not</strong> the same as European dragons; they belong to their own cultures and carry their own meanings, and calling them all "dragons" hides what makes each one special.</p>
+
+    <p>So what does comparing them teach? Look at what each culture needed and feared. Where farming depended on rain from great rivers, the dragon became a <strong>giver of water and luck</strong>. Where stories celebrated warriors and guarded treasure, the dragon became a <strong>fire-breathing enemy</strong>. Same word in English — very different creature, very different meaning. When you <strong>compare</strong> (find what is alike) and <strong>contrast</strong> (find what is different) two cultures' stories, you learn something true about both places. And a real Komodo dragon, sunning itself on an Indonesian island, reminds you that sometimes the most amazing dragon of all is the one that actually exists.</p>
+
+    <table class="compare-table">
+      <tr><th>Feature</th><th>Chinese dragon (lóng)</th><th>European legend dragon</th></tr>
+      <tr><td>Wings</td><td>Usually none — long and serpentine</td><td>Usually large bat-like wings</td></tr>
+      <tr><td>Element</td><td>Water, rivers, clouds, rain</td><td>Fire and smoke</td></tr>
+      <tr><td>Meaning</td><td>Good fortune, strength, protection</td><td>Danger — often the monster of the story</td></tr>
+      <tr><td>Treasure</td><td>Not a treasure hoarder</td><td>Often guards a pile of gold</td></tr>
+    </table>
+
+    <div class="facts-grid">
+      <div class="fact-tile"><div class="num">3 m</div><div class="lbl">length of a big Komodo dragon</div></div>
+      <div class="fact-tile"><div class="num">17,000+</div><div class="lbl">islands in Indonesia</div></div>
+      <div class="fact-tile"><div class="num">1980</div><div class="lbl">Komodo National Park created</div></div>
+      <div class="fact-tile"><div class="num">6,300 km</div><div class="lbl">length of the Yangtze River</div></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(0)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(2)">World Map &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 3: Map -->
+<div class="phase" id="phase-2">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 3 of 7 &bull; 7 min</div>
+    <h1>Mapping the World's Dragons</h1>
+    <p>Read each clue, then tap the place that matches. Green means you found it! Work through all the clues.</p>
+  </div>
+  <div class="map-wrap">
+    <div class="map-instructions">🐉 Clue <span id="map-idx">1</span> of <span id="map-total">9</span></div>
+    <div class="map-question" id="map-question"></div>
+    <div class="map-grid" id="map-grid"></div>
+    <div class="map-feedback" id="map-feedback"></div>
+    <div class="map-score">Places found: <span id="map-count">0</span> / 9</div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="retry-btn" onclick="resetMap()">Start Over</button>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(1)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(3)">Match Game &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 4: Match Game -->
+<div class="phase" id="phase-3">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 4 of 7 &bull; 8 min</div>
+    <h1>Compare &amp; Contrast Match Game</h1>
+    <p>Tap a term on the left, then tap the matching fact on the right. Wrong pairs will shake — keep trying!</p>
+  </div>
+  <div class="match-score">Matched: <span id="match-count">0</span> / 8</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+    <div class="col-label">Term</div>
+    <div class="col-label">Fact</div>
+  </div>
+  <div class="match-grid" id="match-grid"></div>
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+    <button class="retry-btn" onclick="resetMatch()">Reset Game</button>
+    <span id="match-done-msg" style="color:var(--good);font-weight:700;display:none">All matched! Great work!</span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(2)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(4)">Dragon Timeline &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 5: Timeline -->
+<div class="phase" id="phase-4">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 5 of 7 &bull; 8 min</div>
+    <h1>How the World Met a Real Dragon</h1>
+    <p>These 6 steps tell the true story of the Komodo dragon and how people decided to protect it — but they are scrambled. Use the ▲ and ▼ buttons to put them in order from FIRST to LAST, then tap <strong style="color:var(--accent2)">Check My Order</strong>.</p>
+  </div>
+  <div class="timeline-list" id="timeline-list"></div>
+  <div class="tl-check-row">
+    <button class="check-btn" onclick="checkTimeline()">Check My Order</button>
+    <button class="retry-btn" onclick="resetTimeline()">Shuffle Again</button>
+    <span class="tl-result" id="tl-result"></span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(3)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(5)">Writing Pad &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 6: Writing -->
+<div class="phase" id="phase-5">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 6 of 7 &bull; 5 min</div>
+    <h1>Writing Pad</h1>
+  </div>
+  <div class="card">
+    <h3>Writing Prompt</h3>
+    <p>Compare and contrast the Chinese dragon and the European legend dragon. Give at least TWO ways they are different (think wings, fire or water, and what they stand for) and ONE way they are alike. Then explain WHY you think two cultures far apart on the map ended up imagining such different creatures. Finish by telling which dragon in this lesson surprised you the most — the lóng, the red dragon of Wales, or the real Komodo dragon — and why. (At least 5 sentences.)</p>
+  </div>
+  <div class="writing-wrap">
+    <textarea id="writing-pad" placeholder="The Chinese dragon and the European dragon are different because... Another difference is... They are alike because... I think cultures imagined different dragons because... The one that surprised me most was..."></textarea>
+    <div class="writing-meta">
+      <span id="word-count">0 words</span>
+      <span class="save-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(4)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(6)">Final Quiz &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 7: Quiz -->
+<div class="phase" id="phase-6">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 7 of 7 &bull; 5 min</div>
+    <h1>Final Quiz</h1>
+    <p>10 questions — one at a time. You can go back to review!</p>
+  </div>
+  <div class="quiz-progress" id="quiz-dots"></div>
+  <div id="quiz-area"></div>
+  <div class="quiz-result" id="quiz-result">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(5)">&larr; Back</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── Storage Keys ───────────────────────────────────────────
+const QAKEY = "social-l20-qans";
+const QKEY  = "social-l20-quiz";
+const WKEY  = "social-l20-writing";
+
+// ─── logMistake ─────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Social Studies|Day 20: Dragon|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Social Studies', day: 'Day 20', q: questionText, file: 'social-studies-lesson-20-dragon.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── Phase navigation ───────────────────────────────────────
+let currentPhase = 0;
+const PHASE_NAMES = ['Warm-Up','Core Reading','World Map','Match Game','Dragon Timeline','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('active');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('active');
+  updatePhaseBar();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updatePhaseBar() {
+  document.querySelectorAll('.seg').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < currentPhase) s.classList.add('done');
+    if (i === currentPhase) s.classList.add('active');
+  });
+  document.getElementById('phase-label').textContent =
+    'Phase ' + (currentPhase + 1) + ': ' + PHASE_NAMES[currentPhase];
+}
+
+document.querySelectorAll('.seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+// ─── Phase 1: True/False ────────────────────────────────────
+const TF_DATA = [
+  {
+    statement: "The Komodo dragon is a real, living animal — the largest lizard on Earth.",
+    answer: true,
+    fact: "True! It grows to about 3 meters long and lives wild only in Indonesia."
+  },
+  {
+    statement: "In Chinese tradition, the dragon is mostly a fire monster that villages fear.",
+    answer: false,
+    fact: "Nope — the Chinese lóng is a WATER creature tied to rivers and rain, and it usually means good fortune."
+  },
+  {
+    statement: "A real country flies a flag with a dragon on it today.",
+    answer: true,
+    fact: "Yes! Wales, one of the four countries of the United Kingdom, has a red dragon on its national flag."
+  },
+  {
+    statement: "Dragons in European legends usually have wings and breathe fire.",
+    answer: true,
+    fact: "Right — winged, fire-breathing, and often guarding a hoard of treasure in a cave."
+  },
+  {
+    statement: "Every culture in the world tells the exact same dragon story.",
+    answer: false,
+    fact: "Not at all. The creatures look different, act different, and MEAN different things from place to place."
+  }
+];
+
+function buildTF() {
+  const grid = document.getElementById('tf-grid');
+  grid.innerHTML = '';
+  TF_DATA.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'tf-card';
+    div.id = 'tf-' + i;
+    div.innerHTML = `
+      <div class="tf-statement">${item.statement}</div>
+      <div class="tf-btns">
+        <button class="tf-btn true-btn" onclick="answerTF(${i}, true)">TRUE</button>
+        <button class="tf-btn false-btn" onclick="answerTF(${i}, false)">FALSE</button>
+      </div>
+      <div class="tf-feedback" id="tf-fb-${i}"></div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function answerTF(i, userAnswer) {
+  const item = TF_DATA[i];
+  const correct = (userAnswer === item.answer);
+  const card = document.getElementById('tf-' + i);
+  const fb = document.getElementById('tf-fb-' + i);
+  card.classList.add(correct ? 'correct' : 'wrong');
+  fb.textContent = (correct ? '✓ ' : '✗ ') + item.fact;
+  fb.className = 'tf-feedback show ' + (correct ? 'correct' : 'wrong');
+  card.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+}
+
+// ─── Phase 3: World Map ─────────────────────────────────────
+const MAP_REGIONS = [
+  { id: 'china',     icon: '🐲', name: 'China' },
+  { id: 'yangtze',   icon: '🌊', name: 'Yangtze River' },
+  { id: 'yellow',    icon: '🟡', name: 'Yellow River' },
+  { id: 'uk',        icon: '🇬🇧', name: 'United Kingdom' },
+  { id: 'wales',     icon: '🚩', name: 'Wales' },
+  { id: 'indonesia', icon: '🏝️', name: 'Indonesia' },
+  { id: 'komodo',    icon: '🦎', name: 'Komodo Island' },
+  { id: 'flores',    icon: '🌋', name: 'Flores Island' },
+  { id: 'mesoam',    icon: '🪶', name: 'Mexico & Central America' }
+];
+
+const MAP_CLUES = [
+  { q: 'The large country in East Asia where the dragon, or lóng, is a water creature that brings good fortune.', answer: 'china' },
+  { q: 'The longest river in Asia, about 6,300 kilometers long, flowing across China to the sea.', answer: 'yangtze' },
+  { q: 'The river in northern China often called the cradle of Chinese civilization.', answer: 'yellow' },
+  { q: 'The nation in western Europe made of England, Scotland, Wales, and Northern Ireland.', answer: 'uk' },
+  { q: 'The country whose national flag shows a red dragon on green and white.', answer: 'wales' },
+  { q: 'The archipelago nation in Southeast Asia made of more than 17,000 islands.', answer: 'indonesia' },
+  { q: 'The island that gave the world\'s largest lizard its name.', answer: 'komodo' },
+  { q: 'The larger Indonesian island where some Komodo dragons also live in the wild.', answer: 'flores' },
+  { q: 'The region of the Americas where ancient peoples honored a feathered serpent.', answer: 'mesoam' }
+];
+
+let mapIdx = 0;
+let mapFound = 0;
+
+function buildMap() {
+  mapIdx = 0;
+  mapFound = 0;
+  const grid = document.getElementById('map-grid');
+  grid.innerHTML = '';
+  const regions = [...MAP_REGIONS].sort(() => Math.random() - .5);
+  regions.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'map-region';
+    div.dataset.id = r.id;
+    div.innerHTML = `<div class="ricon">${r.icon}</div><div class="rname">${r.name}</div>`;
+    div.onclick = () => pickRegion(div);
+    grid.appendChild(div);
+  });
+  document.getElementById('map-total').textContent = MAP_CLUES.length;
+  document.getElementById('map-count').textContent = '0';
+  document.getElementById('map-feedback').textContent = '';
+  document.getElementById('map-feedback').className = 'map-feedback';
+  renderClue();
+}
+
+function renderClue() {
+  if (mapIdx >= MAP_CLUES.length) {
+    document.getElementById('map-question').textContent = '🎉 You mapped every place! Dragons live on three continents in this lesson — and each culture imagined its own.';
+    document.getElementById('map-idx').textContent = MAP_CLUES.length;
+    return;
+  }
+  document.getElementById('map-idx').textContent = mapIdx + 1;
+  document.getElementById('map-question').textContent = MAP_CLUES[mapIdx].q;
+}
+
+function pickRegion(el) {
+  if (mapIdx >= MAP_CLUES.length) return;
+  if (el.classList.contains('correct')) return;
+  const fb = document.getElementById('map-feedback');
+  if (el.dataset.id === MAP_CLUES[mapIdx].answer) {
+    el.classList.add('correct');
+    el.classList.add('locked');
+    mapFound++;
+    document.getElementById('map-count').textContent = mapFound;
+    fb.textContent = '✓ Correct!';
+    fb.className = 'map-feedback good';
+    mapIdx++;
+    setTimeout(() => { fb.textContent = ''; fb.className = 'map-feedback'; renderClue(); }, 650);
+  } else {
+    el.classList.add('wrong');
+    fb.textContent = '✗ Not that one — read the clue again!';
+    fb.className = 'map-feedback bad';
+    setTimeout(() => el.classList.remove('wrong'), 380);
+  }
+}
+
+function resetMap() { buildMap(); }
+
+// ─── Phase 4: Match Game ────────────────────────────────────
+const MATCH_PAIRS = [
+  { left: 'Lóng (Chinese dragon)', right: 'Serpentine, wingless, tied to rain and rivers' },
+  { left: 'European legend dragon', right: 'Winged, fire-breathing, guards a treasure hoard' },
+  { left: 'Komodo dragon', right: 'A real lizard about 3 meters long' },
+  { left: 'Y Ddraig Goch', right: 'The red dragon on the national flag of Wales' },
+  { left: 'Dragon Boat Festival', right: 'Long boats race to the beat of a drum' },
+  { left: 'Archipelago', right: 'A nation or region made of many islands' },
+  { left: 'Feathered serpent', right: 'Snake with quetzal feathers honored in Mesoamerica' },
+  { left: 'Komodo National Park', right: 'Protected land created by Indonesia in 1980' }
+];
+
+let matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+
+function buildMatch() {
+  const grid = document.getElementById('match-grid');
+  grid.innerHTML = '';
+  const rights = [...MATCH_PAIRS.map(p => p.right)].sort(() => Math.random() - .5);
+
+  MATCH_PAIRS.forEach((pair, i) => {
+    const lDiv = document.createElement('div');
+    lDiv.className = 'match-item';
+    lDiv.dataset.side = 'left';
+    lDiv.dataset.idx = i;
+    lDiv.textContent = pair.left;
+    lDiv.onclick = () => selectMatch(lDiv);
+    grid.appendChild(lDiv);
+
+    const rDiv = document.createElement('div');
+    rDiv.className = 'match-item';
+    rDiv.dataset.side = 'right';
+    rDiv.dataset.val = rights[i];
+    rDiv.textContent = rights[i];
+    rDiv.onclick = () => selectMatch(rDiv);
+    grid.appendChild(rDiv);
+  });
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+  document.getElementById('match-count').textContent = '0';
+  document.getElementById('match-done-msg').style.display = 'none';
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  const side = el.dataset.side;
+
+  if (side === 'left') {
+    document.querySelectorAll('.match-item[data-side="left"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedLeft === el) { matchState.selectedLeft = null; return; }
+    el.classList.add('selected');
+    matchState.selectedLeft = el;
+  } else {
+    document.querySelectorAll('.match-item[data-side="right"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedRight === el) { matchState.selectedRight = null; return; }
+    el.classList.add('selected');
+    matchState.selectedRight = el;
+  }
+
+  if (matchState.selectedLeft && matchState.selectedRight) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const lEl = matchState.selectedLeft;
+  const rEl = matchState.selectedRight;
+  const idx = parseInt(lEl.dataset.idx);
+  const correct = MATCH_PAIRS[idx].right === rEl.dataset.val;
+
+  if (correct) {
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(idx);
+    const cnt = matchState.matched.size;
+    document.getElementById('match-count').textContent = cnt;
+    if (cnt === MATCH_PAIRS.length) {
+      document.getElementById('match-done-msg').style.display = 'inline';
+    }
+  } else {
+    [lEl, rEl].forEach(e => {
+      e.classList.add('shake');
+      setTimeout(() => { e.classList.remove('shake', 'selected'); }, 400);
+    });
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+}
+
+function resetMatch() { buildMatch(); }
+
+// ─── Phase 5: Dragon Timeline ───────────────────────────────
+const TIMELINE_EVENTS = [
+  { text: 'For a long time, sailors near the Indonesian islands traded rumors of a giant "land crocodile"', order: 0 },
+  { text: 'In 1910 a Dutch official on Flores followed up the reports and had specimens collected', order: 1 },
+  { text: 'In 1912 a scientist described the animal for the world and it became known as the Komodo dragon', order: 2 },
+  { text: 'Collectors and visitors arrived, and people worried the rare lizards could disappear', order: 3 },
+  { text: 'In 1980 Indonesia created Komodo National Park so the dragons and their islands would be protected', order: 4 },
+  { text: 'In 1991 UNESCO named the park a World Heritage Site, recognized by countries worldwide', order: 5 }
+];
+
+let tlOrder = [];
+
+function buildTimeline() {
+  do {
+    tlOrder = TIMELINE_EVENTS.map((_, i) => i).sort(() => Math.random() - .5);
+  } while (tlOrder.every((v, i) => v === i));
+  renderTimeline();
+  document.getElementById('tl-result').textContent = '';
+  document.getElementById('tl-result').className = 'tl-result';
+}
+
+function renderTimeline(feedback) {
+  const list = document.getElementById('timeline-list');
+  list.innerHTML = '';
+  tlOrder.forEach((evIdx, pos) => {
+    const ev = TIMELINE_EVENTS[evIdx];
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    if (feedback) div.classList.add(ev.order === pos ? 'right' : 'wrong-pos');
+    div.innerHTML = `
+      <div class="tl-num">${pos + 1}</div>
+      <div class="tl-text">${ev.text}</div>
+      <div class="tl-btns">
+        <button class="tl-move" onclick="moveTL(${pos}, -1)" ${pos === 0 ? 'disabled' : ''} aria-label="Move up">▲</button>
+        <button class="tl-move" onclick="moveTL(${pos}, 1)" ${pos === tlOrder.length - 1 ? 'disabled' : ''} aria-label="Move down">▼</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function moveTL(pos, dir) {
+  const np = pos + dir;
+  if (np < 0 || np >= tlOrder.length) return;
+  [tlOrder[pos], tlOrder[np]] = [tlOrder[np], tlOrder[pos]];
+  document.getElementById('tl-result').textContent = '';
+  document.getElementById('tl-result').className = 'tl-result';
+  renderTimeline();
+}
+
+function checkTimeline() {
+  const correct = tlOrder.filter((evIdx, pos) => TIMELINE_EVENTS[evIdx].order === pos).length;
+  renderTimeline(true);
+  const res = document.getElementById('tl-result');
+  if (correct === tlOrder.length) {
+    res.textContent = '🎉 Perfect! All 6 in order!';
+    res.className = 'tl-result perfect';
+  } else {
+    res.textContent = correct + ' / 6 in the right spot — green ones are correct, keep going!';
+    res.className = 'tl-result partial';
+    const list = document.getElementById('timeline-list');
+    list.querySelectorAll('.tl-item.wrong-pos').forEach(el => {
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 400);
+    });
+  }
+}
+
+function resetTimeline() { buildTimeline(); }
+
+// ─── Phase 6: Writing Pad ───────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(() => {
+      localStorage.setItem(WKEY, pad.value);
+      const ind = document.getElementById('save-indicator');
+      ind.classList.add('show');
+      setTimeout(() => ind.classList.remove('show'), 1800);
+    }, 300);
+  });
+}
+
+function updateWordCount() {
+  const txt = document.getElementById('writing-pad').value.trim();
+  const n = txt ? txt.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = n + ' word' + (n !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const pad = document.getElementById('writing-pad');
+  if (pad) localStorage.setItem(WKEY, pad.value);
+}
+
+// ─── Phase 7: Quiz ──────────────────────────────────────────
+const QUIZ_DATA = [
+  {
+    q: 'In Chinese tradition, the dragon (lóng) is most closely connected with which of these?',
+    choices: [
+      'Fire and thick smoke, and burning villages down to the ground',
+      'Ice and snow high on the peaks of the tallest mountain ranges',
+      'Water — rivers, rain, and the good fortune they bring',
+      'Gold and jewels hidden away in a cave beneath a mountain'
+    ],
+    correct: 2,
+    explanation: 'The lóng is a water creature linked to rivers, clouds, and rain — and rain means a good harvest, so it stands for good fortune.'
+  },
+  {
+    q: 'Which description fits the dragon of most EUROPEAN legends?',
+    choices: [
+      'Winged, fire-breathing, and guarding a hoard of treasure',
+      'Long and serpentine, with no wings, bringing rain',
+      'A living lizard that hunts on a few islands in Southeast Asia',
+      'A serpent covered in bright feathers, honored in the Americas'
+    ],
+    correct: 0,
+    explanation: 'European legend dragons are usually winged, fire-breathing monsters that guard treasure — the opposite of the Chinese dragon.'
+  },
+  {
+    q: 'The red dragon flag flies over Wales. Wales is:',
+    choices: [
+      'a small island country far out in the middle of the Pacific Ocean',
+      'one of the four countries that make up the United Kingdom',
+      'the largest island in the Indonesian archipelago',
+      'a province along the Yellow River in northern China'
+    ],
+    correct: 1,
+    explanation: 'Wales is one of the four countries of the UK, along with England, Scotland, and Northern Ireland.'
+  },
+  {
+    q: 'How do people celebrate the Dragon Boat Festival in China?',
+    choices: [
+      'By climbing to the very top of the highest mountain in the country',
+      'By sailing large ships all the way across the wide Pacific Ocean',
+      'By racing long, narrow boats paddled to the beat of a drum',
+      'By riding horses in a long race along the banks of a river'
+    ],
+    correct: 2,
+    explanation: 'Teams race long dragon-headed boats to a drumbeat, and families eat sticky rice dumplings called zongzi.'
+  },
+  {
+    q: 'The Komodo dragon is:',
+    choices: [
+      'a real, living lizard — the biggest lizard alive today',
+      'a legendary serpent that breathes fire in old European tales',
+      'a kind of racing boat used at a festival in southern China',
+      'an ancient carving of a feathered snake found in Mexico'
+    ],
+    correct: 0,
+    explanation: 'It is completely real — a lizard up to about 3 meters (10 feet) long.'
+  },
+  {
+    q: 'Komodo dragons live in the wild in only one country. Which one?',
+    choices: [
+      'China, along the wide banks of the Yangtze River in the east',
+      'Indonesia, on a few islands including Komodo and Flores',
+      'The United Kingdom, on the rocky coast of northern Wales',
+      'Mexico, in the rainforests near the ancient stone temples'
+    ],
+    correct: 1,
+    explanation: 'They live only on a few Indonesian islands: Komodo, Rinca, and part of Flores.'
+  },
+  {
+    q: 'Why did Indonesia create Komodo National Park in 1980?',
+    choices: [
+      'To build a brand new capital city for the country there',
+      'To make a place where dragon boat races could be held',
+      'To dig for gold and treasure hidden on the islands',
+      'To protect the Komodo dragons and the places they live'
+    ],
+    correct: 3,
+    explanation: 'The park was created to protect the dragons and their habitat; in 1991 UNESCO named it a World Heritage Site.'
+  },
+  {
+    q: 'The feathered serpent was honored by ancient peoples in which region?',
+    choices: [
+      'The islands of Indonesia, out in Southeast Asia near the equator',
+      'The northern part of the United Kingdom, over in western Europe',
+      'The river valleys of eastern China, where farming villages grew',
+      'Mesoamerica — the lands that are now Mexico and Central America'
+    ],
+    correct: 3,
+    explanation: 'The Maya and Aztec honored a feathered serpent; it is its own being, not a copy of a European dragon.'
+  },
+  {
+    q: 'What is one clear DIFFERENCE between the Chinese dragon and the European legend dragon?',
+    choices: [
+      'The Chinese dragon breathes fire, while the European one brings rain to farms',
+      'The Chinese dragon guards gold, while the European one is a kind water spirit',
+      'The Chinese dragon has no wings, while the European one is usually winged',
+      'The Chinese dragon is a real animal, while the European one is just a legend'
+    ],
+    correct: 2,
+    explanation: 'The lóng is long and serpentine without wings; the European dragon almost always has big bat-like wings.'
+  },
+  {
+    q: 'What does comparing dragon stories from different cultures teach us?',
+    choices: [
+      'That all of the dragon stories in the world came from one single country long ago',
+      'That different cultures tell different dragon stories with different meanings',
+      'That only countries in Europe have ever told stories about dragons at all',
+      'That dragon stories everywhere are copies of the one told in Wales'
+    ],
+    correct: 1,
+    explanation: 'Each culture shaped its own creature with its own meaning — that is what cultural geography is all about.'
+  }
+];
+
+let quizCurrent = 0;
+let quizAnswers = {};
+
+function buildQuiz() {
+  quizAnswers = {};
+  quizCurrent = 0;
+  renderQuizDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (typeof saved === 'object' && saved !== null) {
+      quizAnswers = saved;
+    }
+  } catch(e) { quizAnswers = {}; }
+  renderQuizDots();
+  renderQuestion();
+}
+
+function renderQuizDots() {
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  QUIZ_DATA.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot';
+    if (i === quizCurrent) d.classList.add('current');
+    else if (quizAnswers[i] !== undefined) {
+      d.classList.add(quizAnswers[i] === QUIZ_DATA[i].correct ? 'answered-correct' : 'answered-wrong');
+    }
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const area = document.getElementById('quiz-area');
+  const result = document.getElementById('quiz-result');
+  const allAnswered = Object.keys(quizAnswers).length === QUIZ_DATA.length;
+
+  if (allAnswered && quizCurrent >= QUIZ_DATA.length) {
+    area.innerHTML = '';
+    showQuizResult();
+    return;
+  }
+
+  result.classList.remove('show');
+  const qi = quizCurrent;
+  const item = QUIZ_DATA[qi];
+  const userAns = quizAnswers[qi];
+  const answered = userAns !== undefined;
+
+  let choicesHTML = item.choices.map((c, ci) => {
+    let cls = '';
+    if (answered) {
+      if (ci === item.correct) cls = 'correct';
+      else if (ci === userAns) cls = 'wrong';
+    }
+    return `<button class="choice-btn ${cls}" ${answered ? 'disabled' : ''} onclick="ansQ(${qi},${ci})">${c}</button>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="quiz-q">
+      <div class="q-num">Question ${qi + 1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${item.q}</div>
+      ${choicesHTML}
+      <div class="q-explanation ${answered ? 'show' : ''}" id="q-exp">
+        ${answered ? (userAns === item.correct ? '✓ Correct! ' : '✗ Not quite. ') + item.explanation : item.explanation}
+      </div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-nav btn q-prev-btn" onclick="qNav(-1)" ${qi === 0 ? 'disabled' : ''}>&larr; Prev</button>
+      <button class="quiz-nav btn q-next-btn" onclick="qNav(1)" ${!answered ? 'disabled' : ''}>${qi === QUIZ_DATA.length - 1 ? 'Finish' : 'Next &rarr;'}</button>
+    </div>
+  `;
+  renderQuizDots();
+}
+
+function ansQ(qi, choiceIdx) {
+  if (quizAnswers[qi] !== undefined) return;
+  quizAnswers[qi] = choiceIdx;
+  const correct = choiceIdx === QUIZ_DATA[qi].correct;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, QUIZ_DATA[qi].q, 'Final Quiz');
+  renderQuestion();
+  if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+    const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+    try { localStorage.setItem(QKEY, JSON.stringify({ score, total: QUIZ_DATA.length, date: Date.now() })); } catch(e) {}
+  }
+}
+
+function qNav(dir) {
+  quizCurrent = Math.max(0, Math.min(QUIZ_DATA.length, quizCurrent + dir));
+  if (quizCurrent >= QUIZ_DATA.length) { showQuizResult(); return; }
+  renderQuestion();
+}
+
+function showQuizResult() {
+  const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+  const pct = Math.round(score / QUIZ_DATA.length * 100);
+  document.getElementById('quiz-area').innerHTML = '';
+  const res = document.getElementById('quiz-result');
+  document.getElementById('result-score').textContent = score + ' / ' + QUIZ_DATA.length;
+  let msg = pct >= 88 ? 'Excellent! You can compare dragons — and cultures — across three continents!' :
+            pct >= 63 ? 'Good work! Review a few answers and try again.' :
+            'Keep studying — go back to the reading and try once more!';
+  document.getElementById('result-msg').textContent = msg + ' (' + pct + '%)';
+  res.classList.add('show');
+  renderQuizDots();
+}
+
+function retryQuiz() {
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── Save All ───────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── Init ───────────────────────────────────────────────────
+function init() {
+  buildTF();
+  buildMap();
+  buildMatch();
+  buildTimeline();
+  initWriting();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+init();
+</script>
+</body>
+</html>

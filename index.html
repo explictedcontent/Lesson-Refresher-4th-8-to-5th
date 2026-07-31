@@ -104,7 +104,7 @@
   <div class="hero">
     <div class="htop"><div class="hicon">🏫</div>
       <div><h1>Summer Refresher Course</h1>
-        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-29 · v5 — Day 19 (Nine-Tailed Fox) + Level 16: Panda Painter</div>
+        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-30 · v6 — Day 20 (Dragon) + Level 17: Panda Decides</div>
       </div>
     </div>
     <p>A fun, hands-on review for a 4th-grader heading into 5th grade. Every lesson is interactive — games, a drawing pad, and a timed lesson plan — with a quiz at the end. Pick a subject tab, then a lesson. Wrong quiz answers are saved to the <b>Review</b> tab until they're answered correctly.</p>
@@ -138,7 +138,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 19 · Nine-Tailed Fox 🦊🔥 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 20 · Dragon 🐉 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — Dragons Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-20-dragon.html",desc:"Chinese water dragons, the red dragon on the flag of Wales, and Indonesia's real Komodo dragons — compare & contrast cultures."},
+      {n:2,emoji:"🔬",title:"Science — The Real Animals Behind the Legend",topic:"Science",time:"45 min",file:"science-lesson-20-dragon.html",desc:"Komodo dragon venom, the gliding Draco lizard, and the bombardier beetle's 100°C spray — plus how science corrects itself."},
+      {n:3,emoji:"📖",title:"ELA — Making Inferences",topic:"Reading",time:"45 min",file:"ela-lesson-20-dragon.html",desc:"An original dragon story where two sides fear each other over rumors. 7 vocab words and the clues + what I know skill."},
+      {n:4,emoji:"📐",title:"Math — Order of Operations",topic:"Number",time:"45 min",file:"math-lesson-20-dragon.html",desc:"Parentheses first, then × and ÷ left to right, then + and − left to right — with a tap-the-next-step solver."},
+      {n:5,emoji:"💻",title:"Coding — Level 17: Panda Decides (Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-17-decisions.html",desc:"Type REAL JavaScript that LOOKS AROUND and decides — true/false, if, else, and a decision inside a loop. 🤔"},
+    ]},
+    {label:"Day 19 · Nine-Tailed Fox 🦊🔥 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — The Fox Legend That Crossed a Continent",topic:"Geography",time:"45 min",file:"social-studies-lesson-19-nine-tailed-fox.html",desc:"Japan's four main islands, Mount Fuji & the Ring of Fire, plus the REAL nine-tailed fox legend in Japan, China & Korea."},
       {n:2,emoji:"🔬",title:"Science — One Tail, Nine Superpowers",topic:"Science",time:"45 min",file:"science-lesson-19-nine-tailed-fox.html",desc:"What a tail is really for, the red fox's mousing pounce, and how arctic & fennec foxes are built for their climates."},
       {n:3,emoji:"📖",title:"ELA — The Fox Who Held the Flame",topic:"Reading",time:"45 min",file:"ela-lesson-19-nine-tailed-fox.html",desc:"A young fox spirit learns that real strength is control. 7 vocab words, main idea & supporting details."},
@@ -283,6 +290,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 20 · Dragon 🐉", items:[
+       {n:20,emoji:"🐉",title:"Order of Operations",topic:"Number",time:"45 min",file:"math-lesson-20-dragon.html",desc:"Parentheses first, then × and ÷ left to right, then + and − left to right — plus a tap-the-next-step solver."},
+     ]},
      {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
        {n:19,emoji:"🦊",title:"Volume",topic:"Number",time:"45 min",file:"math-lesson-19-nine-tailed-fox.html",desc:"Volume of rectangular prisms — count unit cubes, use layers, apply V = l × w × h, and find a missing dimension."},
      ]},
@@ -346,6 +356,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 20 · Dragon 🐉", items:[
+       {n:20,emoji:"🐉",title:"The Real Animals Behind the Legend",topic:"Science",time:"45 min",file:"science-lesson-20-dragon.html",desc:"Komodo dragon venom, the gliding Draco lizard, the bombardier beetle's boiling spray, and how science revises itself."},
+     ]},
      {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
        {n:19,emoji:"🦊",title:"One Tail, Nine Superpowers",topic:"Science",time:"45 min",file:"science-lesson-19-nine-tailed-fox.html",desc:"What tails are really for, the red fox mousing pounce & magnetic north, and arctic vs fennec fox climate adaptations."},
      ]},
@@ -407,6 +420,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 20 · Dragon 🐉", items:[
+       {n:20,emoji:"🐉",title:"Making Inferences",topic:"Reading",time:"45 min",file:"ela-lesson-20-dragon.html",desc:"An original story where a kid and a dragon each fear the other over rumors. 7 vocab words + drawing conclusions from clues."},
+     ]},
      {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
        {n:19,emoji:"🦊",title:"The Fox Who Held the Flame",topic:"Reading",time:"45 min",file:"ela-lesson-19-nine-tailed-fox.html",desc:"A young fox spirit learns that real strength is control. 7 vocab words, main idea & supporting details, self-control theme."},
      ]},
@@ -464,6 +480,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 20 · Dragon 🐉", items:[
+       {n:20,emoji:"🐉",title:"Dragons Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-20-dragon.html",desc:"Chinese lóng vs European dragons, the red dragon of Wales, and Indonesia's real Komodo dragons — compare & contrast."},
+     ]},
      {label:"Day 19 · Nine-Tailed Fox 🦊🔥", items:[
        {n:19,emoji:"🦊",title:"The Fox Legend That Crossed a Continent",topic:"Geography",time:"45 min",file:"social-studies-lesson-19-nine-tailed-fox.html",desc:"Japan's islands, Mount Fuji & the Ring of Fire, plus the real nine-tailed fox legend across Japan, China & Korea."},
      ]},
@@ -544,6 +563,7 @@ const SUBJECTS=[
      ]},
      {label:"✍️ Write Real Code (new!)", items:[
        {n:15,emoji:"🌾",title:"Level 15: Panda Harvest (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-15-realcode.html",desc:"NEW STYLE — you TYPE real JavaScript and the panda does it! Loops, variables, nested loops & your own functions to harvest every bamboo. Real code, real error messages, run it live."},
+       {n:17,emoji:"🤔",title:"Level 17: Panda Decides (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-17-decisions.html",desc:"Type real JavaScript that looks around and DECIDES — true/false, if, else, and putting a decision inside a loop."},
        {n:16,emoji:"🎨",title:"Level 16: Panda Painter (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-16-painter.html",desc:"Type real JavaScript to paint pictures and match the goal — commands with inputs, loops, variables that hold words, and your own command with an input."},
        {n:0,emoji:"🐼",title:"Warm-up: You Are the Coder (Demo)",topic:"Coding",time:"20 min",file:"coding-real-demo.html",desc:"A gentle first taste of typing real code — move the panda with right(), left(), up(), down(), loops & your own function."},
      ]},
