@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Studies Day 21 — The Firebird: One Idea, Many Lands</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:6px;align-items:center}
+.seg{flex:1;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s,transform .2s;cursor:pointer}
+.seg.done{background:var(--good)}
+.seg.active{background:var(--accent);transform:scaleY(1.4)}
+.phase-label{font-size:11px;color:var(--muted);white-space:nowrap;min-width:fit-content;margin-left:8px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:20px 16px 60px}
+.phase{display:none}
+.phase.active{display:block}
+h1{font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:12px;margin-top:24px}
+h3{font-size:1.05rem;font-weight:600;color:var(--warn);margin-bottom:8px}
+.phase-header{margin-bottom:24px}
+.phase-header .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.phase-header p{color:var(--muted);font-size:.95rem}
+
+/* Cards */
+.card{background:var(--panel);border-radius:var(--radius);padding:20px;margin-bottom:var(--gap);border:1px solid var(--line)}
+.card p{color:var(--muted);font-size:.95rem;line-height:1.65}
+
+/* True/False cards */
+.tf-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.tf-card{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:20px;cursor:pointer;transition:border-color .2s,background .2s;min-height:44px}
+.tf-card:hover{border-color:var(--accent2)}
+.tf-card.correct{border-color:var(--good);background:rgba(123,216,143,.08)}
+.tf-card.wrong{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tf-card .tf-statement{font-size:1rem;font-weight:600;margin-bottom:10px}
+.tf-btns{display:flex;gap:10px;margin-top:10px}
+.tf-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;min-height:44px;transition:opacity .2s}
+.tf-btn.true-btn{background:var(--accent2);color:#111}
+.tf-btn.false-btn{background:var(--accent);color:#fff}
+.tf-btn:disabled{opacity:.5;cursor:default}
+.tf-feedback{margin-top:10px;font-size:.875rem;padding:8px 12px;border-radius:6px;display:none}
+.tf-feedback.show{display:block}
+.tf-feedback.correct{background:rgba(123,216,143,.15);color:var(--good)}
+.tf-feedback.wrong{background:rgba(255,107,129,.15);color:var(--bad)}
+
+/* Reading passage */
+.reading-passage{background:var(--panel);border-radius:var(--radius);padding:24px;border:1px solid var(--line);line-height:1.8}
+.reading-passage p{margin-bottom:14px;color:#dce0f0}
+.reading-passage p:last-child{margin-bottom:0}
+.reading-passage strong{color:var(--warn)}
+.reading-passage em{color:var(--accent2)}
+.vocab-box{background:var(--panel2);border-left:3px solid var(--accent2);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.vocab-box span{font-weight:700;color:var(--accent2)}
+.facts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.fact-tile{background:var(--panel2);border-radius:10px;padding:14px;text-align:center}
+.fact-tile .num{font-size:1.5rem;font-weight:800;color:var(--accent2)}
+.fact-tile .lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+.table-scroll{overflow-x:auto;margin-top:14px}
+.compare-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.compare-table th{background:var(--panel2);color:var(--accent2);text-align:left;padding:10px;border:1px solid var(--line);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.compare-table td{padding:10px;border:1px solid var(--line);color:#dce0f0;vertical-align:top}
+.compare-table tr td:first-child{color:var(--warn);font-weight:600}
+
+/* Map interactive */
+.map-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.map-instructions{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.map-region{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;user-select:none}
+.map-region:hover:not(.locked){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.map-region .ricon{font-size:1.4rem}
+.map-region .rname{font-size:.82rem;font-weight:600;line-height:1.25}
+.map-region.correct{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default}
+.map-region.wrong{border-color:var(--bad);background:rgba(255,107,129,.1);animation:shake .35s}
+.map-question{font-size:1rem;font-weight:600;margin-bottom:12px;text-align:center;color:var(--ink)}
+.map-score{font-size:.95rem;color:var(--muted);margin:14px 0 4px;text-align:center}
+.map-score span{color:var(--accent2);font-weight:700}
+.map-feedback{text-align:center;font-size:.9rem;font-weight:600;min-height:22px;margin-top:8px}
+.map-feedback.good{color:var(--good)}
+.map-feedback.bad{color:var(--warn)}
+
+/* Match game */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match-item{background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:14px 12px;cursor:pointer;text-align:center;font-size:.875rem;line-height:1.4;min-height:70px;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;user-select:none}
+.match-item:hover:not(.matched){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.match-item.selected{border-color:var(--warn);background:rgba(255,209,102,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.7}
+.match-item.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.match-score{font-size:1rem;color:var(--muted);margin-bottom:14px}
+.match-score span{color:var(--accent2);font-weight:700}
+.col-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;text-align:center}
+
+/* Timeline order */
+.timeline-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.tl-item{background:var(--panel);border:2px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .3s,background .3s}
+.tl-item.shake{animation:shake .35s}
+.tl-item.right{border-color:var(--good);background:rgba(123,216,143,.1)}
+.tl-item.wrong-pos{border-color:var(--bad);background:rgba(255,107,129,.08)}
+.tl-num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--panel2);color:var(--muted);font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.tl-item.right .tl-num{background:var(--good);color:#111}
+.tl-item.wrong-pos .tl-num{background:var(--bad);color:#fff}
+.tl-text{flex:1;font-size:.9rem;line-height:1.45}
+.tl-btns{display:flex;flex-direction:column;gap:6px}
+.tl-move{width:44px;height:44px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;font-size:1rem;cursor:pointer;transition:border-color .2s}
+.tl-move:hover:not(:disabled){border-color:var(--accent2)}
+.tl-move:disabled{opacity:.3;cursor:default}
+.tl-check-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.check-btn{background:var(--accent2);color:#111;border:none;border-radius:8px;padding:12px 22px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.check-btn:hover{opacity:.88}
+.tl-result{font-weight:700;font-size:.95rem}
+.tl-result.perfect{color:var(--good)}
+.tl-result.partial{color:var(--warn)}
+
+/* Writing pad */
+.writing-wrap{position:relative}
+textarea{width:100%;min-height:200px;background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:var(--radius);padding:16px;font-size:1rem;line-height:1.7;resize:vertical;font-family:inherit;transition:border-color .2s}
+textarea:focus{outline:none;border-color:var(--accent2)}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;color:var(--muted)}
+.save-indicator{color:var(--good);font-weight:600;opacity:0;transition:opacity .4s}
+.save-indicator.show{opacity:1}
+
+/* Quiz */
+.quiz-progress{display:flex;gap:6px;margin-bottom:20px}
+.q-dot{width:28px;height:8px;border-radius:4px;background:var(--panel2);transition:background .3s}
+.q-dot.answered-correct{background:var(--good)}
+.q-dot.answered-wrong{background:var(--bad)}
+.q-dot.current{background:var(--accent)}
+.quiz-q{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);margin-bottom:14px}
+.quiz-q .q-num{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.quiz-q .q-text{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:16px}
+.choice-btn{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:8px;font-size:.95rem;cursor:pointer;color:var(--ink);transition:border-color .2s,background .2s;min-height:44px;line-height:1.4}
+.choice-btn:hover:not(:disabled){border-color:var(--accent2);background:rgba(91,209,196,.08)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.12);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.choice-btn:disabled{cursor:default}
+.q-explanation{margin-top:12px;font-size:.875rem;padding:10px 14px;border-radius:8px;background:rgba(91,209,196,.1);color:var(--accent2);display:none}
+.q-explanation.show{display:block}
+.quiz-nav{display:flex;gap:10px;margin-top:6px}
+.quiz-nav button{flex:1;padding:12px;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;min-height:44px}
+.q-prev-btn{background:var(--panel2);color:var(--ink)}
+.q-next-btn{background:var(--accent);color:#fff}
+.q-next-btn:disabled{opacity:.5;cursor:default}
+.quiz-result{text-align:center;padding:28px 20px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-top:16px;display:none}
+.quiz-result.show{display:block}
+.result-score{font-size:2.8rem;font-weight:800;color:var(--accent2);margin-bottom:8px}
+.result-msg{font-size:1rem;color:var(--muted);margin-bottom:16px}
+.retry-btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;min-height:44px}
+.retry-btn:hover{border-color:var(--accent)}
+
+/* Nav buttons */
+.nav-btns{display:flex;gap:10px;margin-top:28px}
+.nav-btn{flex:1;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;min-height:44px;transition:opacity .2s}
+.nav-btn:hover{opacity:.88}
+.btn-prev{background:var(--panel2);color:var(--ink);border:2px solid var(--line)}
+.btn-next{background:var(--accent);color:#fff}
+@media(max-width:480px){.match-grid{grid-template-columns:1fr}.facts-grid{grid-template-columns:1fr}.match-item{min-height:56px}.compare-table{font-size:.8rem}}
+</style>
+</head>
+<body>
+
+<div id="phase-bar">
+  <div class="seg" data-phase="0" title="Warm-Up"></div>
+  <div class="seg" data-phase="1" title="Reading"></div>
+  <div class="seg" data-phase="2" title="Map"></div>
+  <div class="seg" data-phase="3" title="Match Game"></div>
+  <div class="seg" data-phase="4" title="Story Journey"></div>
+  <div class="seg" data-phase="5" title="Writing"></div>
+  <div class="seg" data-phase="6" title="Quiz"></div>
+  <span class="phase-label" id="phase-label">Warm-Up</span>
+</div>
+
+<div class="container">
+
+<!-- PHASE 1: Warm-Up -->
+<div class="phase active" id="phase-0">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 1 of 7 &bull; 5 min</div>
+    <h1>🔥🦅 Firebird Warm-Up</h1>
+    <p>Tap TRUE or FALSE for each statement. You'll get instant feedback!</p>
+  </div>
+  <div class="tf-grid" id="tf-grid"></div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-next" onclick="goPhase(1)">Start Reading &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 2: Reading -->
+<div class="phase" id="phase-1">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 2 of 7 &bull; 10 min</div>
+    <h1>The Firebird: One Idea, Many Lands</h1>
+    <p>Read carefully — the quiz and activities come from this passage.</p>
+  </div>
+  <div class="reading-passage">
+    <p>Here is a puzzle for a geographer. Ancient Egypt, ancient Greece, China, Japan, and Russia are thousands of kilometers apart. Their people spoke different languages, ate different food, and prayed in different ways. And yet each of them told stories about a <strong>magnificent bird</strong> — a bird made of sunlight, or fire, or pure glowing color. Why would that happen? Some of it is coincidence, because the sun and fire matter to everyone. But some of it is not a coincidence at all. Some of it is <strong>history you can trace on a map</strong>, because ideas travel with people, and people travel along roads and seas.</p>
+
+    <p><strong>Start in ancient Egypt with the Bennu.</strong> The <em>Bennu</em> was a sacred bird that Egyptians pictured as a tall <strong>heron</strong> — long legs, long neck, a crest of feathers on its head. It was not a monster and it did not fight anybody. The Bennu was tied to the <strong>sun</strong>, to the moment the world was created, and to the idea of <strong>rebirth</strong>: things ending and then beginning again. Egyptians connected it with <strong>Ra</strong>, the sun god, and its great temple stood at the city the Greeks later named <strong>Heliopolis</strong>, which means "sun city." Heliopolis sat near the <strong>Nile River</strong>, the long river that flows north through Egypt and made farming — and Egyptian civilization — possible. Every single morning the sun climbed out of the horizon after a night of darkness. A bird of rebirth made sense to people who watched that happen over the Nile every day of their lives.</p>
+
+    <p><strong>Now sail north across the Mediterranean to Greece.</strong> Greek traders, soldiers, and travelers visited Egypt often, and they came home full of stories. One of those travelers was <strong>Herodotus</strong>, a Greek <em>historian</em> writing in the <strong>400s BCE</strong>, sometimes called the "father of history" because he tried to collect and write down what really happened. In his book about Egypt he described a marvelous bird the Greeks called the <strong>phoenix</strong>: a bird that lived an enormous number of years and then renewed itself, and that was said to bring its parent to the temple at Heliopolis. Notice that detail — a <em>Greek</em> writer's phoenix story points straight back to an <em>Egyptian</em> city. That is a real, traceable example of one culture borrowing and reshaping another culture's idea. Herodotus was also honest enough to write that he had not seen the bird himself and did not entirely believe the story. Good historians say when they are not sure.</p>
+
+    <p>Here is something people often get wrong: in Herodotus's version, the phoenix does <em>not</em> burst into flames. The famous image of a bird <strong>burning to ashes and rising again</strong> grew later, in Roman and then medieval European retellings, and it became one of Europe's favorite symbols of hope and starting over. Stories do not stay frozen. They <strong>change as they travel</strong>, the way a story changes as it passes down a line of friends.</p>
+
+    <div class="vocab-box"><span>Culture:</span> the beliefs, stories, food, and traditions shared by a group of people. &nbsp; <span>Folklore:</span> traditional stories passed down through generations. &nbsp; <span>Symbol:</span> something that stands for a bigger idea. &nbsp; <span>Trade route:</span> a path merchants travel to buy and sell goods. &nbsp; <span>Adapt:</span> to change something to fit a new place or need. &nbsp; <span>Rebirth:</span> beginning again after an ending.</div>
+
+    <p><strong>Travel east to China — and slow down here.</strong> China has a famous, beautiful bird called the <strong>fenghuang</strong>. English speakers often call it "the Chinese phoenix," and that nickname causes a lot of confusion, because the fenghuang is <strong>not the same being</strong> as the Greek phoenix. It is not mainly about burning and coming back. The fenghuang is a symbol of <strong>virtue, grace, peace, and harmony</strong> — the idea that things are in balance and rulers are behaving well. Artists in China have shown it for more than three thousand years, and it is usually <strong>paired with the dragon</strong>: in imperial symbolism the dragon stood for the emperor and the fenghuang for the empress, and even today dragon-and-fenghuang designs decorate Chinese <strong>weddings</strong> because together they mean a happy, balanced union. Calling it "the Chinese phoenix" flattens all of that into a European word. The respectful, accurate thing to say is: <em>these are different beings, from different cultures, that English lumped under one name.</em></p>
+
+    <p><strong>Keep going east to Japan.</strong> There the same graceful bird appears as the <strong>hō-ō</strong>. It did not appear out of nowhere: the design came from China, along with Buddhism, writing, and many art styles, and Japanese artists then <strong>adapted</strong> it into something of their own. You can go see it. The <strong>Phoenix Hall</strong> at the temple of Byōdō-in, in the city of Uji, was built in <strong>1053 CE</strong>, and a pair of gleaming hō-ō stand on its roof. That building is so beloved in Japan that it is pictured on the country's 10-yen coin. When you look at that roof, you are looking at a symbol that physically traveled between two countries — which is exactly what cultural geography studies.</p>
+
+    <p><strong>How did ideas move that far?</strong> Along <strong>trade routes</strong> — and the most famous is the <strong>Silk Road</strong>. It was not one paved highway. It was a huge <em>network</em> of land and sea routes, stretching roughly <strong>6,400 kilometers</strong>, linking China through Central Asia to the Middle East and on to Europe. Caravans of camels and carts carried silk, paper, spices, glass, and gold. But merchants do not only carry cargo. They carry <strong>languages, recipes, music, religions, art styles, and stories</strong>, trading them at every oasis town and market along the way. Buddhism traveled from India into China along these routes. Papermaking traveled west. Patterns of birds and flowers on fabric traveled in both directions. When you ask "how could a bird symbol show up in so many far-apart lands?", trade routes are a big part of the honest answer.</p>
+
+    <p><strong>Last stop: Russia and the Slavic lands.</strong> In Russian folk tales there is the <strong>Zhar-ptitsa</strong> — the <strong>Firebird</strong>. It glows like a bonfire; a single dropped feather still shines brightly enough to light a dark room. But here is the twist that makes the story great: that feather is <strong>lucky and unlucky at the same time</strong>. In the famous tale of Ivan and the Gray Wolf, finding a Firebird feather sets off a long, dangerous quest. The Firebird is not a rebirth symbol at all — it is a beautiful, risky prize. In <strong>1910</strong>, the composer Igor Stravinsky turned these old folk tales into the ballet <em>The Firebird</em>, which premiered in Paris and made the Russian Firebird famous around the world. Folklore became art, and art crossed borders again.</p>
+
+    <p>So what does comparing all of them teach? Two things. First, <strong>similar does not mean same</strong>. The Bennu, the phoenix, the fenghuang, the hō-ō, and the Firebird are five different beings belonging to five different cultures, and squashing them together erases what each one means to the people it belongs to. Second, <strong>ideas really do travel</strong>, and you can sometimes follow the path — Egypt to Greece across the Mediterranean, China to Japan across the sea, East to West along the Silk Road. That is the quiet lesson under all the feathers and flames: humans have been separated by deserts, mountains, and oceans for a very long time, and we have been trading with each other, and borrowing from each other, for just as long.</p>
+
+    <div class="table-scroll">
+    <table class="compare-table">
+      <tr><th>Bird</th><th>Home culture</th><th>What it stands for</th><th>Fire rebirth?</th></tr>
+      <tr><td>Bennu</td><td>Ancient Egypt</td><td>The sun, creation, new beginnings</td><td>Renewal, but not a burning story</td></tr>
+      <tr><td>Phoenix</td><td>Ancient Greece, then Rome &amp; Europe</td><td>Long life and rising again</td><td>Yes — added in later retellings</td></tr>
+      <tr><td>Fenghuang</td><td>China</td><td>Virtue, grace, harmony; paired with the dragon</td><td>No</td></tr>
+      <tr><td>Hō-ō</td><td>Japan (design came from China)</td><td>Peace and good, balanced rule</td><td>No</td></tr>
+      <tr><td>Zhar-ptitsa</td><td>Russia &amp; Slavic lands</td><td>A glowing prize: luck and trouble</td><td>No</td></tr>
+    </table>
+    </div>
+
+    <div class="facts-grid">
+      <div class="fact-tile"><div class="num">400s BCE</div><div class="lbl">when Herodotus wrote about the phoenix</div></div>
+      <div class="fact-tile"><div class="num">6,400 km</div><div class="lbl">rough span of the Silk Road network</div></div>
+      <div class="fact-tile"><div class="num">1053</div><div class="lbl">Phoenix Hall built at Byōdō-in, Japan</div></div>
+      <div class="fact-tile"><div class="num">1910</div><div class="lbl"><em>The Firebird</em> ballet premiered in Paris</div></div>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(0)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(2)">World Map &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 3: Map -->
+<div class="phase" id="phase-2">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 3 of 7 &bull; 7 min</div>
+    <h1>Mapping the Firebird's Journey</h1>
+    <p>Read each clue, then tap the place that matches. Green means you found it! Work through all the clues.</p>
+  </div>
+  <div class="map-wrap">
+    <div class="map-instructions">🔥 Clue <span id="map-idx">1</span> of <span id="map-total">9</span></div>
+    <div class="map-question" id="map-question"></div>
+    <div class="map-grid" id="map-grid"></div>
+    <div class="map-feedback" id="map-feedback"></div>
+    <div class="map-score">Places found: <span id="map-count">0</span> / 9</div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="retry-btn" onclick="resetMap()">Start Over</button>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(1)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(3)">Match Game &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 4: Match Game -->
+<div class="phase" id="phase-3">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 4 of 7 &bull; 8 min</div>
+    <h1>Compare &amp; Contrast Match Game</h1>
+    <p>Tap a term on the left, then tap the matching fact on the right. Wrong pairs will shake — keep trying!</p>
+  </div>
+  <div class="match-score">Matched: <span id="match-count">0</span> / 8</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">
+    <div class="col-label">Term</div>
+    <div class="col-label">Fact</div>
+  </div>
+  <div class="match-grid" id="match-grid"></div>
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+    <button class="retry-btn" onclick="resetMatch()">Reset Game</button>
+    <span id="match-done-msg" style="color:var(--good);font-weight:700;display:none">All matched! Great work!</span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(2)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(4)">Story Journey &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 5: Story Journey (ordering) -->
+<div class="phase" id="phase-4">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 5 of 7 &bull; 8 min</div>
+    <h1>How the Idea Travelled</h1>
+    <p>These 6 steps trace the real journey of firebird ideas across the world — but they are scrambled. Use the ▲ and ▼ buttons to put them in order from EARLIEST to LATEST, then tap <strong style="color:var(--accent2)">Check My Order</strong>.</p>
+  </div>
+  <div class="timeline-list" id="timeline-list"></div>
+  <div class="tl-check-row">
+    <button class="check-btn" onclick="checkTimeline()">Check My Order</button>
+    <button class="retry-btn" onclick="resetTimeline()">Shuffle Again</button>
+    <span class="tl-result" id="tl-result"></span>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(3)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(5)">Writing Pad &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 6: Writing -->
+<div class="phase" id="phase-5">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 6 of 7 &bull; 5 min</div>
+    <h1>Writing Pad</h1>
+  </div>
+  <div class="card">
+    <h3>Writing Prompt</h3>
+    <p>Compare and contrast the Greek <strong>phoenix</strong> and the Chinese <strong>fenghuang</strong>. Give at least TWO ways they are DIFFERENT (think about fire and rebirth versus virtue and harmony, and what each one is paired with) and ONE way they are ALIKE. Then explain HOW ideas like these could travel between faraway lands — use the words <em>trade route</em> or <em>Silk Road</em> in your answer. Finish by explaining why it matters to say these are different beings from different cultures instead of calling them all "the phoenix." (At least 5 sentences.)</p>
+  </div>
+  <div class="writing-wrap">
+    <textarea id="writing-pad" placeholder="The Greek phoenix and the Chinese fenghuang are different because... Another difference is... They are alike because... Ideas could travel between faraway lands because... It matters to call them by their own names because..."></textarea>
+    <div class="writing-meta">
+      <span id="word-count">0 words</span>
+      <span class="save-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(4)">&larr; Back</button>
+    <button class="nav-btn btn-next" onclick="goPhase(6)">Final Quiz &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 7: Quiz -->
+<div class="phase" id="phase-6">
+  <div class="phase-header">
+    <div class="eyebrow">Phase 7 of 7 &bull; 5 min</div>
+    <h1>Final Quiz</h1>
+    <p>10 questions — one at a time. You can go back to review!</p>
+  </div>
+  <div class="quiz-progress" id="quiz-dots"></div>
+  <div id="quiz-area"></div>
+  <div class="quiz-result" id="quiz-result">
+    <div class="result-score" id="result-score"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn btn-prev" onclick="goPhase(5)">&larr; Back</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── Storage Keys ───────────────────────────────────────────
+const QAKEY = "social-l21-qans";
+const QKEY  = "social-l21-quiz";
+const WKEY  = "social-l21-writing";
+
+// ─── logMistake ─────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Social Studies|Day 21: Phoenix|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Social Studies', day: 'Day 21', q: questionText, file: 'social-studies-lesson-21-phoenix.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── Phase navigation ───────────────────────────────────────
+let currentPhase = 0;
+const PHASE_NAMES = ['Warm-Up','Core Reading','World Map','Match Game','Story Journey','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('active');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('active');
+  updatePhaseBar();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updatePhaseBar() {
+  document.querySelectorAll('.seg').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < currentPhase) s.classList.add('done');
+    if (i === currentPhase) s.classList.add('active');
+  });
+  document.getElementById('phase-label').textContent =
+    'Phase ' + (currentPhase + 1) + ': ' + PHASE_NAMES[currentPhase];
+}
+
+document.querySelectorAll('.seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+// ─── Phase 1: True/False ────────────────────────────────────
+const TF_DATA = [
+  {
+    statement: "Cultures far apart on the map told stories about a magnificent bird tied to fire or the sun.",
+    answer: true,
+    fact: "True! Egypt, Greece, China, Japan, and Russia all had one — but each bird means something different."
+  },
+  {
+    statement: "The Chinese fenghuang is exactly the same being as the Greek phoenix, just with another name.",
+    answer: false,
+    fact: "No. The fenghuang stands for virtue, grace, and harmony, and is paired with the dragon — it is its own being."
+  },
+  {
+    statement: "The ancient Egyptians honored a heron-like sacred bird called the Bennu.",
+    answer: true,
+    fact: "Yes — the Bennu was linked to the sun god Ra, to creation, and to the city of Heliopolis near the Nile."
+  },
+  {
+    statement: "In ancient times, stories and art could never travel between faraway countries.",
+    answer: false,
+    fact: "They travelled constantly. Trade routes like the Silk Road carried stories, art, and beliefs along with silk and spices."
+  },
+  {
+    statement: "In Russian folk tales, one glowing Firebird feather can bring a person both luck and trouble.",
+    answer: true,
+    fact: "Correct! The Zhar-ptitsa's feather is a beautiful prize that starts long, dangerous quests."
+  }
+];
+
+function buildTF() {
+  const grid = document.getElementById('tf-grid');
+  grid.innerHTML = '';
+  TF_DATA.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'tf-card';
+    div.id = 'tf-' + i;
+    div.innerHTML = `
+      <div class="tf-statement">${item.statement}</div>
+      <div class="tf-btns">
+        <button class="tf-btn true-btn" onclick="answerTF(${i}, true)">TRUE</button>
+        <button class="tf-btn false-btn" onclick="answerTF(${i}, false)">FALSE</button>
+      </div>
+      <div class="tf-feedback" id="tf-fb-${i}"></div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function answerTF(i, userAnswer) {
+  const item = TF_DATA[i];
+  const correct = (userAnswer === item.answer);
+  const card = document.getElementById('tf-' + i);
+  const fb = document.getElementById('tf-fb-' + i);
+  card.classList.add(correct ? 'correct' : 'wrong');
+  fb.textContent = (correct ? '✓ ' : '✗ ') + item.fact;
+  fb.className = 'tf-feedback show ' + (correct ? 'correct' : 'wrong');
+  card.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+}
+
+// ─── Phase 3: World Map ─────────────────────────────────────
+const MAP_REGIONS = [
+  { id: 'egypt',   icon: '🇪🇬', name: 'Egypt' },
+  { id: 'nile',    icon: '🌊', name: 'Nile River' },
+  { id: 'helio',   icon: '☀️', name: 'Heliopolis' },
+  { id: 'greece',  icon: '🏛️', name: 'Greece' },
+  { id: 'medsea',  icon: '⛵', name: 'Mediterranean Sea' },
+  { id: 'china',   icon: '🐉', name: 'China' },
+  { id: 'japan',   icon: '⛩️', name: 'Japan' },
+  { id: 'russia',  icon: '❄️', name: 'Russia' },
+  { id: 'silk',    icon: '🐫', name: 'The Silk Road' }
+];
+
+const MAP_CLUES = [
+  { q: 'The country in northeastern Africa where priests honored the Bennu, a heron-like bird of the sun.', answer: 'egypt' },
+  { q: 'The long river flowing north through Egypt that made farming — and Egyptian civilization — possible.', answer: 'nile' },
+  { q: 'The ancient Egyptian "sun city" tied to the god Ra, where the Bennu had its great temple.', answer: 'helio' },
+  { q: 'The country in southern Europe where Herodotus wrote about a long-lived bird he had heard of in Egypt.', answer: 'greece' },
+  { q: 'The sea between Europe, Africa, and southwest Asia that carried traders and their stories.', answer: 'medsea' },
+  { q: 'The large East Asian country whose fenghuang stands for virtue, grace, and harmony.', answer: 'china' },
+  { q: 'The island nation east of the Asian mainland where the design became the hō-ō on the Phoenix Hall roof.', answer: 'japan' },
+  { q: 'The world\'s largest country by land area, home of the glowing Zhar-ptitsa in folk tales.', answer: 'russia' },
+  { q: 'The network of trade routes linking China, Central Asia, the Middle East, and Europe.', answer: 'silk' }
+];
+
+let mapIdx = 0;
+let mapFound = 0;
+
+function buildMap() {
+  mapIdx = 0;
+  mapFound = 0;
+  const grid = document.getElementById('map-grid');
+  grid.innerHTML = '';
+  const regions = [...MAP_REGIONS].sort(() => Math.random() - .5);
+  regions.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'map-region';
+    div.dataset.id = r.id;
+    div.innerHTML = `<div class="ricon">${r.icon}</div><div class="rname">${r.name}</div>`;
+    div.onclick = () => pickRegion(div);
+    grid.appendChild(div);
+  });
+  document.getElementById('map-total').textContent = MAP_CLUES.length;
+  document.getElementById('map-count').textContent = '0';
+  document.getElementById('map-feedback').textContent = '';
+  document.getElementById('map-feedback').className = 'map-feedback';
+  renderClue();
+}
+
+function renderClue() {
+  if (mapIdx >= MAP_CLUES.length) {
+    document.getElementById('map-question').textContent = '🎉 You mapped every place! Three continents, five cultures — and one long road connecting them.';
+    document.getElementById('map-idx').textContent = MAP_CLUES.length;
+    return;
+  }
+  document.getElementById('map-idx').textContent = mapIdx + 1;
+  document.getElementById('map-question').textContent = MAP_CLUES[mapIdx].q;
+}
+
+function pickRegion(el) {
+  if (mapIdx >= MAP_CLUES.length) return;
+  if (el.classList.contains('correct')) return;
+  const fb = document.getElementById('map-feedback');
+  if (el.dataset.id === MAP_CLUES[mapIdx].answer) {
+    el.classList.add('correct');
+    el.classList.add('locked');
+    mapFound++;
+    document.getElementById('map-count').textContent = mapFound;
+    fb.textContent = '✓ Correct!';
+    fb.className = 'map-feedback good';
+    mapIdx++;
+    setTimeout(() => { fb.textContent = ''; fb.className = 'map-feedback'; renderClue(); }, 650);
+  } else {
+    el.classList.add('wrong');
+    fb.textContent = '✗ Not that one — read the clue again!';
+    fb.className = 'map-feedback bad';
+    setTimeout(() => el.classList.remove('wrong'), 380);
+  }
+}
+
+function resetMap() { buildMap(); }
+
+// ─── Phase 4: Match Game ────────────────────────────────────
+const MATCH_PAIRS = [
+  { left: 'Bennu', right: 'Heron-like sacred bird of the sun in ancient Egypt' },
+  { left: 'Heliopolis', right: 'Egyptian "sun city" linked to the god Ra' },
+  { left: 'Herodotus', right: 'Greek historian who wrote about the bird in the 400s BCE' },
+  { left: 'Fenghuang', right: 'Chinese symbol of virtue and harmony, paired with the dragon' },
+  { left: 'Hō-ō', right: 'Japanese bird adapted from a Chinese design' },
+  { left: 'Zhar-ptitsa', right: 'Russian Firebird whose feather brings luck and trouble' },
+  { left: 'Silk Road', right: 'Trade routes that carried goods, art, and stories' },
+  { left: 'Cultural geography', right: 'The study of how beliefs change from place to place' }
+];
+
+let matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+
+function buildMatch() {
+  const grid = document.getElementById('match-grid');
+  grid.innerHTML = '';
+  const rights = [...MATCH_PAIRS.map(p => p.right)].sort(() => Math.random() - .5);
+
+  MATCH_PAIRS.forEach((pair, i) => {
+    const lDiv = document.createElement('div');
+    lDiv.className = 'match-item';
+    lDiv.dataset.side = 'left';
+    lDiv.dataset.idx = i;
+    lDiv.textContent = pair.left;
+    lDiv.onclick = () => selectMatch(lDiv);
+    grid.appendChild(lDiv);
+
+    const rDiv = document.createElement('div');
+    rDiv.className = 'match-item';
+    rDiv.dataset.side = 'right';
+    rDiv.dataset.val = rights[i];
+    rDiv.textContent = rights[i];
+    rDiv.onclick = () => selectMatch(rDiv);
+    grid.appendChild(rDiv);
+  });
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set() };
+  document.getElementById('match-count').textContent = '0';
+  document.getElementById('match-done-msg').style.display = 'none';
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  const side = el.dataset.side;
+
+  if (side === 'left') {
+    document.querySelectorAll('.match-item[data-side="left"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedLeft === el) { matchState.selectedLeft = null; return; }
+    el.classList.add('selected');
+    matchState.selectedLeft = el;
+  } else {
+    document.querySelectorAll('.match-item[data-side="right"]').forEach(e => e.classList.remove('selected'));
+    if (matchState.selectedRight === el) { matchState.selectedRight = null; return; }
+    el.classList.add('selected');
+    matchState.selectedRight = el;
+  }
+
+  if (matchState.selectedLeft && matchState.selectedRight) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const lEl = matchState.selectedLeft;
+  const rEl = matchState.selectedRight;
+  const idx = parseInt(lEl.dataset.idx);
+  const correct = MATCH_PAIRS[idx].right === rEl.dataset.val;
+
+  if (correct) {
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(idx);
+    const cnt = matchState.matched.size;
+    document.getElementById('match-count').textContent = cnt;
+    if (cnt === MATCH_PAIRS.length) {
+      document.getElementById('match-done-msg').style.display = 'inline';
+    }
+  } else {
+    [lEl, rEl].forEach(e => {
+      e.classList.add('shake');
+      setTimeout(() => { e.classList.remove('shake', 'selected'); }, 400);
+    });
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+}
+
+function resetMatch() { buildMatch(); }
+
+// ─── Phase 5: Story Journey ─────────────────────────────────
+const TIMELINE_EVENTS = [
+  { text: 'More than 4,000 years ago in Egypt, priests honored the Bennu, a heron-like bird of the sun, at Heliopolis', order: 0 },
+  { text: 'More than 3,000 years ago in China, artists were already showing the fenghuang — a symbol of virtue and harmony', order: 1 },
+  { text: 'In the 400s BCE the Greek historian Herodotus wrote down what he heard in Egypt about a long-lived bird: the phoenix', order: 2 },
+  { text: 'From about 130 BCE, Silk Road routes linked China, Central Asia, the Middle East, and Europe, carrying goods and ideas', order: 3 },
+  { text: 'By 1053 CE the design had reached Japan as the hō-ō, gleaming on the roof of the Phoenix Hall at Byōdō-in', order: 4 },
+  { text: 'In 1910, Russian Firebird folk tales became Stravinsky\'s ballet The Firebird, premiering in Paris', order: 5 }
+];
+
+let tlOrder = [];
+
+function buildTimeline() {
+  do {
+    tlOrder = TIMELINE_EVENTS.map((_, i) => i).sort(() => Math.random() - .5);
+  } while (tlOrder.every((v, i) => v === i));
+  renderTimeline();
+  document.getElementById('tl-result').textContent = '';
+  document.getElementById('tl-result').className = 'tl-result';
+}
+
+function renderTimeline(feedback) {
+  const list = document.getElementById('timeline-list');
+  list.innerHTML = '';
+  tlOrder.forEach((evIdx, pos) => {
+    const ev = TIMELINE_EVENTS[evIdx];
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    if (feedback) div.classList.add(ev.order === pos ? 'right' : 'wrong-pos');
+    div.innerHTML = `
+      <div class="tl-num">${pos + 1}</div>
+      <div class="tl-text">${ev.text}</div>
+      <div class="tl-btns">
+        <button class="tl-move" onclick="moveTL(${pos}, -1)" ${pos === 0 ? 'disabled' : ''} aria-label="Move up">▲</button>
+        <button class="tl-move" onclick="moveTL(${pos}, 1)" ${pos === tlOrder.length - 1 ? 'disabled' : ''} aria-label="Move down">▼</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function moveTL(pos, dir) {
+  const np = pos + dir;
+  if (np < 0 || np >= tlOrder.length) return;
+  [tlOrder[pos], tlOrder[np]] = [tlOrder[np], tlOrder[pos]];
+  document.getElementById('tl-result').textContent = '';
+  document.getElementById('tl-result').className = 'tl-result';
+  renderTimeline();
+}
+
+function checkTimeline() {
+  const correct = tlOrder.filter((evIdx, pos) => TIMELINE_EVENTS[evIdx].order === pos).length;
+  renderTimeline(true);
+  const res = document.getElementById('tl-result');
+  if (correct === tlOrder.length) {
+    res.textContent = '🎉 Perfect! All 6 in order!';
+    res.className = 'tl-result perfect';
+  } else {
+    res.textContent = correct + ' / 6 in the right spot — green ones are correct, keep going!';
+    res.className = 'tl-result partial';
+    const list = document.getElementById('timeline-list');
+    list.querySelectorAll('.tl-item.wrong-pos').forEach(el => {
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 400);
+    });
+  }
+}
+
+function resetTimeline() { buildTimeline(); }
+
+// ─── Phase 6: Writing Pad ───────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(() => {
+      localStorage.setItem(WKEY, pad.value);
+      const ind = document.getElementById('save-indicator');
+      ind.classList.add('show');
+      setTimeout(() => ind.classList.remove('show'), 1800);
+    }, 300);
+  });
+}
+
+function updateWordCount() {
+  const txt = document.getElementById('writing-pad').value.trim();
+  const n = txt ? txt.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = n + ' word' + (n !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const pad = document.getElementById('writing-pad');
+  if (pad) localStorage.setItem(WKEY, pad.value);
+}
+
+// ─── Phase 7: Quiz ──────────────────────────────────────────
+const QUIZ_DATA = [
+  {
+    q: 'In ancient Egypt, the Bennu was believed to be:',
+    choices: [
+      'a huge serpent that slept beneath the sand of the western desert',
+      'a heron-like bird tied to the sun and to new beginnings',
+      'a war goddess who guarded the pharaoh\'s palace gates at night',
+      'a wooden boat that carried grain along the river to market towns'
+    ],
+    correct: 1,
+    explanation: 'Egyptians pictured the Bennu as a tall heron connected with the sun god Ra, with creation, and with rebirth.'
+  },
+  {
+    q: 'The Bennu was honored in Egypt, a land shaped by which river?',
+    choices: [ 'The Amazon', 'The Volga', 'The Nile', 'The Yangtze' ],
+    correct: 2,
+    explanation: 'The Nile flows north through Egypt. Its floods made farming possible, and Heliopolis stood near it.'
+  },
+  {
+    q: 'Which Greek historian, writing in the 400s BCE, described the phoenix after learning about Egyptian ideas?',
+    choices: [
+      'Herodotus, who is sometimes called the father of history',
+      'Euclid, who is remembered for his famous books about geometry',
+      'Homer, the poet remembered for long tales of heroes and war',
+      'Ptolemy, who wrote about the stars and drew maps of the world'
+    ],
+    correct: 0,
+    explanation: 'Herodotus visited Egypt and wrote down the story — Greek writing about the phoenix points straight back to Egypt.'
+  },
+  {
+    q: 'People often call the Chinese fenghuang "the Chinese phoenix." Why is that nickname misleading?',
+    choices: [
+      'Because it is a real living bird that people still watch in the wild',
+      'Because it was actually invented in Greece and carried east by traders on the roads',
+      'Because it is just another name for the dragon that appears in Chinese paintings',
+      'Because it stands for virtue, grace, and harmony rather than fire and rebirth'
+    ],
+    correct: 3,
+    explanation: 'The fenghuang is its own being with its own meaning. Squashing it into a European word hides what it means in China.'
+  },
+  {
+    q: 'In Chinese tradition, the fenghuang is most often paired with which other symbol?',
+    choices: [ 'The dragon', 'The tiger', 'The turtle', 'The horse' ],
+    correct: 0,
+    explanation: 'Dragon and fenghuang appear together in imperial symbolism and still decorate Chinese weddings, meaning balance.'
+  },
+  {
+    q: 'The Zhar-ptitsa, or Firebird, comes from the folk tales of:',
+    choices: [
+      'Egypt and the farming villages along the Nile',
+      'Greece and the rocky islands of the Aegean Sea',
+      'Russia and the Slavic lands of eastern Europe',
+      'Japan and the islands to its south'
+    ],
+    correct: 2,
+    explanation: 'The glowing Zhar-ptitsa is Russian and Slavic folklore, later made world-famous by Stravinsky\'s 1910 ballet.'
+  },
+  {
+    q: 'The hō-ō of Japan came from the Chinese fenghuang design. What does that show us?',
+    choices: [
+      'That birds only appear in the stories of people who live near the sea',
+      'That a symbol can travel and then be adapted by a whole new culture',
+      'That every country in the world tells exactly the same bird story',
+      'That an idea stops spreading as soon as it has to cross an ocean'
+    ],
+    correct: 1,
+    explanation: 'The design crossed from China to Japan and Japanese artists made it their own — you can see it on the 1053 Phoenix Hall.'
+  },
+  {
+    q: 'What was the Silk Road?',
+    choices: [
+      'One single paved highway an emperor built straight from China to Rome',
+      'A river route that boats followed from the Nile to the Mediterranean Sea',
+      'A tall stone wall built across northern China to keep out trading caravans',
+      'A network of trade routes linking Asia, the Middle East, and Europe'
+    ],
+    correct: 3,
+    explanation: 'It was a network of many land and sea routes — roughly 6,400 kilometers of connections, not one road.'
+  },
+  {
+    q: 'Besides silk and spices, what else travelled along routes like the Silk Road?',
+    choices: [
+      'Stories, art styles, religions, and new ideas',
+      'Only heavy cargo such as metal, stone, and timber',
+      'Nothing else, because traders were forbidden to speak',
+      'Just the maps that traders drew of the roads and towns'
+    ],
+    correct: 0,
+    explanation: 'Merchants carried culture with their cargo. Buddhism, papermaking, music, and art patterns all travelled these routes.'
+  },
+  {
+    q: 'What is the most accurate and respectful way to describe the Bennu, the phoenix, the fenghuang, the hō-ō, and the Firebird?',
+    choices: [
+      'They are all the same single bird that different countries have simply renamed',
+      'They are all copies of one bird that a Greek writer invented long ago',
+      'They are different beings from different cultures, with different meanings',
+      'They are all real animals that scientists have photographed in the wild'
+    ],
+    correct: 2,
+    explanation: 'Similar does not mean same. Each belongs to its own culture — though ideas really did travel and influence each other.'
+  }
+];
+
+let quizCurrent = 0;
+let quizAnswers = {};
+
+function buildQuiz() {
+  quizAnswers = {};
+  quizCurrent = 0;
+  renderQuizDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (typeof saved === 'object' && saved !== null) {
+      quizAnswers = saved;
+    }
+  } catch(e) { quizAnswers = {}; }
+  renderQuizDots();
+  renderQuestion();
+}
+
+function renderQuizDots() {
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  QUIZ_DATA.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot';
+    if (i === quizCurrent) d.classList.add('current');
+    else if (quizAnswers[i] !== undefined) {
+      d.classList.add(quizAnswers[i] === QUIZ_DATA[i].correct ? 'answered-correct' : 'answered-wrong');
+    }
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const area = document.getElementById('quiz-area');
+  const result = document.getElementById('quiz-result');
+  const allAnswered = Object.keys(quizAnswers).length === QUIZ_DATA.length;
+
+  if (allAnswered && quizCurrent >= QUIZ_DATA.length) {
+    area.innerHTML = '';
+    showQuizResult();
+    return;
+  }
+
+  result.classList.remove('show');
+  const qi = quizCurrent;
+  const item = QUIZ_DATA[qi];
+  const userAns = quizAnswers[qi];
+  const answered = userAns !== undefined;
+
+  let choicesHTML = item.choices.map((c, ci) => {
+    let cls = '';
+    if (answered) {
+      if (ci === item.correct) cls = 'correct';
+      else if (ci === userAns) cls = 'wrong';
+    }
+    return `<button class="choice-btn ${cls}" ${answered ? 'disabled' : ''} onclick="ansQ(${qi},${ci})">${c}</button>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="quiz-q">
+      <div class="q-num">Question ${qi + 1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${item.q}</div>
+      ${choicesHTML}
+      <div class="q-explanation ${answered ? 'show' : ''}" id="q-exp">
+        ${answered ? (userAns === item.correct ? '✓ Correct! ' : '✗ Not quite. ') + item.explanation : item.explanation}
+      </div>
+    </div>
+    <div class="quiz-nav">
+      <button class="quiz-nav btn q-prev-btn" onclick="qNav(-1)" ${qi === 0 ? 'disabled' : ''}>&larr; Prev</button>
+      <button class="quiz-nav btn q-next-btn" onclick="qNav(1)" ${!answered ? 'disabled' : ''}>${qi === QUIZ_DATA.length - 1 ? 'Finish' : 'Next &rarr;'}</button>
+    </div>
+  `;
+  renderQuizDots();
+}
+
+function ansQ(qi, choiceIdx) {
+  if (quizAnswers[qi] !== undefined) return;
+  quizAnswers[qi] = choiceIdx;
+  const correct = choiceIdx === QUIZ_DATA[qi].correct;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, QUIZ_DATA[qi].q, 'Final Quiz');
+  renderQuestion();
+  if (Object.keys(quizAnswers).length === QUIZ_DATA.length) {
+    const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+    try { localStorage.setItem(QKEY, JSON.stringify({ score, total: QUIZ_DATA.length, date: Date.now() })); } catch(e) {}
+  }
+}
+
+function qNav(dir) {
+  quizCurrent = Math.max(0, Math.min(QUIZ_DATA.length, quizCurrent + dir));
+  if (quizCurrent >= QUIZ_DATA.length) { showQuizResult(); return; }
+  renderQuestion();
+}
+
+function showQuizResult() {
+  const score = QUIZ_DATA.filter((item, i) => quizAnswers[i] === item.correct).length;
+  const pct = Math.round(score / QUIZ_DATA.length * 100);
+  document.getElementById('quiz-area').innerHTML = '';
+  const res = document.getElementById('quiz-result');
+  document.getElementById('result-score').textContent = score + ' / ' + QUIZ_DATA.length;
+  let msg = pct >= 88 ? 'Excellent! You can trace one idea across three continents — and tell the birds apart!' :
+            pct >= 63 ? 'Good work! Review a few answers and try again.' :
+            'Keep studying — go back to the reading and try once more!';
+  document.getElementById('result-msg').textContent = msg + ' (' + pct + '%)';
+  res.classList.add('show');
+  renderQuizDots();
+}
+
+function retryQuiz() {
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── Save All ───────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── Init ───────────────────────────────────────────────────
+function init() {
+  buildTF();
+  buildMap();
+  buildMatch();
+  buildTimeline();
+  initWriting();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+init();
+</script>
+</body>
+</html>

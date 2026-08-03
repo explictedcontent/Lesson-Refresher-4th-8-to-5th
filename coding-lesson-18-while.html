@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Boss the Panda: Level 18 — Panda Keeps Going 🔁</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--warn);border-bottom-color:var(--warn)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn)}
+.screen{display:none;padding:16px;max-width:640px;margin:0 auto}
+.screen.active{display:block}
+.mission-header{background:linear-gradient(135deg,#0d0620,#12082c);border:2px solid var(--purple);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--purple);text-transform:uppercase;letter-spacing:.1em}
+.mission-title{font-size:21px;font-weight:900;margin:3px 0}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.goal{background:#0a1c12;border:1px solid var(--good);border-radius:10px;padding:10px 12px;font-size:14px;color:#bff0cf;margin-bottom:10px;line-height:1.5}
+.goal b{color:var(--good)}
+.teach{background:linear-gradient(135deg,#0a0f24,#0d1430);border:2px solid var(--accent2);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.teach-title{font-size:13px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.teach-body{font-size:14.5px;line-height:1.65;color:#dfe6f5}
+.teach-body b{color:var(--warn)}
+.teach-ex{background:#05060b;border:1px solid #2a2f4a;border-radius:8px;padding:10px 12px;margin-top:10px;font-family:'Courier New',monospace;font-size:13px;color:#9fe8d8;white-space:pre;overflow-x:auto;line-height:1.5}
+.counter{text-align:center;font-weight:900;font-size:14px;color:var(--warn);margin-bottom:8px}
+canvas{display:block;background:#0a0b13;border:2px solid var(--line);border-radius:12px;margin:0 auto 12px;max-width:100%}
+.editor-wrap{margin-bottom:10px}
+.editor-label{font-size:11px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+textarea.code{width:100%;min-height:140px;background:#08090f;color:#e6edf3;border:2px solid #2a2f4a;border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;font-size:15px;line-height:1.6;resize:vertical;tab-size:2}
+textarea.code:focus{outline:none;border-color:var(--accent2)}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.95)}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:16px}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.teal{background:var(--accent2);border-color:var(--accent2);color:#001a16}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.console{background:#05060b;border:1px solid #2a2f4a;border-radius:10px;padding:10px 12px;font-family:'Courier New',monospace;font-size:13.5px;color:#9fb0d0;min-height:44px;margin-top:10px;white-space:pre-wrap;line-height:1.6}
+.console .ok{color:var(--good)}
+.console .err{color:var(--bad)}
+.console .say{color:var(--warn)}
+.win-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:12px;padding:14px;text-align:center;margin-top:12px;display:none}
+.win-banner.show{display:block}
+.win-banner h3{color:var(--good);font-size:18px;margin-bottom:4px}
+.hintbox{font-size:13px;color:var(--muted);background:#0f1220;border-left:3px solid var(--warn);padding:8px 12px;border-radius:0 8px 8px 0;margin-top:10px;line-height:1.5}
+.hintbox code,.mission-brief code,.goal code{background:#1a1f36;color:#ffcc88;padding:1px 6px;border-radius:5px;font-family:'Courier New',monospace;font-size:13px}
+.chip{display:inline-block;background:#1a1f36;color:#ffcc88;font-family:'Courier New',monospace;font-size:13px;padding:3px 9px;border-radius:6px;margin:3px 4px 0 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="xp-bar">⚡ <span id="xpNum">0</span> XP</div>
+<div class="mbar" id="mbar"></div>
+
+<div class="screen active" id="sc0">
+  <div class="mission-header">
+    <div class="mission-tag">Real Code · Level 18</div>
+    <div class="mission-title">🔁 Panda Keeps Going</div>
+    <div class="mission-brief">Last level your code learned to <b>decide</b>. Now it learns to <b>keep going until a job is done</b> — even when you don't know how many steps that takes.</div>
+  </div>
+  <div class="stage">
+    <div class="teach">
+      <div class="teach-title">🧠 Start here — the new idea</div>
+      <div class="teach-body">
+        There's a new command: <b>gems()</b>. It doesn't move the panda — it hands you a <b>number</b>: how many 💎 gems the panda has collected so far.
+        <pre class="teach-ex">say(gems())   →  0     (none yet)
+say(gems())   →  3     (after grabbing 3)</pre>
+        Once you have a number, you can <b>compare</b> it. And a comparison gives back <b>true</b> or <b>false</b> — the very same true/false you used with <code>blocked()</code> last level.
+        <pre class="teach-ex">gems() &lt; 5    →  true    (fewer than 5 so far)
+gems() &lt; 5    →  false   (5 or more — job done!)</pre>
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6">Your commands:</p>
+    <div style="margin:8px 0"><span class="chip">right()</span><span class="chip">left()</span><span class="chip">up()</span><span class="chip">down()</span><span class="chip">blocked()</span><span class="chip">gems()</span><span class="chip">say(...)</span></div>
+    <div class="btn-row"><button class="btn go" onclick="go(1)">Start 🔁</button></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ STATE ═══════════ */
+const XKEY='coding-l18-xp', CKEY='coding-l18-code';
+const PREFIX='Coding|Level 18: Panda Keeps Going|';
+let xp=0, cur=0, codeStore={};
+try{ xp=parseInt(localStorage.getItem(XKEY)||'0',10)||0; }catch(e){}
+try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
+
+function addXP(n){ xp+=n; document.getElementById('xpNum').textContent=xp; saveAll(); }
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
+/* Defensive save: XP only goes up; typed code merges with what's stored. */
+function saveAll(){
+  try{ const s=parseInt(localStorage.getItem(XKEY)||'0',10)||0; localStorage.setItem(XKEY,String(Math.max(s,xp))); }catch(e){}
+  try{ let st={}; try{ st=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){ st={}; }
+    localStorage.setItem(CKEY,JSON.stringify(Object.assign({},st,codeStore))); }catch(e){}
+}
+function logMistake(ok,text,title){
+  try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}'); const k=PREFIX+title;
+    if(!ok){ m[k]={subject:'Coding',day:'Level 18',q:text,file:'coding-lesson-18-while.html'}; } else { delete m[k]; }
+    localStorage.setItem('refresher-mistakes',JSON.stringify(m));
+  }catch(e){}
+}
+function escapeHtml(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+/* ═══════════ MISSIONS ═══════════ */
+const LV = [
+  { key:'w1', label:'① A NUMBER', title:'Ask for a Number',
+    teach:{ title:'gems() hands you a number',
+      body:'<b>blocked()</b> answered true or false. <b>gems()</b> is different — it hands back a <b>number</b>: how many gems the panda has picked up so far.<br><br>Print it with <b>say()</b> and watch it change. At the start it\'s <b>0</b>. Grab two gems and it becomes <b>2</b>.',
+      example:'say(gems())   ← prints the count right now' },
+    goal:'Print the count, grab <b>both 💎 gems</b>, then print the count again to see it changed.',
+    grid:{w:3,h:1}, start:{x:0,y:0}, walls:[],
+    gems:[{x:1,y:0},{x:2,y:0}],
+    starter:'// How many do I have right now?\nsay(gems())\n\nright()\n\n// Add one more right(), then say(gems()) again!\n',
+    require:/say\s*\(/, requireMsg:'Keep the say(gems()) lines — seeing the number is the point!',
+    hint:'You need two right() moves. Put say(gems()) at the end to see it say 2.' },
+
+  { key:'w2', label:'② COMPARE', title:'Bigger or Smaller?',
+    teach:{ title:'Comparing gives true or false',
+      body:'When you compare two numbers, you get back <b>true</b> or <b>false</b> — exactly like <code>blocked()</code>.<br><br><b>&lt;</b> means “is less than”. <b>&gt;</b> means “is greater than”. A tip for remembering: the open, wide end always points at the BIGGER number.<br><br>So <b>gems() &lt; 3</b> is asking: “do I still have fewer than 3?”',
+      example:'say(4 > 1)        →  true\nsay(2 > 9)        →  false\nsay(gems() < 3)   →  true, until you have 3' },
+    goal:'Grab all <b>3 💎 gems</b>. Print <code>gems() &lt; 3</code> at the start and again at the end — watch it flip from true to false.',
+    grid:{w:4,h:1}, start:{x:0,y:0}, walls:[],
+    gems:[{x:1,y:0},{x:2,y:0},{x:3,y:0}],
+    starter:'// Fewer than 3 so far?\nsay(gems() < 3)\n\nright()\nright()\n\n// Add the last right(), then say(gems() < 3) again!\n',
+    require:/[<>]/, requireMsg:'Keep a comparison (< or >) — that\'s what this mission teaches.',
+    hint:'Three gems means three right() moves. At the end gems() < 3 becomes false.' },
+
+  { key:'w3', label:'③ WHILE', title:'Keep Going Until Done',
+    teach:{ title:'while = keep repeating while it\'s true',
+      body:'A <b>for</b> loop repeats a <b>set number of times</b>. A <b>while</b> loop is different — it keeps repeating <b>as long as something stays true</b>, and stops the moment it turns false.<br><br>Read this out loud as: “<b>While</b> I have fewer than 4 gems, keep stepping right.”<br><br>The panda checks before every single step. Once it has 4, the answer is false and the loop ends all by itself.',
+      example:'while (gems() < 4) {\n                ↑\n     keep going while this is true\n  right()\n}' },
+    goal:'Collect all <b>4 💎 gems</b>. The <code>while</code> below stops at 2 — <b>fix the number</b> so it keeps going until all 4 are collected.',
+    grid:{w:6,h:1}, start:{x:0,y:0}, walls:[],
+    gems:[{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:4,y:0}],
+    starter:'// Keep stepping right while I still need more:\nwhile (gems() < 2) {\n  right()\n}\n',
+    require:/while\s*\(/, requireMsg:'Keep the while loop — that\'s the whole lesson!',
+    hint:'There are 4 gems, so the panda should keep going while gems() < 4.' },
+
+  { key:'w4', label:'④ NO COUNTING', title:'You Don\'t Have to Count',
+    teach:{ title:'Why while is so useful',
+      body:'Here\'s the payoff. With a <b>for</b> loop you must know the exact number of steps ahead of time. With a <b>while</b> loop you just say <b>what you want</b> — “keep going until I have them all” — and let the panda figure out how many steps that takes.<br><br>Put your decision from last level <b>inside</b> the while, and the panda climbs the whole staircase on its own, however long it is.',
+      example:'while (gems() < 8) {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}' },
+    goal:'A staircase with <b>8 💎 gems</b>. The while below quits at 5 — <b>fix it</b> so the panda clears the whole thing.',
+    grid:{w:5,h:5}, start:{x:0,y:4},
+    walls:[{x:1,y:4},{x:2,y:3},{x:3,y:2},{x:4,y:1}],
+    gems:[{x:0,y:3},{x:1,y:3},{x:1,y:2},{x:2,y:2},{x:2,y:1},{x:3,y:1},{x:3,y:0},{x:4,y:0}],
+    starter:'// Keep going until every gem is collected:\nwhile (gems() < 5) {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}\n',
+    require:/while[\s\S]*if/, requireMsg:'Keep the while loop with the if/else inside it.',
+    hint:'Count the gems in the goal: 8. Change the 5 to an 8.' },
+
+  { key:'w5', label:'⑤ YOUR COMMAND', title:'Name It, Then Repeat It',
+    teach:{ title:'Your own command inside a while',
+      body:'Put the decision in your own command and the main code reads like a sentence:<br><br>“<b>While</b> I still need gems, take a <b>smart step</b>.”<br><br>That\'s the whole program. All the messy details live inside <b>stepSmart()</b>, and the loop just says what you want.',
+      example:'function stepSmart() {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}\n\nwhile (gems() < 6) {\n  stepSmart()\n}' },
+    goal:'Grab all <b>6 💎 gems</b> using your own <code>stepSmart()</code> command inside a <code>while</code> loop. The function is written — <b>add the loop.</b>',
+    grid:{w:4,h:4}, start:{x:0,y:3},
+    walls:[{x:1,y:3},{x:2,y:2},{x:3,y:1}],
+    gems:[{x:0,y:2},{x:1,y:2},{x:1,y:1},{x:2,y:1},{x:2,y:0},{x:3,y:0}],
+    starter:'// Your own command — one smart step:\nfunction stepSmart() {\n  if (blocked()) {\n    up()\n  } else {\n    right()\n  }\n}\n\n// Now add a while loop that keeps taking smart steps\n// until all 6 gems are collected!\n',
+    require:/function\s+\w+/, requireMsg:'Keep your own command (the function) — that\'s the lesson here.',
+    hint:'Write: while (gems() < 6) { stepSmart() }' },
+];
+
+/* ═══════════ BUILD TABS + SCREENS ═══════════ */
+const mbar=document.getElementById('mbar');
+mbar.innerHTML='<div class="mtab active" onclick="go(0)" id="tab0">🐼 START</div>'+
+  LV.map((l,i)=>`<div class="mtab" onclick="go(${i+1})" id="tab${i+1}">${l.label}</div>`).join('');
+
+LV.forEach((l,i)=>{
+  const n=i+1;
+  const sc=document.createElement('div');
+  sc.className='screen'; sc.id='sc'+n;
+  sc.innerHTML=
+    `<div class="mission-header"><div class="mission-tag">Mission ${n}</div>`+
+    `<div class="mission-title">${l.title}</div></div>`+
+    `<div class="stage">`+
+      `<div class="goal">🎯 ${l.goal}</div>`+
+      (l.teach?`<div class="teach"><div class="teach-title">🧠 ${l.teach.title}</div>`+
+        `<div class="teach-body">${l.teach.body}</div>`+
+        (l.teach.example?`<pre class="teach-ex">${escapeHtml(l.teach.example)}</pre>`:'')+
+      `</div>`:'')+
+      `<div class="counter" id="cnt${n}"></div>`+
+      `<canvas id="cv${n}" width="360" height="280"></canvas>`+
+      `<div class="editor-wrap"><div class="editor-label">✍️ Your code</div>`+
+      `<textarea class="code" id="ed${n}" spellcheck="false" oninput="onEdit('${l.key}',${n})"></textarea></div>`+
+      `<div class="btn-row">`+
+        `<button class="btn go" onclick="runLevel(${n})">▶ RUN</button>`+
+        `<button class="btn ghost" onclick="resetLevel(${n})">↺ Reset</button>`+
+        `<button class="btn ghost" onclick="restarter(${n})">Clear code</button>`+
+      `</div>`+
+      `<div class="console" id="con${n}">Ready. Write your code and press RUN.</div>`+
+      `<div class="hintbox">💡 ${l.hint}</div>`+
+      `<div class="win-banner" id="win${n}"><h3>✅ All gems collected! +25 XP</h3><div style="color:var(--muted);font-size:13px">Your loop knew exactly when to stop.</div>`+
+        (n<LV.length?`<div class="btn-row" style="justify-content:center;margin-top:10px"><button class="btn teal" onclick="go(${n+1})">Next Mission →</button></div>`:`<div style="color:var(--good);font-weight:900;margin-top:10px">🏆 Level 18 complete — your loops can think!</div>`)+
+      `</div>`+
+    `</div>`;
+  document.body.insertBefore(sc, document.querySelector('script'));
+});
+
+/* ═══════════ WORLD / DRAW ═══════════ */
+const world={};
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n>=1){
+    const l=LV[n-1]; const ed=document.getElementById('ed'+n);
+    if(ed && ed.value==='') ed.value = (codeStore[l.key]!==undefined?codeStore[l.key]:l.starter);
+    resetLevel(n);
+    for(let i=0;i<n;i++){const t=document.getElementById('tab'+i);if(t)t.classList.add('done');}
+  }
+}
+function onEdit(key,n){ codeStore[key]=document.getElementById('ed'+n).value; clearTimeout(onEdit._h); onEdit._h=setTimeout(saveAll,300); }
+function restarter(n){ const l=LV[n-1]; document.getElementById('ed'+n).value=l.starter; codeStore[l.key]=l.starter; saveAll(); }
+
+function key(x,y){ return x+','+y; }
+function cell(l){ return Math.floor(Math.min(340/l.grid.w, 260/l.grid.h)); }
+function resetLevel(n){
+  const l=LV[n-1];
+  world[n]={x:l.start.x,y:l.start.y,got:new Set(),solved:world[n]&&world[n].solved};
+  document.getElementById('win'+n).classList.toggle('show', !!(world[n]&&world[n].solved));
+  updateCounter(n); draw(n);
+}
+function updateCounter(n){
+  const l=LV[n-1], w=world[n];
+  document.getElementById('cnt'+n).textContent='💎 '+w.got.size+' / '+l.gems.length+' collected';
+}
+function draw(n){
+  const l=LV[n-1]; const c=document.getElementById('cv'+n); const ctx=c.getContext('2d');
+  const cs=cell(l), ox=(c.width-cs*l.grid.w)/2, oy=(c.height-cs*l.grid.h)/2;
+  ctx.clearRect(0,0,c.width,c.height);
+  for(let y=0;y<l.grid.h;y++)for(let x=0;x<l.grid.w;x++){
+    ctx.fillStyle=((x+y)%2)?'#101326':'#0c0e1c';
+    ctx.fillRect(ox+x*cs,oy+y*cs,cs-1,cs-1);
+  }
+  ctx.font=Math.floor(cs*0.55)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  l.walls.forEach(o=>ctx.fillText('🧱',ox+o.x*cs+cs/2,oy+o.y*cs+cs/2));
+  const w=world[n];
+  l.gems.forEach(g=>{ if(!w.got.has(key(g.x,g.y))) ctx.fillText('💎',ox+g.x*cs+cs/2,oy+g.y*cs+cs/2); });
+  ctx.fillText('🐼',ox+w.x*cs+cs/2,oy+w.y*cs+cs/2);
+}
+
+/* ═══════════ RUN USER CODE ═══════════
+   The Worker simulates the world — it tracks position AND collected gems,
+   so blocked() and gems() both answer truthfully mid-run. */
+const WORKER_SRC=`
+self.onmessage=function(e){
+  var code=e.data.code, L=e.data.lvl;
+  var x=L.start.x, y=L.start.y, W=L.grid.w, H=L.grid.h;
+  var walls={}; L.walls.forEach(function(o){ walls[o.x+','+o.y]=1; });
+  var gemAt={}; L.gems.forEach(function(g){ gemAt[g.x+','+g.y]=1; });
+  var got={}, gotN=0;
+  function pick(){ var k=x+','+y; if(gemAt[k]&&!got[k]){ got[k]=1; gotN++; } }
+  pick();
+  var acts=[], count=0;
+  function cap(){ if(++count>600){ postMessage({type:'error',msg:'Whoa! That ran 600+ steps. If you used a while loop, check that it can actually STOP — does the thing it waits for ever become false?'}); throw new Error('__cap'); } }
+  function move(dx,dy,name){
+    cap();
+    var nx=x+dx, ny=y+dy;
+    if(nx<0||ny<0||nx>=W||ny>=H){ postMessage({type:'error',msg:'The panda walked off the edge of the world with '+name+'(). If a while loop keeps going after the gems run out, it will do that.'}); throw new Error('__stop'); }
+    if(walls[nx+','+ny]){ postMessage({type:'error',msg:'The panda walked straight into a wall with '+name+'(). Check for the wall before moving!'}); throw new Error('__stop'); }
+    x=nx; y=ny; pick(); acts.push({t:'m',x:x,y:y});
+  }
+  var right=function(){move(1,0,'right')}, left=function(){move(-1,0,'left')};
+  var up=function(){move(0,-1,'up')}, down=function(){move(0,1,'down')};
+  var blocked=function(){ cap(); var nx=x+1; return (nx>=W) || !!walls[nx+','+y]; };
+  var gems=function(){ cap(); return gotN; };
+  var say=function(v){ cap(); acts.push({t:'s',a:String(v)}); };
+  try{ eval(code); postMessage({type:'done',acts:acts}); }
+  catch(err){ if(err&&err.message!=='__cap'&&err.message!=='__stop') postMessage({type:'error',msg:String(err&&err.message||err)}); }
+};`;
+let workerURL=null;
+try{ workerURL=URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})); }catch(e){}
+
+function con(n,html){ document.getElementById('con'+n).innerHTML=html; }
+function conAdd(n,html){ const el=document.getElementById('con'+n); el.innerHTML += (el.innerHTML?'\n':'') + html; }
+function friendly(msg){
+  if(/is not defined/.test(msg)){
+    const m=msg.match(/(\w+) is not defined/); const nm=m?m[1]:'that';
+    return `I don’t know <b>${nm}</b>. You can use right() left() up() down() blocked() gems() say().`;
+  }
+  if(/Unexpected|SyntaxError|missing|token/i.test(msg)) return `Your code has a typo the computer can’t read. Check for a missing <code>)</code> or <code>}</code>. (${msg})`;
+  return msg;
+}
+
+function runLevel(n){
+  const l=LV[n-1]; const code=document.getElementById('ed'+n).value;
+  codeStore[l.key]=code; saveAll();
+  document.getElementById('win'+n).classList.remove('show');
+  if(l.require && !l.require.test(code)){ con(n,`<span class="err">✋ ${l.requireMsg}</span>`); return; }
+  resetLevel(n); con(n,'Running your code…');
+
+  function play(acts){
+    let i=0; const w=world[n];
+    con(n,'');
+    const grab=()=>{ const k=key(w.x,w.y); if(l.gems.some(g=>g.x===w.x&&g.y===w.y)&&!w.got.has(k)){ w.got.add(k); updateCounter(n); } };
+    grab();
+    const step=()=>{
+      if(i>=acts.length){ checkWin(n); return; }
+      const a=acts[i++];
+      if(a.t==='s'){ conAdd(n,`<span class="say">🐼 says: ${escapeHtml(a.a)}</span>`); setTimeout(step,200); return; }
+      w.x=a.x; w.y=a.y; grab(); draw(n); setTimeout(step,185);
+    };
+    step();
+  }
+
+  if(workerURL){
+    const wk=new Worker(workerURL);
+    const timer=setTimeout(()=>{ wk.terminate(); con(n,`<span class="err">⏱️ Your code ran too long. If you used a while loop, check that it can actually stop.</span>`); },1500);
+    wk.onmessage=(e)=>{ clearTimeout(timer); wk.terminate();
+      if(e.data.type==='error') con(n,`<span class="err">❌ ${friendly(e.data.msg)}</span>`); else play(e.data.acts); };
+    wk.onerror=(e)=>{ clearTimeout(timer); wk.terminate(); con(n,`<span class="err">❌ ${friendly(e.message||'error')}</span>`); e.preventDefault&&e.preventDefault(); };
+    wk.postMessage({code:code, lvl:{grid:l.grid,start:l.start,walls:l.walls,gems:l.gems}});
+  } else {
+    try{
+      let x=l.start.x,y=l.start.y; const W=l.grid.w,H=l.grid.h;
+      const walls={}; l.walls.forEach(o=>walls[key(o.x,o.y)]=1);
+      const gemAt={}; l.gems.forEach(g=>gemAt[key(g.x,g.y)]=1);
+      const got={}; let gotN=0;
+      const pick=()=>{ const k=key(x,y); if(gemAt[k]&&!got[k]){ got[k]=1; gotN++; } };
+      pick();
+      const acts=[]; let count=0;
+      const cap=()=>{ if(++count>600) throw new Error('__cap'); };
+      const mv=(dx,dy,nm)=>{ cap(); const nx=x+dx,ny=y+dy;
+        if(nx<0||ny<0||nx>=W||ny>=H) throw new Error('The panda walked off the edge of the world with '+nm+'().');
+        if(walls[key(nx,ny)]) throw new Error('The panda walked straight into a wall with '+nm+'().');
+        x=nx;y=ny;pick();acts.push({t:'m',x,y}); };
+      const right=()=>mv(1,0,'right'), left=()=>mv(-1,0,'left'), up=()=>mv(0,-1,'up'), down=()=>mv(0,1,'down');
+      const blocked=()=>{ cap(); const nx=x+1; return (nx>=W)||!!walls[key(nx,y)]; };
+      const gems=()=>{ cap(); return gotN; };
+      const say=(v)=>{ cap(); acts.push({t:'s',a:String(v)}); };
+      eval(code); play(acts);
+    }catch(err){ con(n, err.message==='__cap'?`<span class="err">Whoa! 600+ steps — can your while loop actually stop?</span>`:`<span class="err">❌ ${friendly(String(err.message||err))}</span>`); }
+  }
+}
+
+function checkWin(n){
+  const l=LV[n-1], w=world[n];
+  if(w.got.size===l.gems.length){
+    const first=!(world[n].solved);
+    world[n].solved=true;
+    conAdd(n,'<span class="ok">✅ Every gem collected!</span>');
+    document.getElementById('win'+n).classList.add('show');
+    logMistake(true,l.title,'M'+n);
+    if(first){ addXP(25); showToast('🔁 +25 XP — great loop!'); }
+    document.getElementById('tab'+n).classList.add('done');
+  } else {
+    logMistake(false,l.title,'M'+n);
+    conAdd(n,`<span class="err">Not yet — you collected ${w.got.size} of ${l.gems.length} gems. Adjust your code and RUN again.</span>`);
+  }
+}
+
+/* ═══════════ SAVE LIFECYCLE ═══════════ */
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') saveAll(); });
+window.addEventListener('pagehide',saveAll);
+window.addEventListener('beforeunload',saveAll);
+window.addEventListener('blur',saveAll);
+
+document.getElementById('xpNum').textContent=xp;
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>

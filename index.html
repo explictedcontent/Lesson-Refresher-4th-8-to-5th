@@ -104,7 +104,7 @@
   <div class="hero">
     <div class="htop"><div class="hicon">🏫</div>
       <div><h1>Summer Refresher Course</h1>
-        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-30 · v6 — Day 20 (Dragon) + Level 17: Panda Decides</div>
+        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-31 · v7 — Day 21 (Phoenix) + Level 18: while loops</div>
       </div>
     </div>
     <p>A fun, hands-on review for a 4th-grader heading into 5th grade. Every lesson is interactive — games, a drawing pad, and a timed lesson plan — with a quiz at the end. Pick a subject tab, then a lesson. Wrong quiz answers are saved to the <b>Review</b> tab until they're answered correctly.</p>
@@ -138,7 +138,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 20 · Dragon 🐉 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 21 · Phoenix 🔥🦅 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — The Firebird: One Idea, Many Lands",topic:"Geography",time:"45 min",file:"social-studies-lesson-21-phoenix.html",desc:"Egypt's Bennu, the Greek phoenix, China's fenghuang, Russia's firebird — and how the Silk Road carried stories."},
+      {n:2,emoji:"🔬",title:"Science — Reborn From Fire (For Real)",topic:"Science",time:"45 min",file:"science-lesson-21-phoenix.html",desc:"Pine cones sealed with resin that only fire can open, fire-following woodpeckers, and how a forest grows back."},
+      {n:3,emoji:"📖",title:"ELA — Summarizing",topic:"Reading",time:"45 min",file:"ela-lesson-21-phoenix.html",desc:"An original firebird story about starting over. 7 vocab words and how to retell the important parts in your own words."},
+      {n:4,emoji:"📐",title:"Math — Factors, Multiples & Primes",topic:"Number",time:"45 min",file:"math-lesson-21-phoenix.html",desc:"Factor pairs, multiples, prime vs composite (and why 1 is neither), plus GCF & LCM — with a tap-to-explore tool."},
+      {n:5,emoji:"💻",title:"Coding — Level 18: Panda Keeps Going (Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-18-while.html",desc:"Type REAL JavaScript with WHILE loops — keep going until the job is done, without counting the steps. 🔁"},
+    ]},
+    {label:"Day 20 · Dragon 🐉 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Dragons Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-20-dragon.html",desc:"Chinese water dragons, the red dragon on the flag of Wales, and Indonesia's real Komodo dragons — compare & contrast cultures."},
       {n:2,emoji:"🔬",title:"Science — The Real Animals Behind the Legend",topic:"Science",time:"45 min",file:"science-lesson-20-dragon.html",desc:"Komodo dragon venom, the gliding Draco lizard, and the bombardier beetle's 100°C spray — plus how science corrects itself."},
       {n:3,emoji:"📖",title:"ELA — Making Inferences",topic:"Reading",time:"45 min",file:"ela-lesson-20-dragon.html",desc:"An original dragon story where two sides fear each other over rumors. 7 vocab words and the clues + what I know skill."},
@@ -290,6 +297,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 21 · Phoenix 🔥🦅", items:[
+       {n:21,emoji:"🔥",title:"Factors, Multiples & Primes",topic:"Number",time:"45 min",file:"math-lesson-21-phoenix.html",desc:"Factor pairs, multiples, prime vs composite (1 is neither!), divisibility tricks, and simple GCF & LCM."},
+     ]},
      {label:"Day 20 · Dragon 🐉", items:[
        {n:20,emoji:"🐉",title:"Order of Operations",topic:"Number",time:"45 min",file:"math-lesson-20-dragon.html",desc:"Parentheses first, then × and ÷ left to right, then + and − left to right — plus a tap-the-next-step solver."},
      ]},
@@ -356,6 +366,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 21 · Phoenix 🔥🦅", items:[
+       {n:21,emoji:"🔥",title:"Reborn From Fire (For Real)",topic:"Science",time:"45 min",file:"science-lesson-21-phoenix.html",desc:"Fire ecology — resin-sealed pine cones that need heat to open, fire-following woodpeckers, and forest succession."},
+     ]},
      {label:"Day 20 · Dragon 🐉", items:[
        {n:20,emoji:"🐉",title:"The Real Animals Behind the Legend",topic:"Science",time:"45 min",file:"science-lesson-20-dragon.html",desc:"Komodo dragon venom, the gliding Draco lizard, the bombardier beetle's boiling spray, and how science revises itself."},
      ]},
@@ -420,6 +433,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 21 · Phoenix 🔥🦅", items:[
+       {n:21,emoji:"🔥",title:"Summarizing",topic:"Reading",time:"45 min",file:"ela-lesson-21-phoenix.html",desc:"An original firebird story about hope after loss. 7 vocab words + retelling the important parts in your own words."},
+     ]},
      {label:"Day 20 · Dragon 🐉", items:[
        {n:20,emoji:"🐉",title:"Making Inferences",topic:"Reading",time:"45 min",file:"ela-lesson-20-dragon.html",desc:"An original story where a kid and a dragon each fear the other over rumors. 7 vocab words + drawing conclusions from clues."},
      ]},
@@ -480,6 +496,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 21 · Phoenix 🔥🦅", items:[
+       {n:21,emoji:"🔥",title:"The Firebird: One Idea, Many Lands",topic:"Geography",time:"45 min",file:"social-studies-lesson-21-phoenix.html",desc:"Egypt's Bennu, the Greek phoenix, China's fenghuang, Russia's firebird, Japan's hō-ō — and the Silk Road."},
+     ]},
      {label:"Day 20 · Dragon 🐉", items:[
        {n:20,emoji:"🐉",title:"Dragons Around the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-20-dragon.html",desc:"Chinese lóng vs European dragons, the red dragon of Wales, and Indonesia's real Komodo dragons — compare & contrast."},
      ]},
@@ -563,6 +582,7 @@ const SUBJECTS=[
      ]},
      {label:"✍️ Write Real Code (new!)", items:[
        {n:15,emoji:"🌾",title:"Level 15: Panda Harvest (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-15-realcode.html",desc:"NEW STYLE — you TYPE real JavaScript and the panda does it! Loops, variables, nested loops & your own functions to harvest every bamboo. Real code, real error messages, run it live."},
+       {n:18,emoji:"🔁",title:"Level 18: Panda Keeps Going (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-18-while.html",desc:"Type real JavaScript with WHILE loops — compare numbers, and keep repeating until the job is done instead of counting steps."},
        {n:17,emoji:"🤔",title:"Level 17: Panda Decides (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-17-decisions.html",desc:"Type real JavaScript that looks around and DECIDES — true/false, if, else, and putting a decision inside a loop."},
        {n:16,emoji:"🎨",title:"Level 16: Panda Painter (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-16-painter.html",desc:"Type real JavaScript to paint pictures and match the goal — commands with inputs, loops, variables that hold words, and your own command with an input."},
        {n:0,emoji:"🐼",title:"Warm-up: You Are the Coder (Demo)",topic:"Coding",time:"20 min",file:"coding-real-demo.html",desc:"A gentle first taste of typing real code — move the panda with right(), left(), up(), down(), loops & your own function."},
