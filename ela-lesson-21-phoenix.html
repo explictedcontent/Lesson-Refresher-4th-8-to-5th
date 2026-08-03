@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELA Day 21 — Phoenix 🔥🦅</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.65;min-height:100vh;}
+a{color:var(--accent2);text-decoration:none;}
+h1{font-size:1.7rem;font-weight:800;color:var(--accent);}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:8px;}
+h3{font-size:1.05rem;font-weight:600;}
+p{margin-bottom:.8em;}
+strong{color:var(--warn);}
+
+/* LAYOUT */
+#app{max-width:780px;margin:0 auto;padding:0 0 80px;}
+
+/* PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+}
+.pb-seg{
+  flex:1;min-width:60px;height:8px;border-radius:4px;
+  background:var(--line);cursor:pointer;transition:background .3s;
+  position:relative;
+}
+.pb-seg.done{background:var(--good);}
+.pb-seg.active{background:var(--accent2);}
+.pb-seg:hover::after{
+  content:attr(data-label);position:absolute;top:14px;left:50%;
+  transform:translateX(-50%);background:var(--panel2);
+  color:var(--ink);font-size:.72rem;padding:2px 7px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;z-index:200;
+}
+#pb-title{font-size:.8rem;color:var(--muted);width:100%;text-align:center;margin-top:2px;}
+
+/* HEADER */
+#hero{padding:28px 16px 16px;text-align:center;}
+#hero .day-badge{display:inline-block;background:var(--panel2);color:var(--accent2);
+  border-radius:20px;padding:3px 14px;font-size:.8rem;font-weight:700;margin-bottom:8px;}
+#hero p{color:var(--muted);font-size:.95rem;}
+
+/* PHASE SECTIONS */
+.phase{padding:0 16px;display:none;}
+.phase.visible{display:block;}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-top:4px;}
+.phase-num{width:36px;height:36px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.phase-title{font-size:1.1rem;font-weight:700;}
+.phase-time{font-size:.8rem;color:var(--muted);margin-left:auto;}
+
+/* CARDS */
+.card{background:var(--panel);border-radius:var(--radius);padding:18px;margin-bottom:12px;border:1px solid var(--line);}
+
+/* FACT CARDS */
+.fact-card{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+.fact-card.revealed{border-color:var(--accent2);}
+.fact-front{padding:18px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:60px;}
+.fact-icon{font-size:1.6rem;flex-shrink:0;}
+.fact-hint{color:var(--muted);font-size:.88rem;margin-left:auto;flex-shrink:0;}
+.fact-body{display:none;padding:0 18px 18px;}
+.fact-card.revealed .fact-body{display:block;}
+.fact-text{color:var(--ink);font-size:.97rem;margin-bottom:12px;}
+.fact-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.fact-btn{border:none;border-radius:8px;padding:8px 16px;font-size:.88rem;cursor:pointer;
+  background:var(--panel2);color:var(--ink);transition:background .2s;min-height:44px;}
+.fact-btn:hover{background:var(--line);}
+.fact-btn.knew{background:var(--good);color:#111;}
+.fact-btn.new{background:var(--accent2);color:#111;}
+
+/* READING PASSAGE */
+.passage{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);line-height:1.8;}
+.passage h3{color:var(--accent2);font-size:1.15rem;margin-bottom:14px;}
+.vocab-word{background:rgba(91,209,196,.15);color:var(--accent2);border-radius:4px;
+  padding:1px 5px;font-weight:600;cursor:help;position:relative;border-bottom:1px dashed var(--accent2);}
+.vocab-word:hover::after{
+  content:attr(data-def);position:absolute;bottom:calc(100%+4px);left:50%;
+  transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent2);
+  color:var(--ink);font-size:.78rem;padding:5px 9px;border-radius:7px;
+  white-space:normal;max-width:220px;text-align:center;pointer-events:none;z-index:50;
+  font-weight:400;line-height:1.4;
+}
+
+/* COMPREHENSION ACCORDION */
+.accord-item{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:10px;overflow:hidden;}
+.accord-q{padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:.97rem;min-height:54px;}
+.accord-arrow{margin-left:auto;color:var(--muted);transition:transform .3s;flex-shrink:0;}
+.accord-item.open .accord-arrow{transform:rotate(90deg);}
+.accord-a{display:none;padding:0 18px 16px;color:var(--muted);font-size:.93rem;line-height:1.65;}
+.accord-item.open .accord-a{display:block;}
+
+/* VOCABULARY MATCH */
+.vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.vocab-tile{
+  background:var(--panel2);border-radius:10px;padding:14px;min-height:54px;
+  border:2px solid var(--line);cursor:pointer;text-align:center;
+  font-size:.9rem;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;line-height:1.4;
+}
+.vocab-tile:hover:not(.matched):not(.selected){border-color:var(--muted);}
+.vocab-tile.selected{border-color:var(--accent);background:rgba(255,122,89,.12);}
+.vocab-tile.matched{border-color:var(--good);background:rgba(123,216,143,.12);
+  color:var(--good);pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease;}
+.vocab-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:8px;}
+
+/* SKILL PRACTICE */
+.se-card{background:var(--panel);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--line);}
+.se-para{background:var(--panel2);border-left:3px solid var(--accent2);border-radius:8px;
+  padding:12px 14px;font-size:.93rem;line-height:1.7;color:var(--ink);margin-bottom:12px;}
+.se-stmt{font-size:.97rem;margin-bottom:12px;font-weight:500;}
+.se-btns{display:flex;flex-direction:column;gap:8px;}
+.se-btn{width:100%;min-height:44px;border:2px solid var(--line);border-radius:8px;
+  background:transparent;color:var(--ink);cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .2s;padding:10px 12px;text-align:left;line-height:1.4;}
+.se-btn:hover:not(:disabled){border-color:var(--muted);}
+.se-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good);}
+.se-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad);}
+.se-feedback{font-size:.82rem;margin-top:8px;min-height:20px;}
+.se-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:12px;}
+.se-part{font-size:.85rem;font-weight:700;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.06em;margin:22px 0 10px;}
+
+/* WRITING PAD */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:2px solid var(--line);
+  border-radius:var(--radius);padding:16px;color:var(--ink);font-size:.97rem;
+  line-height:1.7;resize:vertical;font-family:inherit;outline:none;
+  transition:border-color .2s;}
+.writing-area:focus{border-color:var(--accent2);}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;
+  margin-top:8px;font-size:.82rem;color:var(--muted);}
+.save-indicator{color:var(--good);font-size:.8rem;opacity:0;transition:opacity .4s;}
+.save-indicator.show{opacity:1;}
+
+/* QUIZ */
+.quiz-progress{display:flex;gap:6px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+.q-dot{width:14px;height:14px;border-radius:50%;background:var(--line);transition:background .3s;}
+.q-dot.active{background:var(--accent);}
+.q-dot.correct{background:var(--good);}
+.q-dot.wrong{background:var(--bad);}
+.quiz-q{font-size:1.05rem;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;}
+.quiz-opt{
+  background:var(--panel2);border:2px solid var(--line);border-radius:10px;
+  padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);
+  font-size:.95rem;min-height:54px;transition:border-color .2s,background .2s;
+  width:100%;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--muted);}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.12);}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);}
+.quiz-feedback{min-height:28px;font-size:.88rem;margin-top:10px;padding:6px 10px;
+  border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(123,216,143,.1);color:var(--good);}
+.quiz-feedback.wrong{background:rgba(255,107,129,.1);color:var(--bad);}
+.quiz-next{margin-top:14px;background:var(--accent);border:none;border-radius:10px;
+  padding:12px 28px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;
+  min-height:48px;display:none;}
+.quiz-next:hover{background:#e8693e;}
+.quiz-result{text-align:center;padding:24px 0;}
+.quiz-result .score-big{font-size:3rem;font-weight:800;color:var(--accent2);}
+.quiz-result .score-label{color:var(--muted);margin-top:4px;}
+.quiz-result .score-msg{margin-top:14px;font-size:1rem;}
+
+/* NAV BUTTONS */
+.phase-nav{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+.btn-primary{background:var(--accent);border:none;border-radius:10px;
+  padding:12px 26px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;min-height:48px;}
+.btn-primary:hover{background:#e8693e;}
+.btn-ghost{background:transparent;border:2px solid var(--line);border-radius:10px;
+  padding:10px 20px;color:var(--muted);font-size:.95rem;cursor:pointer;min-height:48px;}
+.btn-ghost:hover{border-color:var(--muted);color:var(--ink);}
+
+/* UTILITY */
+.divider{height:1px;background:var(--line);margin:20px 0;}
+.tag{display:inline-block;border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:700;}
+.tag-phase{background:rgba(91,209,196,.15);color:var(--accent2);}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .vocab-grid{grid-template-columns:1fr;}
+  h1{font-size:1.35rem;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PHASE BAR -->
+  <div id="phase-bar">
+    <div class="pb-seg" data-phase="1" data-label="Warm-Up"></div>
+    <div class="pb-seg" data-phase="2" data-label="Reading"></div>
+    <div class="pb-seg" data-phase="3" data-label="Comprehension"></div>
+    <div class="pb-seg" data-phase="4" data-label="Vocabulary"></div>
+    <div class="pb-seg" data-phase="5" data-label="Summarizing"></div>
+    <div class="pb-seg" data-phase="6" data-label="Writing"></div>
+    <div class="pb-seg" data-phase="7" data-label="Quiz"></div>
+    <div id="pb-title">Phase 1 — Warm-Up</div>
+  </div>
+
+  <!-- HERO -->
+  <div id="hero">
+    <div class="day-badge">ELA · Day 21</div>
+    <h1>🔥🦅 Phoenix</h1>
+    <p>Reading · Vocabulary · Writing · Quiz</p>
+  </div>
+
+  <!-- ======================== PHASE 1 ======================== -->
+  <section class="phase visible" id="phase-1">
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div>
+        <div class="phase-title">Warm-Up Fact Cards</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+      <div class="phase-time">4 cards</div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each card to reveal the fact, then tell us what you thought!</p>
+
+    <div class="fact-card" id="fc-1">
+      <div class="fact-front" onclick="revealFact('fc-1')">
+        <span class="fact-icon">🌲</span>
+        <span style="font-weight:600;">Some Seeds Need Fire to Open</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Lodgepole and jack pine cones are glued shut with hard <strong>resin</strong>. Rain won't open them. Wind won't open them. Only the heat of a fire melts the glue — and then the cone pops open and drops seeds onto ground that was just cleared. Those seeds can wait up in the branches for <strong>years</strong>.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-1')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-1')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-2">
+      <div class="fact-front" onclick="revealFact('fc-2')">
+        <span class="fact-icon">🪲</span>
+        <span style="font-weight:600;">There Is a Beetle That Hunts Fire</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Fire beetles have tiny pits on their bodies that sense <strong>heat from far away</strong> — and they fly <em>toward</em> the smoke while everything else runs. Burned wood is where they lay their eggs. Then woodpeckers show up to eat the beetle grubs. A burned forest isn't empty. It's a whole new neighborhood.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-2')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-2')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-3">
+      <div class="fact-front" onclick="revealFact('fc-3')">
+        <span class="fact-icon">💜</span>
+        <span style="font-weight:600;">The Flower That Shows Up First</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">After a burn, tall purple <strong>fireweed</strong> is often the first thing back — sometimes within weeks. It got its name honestly. After the 1980 eruption of Mount St. Helens, scientists expected a dead zone for decades; plants and animals that had been sheltered under snow and soil started the comeback almost <strong>immediately</strong>.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-3')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-3')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-4">
+      <div class="fact-front" onclick="revealFact('fc-4')">
+        <span class="fact-icon">🔥</span>
+        <span style="font-weight:600;">Almost Every Culture Has a Firebird</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Ancient Egypt had the <strong>bennu</strong>, a heron-like bird tied to the sunrise. Greece told of the phoenix. China has the <strong>fenghuang</strong>, Persia the simurgh, and Russian folktales have a glowing firebird. Different countries, same idea: a bird that shows up where something <strong>ends and begins again</strong>.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-4')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-4')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-primary" onclick="goPhase(2)">Next: Reading →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 2 ======================== -->
+  <section class="phase" id="phase-2">
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <div>
+        <div class="phase-title">Reading Passage</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="passage">
+      <h3>The Bird Who Waited for Fire</h3>
+
+      <p><strong>Part 1 — The Last Good Night</strong></p>
+
+      <p>Juno Reyes could find her way up Marigold Ridge in the dark, and some nights she did.</p>
+
+      <p>She knew the trail by its smells: pine sap at the first switchback, cold water at the creek, huckleberry at the top. She knew the lookout tower where her grandmother Ines spent every summer watching for smoke. And she knew the little green cabin at the bottom of the trail with the red door and her own crooked initials carved into the second porch step — J.R., age six, carved with a butter knife and a great deal of confidence.</p>
+
+      <p>On the last good night, Juno fell asleep listening to wind move through eighty-year-old firs.</p>
+
+      <p>At two in the morning, Grandma Ines shook her awake, and the window was orange.</p>
+
+      <p>They took one bag each. Juno took her flat wooden box of pressed leaves — one from every kind of tree on the ridge, forty-one of them, labeled in pencil. Grandma took the radio and the photographs. Halfway down the mountain Juno turned around, once, and the whole ridge behind them was a wall of light.</p>
+
+      <p><strong>Part 2 — What Was Left</strong></p>
+
+      <p>Three weeks later, they were allowed to go back up.</p>
+
+      <p>Nobody talked in the truck. The trees along the road stood black and bare, like a crowd of burnt fence posts. Where the cabin had been there was a chimney, a rectangle of nails, and the door hinges, still bolted to nothing at all. Some of the fallen logs were still <span class="vocab-word" data-def="to burn slowly, giving off smoke without any flames">smoldering</span>, sending up thin gray threads of smoke that leaned in the wind.</p>
+
+      <p>The porch step was <span class="vocab-word" data-def="burned black on the outside by heat or flame">scorched</span> black. Juno crouched and rubbed at it with her thumb until she found the shape of a J underneath.</p>
+
+      <p>She had thought she was ready. She was not. Everything she loved about this place was gone, and she felt as <span class="vocab-word" data-def="wrecked so completely that it is hard to even look at">devastated</span> as the ridge looked.</p>
+
+      <p>"It'll never come back," she said. "Not for a hundred years."</p>
+
+      <p>Grandma Ines looked out over all that black. "Give it a minute," she said.</p>
+
+      <p>Which was, Juno thought, the most ridiculous thing anyone had ever said out loud.</p>
+
+      <p><strong>Part 3 — The Bird in the Ash</strong></p>
+
+      <p>Juno walked off by herself so she wouldn't say something mean.</p>
+
+      <p>She got about two hundred steps before she saw the color.</p>
+
+      <p>It was sitting on a smoking log: a bird the size of a hawk, copper and gold and deep orange, with a tail that hung down like an ember pulled long. Ash drifted past it. It did not seem to mind the smoke at all. It looked at Juno, and it made a sound like a kettle just starting to think about boiling.</p>
+
+      <p>Juno stood absolutely still.</p>
+
+      <p>The bird hopped down into the ash and began to scratch — hard, quick kicks, the way a chicken hunts bugs. Then it stopped. It looked at her. It looked down at the spot it had cleared.</p>
+
+      <p>Juno came closer, and knelt, and looked too.</p>
+
+      <p>In the little bare place the bird had dug, there was a green shoot. One. Thin as a shoelace, curled at the tip, a <span class="vocab-word" data-def="so delicate that the smallest bump could break it">fragile</span> thing no taller than her finger, standing up in three weeks of ash.</p>
+
+      <p>"That's not possible," Juno whispered.</p>
+
+      <p>The bird made the kettle sound again. Juno named her Solla, after nothing at all. It simply sounded right.</p>
+
+      <p><strong>Part 4 — Under the Black</strong></p>
+
+      <p>Grandma Ines said the old lookouts had a name for that bird: <em>kindlewing</em>. In eighty years of tower logbooks, nobody had ever written down seeing one <em>before</em> a fire. Only after.</p>
+
+      <p>Then she showed Juno the rest of it.</p>
+
+      <p>A pine cone lying in the ash, snapped wide open — because some cones are glued shut with resin, and only real heat can melt them. Those seeds had been waiting up in the branches for years for exactly this day. Beetles that can sense a fire from miles off, already arriving to lay their eggs in the dead wood. Woodpeckers arriving to eat the beetles. And under the ash, everywhere, if you got down on your knees and actually looked: <span class="vocab-word" data-def="tiny new plants just pushing up out of the ground">sprouts</span>. Fireweed. Grass. Small <span class="vocab-word" data-def="refusing to quit or to be talked out of something">stubborn</span> green things shoving up through a gray lid of ash.</p>
+
+      <p>"The forest didn't die," Grandma said. "It changed shifts."</p>
+
+      <p>Juno got out the notebook she used for pressed leaves and started a fresh page at the very back. That first afternoon she counted eleven sprouts. The next Saturday there were too many to count, and she had to start measuring off one square of ground at a time.</p>
+
+      <p><strong>Part 5 — The Count</strong></p>
+
+      <p>They built the new cabin smaller, and further from the trees, with the same red door.</p>
+
+      <p>Juno carved J.R. into the new porch step. The burned piece of the old one went on a shelf inside, because a thing can be finished and still be worth keeping.</p>
+
+      <p>That first spring, volunteers came up the ridge with four thousand seedlings in cardboard flats, and Juno hauled water until her arms shook. She kept the count. Year one: fireweed, so much of it that the hillside went purple in July — fireweed does not merely survive a burn, it <span class="vocab-word" data-def="to grow strong and healthy, not just barely get by">thrives</span> in one. Year two: bluebirds nesting in the standing dead trunks. A doe and two fawns at the creek. A woodpecker family loud enough to hear from the road.</p>
+
+      <p>The August Juno turned thirteen, she was up in the tower doing the ten o'clock check when a copper-colored shape crossed the window — Solla, or one of Solla's, out over a hillside that was not black anymore. It was green, and purple, and extremely noisy with birds.</p>
+
+      <p>The forest Juno grew up in was gone. That was true, and she had stopped arguing with it. But something else was coming in its place, and it had started the same week as the fire, underneath everything, where nobody was looking.</p>
+
+      <p>She thought about a burnt step with a J still under it. Then she picked up the radio, and said, "Ridge is clear."</p>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(1)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(3)">Next: Comprehension →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 3 ======================== -->
+  <section class="phase" id="phase-3">
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <div>
+        <div class="phase-title">Comprehension Check</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each question to reveal the answer. Think about your answer first!</p>
+
+    <div class="accord-item" id="acc-1">
+      <div class="accord-q" onclick="toggleAccord('acc-1')">
+        <span>1.</span> What does Juno lose in the fire, and what does she take with her?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">She loses the green cabin with the red door, the porch step with her initials, and the forest on Marigold Ridge she had known her whole life. She takes one bag — the wooden box holding forty-one pressed leaves, one from every kind of tree on the ridge.</div>
+    </div>
+
+    <div class="accord-item" id="acc-2">
+      <div class="accord-q" onclick="toggleAccord('acc-2')">
+        <span>2.</span> What does Juno believe when she first sees the burned ridge?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">She believes it is over for good — "It'll never come back. Not for a hundred years." Her grandmother answers, "Give it a minute," and Juno thinks that is a ridiculous thing to say.</div>
+    </div>
+
+    <div class="accord-item" id="acc-3">
+      <div class="accord-q" onclick="toggleAccord('acc-3')">
+        <span>3.</span> What does the kindlewing show Juno, and why does it matter?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">The bird scratches the ash away and uncovers a single green shoot, thin as a shoelace. It matters because it is proof — right there, three weeks after the fire — that the recovery has already begun underneath the ash.</div>
+    </div>
+
+    <div class="accord-item" id="acc-4">
+      <div class="accord-q" onclick="toggleAccord('acc-4')">
+        <span>4.</span> Grandma Ines says, "The forest didn't die. It changed shifts." What does she mean?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Heat-opened cones drop seeds, beetles come to the dead wood, woodpeckers come for the beetles, and fireweed and grass push up through the ash. The old set of living things left and a new set clocked in. The place is still alive — it just has a different crew now.</div>
+    </div>
+
+    <div class="accord-item" id="acc-5">
+      <div class="accord-q" onclick="toggleAccord('acc-5')">
+        <span>5.</span> What is the THEME (big idea) of the story?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">An ending can also be a beginning. Losing something real hurts and you don't have to pretend it doesn't — but new growth often starts before you can see it, and you can help it along. Juno never gets her old forest back; she helps build the next one.</div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(2)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(4)">Next: Vocabulary →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 4 ======================== -->
+  <section class="phase" id="phase-4">
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <div>
+        <div class="phase-title">Vocabulary Match</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap a <strong style="color:var(--accent);">word</strong>, then tap its <strong style="color:var(--accent2);">definition</strong>. Match all 7 pairs!</p>
+
+    <div class="vocab-grid" id="vocab-grid"></div>
+    <div class="vocab-score" id="vocab-score">0 / 7 matched</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(3)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(5)">Next: Summarizing →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 5 ======================== -->
+  <section class="phase" id="phase-5">
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <div>
+        <div class="phase-title">Summarizing</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--accent2);">📝 What Is a Summary?</h3>
+      <p style="font-size:.95rem;">A <strong>SUMMARY</strong> retells the <strong>most important parts</strong> of a story, <strong>in your own words</strong>, <strong>in order</strong> — and leaves the small stuff out.</p>
+      <p style="font-size:.95rem;">A summary is <em>not</em> the whole story again, only shorter-ish. It is the part you would tell a friend who has 15 seconds.</p>
+      <p style="font-size:1rem;text-align:center;background:var(--panel2);border-radius:8px;padding:12px;margin-bottom:12px;">
+        <strong>Somebody</strong> ➡️ <strong>Wanted</strong> ➡️ <strong>But</strong> ➡️ <strong>So</strong> ➡️ <strong>Then</strong>
+      </p>
+      <p style="font-size:.93rem;color:var(--muted);margin-bottom:12px;">(If it isn't a story, use the short version: <strong style="color:var(--warn);">who + what happened + how it ended</strong>.)</p>
+
+      <p style="font-size:.95rem;"><strong>Worked example.</strong> Here is a short passage:</p>
+      <p style="font-size:.93rem;background:var(--panel2);border-left:3px solid var(--accent2);border-radius:8px;padding:12px 14px;">"Marcus wanted to enter his robot in the science fair, but the arm kept falling off every time he tested it. He tried tape, then glue, and neither one held. On Thursday his sister showed him how to use a hinge from an old cabinet. Marcus rebuilt the arm on Friday night, brought it to the fair, and won second place."</p>
+      <p style="font-size:.93rem;color:var(--muted);margin-bottom:12px;">
+        🧑 <strong>Somebody:</strong> Marcus<br>
+        🎯 <strong>Wanted:</strong> to enter his robot in the science fair<br>
+        ⛔ <strong>But:</strong> the robot's arm kept falling off<br>
+        🔧 <strong>So:</strong> after tape and glue failed, his sister showed him a hinge trick<br>
+        🏁 <strong>Then:</strong> he rebuilt the arm and won second place
+      </p>
+      <p style="font-size:.95rem;">✅ <strong>Put it together (2 sentences):</strong></p>
+      <p style="font-size:.93rem;background:rgba(123,216,143,.1);border-left:3px solid var(--good);border-radius:8px;padding:12px 14px;">"Marcus wanted his robot in the science fair, but its arm kept falling off. Tape and glue failed, so his sister showed him how to use a hinge, and his rebuilt robot won second place."</p>
+      <p style="font-size:.9rem;color:var(--muted);">Notice what got left out: <em>Thursday</em>, <em>Friday night</em>, <em>an old cabinet</em>. True details — just not important ones.</p>
+
+      <p style="font-size:.95rem;margin-bottom:6px;"><strong>The 4 summary traps:</strong></p>
+      <p style="font-size:.93rem;color:var(--muted);margin-bottom:0;">
+        🪤 <strong style="color:var(--bad);">TOO LONG</strong> — it retells basically everything, often in the author's exact words. That's copying, not summarizing.<br>
+        🪤 <strong style="color:var(--bad);">TOO SHORT</strong> — so squished that the problem, the fix, or the ending disappears. "A kid had a robot." Okay… and?<br>
+        🪤 <strong style="color:var(--bad);">TINY DETAIL</strong> — it grabs one small true thing (the hinge came from a cabinet!) instead of the main events.<br>
+        🪤 <strong style="color:var(--bad);">NEVER HAPPENED</strong> — it adds something the passage never said. Even if it sounds good, it isn't in the text.
+      </p>
+      <p style="font-size:.9rem;color:var(--warn);margin-top:12px;margin-bottom:0;">Golden rule: if you cut it and the story still makes sense — it didn't belong in the summary.</p>
+    </div>
+
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Ten challenges. First pick the <strong>BEST summary</strong>. Then play editor: figure out <strong>which trap</strong> a bad summary fell into. Wrong? Read the feedback and try again!</p>
+
+    <div id="se-container"></div>
+    <div class="se-score" id="se-score">0 / 10 answered correctly</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(4)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(6)">Next: Writing →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 6 ======================== -->
+  <section class="phase" id="phase-6">
+    <div class="phase-header">
+      <div class="phase-num">6</div>
+      <div>
+        <div class="phase-title">Writing Pad</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--warn);">✏️ Your Writing Prompt</h3>
+      <p style="font-size:.95rem;line-height:1.7;"><strong>Part 1 — Summarize.</strong> Write a <strong>3–4 sentence summary</strong> of "The Bird Who Waited for Fire" <strong>in your own words</strong>. Use Somebody / Wanted / But / So / Then to plan it. Leave out the tiny details (the butter knife, the kettle sound, the number 41) — those are fun, but they are not the main events.</p>
+      <p style="font-size:.95rem;line-height:1.7;"><strong>Part 2 — Your turn.</strong> Then write about <strong>a time you had to start over</strong>. Something ended — a move, a team, a friendship, a project that fell apart — and you had to begin again. What did you lose? What was the first small green shoot you noticed afterward? Use at least <strong>3 vocabulary words</strong>. <strong>(At least 5 sentences total.)</strong></p>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:0;">Vocabulary words: <em>scorched, smolder, devastated, fragile, stubborn, sprout, thrive</em></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here… Summary first (3–4 sentences, your own words), then your own starting-over story with at least 3 vocab words!"></textarea>
+    <div class="writing-meta">
+      <span id="word-count" style="color:var(--muted);">0 words</span>
+      <span class="save-indicator" id="save-indicator">✓ Saved</span>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(5)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(7)">Next: Quiz →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 7 ======================== -->
+  <section class="phase" id="phase-7">
+    <div class="phase-header">
+      <div class="phase-num">7</div>
+      <div>
+        <div class="phase-title">Quiz</div>
+        <span class="tag tag-phase">3 min</span>
+      </div>
+    </div>
+
+    <div class="quiz-progress" id="quiz-dots"></div>
+    <div id="quiz-body"></div>
+
+    <div class="phase-nav" style="margin-top:16px;">
+      <button class="btn-ghost" onclick="goPhase(6)">← Back</button>
+    </div>
+  </section>
+
+</div><!-- #app -->
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────
+const QAKEY = "ela-l21-qans";
+const QKEY  = "ela-l21-quiz";
+const WKEY  = "ela-l21-writing";
+
+// ─── MISTAKE LOGGER ───────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'ELA|Day 21: Phoenix|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'ELA', day: 'Day 21', q: questionText, file: 'ela-lesson-21-phoenix.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── PHASE NAV ────────────────────────────────────────────────
+let currentPhase = 1;
+const PHASE_LABELS = ['','Warm-Up','Reading','Comprehension','Vocabulary','Summarizing','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('visible');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('visible');
+  document.getElementById('phase-' + n).scrollIntoView({behavior:'smooth', block:'start'});
+  updatePhaseBar();
+  if (n === 4) buildVocab();
+  if (n === 5) buildSE();
+  if (n === 7) { buildQuiz(); restoreQuiz(); }
+}
+
+function updatePhaseBar() {
+  const segs = document.querySelectorAll('.pb-seg');
+  segs.forEach(s => {
+    const p = parseInt(s.dataset.phase);
+    s.classList.remove('active','done');
+    if (p === currentPhase) s.classList.add('active');
+    else if (p < currentPhase) s.classList.add('done');
+  });
+  document.getElementById('pb-title').textContent = 'Phase ' + currentPhase + ' — ' + PHASE_LABELS[currentPhase];
+}
+
+document.querySelectorAll('.pb-seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+updatePhaseBar();
+
+// ─── PHASE 1: FACT CARDS ─────────────────────────────────────
+function revealFact(id) {
+  document.getElementById(id).classList.add('revealed');
+}
+function reactFact(btn, type, id) {
+  const card = document.getElementById(id);
+  card.querySelectorAll('.fact-btn').forEach(b => { b.classList.remove('knew','new'); });
+  btn.classList.add(type);
+}
+
+// ─── PHASE 3: ACCORDION ───────────────────────────────────────
+function toggleAccord(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ─── SHUFFLE HELPER ───────────────────────────────────────────
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─── PHASE 4: VOCABULARY MATCH ────────────────────────────────
+const vocabPairs = [
+  { word: 'scorched',   def: 'burned black on the outside by heat or flame' },
+  { word: 'smolder',    def: 'to burn slowly, giving off smoke without any flames' },
+  { word: 'devastated', def: 'wrecked so completely that it is hard to even look at' },
+  { word: 'fragile',    def: 'so delicate that the smallest bump could break it' },
+  { word: 'stubborn',   def: 'refusing to quit or to be talked out of something' },
+  { word: 'sprout',     def: 'a tiny new plant just pushing up out of the ground' },
+  { word: 'thrive',     def: 'to grow strong and healthy, not just barely get by' },
+];
+
+let vocabSelected = null;
+let vocabMatched = 0;
+
+function buildVocab() {
+  const grid = document.getElementById('vocab-grid');
+  if (grid.children.length > 0) return; // already built
+
+  const words = shuffleArr(vocabPairs.map(p => ({ text: p.word, type: 'word', pair: p.word })));
+  const defs  = shuffleArr(vocabPairs.map(p => ({ text: p.def,  type: 'def',  pair: p.word })));
+
+  // interleave: left column = words, right column = defs
+  const all = [];
+  for (let i = 0; i < words.length; i++) {
+    all.push(words[i]);
+    all.push(defs[i]);
+  }
+
+  grid.innerHTML = '';
+  all.forEach((item, idx) => {
+    const tile = document.createElement('div');
+    tile.className = 'vocab-tile';
+    tile.dataset.type = item.type;
+    tile.dataset.pair = item.pair;
+    tile.dataset.idx  = idx;
+    tile.textContent = item.text;
+    tile.addEventListener('click', () => vocabClick(tile));
+    grid.appendChild(tile);
+  });
+}
+
+function vocabClick(tile) {
+  if (tile.classList.contains('matched') || tile.classList.contains('selected')) return;
+
+  if (!vocabSelected) {
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  const prev = vocabSelected;
+
+  // Same type — swap selection
+  if (prev.dataset.type === tile.dataset.type) {
+    prev.classList.remove('selected');
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  // Check match
+  if (prev.dataset.pair === tile.dataset.pair) {
+    prev.classList.remove('selected');
+    prev.classList.add('matched');
+    tile.classList.add('matched');
+    vocabSelected = null;
+    vocabMatched++;
+    document.getElementById('vocab-score').textContent = vocabMatched + ' / 7 matched';
+    if (vocabMatched === 7) {
+      document.getElementById('vocab-score').style.color = 'var(--good)';
+      document.getElementById('vocab-score').textContent = '🎉 All 7 matched! Great job!';
+    }
+  } else {
+    // Wrong
+    [prev, tile].forEach(t => {
+      t.classList.add('shake');
+      t.addEventListener('animationend', () => t.classList.remove('shake'), {once:true});
+    });
+    prev.classList.remove('selected');
+    vocabSelected = null;
+  }
+}
+
+// ─── PHASE 5: SUMMARIZING ─────────────────────────────────────
+// Part A: pick the BEST summary.  Part B: name the trap the bad summary fell into.
+// Every wrong choice carries its own trap label in .fb
+const ccItems = [
+  {
+    part: 'Part A — Pick the Best Summary',
+    para: 'Every recess, Priya practiced free throws by herself. She missed more than she made, and some days she missed everything. Her coach told her to stop watching the ball and start watching the front of the rim. It felt strange for a whole week. By the last game of the season, Priya made eleven free throws in a row.',
+    stmt: 'Which is the BEST summary of this passage?',
+    choices: [
+      { t: 'Priya practiced free throws every single recess by herself, and she missed more than she made, and some days she missed everything, and then her coach told her something, and it felt strange for a week, and then there was a last game.', ok: false, fb: '🪤 TOO LONG. That is almost the whole passage again, in the same order and nearly the same words. A summary shrinks the text — it does not just re-read it.' },
+      { t: 'Priya practiced free throws at recess, so her coach moved her up to the high school team for the championship game at the end of the year.', ok: false, fb: '🪤 NEVER HAPPENED. There is no high school team and no championship in this passage. If you cannot point to the sentence, it does not go in the summary.' },
+      { t: 'Priya kept missing free throws until her coach told her to aim at the front of the rim, and after some practice she made eleven in a row.', ok: true, fb: '' },
+      { t: 'Priya practiced during recess, which is the break in the middle of the school day when the kids all go outside.', ok: false, fb: '🪤 TINY DETAIL. True, but "recess" is background — it is not what HAPPENED. The main events are the missing, the coach’s advice, and the eleven in a row.' },
+    ],
+    why: 'It has the problem (missing), the change (aim at the front of the rim), and the ending (eleven in a row) — in her own words, in order.'
+  },
+  {
+    stmt: 'Which is the BEST summary of Part 2, "What Was Left"?',
+    choices: [
+      { t: 'Three weeks after the fire, Juno and her grandmother drove back up and found the cabin destroyed, and Juno decided the ridge would never come back.', ok: true, fb: '' },
+      { t: 'Juno crouched down and rubbed the burned porch step with her thumb until she could feel the shape of the letter J underneath.', ok: false, fb: '🪤 TINY DETAIL. It is a beautiful moment, but it is one small action. The main events are: they go back, everything is destroyed, Juno gives up hope.' },
+      { t: 'Nobody talked in the truck, and the trees stood black and bare like burnt fence posts, and there was a chimney and a rectangle of nails and hinges bolted to nothing, and some of the logs were still smoldering in the wind.', ok: false, fb: '🪤 TOO LONG. This is the author’s own description copied out line by line. Summaries use YOUR words and keep only the big moves.' },
+      { t: 'Juno and her grandmother went back up the ridge, found the cabin still standing, and moved straight back in that same afternoon.', ok: false, fb: '🪤 NEVER HAPPENED. The cabin was gone — a chimney, nails, and hinges bolted to nothing. A summary can never add events the text does not have.' },
+    ],
+    why: 'Who (Juno and Grandma Ines), what happened (they return, the cabin is gone), and how it left her (certain it would never come back).'
+  },
+  {
+    para: 'The library’s summer reading board was a paper tree with one leaf for every book a kid finished. By July the tree had four leaves. So Ms. Adeyemi moved the whole tree to the window facing the ice cream shop and set a jar of markers beside it. By the end of August the tree had 212 leaves and had to be extended onto the ceiling.',
+    stmt: 'Which is the BEST summary of this passage?',
+    choices: [
+      { t: 'Ms. Adeyemi put up a paper reading tree in the library, and then the library ran out of books, so she had to order two hundred more from another town.', ok: false, fb: '🪤 NEVER HAPPENED. Nobody ran out of books and nothing was ordered. The 212 is a count of LEAVES, not a shipment.' },
+      { t: 'There was a jar of markers sitting next to the library’s paper reading tree for the whole rest of the summer.', ok: false, fb: '🪤 TINY DETAIL. The markers are a prop. The story is that almost nobody used the tree until it got moved somewhere kids would actually see it.' },
+      { t: 'A library put up a paper tree.', ok: false, fb: '🪤 TOO SHORT. It leaves out everything that matters: the tree was not working, Ms. Adeyemi moved it, and then hundreds of kids joined in.' },
+      { t: 'Hardly anyone used the library’s reading tree until Ms. Adeyemi moved it where kids would see it, and then hundreds of leaves went up.', ok: true, fb: '' },
+    ],
+    why: 'Problem (4 leaves), the change (move it into view), the result (212 leaves). Short, ordered, and in your own words.'
+  },
+  {
+    stmt: 'Which is the BEST summary of Part 4, "Under the Black"?',
+    choices: [
+      { t: 'Grandma Ines said the old lookouts called that bird a kindlewing, and in eighty years of logbooks nobody had ever written down seeing one before a fire, only after a fire had already burned through.', ok: false, fb: '🪤 TOO LONG — and it is really just one paragraph copied out. It also stops before the actual point of Part 4, which is the evidence of new growth.' },
+      { t: 'Grandma Ines showed Juno proof the forest was already restarting — heat-opened cones, insects and birds arriving, sprouts under the ash — and Juno began counting them.', ok: true, fb: '' },
+      { t: 'Juno started a brand-new page at the very back of the same notebook that she had been using for her pressed leaves.', ok: false, fb: '🪤 TINY DETAIL. Which notebook she used does not change the story. What matters is WHY she started counting: the ridge was coming back.' },
+      { t: 'Grandma Ines explained that lightning had started the fire, and the two of them hiked down to report what they had found to the rangers.', ok: false, fb: '🪤 NEVER HAPPENED. The story never says what started the fire and nobody reports anything to rangers. Invented events break a summary.' },
+    ],
+    why: 'The one big idea of Part 4 is the evidence: fire-opened cones, beetles, woodpeckers, sprouts — and Juno responding by keeping a count.'
+  },
+  {
+    stmt: 'Which is the BEST summary of the WHOLE story?',
+    choices: [
+      { t: 'A copper-and-gold bird sat on a smoking log and scratched at the ash with hard, quick kicks, the way a chicken hunts for bugs.', ok: false, fb: '🪤 TINY DETAIL. That is one image from one scene. A whole-story summary needs the fire, the loss, the discovery, and the recovery.' },
+      { t: 'Juno lost her home in a wildfire, and a firebird carried her over the mountain to a hidden green valley the fire had never reached.', ok: false, fb: '🪤 NEVER HAPPENED. No one flies anywhere and there is no hidden valley. The story is about the burned ridge itself coming back.' },
+      { t: 'A wildfire destroys Juno’s home and she believes the ridge is finished, but a firebird and her grandmother show her the new growth already starting, and she helps it along.', ok: true, fb: '' },
+      { t: 'Juno knew the trail by its smells, and at two in the morning her grandmother woke her because the window was orange, and they each took one bag, and three weeks later they drove up in a truck where nobody talked, and then she walked off by herself.', ok: false, fb: '🪤 TOO LONG. It retells the opening scene by scene and never even reaches the ending. A summary covers the whole shape of the story, briefly.' },
+    ],
+    why: 'Somebody (Juno) / Wanted (her home and forest back) / But (the fire took them) / So (a kindlewing and Grandma show her the shoots) / Then (she helps the ridge recover).'
+  },
+  {
+    part: 'Part B — Name the Trap',
+    para: 'On the first day of camp, Theo could not get his tent poles to line up, and by dinner the tent had collapsed twice. A girl named Ruth showed him how to sort the poles by length before starting. Theo’s tent stayed up the rest of the week, and on the last night he taught a younger camper the same trick.',
+    stmt: 'Someone summarized it as: "Theo went to camp. It was fun." What is wrong with that summary?',
+    choices: [
+      { t: 'It adds an event that never shows up anywhere in this passage at all.', ok: false, fb: 'Not this one — nothing invented was added. The problem is what is MISSING.' },
+      { t: 'It leaves out what really happened: the tent, Ruth’s help, and the ending.', ok: true, fb: '' },
+      { t: 'It copies nearly every sentence out of the passage instead of shortening it down.', ok: false, fb: 'The opposite, actually — it is five words long. Too short, not too long.' },
+      { t: 'It zooms in on one small unimportant detail instead of the main events.', ok: false, fb: 'It does not name any detail at all, small or large. That is the trouble with it.' },
+    ],
+    why: '🪤 TOO SHORT. A summary can be brief, but it still has to carry the problem, the fix, and the ending. "It was fun" carries nothing.'
+  },
+  {
+    stmt: 'Someone summarized Part 3 as: "Ash drifted past the bird while it sat on a smoking log." What is wrong with that summary?',
+    choices: [
+      { t: 'It invents an ending that this part of the story never actually describes.', ok: false, fb: 'Everything in it is true and really in the text. Being true is not enough — it also has to be IMPORTANT.' },
+      { t: 'It is much too long and retells every sentence in the exact same order.', ok: false, fb: 'It is only one short line. Length is not the problem here.' },
+      { t: 'It leaves the bird out completely, and the bird is the main thing here.', ok: false, fb: 'The bird is in there. Look again at WHAT the bird is doing in the summary versus in the story.' },
+      { t: 'It reports a small background detail instead of the main event.', ok: true, fb: '' },
+    ],
+    why: '🪤 TINY DETAIL. The main event of Part 3 is that the bird digs through the ash and uncovers a living green shoot. Drifting ash is scenery.'
+  },
+  {
+    para: 'Nadia’s family moved in March and she hated the new apartment. There was no yard, and her old bedroom window used to look straight at a maple tree. In April she found a community garden two blocks away with one empty plot left. She signed up and planted beans, and by July neighbors were stopping to ask her what she was growing.',
+    stmt: 'Someone summarized it as: "Nadia’s family moved in March and she hated the new apartment because there was no yard and her old bedroom window used to look at a maple tree, and then in April she found a community garden two blocks away with one empty plot, and she signed up, and she planted beans, and by July neighbors were stopping to ask her what she was growing." What is wrong?',
+    choices: [
+      { t: 'It retells every detail in the author’s own words instead of shortening it.', ok: true, fb: '' },
+      { t: 'It stops too early and never lets us find out what finally happened to Nadia.', ok: false, fb: 'It does reach the ending — the neighbors in July. The trouble is everything it dragged along on the way.' },
+      { t: 'It adds a brand-new event that does not take place in the passage anywhere.', ok: false, fb: 'Every single thing in it really is in the passage. That is exactly why it is too long.' },
+      { t: 'It zooms in on one unimportant detail and skips right over the main events.', ok: false, fb: 'It skips nothing at all — it keeps everything. That is the problem.' },
+    ],
+    why: '🪤 TOO LONG. A tighter version: "Nadia hated her new apartment after moving, so she joined a community garden, and by July her beans had the neighbors stopping to talk."'
+  },
+  {
+    stmt: 'Someone summarized Part 5 as: "Juno rebuilt the cabin, and then the fire came back and burned it down a second time." What is wrong?',
+    choices: [
+      { t: 'It stops far too early and never mentions how the ridge recovers over the years.', ok: false, fb: 'It does not stop early — it keeps going past the text into something that is not there.' },
+      { t: 'It is really just one small background detail lifted straight out of the passage.', ok: false, fb: 'It is not a detail from the passage. Check whether the second fire is anywhere in Part 5.' },
+      { t: 'It includes an event that never happens anywhere in this part of the story.', ok: true, fb: '' },
+      { t: 'It retells every sentence of the passage instead of choosing the biggest events.', ok: false, fb: 'It is quite short. The problem is not length — it is accuracy.' },
+    ],
+    why: '🪤 NEVER HAPPENED. There is no second fire. Part 5 is rebuilding, planting, counting, and the ridge turning green again.'
+  },
+  {
+    stmt: 'You are summarizing the whole story in three sentences. Which of these belongs in your summary?',
+    choices: [
+      { t: 'The exact number of pressed leaves inside Juno’s flat wooden box, which was forty-one.', ok: false, fb: '🪤 TINY DETAIL. Forty-one is a lovely specific number, and specifics are great in a STORY — but a summary keeps only what the plot needs.' },
+      { t: 'Juno discovers the burned ridge is already growing back, and she helps it.', ok: true, fb: '' },
+      { t: 'The noise the kindlewing makes, which sounds like a kettle just starting to boil.', ok: false, fb: '🪤 TINY DETAIL. Cut it and the story still makes sense — so it does not belong in the summary.' },
+      { t: 'Grandma Ines spends every summer up in the lookout tower, watching the ridge for smoke.', ok: false, fb: '🪤 TINY DETAIL (background). It tells us who she is, but it is not one of the main events of the story.' },
+    ],
+    why: 'That is the turn the whole story rests on: the loss is real, but the recovery has already begun — and Juno becomes part of it.'
+  },
+];
+
+let ccCorrectCount = 0;
+const ccSolved = {};
+
+function buildSE() {
+  const container = document.getElementById('se-container');
+  if (container.children.length > 0) return;
+
+  ccItems.forEach((item, i) => {
+    if (item.part) {
+      const h = document.createElement('div');
+      h.className = 'se-part';
+      h.textContent = item.part;
+      container.appendChild(h);
+    }
+    const card = document.createElement('div');
+    card.className = 'se-card';
+    card.id = 'se-' + i;
+    let html = '';
+    if (item.para) html += '<div class="se-para">' + item.para + '</div>';
+    html += '<div class="se-stmt">' + (i+1) + '. ' + item.stmt + '</div><div class="se-btns">';
+    item.choices.forEach((ch, oi) => {
+      html += '<button class="se-btn" data-correct="' + (ch.ok ? '1' : '0') + '" onclick="ansSE(' + i + ', this, ' + oi + ')">' + ch.t + '</button>';
+    });
+    html += '</div><div class="se-feedback" id="sef-' + i + '"></div>';
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function ansSE(i, btn, oi) {
+  const card = document.getElementById('se-' + i);
+  const feedback = document.getElementById('sef-' + i);
+  const correct = (btn.dataset.correct === '1');
+
+  if (correct) {
+    card.querySelectorAll('.se-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === '1') b.classList.add('correct');
+    });
+    feedback.style.color = 'var(--good)';
+    feedback.textContent = '✓ Correct! ' + (ccItems[i].why || '');
+    if (!ccSolved[i]) {
+      ccSolved[i] = true;
+      ccCorrectCount++;
+      const sc = document.getElementById('se-score');
+      sc.textContent = ccCorrectCount + ' / 10 answered correctly';
+      if (ccCorrectCount === 10) {
+        sc.style.color = 'var(--good)';
+        sc.textContent = '🎉 All 10 correct! You are officially a summarizing machine!';
+      }
+    }
+  } else {
+    // Wrong — shake, name the trap, and let them retry
+    btn.classList.add('wrong','shake');
+    btn.addEventListener('animationend', () => btn.classList.remove('shake'), {once:true});
+    feedback.style.color = 'var(--bad)';
+    const trap = (ccItems[i].choices[oi] && ccItems[i].choices[oi].fb) ? ccItems[i].choices[oi].fb : 'Not quite.';
+    feedback.textContent = '✗ ' + trap + ' Try again!';
+    setTimeout(() => { btn.classList.remove('wrong'); }, 1200);
+  }
+}
+
+// ─── PHASE 6: WRITING PAD ─────────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(saveWriting, 300);
+  });
+}
+
+function updateWordCount() {
+  const val = document.getElementById('writing-pad').value.trim();
+  const words = val ? val.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = words + ' word' + (words !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const val = document.getElementById('writing-pad').value;
+  localStorage.setItem(WKEY, val);
+  const ind = document.getElementById('save-indicator');
+  ind.classList.add('show');
+  setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+// ─── PHASE 7: QUIZ ────────────────────────────────────────────
+const quizData = [
+  {
+    q: 'The porch step was "scorched." Scorched means:',
+    opts: [
+      'Carved with letters somebody cut in with a knife',
+      'Soaked through with rain until the whole thing went soft',
+      'Burned black on the outside from the heat of a flame',
+      'Covered over with a thick layer of gray ash and small stones',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'Some of the fallen logs were still "smoldering." To smolder is:',
+    opts: [
+      'To burn slowly, giving off smoke without any flames',
+      'To crack apart into pieces after being frozen for a long time',
+      'To glow brightly enough that people can see it from miles away',
+      'To fall over suddenly',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'Juno felt as "devastated" as the ridge looked. Devastated means:',
+    opts: [
+      'Confused about which direction you are supposed to go next',
+      'Excited about something surprising that has just happened to you',
+      'Slightly annoyed',
+      'Wrecked so completely that it is hard to even look at',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'The sprouts pushing up through the ash are called "stubborn." Stubborn means:',
+    opts: [
+      'Growing very quickly in every direction all at once, in a big hurry',
+      'Refusing to give up, even when it would be easier to quit',
+      'Tiny enough to fit under a leaf',
+      'Burned along the edges but still holding on to a little bit of green',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'The story says fireweed does not just survive a burn — it "thrives." To thrive is:',
+    opts: [
+      'To barely hang on and hope for better',
+      'To spread out sideways instead of growing upward toward the light',
+      'To grow strong and healthy, not just get by',
+      'To come back to the same place year after year without ever changing',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'A good SUMMARY does which of these?',
+    opts: [
+      'Copies the author\'s best sentences exactly, because those are already perfect',
+      'Adds an exciting new event so that the retelling is more fun to listen to',
+      'Picks one interesting little detail and describes that one thing carefully',
+      'Retells the most important events, in order, in your own words',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'Read this: "Sam saved for months to buy a used skateboard, but the wheels seized up the first week. The shop owner showed him how to clean the bearings, and Sam has done it himself ever since." Best summary?',
+    opts: [
+      'Sam bought a used skateboard whose wheels stuck, learned to clean the bearings, and now maintains it himself',
+      'Sam went to a shop where the owner talked with him for a while about skateboards and bearings',
+      'Sam saved up for months and months, and the shop owner ended up giving him a brand-new board for free',
+      'Sam saved for a used skateboard, and the wheels seized in the first week, and the shop owner showed him about bearings, and he has done it ever since',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'A summary of the phoenix story says: "Juno moved to a city and never went back to the ridge again." Which trap is that?',
+    opts: [
+      'TOO LONG — it retells far too many events from the passage in a row',
+      'NEVER HAPPENED — it adds something the story does not say',
+      'TINY DETAIL — it picks a small moment instead of the main events',
+      'TOO SHORT — it squishes the story so hard the ending disappears',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'What did the kindlewing uncover when it scratched at the ash?',
+    opts: [
+      'The burned wooden box that held Juno\'s forty-one pressed leaves',
+      'A pine cone that the heat of the fire had melted completely shut',
+      'A single green shoot, thin as a shoelace, growing in the ash',
+      'The hinges from the red door of the little green cabin',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'What is the big lesson (theme) of this story?',
+    opts: [
+      'Endings hurt, but new growth can already be starting underneath',
+      'Fires are not really that bad, so there is no reason to be upset by one',
+      'If you lose something important, the best thing to do is move far away from it',
+      'You should always keep a careful written count of every plant that you find',
+    ],
+    correct: 0,
+  },
+];
+
+let quizBuilt = false;
+let quizAnswers = {};
+let quizCurrent = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  if (quizBuilt) return;
+  quizBuilt = true;
+
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  quizData.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot-' + i;
+    dots.appendChild(d);
+  });
+
+  renderQuestion(0);
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (!saved || !Object.keys(saved).length) return;
+    quizAnswers = saved;
+
+    // Find last answered
+    let lastAnswered = -1;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] !== undefined) lastAnswered = i;
+    }
+
+    if (lastAnswered < 0) return;
+
+    // Replay all answered questions to update dots
+    for (let i = 0; i <= lastAnswered; i++) {
+      if (quizAnswers[i] !== undefined) {
+        const correct = quizAnswers[i] === quizData[i].correct;
+        const dot = document.getElementById('dot-' + i);
+        if (dot) {
+          dot.classList.remove('active');
+          dot.classList.add(correct ? 'correct' : 'wrong');
+        }
+      }
+    }
+
+    // Check if all answered
+    if (Object.keys(quizAnswers).length >= quizData.length) {
+      const savedResult = localStorage.getItem(QKEY);
+      if (savedResult) {
+        showQuizResult(JSON.parse(savedResult));
+        quizDone = true;
+        return;
+      }
+    }
+
+    // Go to next unanswered
+    let nextQ = 0;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] === undefined) { nextQ = i; break; }
+    }
+    quizCurrent = nextQ;
+    const dot = document.getElementById('dot-' + nextQ);
+    if (dot) { dot.classList.remove('correct','wrong'); dot.classList.add('active'); }
+    renderQuestion(nextQ);
+  } catch(e) {}
+}
+
+function renderQuestion(idx) {
+  const body = document.getElementById('quiz-body');
+  const q = quizData[idx];
+
+  body.innerHTML = `
+    <div class="quiz-q">${idx + 1}. ${q.q}</div>
+    <div class="quiz-opts" id="qopts-${idx}">
+      ${q.opts.map((o, oi) => `
+        <button class="quiz-opt" data-oi="${oi}" onclick="ansQ(${idx},${oi})">${o}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb-${idx}"></div>
+    <button class="quiz-next" id="qnext-${idx}" onclick="nextQuestion(${idx})">${idx < quizData.length - 1 ? 'Next Question →' : 'See Results 🎉'}</button>
+  `;
+}
+
+function ansQ(qIdx, optIdx) {
+  if (quizAnswers[qIdx] !== undefined) return; // already answered
+
+  const q = quizData[qIdx];
+  const correct = (optIdx === q.correct);
+
+  quizAnswers[qIdx] = optIdx;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, q.q, 'Main Quiz Q' + (qIdx + 1));
+
+  // Style options
+  const opts = document.querySelectorAll(`#qopts-${qIdx} .quiz-opt`);
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === optIdx && !correct) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById('qfb-' + qIdx);
+  fb.classList.add('show', correct ? 'correct' : 'wrong');
+  fb.textContent = correct ? '✓ Correct!' : '✗ The correct answer was: ' + q.opts[q.correct];
+
+  // Update dot
+  const dot = document.getElementById('dot-' + qIdx);
+  dot.classList.remove('active');
+  dot.classList.add(correct ? 'correct' : 'wrong');
+
+  // Show next button
+  document.getElementById('qnext-' + qIdx).style.display = 'inline-block';
+}
+
+function nextQuestion(fromIdx) {
+  const next = fromIdx + 1;
+  if (next >= quizData.length) {
+    finishQuiz();
+    return;
+  }
+  quizCurrent = next;
+  document.getElementById('dot-' + next).classList.add('active');
+  renderQuestion(next);
+}
+
+function finishQuiz() {
+  let score = 0;
+  quizData.forEach((q, i) => { if (quizAnswers[i] === q.correct) score++; });
+  const result = { score, total: quizData.length, pct: Math.round(score / quizData.length * 100) };
+  try { localStorage.setItem(QKEY, JSON.stringify(result)); } catch(e) {}
+  showQuizResult(result);
+}
+
+function showQuizResult(result) {
+  const body = document.getElementById('quiz-body');
+  let msg = '';
+  if (result.pct >= 90) msg = 'Incredible! You can shrink a whole story down to its bones. 🔥🦅';
+  else if (result.pct >= 75) msg = 'Great job! Your summaries are getting tight and clear! 🦅';
+  else if (result.pct >= 60) msg = 'Good effort! Reread the story and try Somebody/Wanted/But/So/Then. 📖';
+  else msg = 'Keep going — go back through the parts, find the main events, and try again! 💪';
+
+  body.innerHTML = `
+    <div class="quiz-result">
+      <div class="score-big">${result.score} / ${result.total}</div>
+      <div class="score-label">${result.pct}% correct</div>
+      <div class="score-msg">${msg}</div>
+      ${result.pct < 100 ? `<button class="btn-primary" style="margin-top:20px;" onclick="retakeQuiz()">Retake Quiz ↺</button>` : ''}
+    </div>
+  `;
+}
+
+function retakeQuiz() {
+  quizAnswers = {};
+  quizBuilt = false;
+  quizDone = false;
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── SAVE ALL ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── INIT ─────────────────────────────────────────────────────
+initWriting();
+</script>
+</body>
+</html>

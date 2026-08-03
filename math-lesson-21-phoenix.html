@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 21 — Factors, Multiples &amp; Primes</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:520px){.warmup-choices{grid-template-columns:1fr}}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* ORDER LIST */
+.order-list{margin-top:14px;display:grid;gap:10px}
+.order-step{
+  display:flex;align-items:center;gap:12px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+}
+.order-num{
+  flex:0 0 32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;
+  font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.order-txt{font-size:14px;line-height:1.5}
+.order-txt b{color:var(--warn)}
+.order-txt .lr{color:var(--accent2);font-weight:700}
+
+/* FORMULA BANNER */
+.formula-banner{
+  text-align:center;font-size:clamp(18px,4.5vw,24px);font-weight:700;color:var(--warn);
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;margin:14px 0 4px;letter-spacing:.02em;
+}
+
+/* WORKED EXAMPLES */
+.work-ex{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin-top:14px;
+}
+.work-ex .we-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:8px}
+.work-line{font-size:clamp(15px,4vw,18px);font-weight:700;padding:5px 0;line-height:1.7;color:var(--ink)}
+.work-line .hl-step{background:rgba(255,209,102,.22);color:var(--warn);border-radius:6px;padding:2px 7px}
+.work-line .why{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
+.work-line.final{color:var(--good)}
+.work-line.miss{color:var(--muted)}
+
+/* SIDE-BY-SIDE COMPARE */
+.cmp-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:520px){.cmp-row{grid-template-columns:1fr}}
+.cmp-col{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.cmp-col h4{font-size:14px;margin-bottom:8px}
+.cmp-col.fac h4{color:var(--accent2)}
+.cmp-col.mul h4{color:var(--warn)}
+.cmp-col ul{margin:0 0 0 18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+.cmp-col ul li{margin-bottom:2px}
+.cmp-col b{color:var(--warn)}
+
+/* TOOLS (clean numbers only — no theme inside the tools) */
+.builder{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.step-log{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:10px 14px;font-size:14px;color:var(--muted);min-height:44px;
+}
+.step-log .log-row{padding:3px 0}
+.step-log .log-row b{color:var(--good)}
+.step-log .log-row .arrow{color:var(--accent2)}
+.step-log .log-empty{color:var(--muted);font-style:italic}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:600px;margin:10px auto 0;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-feedback.tip{background:rgba(255,209,102,.12);color:var(--warn)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px;flex-wrap:wrap}
+.tool-target{
+  margin-top:4px;padding:12px 14px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);text-align:center;font-size:15px;
+}
+.tool-target .tt-num{font-size:24px;font-weight:700;color:var(--accent2)}
+
+/* NUMBER GRIDS (clean numbers only) */
+.num-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:12px 0}
+.num-cell{
+  padding:0;border-radius:9px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;font-weight:700;
+  min-height:46px;display:flex;align-items:center;justify-content:center;
+  transition:border-color .12s,background .12s,color .12s,opacity .12s;
+}
+.num-cell:hover:not(:disabled){border-color:var(--accent2)}
+.num-cell.good{border-color:var(--good);background:rgba(123,216,143,.18);color:var(--good)}
+.num-cell.bad{border-color:var(--bad);background:rgba(255,107,129,.14);color:var(--bad)}
+.num-cell.out{border-color:var(--line);color:var(--muted);opacity:.38;text-decoration:line-through}
+.num-cell.neither{border-color:var(--warn);color:var(--warn);opacity:.65}
+.num-cell.prime{border-color:var(--accent2);background:rgba(91,209,196,.22);color:var(--accent2)}
+.num-cell:disabled{cursor:default}
+.found-read{text-align:center;font-size:14px;color:var(--muted);margin-top:8px;min-height:24px}
+.found-read b{color:var(--ink)}
+.grid-legend{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  font-size:12px;color:var(--muted);margin-top:8px;
+}
+.grid-legend span b{font-weight:700}
+
+/* PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.pa-prompt{text-align:center;font-size:20px;font-weight:700;margin-bottom:8px;line-height:1.5}
+.pa-prompt .hl{color:var(--accent)}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Factor Finder</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Prime Hunter</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. GCF &amp; LCM</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(7)" id="seg7">7. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🔥</div>
+  <h1>Math Day 21 — Factors, Multiples &amp; Primes</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Phoenix Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌅 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick questions to see what you already know about factors, multiples and primes.</p>
+
+  <div class="teach-card">
+    <h3>📋 Two Words That Get Mixed Up Constantly</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">Take the number <strong style="color:var(--warn)">12</strong>.</p>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">Numbers that go <strong style="color:var(--accent2)">INTO</strong> 12 evenly are its <strong style="color:var(--accent2)">factors</strong>: 1, 2, 3, 4, 6, 12. Notice they are all 12 or smaller.</p>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">Numbers you land on when you <strong style="color:var(--warn)">skip-count BY</strong> 12 are its <strong style="color:var(--warn)">multiples</strong>: 12, 24, 36, 48, 60… Those are all 12 or bigger, and the list never ends.</p>
+    <p style="font-size:14px;color:var(--muted)">Same number, two totally different lists. <strong style="color:var(--ink)">Factors go down. Multiples go up.</strong> Keep that in your head for the whole lesson.</p>
+  </div>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — FACTOR FINDER (interactive tool, clean numbers)
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🔎 Phase 2 — The Factor Finder <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">Learn the pairing method, then hunt down every factor of 6 different numbers.</p>
+
+  <div class="teach-card">
+    <h3>📋 What a Factor Is, and How to Find Them All</h3>
+
+    <p style="font-size:14px;color:var(--muted)">A <strong style="color:var(--accent2)">factor</strong> of a number divides into it <strong style="color:var(--ink)">evenly</strong> — nothing left over, no remainder. Factors always come in <strong style="color:var(--warn)">pairs</strong>, because every division has a partner multiplication.</p>
+
+    <div class="formula-banner">12 = 1 × 12 &nbsp;=&nbsp; 2 × 6 &nbsp;=&nbsp; 3 × 4</div>
+    <p style="font-size:13px;color:var(--muted);text-align:center">So the factors of 12 are <strong style="color:var(--accent2)">1, 2, 3, 4, 6, 12</strong> — six of them.</p>
+
+    <div class="order-list">
+      <div class="order-step">
+        <div class="order-num">1</div>
+        <div class="order-txt">Start at <b>1</b>. It is a factor of <span class="lr">every</span> number, and its partner is the number itself.</div>
+      </div>
+      <div class="order-step">
+        <div class="order-num">2</div>
+        <div class="order-txt">Try <b>2, then 3, then 4…</b> in order. Each time it divides evenly, write down <span class="lr">both</span> numbers in the pair.</div>
+      </div>
+      <div class="order-step">
+        <div class="order-num">3</div>
+        <div class="order-txt"><b>Stop when the pairs meet.</b> Once the number you are testing gets as big as its own partner, you already have every factor.</div>
+      </div>
+    </div>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — every factor of 18</div>
+      <div class="work-line"><span class="hl-step">1 × 18</span><span class="why">1 always works; partner is 18 itself</span></div>
+      <div class="work-line"><span class="hl-step">2 × 9</span><span class="why">18 is even, so 2 divides in</span></div>
+      <div class="work-line"><span class="hl-step">3 × 6</span><span class="why">18 ÷ 3 = 6, no remainder</span></div>
+      <div class="work-line miss">4? &nbsp;18 ÷ 4 = 4 remainder 2 ✗<span class="why">not a factor — skip it</span></div>
+      <div class="work-line miss">5? &nbsp;18 ÷ 5 = 3 remainder 3 ✗<span class="why">not a factor — skip it</span></div>
+      <div class="work-line">6? &nbsp;its partner is 3 — but we already wrote 3 × 6<span class="why">the pairs have MET, so we stop here</span></div>
+      <div class="work-line final">Factors of 18 = 1, 2, 3, 6, 9, 18 &nbsp;(6 factors)</div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Careful with square numbers.</span> For 16 the pairs are 1 × 16, 2 × 8, and <b>4 × 4</b>. That last pair is the same number twice, so 4 only gets counted <span class="hl">once</span>. Factors of 16 = 1, 2, 4, 8, 16 — that is <b>five</b> factors, an odd amount. Square numbers are the only numbers with an odd number of factors.
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Prime or composite?</span> Count the factors when you are finished.<br>
+      • Exactly <b>two</b> factors (1 and itself) → the number is <b style="color:var(--accent2)">PRIME</b>. Example: 13 = 1 × 13 only.<br>
+      • <b>More than two</b> factors → the number is <b style="color:var(--accent2)">COMPOSITE</b>. Example: 12 has six.<br>
+      • The number <b>1</b> has only <b>one</b> factor, so it is <b style="color:var(--bad)">NEITHER</b> prime nor composite. It is in a club of its own.
+    </div>
+  </div>
+
+  <div class="builder">
+    <span class="ag-label">Factor Finder — tap a number to test it. Every hit brings its partner along.</span>
+    <div class="tool-target" id="ff-target"></div>
+    <div class="num-grid" id="ff-grid"></div>
+    <div class="found-read" id="ff-read"></div>
+    <div class="step-log" id="ff-log"></div>
+    <div class="pa-feedback" id="ff-feedback"></div>
+    <div class="pa-nav">
+      <button class="btn btn-muted" id="ff-reset" type="button">↺ Start this one over</button>
+      <button class="btn btn-teal hidden" id="ff-next" type="button">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="ff-done">✓ All 6 numbers cracked! You can list every factor of a number.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — PRIME HUNTER (interactive sieve, clean numbers)
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>🧮 Phase 3 — Prime Hunter <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">Multiples are the other side of the coin. Use them to knock out every composite number up to 30.</p>
+
+  <div class="teach-card">
+    <h3>📋 Multiples — and Why They Are NOT Factors</h3>
+
+    <p style="font-size:14px;color:var(--muted)">A <strong style="color:var(--warn)">multiple</strong> of a number is what you get when you multiply it by 1, 2, 3, 4… In other words, it is where you land when you <strong style="color:var(--ink)">skip-count</strong>.</p>
+
+    <div class="formula-banner">Multiples of 6: 6, 12, 18, 24, 30, 36, 42 …</div>
+
+    <div class="cmp-row">
+      <div class="cmp-col fac">
+        <h4>FACTORS of 6</h4>
+        <ul>
+          <li><b>1, 2, 3, 6</b></li>
+          <li>Divide IN to 6</li>
+          <li>Never bigger than 6</li>
+          <li>A short list that ENDS</li>
+          <li>Found by dividing</li>
+        </ul>
+      </div>
+      <div class="cmp-col mul">
+        <h4>MULTIPLES of 6</h4>
+        <ul>
+          <li><b>6, 12, 18, 24, …</b></li>
+          <li>Count UP from 6</li>
+          <li>Never smaller than 6</li>
+          <li>A list that NEVER ends</li>
+          <li>Found by multiplying</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">One fact, two ways of saying it.</span> "3 is a <b>factor</b> of 12" and "12 is a <b>multiple</b> of 3" mean exactly the same thing. The small number is the factor; the big number is the multiple. If someone tells you 12 is a factor of 3, they have it backwards — 12 cannot fit inside 3.
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Divisibility shortcuts</span> — quick ways to spot a factor without dividing.<br>
+      • <b>2</b> → the number ends in 0, 2, 4, 6 or 8 (it is even). 84 ends in 4 ✓<br>
+      • <b>5</b> → the number ends in 0 or 5. 435 ends in 5 ✓ (435 ÷ 5 = 87)<br>
+      • <b>10</b> → the number ends in 0. 430 ✓, but 435 ✗<br>
+      • <b>3</b> → add up the digits; if that total is a multiple of 3, so is the number. 84 → 8 + 4 = 12, and 12 is a multiple of 3 ✓ (84 ÷ 3 = 28)<br>
+      Notice that anything divisible by 10 must also be divisible by both 2 and 5.
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Why 2 is the only even prime.</span> Every even number has 2 as a factor. For the number 2 itself that is fine — its factors are just 1 and 2, exactly two of them. But 4, 6, 8, 10 and every other even number get 2 as an <b>extra</b> factor on top of 1 and themselves, which pushes them past two factors. So they are all composite. Every other prime has to be odd.
+    </div>
+
+    <div class="teach-note" style="border-color:var(--bad)">
+      <span class="hl" style="color:var(--bad)">⚠️ Odd does NOT mean prime.</span> Loads of odd numbers are composite: <b>9 = 3 × 3</b>, <b>15 = 3 × 5</b>, <b>21 = 3 × 7</b>, <b>25 = 5 × 5</b>, <b>27 = 3 × 9</b>. Always count the factors — do not guess from odd or even.
+    </div>
+  </div>
+
+  <div class="builder">
+    <span class="ag-label">Prime Hunter — knock out the composites round by round; the primes are what survive</span>
+    <div class="tool-target" id="ph-target"></div>
+    <div class="num-grid" id="ph-grid" style="grid-template-columns:repeat(6,minmax(0,1fr))"></div>
+    <div class="grid-legend">
+      <span style="color:var(--accent2)"><b>■</b> still standing</span>
+      <span style="color:var(--muted)"><b>■</b> crossed out (composite)</span>
+      <span style="color:var(--warn)"><b>■</b> neither prime nor composite</span>
+    </div>
+    <div class="found-read" id="ph-read"></div>
+    <div class="pa-feedback" id="ph-feedback"></div>
+    <div class="pa-nav">
+      <button class="btn btn-muted" id="ph-reset" type="button">↺ Start the whole grid over</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="ph-done">✓ Grid cleared! You found all 10 primes under 30.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — GCF & LCM + PRACTICE
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🤝 Phase 4 — Sharing: GCF &amp; LCM <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">What happens when TWO numbers share factors — or share multiples. Then 6 practice questions.</p>
+
+  <div class="teach-card">
+    <h3>📋 Greatest Common Factor (GCF)</h3>
+    <p style="font-size:14px;color:var(--muted)">List the factors of both numbers, look for the ones that appear in <strong style="color:var(--ink)">both</strong> lists, and take the <strong style="color:var(--accent2)">biggest</strong> one.</p>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — GCF of 12 and 18</div>
+      <div class="work-line">12: &nbsp;<span class="hl-step">1</span> <span class="hl-step">2</span> <span class="hl-step">3</span> 4 <span class="hl-step">6</span> 12</div>
+      <div class="work-line">18: &nbsp;<span class="hl-step">1</span> <span class="hl-step">2</span> <span class="hl-step">3</span> <span class="hl-step">6</span> 9 18</div>
+      <div class="work-line">Shared: 1, 2, 3, 6<span class="why">these four appear in both lists</span></div>
+      <div class="work-line final">GCF = 6</div>
+    </div>
+
+    <h3 style="margin-top:22px">📋 Least Common Multiple (LCM)</h3>
+    <p style="font-size:14px;color:var(--muted)">Skip-count each number and keep going until you hit the <strong style="color:var(--ink)">first</strong> number that shows up on both lists.</p>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — LCM of 4 and 6</div>
+      <div class="work-line">4: &nbsp;4, 8, <span class="hl-step">12</span>, 16, 20, 24 …</div>
+      <div class="work-line">6: &nbsp;6, <span class="hl-step">12</span>, 18, 24 …</div>
+      <div class="work-line">First one they share: 12<span class="why">24 is shared too, but 12 comes first</span></div>
+      <div class="work-line final">LCM = 12</div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">A sanity check that catches most mistakes.</span> The GCF is about factors, so it is <b>small</b> — it can never be bigger than the smaller of your two numbers. The LCM is about multiples, so it is <b>big</b> — it can never be smaller than the larger of your two numbers. For 12 and 18: GCF 6 (≤ 12 ✓) and LCM 36 (≥ 18 ✓). If your GCF comes out huge, you found a multiple by mistake.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="pr-label">Question 1 of 6</span>
+    <div class="pa-prompt" id="pr-prompt"></div>
+    <div class="warmup-choices" id="pr-choices" style="margin-top:8px"></div>
+    <div class="pa-feedback" id="pr-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="pr-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="pr-next" onclick="practiceNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="pr-done">✓ Practice complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>🔥 Phase 5 — Phoenix Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems from the phoenix temple. Decide first: is this asking for factors, or multiples?</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Nicely done.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>⚡ Phase 6 — Factor Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">9 quick ones — but read carefully. Factor or multiple? Prime or composite?</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 9 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 7 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase7">
+  <h2>📝 Phase 7 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(6 min)</span></h2>
+  <p class="phase-meta">10 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 10</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l21-qans";
+const QKEY  = "math-l21-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 21: Phoenix|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 21', q: questionText, file: 'math-lesson-21-phoenix.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// NUMBER HELPERS (clean numbers only — power both tools)
+// ═══════════════════════════════════════════════════════════
+function allFactors(n) {
+  const out = [];
+  for (let i = 1; i <= n; i++) if (n % i === 0) out.push(i);
+  return out;
+}
+
+function isPrime(n) {
+  if (n < 2) return false;
+  for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "12 = 3 × 4. Which sentence about that is true?",
+    choices: [
+      "3 and 4 are factors of 12",
+      "3 and 4 are multiples of 12",
+      "12 is a factor of both 3 and of 4",
+      "3, 4 and 12 are all prime numbers"
+    ],
+    correct: 0,
+    explain: "3 and 4 divide evenly into 12, so they are factors of 12. Flipped around: 12 is a multiple of 3 and of 4."
+  },
+  {
+    q: "Which of these numbers is a multiple of 6?",
+    choices: ["16", "32", "24", "40"],
+    correct: 2,
+    explain: "Skip-count by 6: 6, 12, 18, 24. So 24 is a multiple of 6, because 6 × 4 = 24."
+  },
+  {
+    q: "A prime number has exactly how many different factors?",
+    choices: [
+      "One factor — just the number itself",
+      "Three factors, no more and no fewer",
+      "As many factors as you can possibly find",
+      "Exactly two: 1 and the number itself"
+    ],
+    correct: 3,
+    explain: "Prime means exactly two factors. 7 has only 1 and 7, so 7 is prime."
+  },
+  {
+    q: "Is the number 1 prime?",
+    choices: [
+      "Yes, because 1 divides evenly into every single number",
+      "No — 1 has only one factor, so it is neither",
+      "Yes, 1 is counted as the very first prime number of all",
+      "No, 1 is composite because it is not a prime number"
+    ],
+    correct: 1,
+    explain: "1 has just ONE factor (itself). Prime needs exactly two, composite needs more than two — so 1 is neither."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — FACTOR FINDER (clean numbers only, no theme)
+// Tap a number; if it divides evenly its PARTNER comes along too.
+// ═══════════════════════════════════════════════════════════
+const ffPuzzles = [
+  { n:12, note:"Start at 1 and walk upwards. Three pairs are hiding in here." },
+  { n:18, note:"Two numbers between 1 and 6 will NOT work. Find out which." },
+  { n:16, note:"One pair in here is the same number twice — watch for it." },
+  { n:24, note:"This one has more pairs than any number you have done yet." },
+  { n:13, note:"This one may finish faster than you expect." },
+  { n:30, note:"Careful: 4 looks tempting, but check it before you tap." }
+];
+
+let ffIdx = 0;
+let ffFound = new Set();
+let ffPairs = [];
+let ffDoneThis = false;
+
+function ffRenderTarget() {
+  const el = document.getElementById('ff-target');
+  if (ffIdx >= ffPuzzles.length) {
+    el.innerHTML = '<b>All 6 finished!</b> You can list every factor of a number.';
+    return;
+  }
+  const p = ffPuzzles[ffIdx];
+  el.innerHTML = 'Number <span class="tt-num">' + (ffIdx+1) + '</span> of ' + ffPuzzles.length +
+    ' — find every factor of <span class="tt-num">' + p.n + '</span>' +
+    '<div style="font-size:13px;color:var(--muted);margin-top:4px">' + p.note + '</div>';
+}
+
+function ffRender() {
+  const n = ffPuzzles[ffIdx].n;
+  const grid = document.getElementById('ff-grid');
+  grid.innerHTML = '';
+  for (let k = 1; k <= n; k++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'num-cell' + (ffFound.has(k) ? ' good' : '');
+    b.textContent = k;
+    b.id = 'ff-cell-' + k;
+    b.disabled = ffDoneThis;
+    (function(kk){ b.onclick = function(){ ffTap(kk); }; })(k);
+    grid.appendChild(b);
+  }
+
+  const total = allFactors(n).length;
+  const sorted = Array.from(ffFound).sort(function(a,b){ return a-b; });
+  document.getElementById('ff-read').innerHTML =
+    'Factors found: <b>' + (sorted.length ? sorted.join(', ') : '—') + '</b> &nbsp;(' + sorted.length + ' of ' + total + ')';
+
+  const log = document.getElementById('ff-log');
+  if (ffPairs.length === 0) {
+    log.innerHTML = '<div class="log-row log-empty">Your factor pairs will appear here…</div>';
+  } else {
+    log.innerHTML = ffPairs.map(function(pr, i) {
+      return '<div class="log-row">Pair ' + (i+1) + ': <b>' + pr[0] + ' × ' + pr[1] + ' = ' + n + '</b>' +
+        (pr[0] === pr[1] ? ' <span class="arrow">→</span> same number twice, so it counts once' : '') + '</div>';
+    }).join('');
+  }
+}
+
+function ffLoad(i) {
+  ffIdx = i;
+  ffFound = new Set();
+  ffPairs = [];
+  ffDoneThis = false;
+  const fb = document.getElementById('ff-feedback');
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  document.getElementById('ff-next').classList.add('hidden');
+  ffRenderTarget();
+  ffRender();
+}
+
+function ffTap(k) {
+  if (ffDoneThis) return;
+  const n = ffPuzzles[ffIdx].n;
+  const fb = document.getElementById('ff-feedback');
+
+  if (n % k !== 0) {
+    const q = Math.floor(n / k);
+    const r = n - q * k;
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ ' + k + ' is not a factor of ' + n + '. ' + n + ' ÷ ' + k + ' = ' + q + ' remainder ' + r + ' — there is something left over.';
+    const cell = document.getElementById('ff-cell-' + k);
+    if (cell) {
+      cell.classList.add('bad');
+      setTimeout(function(){ cell.classList.remove('bad'); }, 700);
+    }
+    return;
+  }
+
+  const partner = n / k;
+  const lo = Math.min(k, partner);
+  const hi = Math.max(k, partner);
+
+  if (ffFound.has(lo) && ffFound.has(hi)) {
+    fb.className = 'pa-feedback show tip';
+    fb.textContent = 'You already have that pair: ' + lo + ' × ' + hi + ' = ' + n + '. Try a different number.';
+    return;
+  }
+
+  ffFound.add(lo);
+  ffFound.add(hi);
+  ffPairs.push([lo, hi]);
+
+  const total = allFactors(n).length;
+  if (ffFound.size >= total) {
+    ffDoneThis = true;
+    const list = Array.from(ffFound).sort(function(a,b){ return a-b; }).join(', ');
+    fb.className = 'pa-feedback show ok';
+    if (total === 2) {
+      fb.textContent = '✓ Done! ' + n + ' has exactly TWO factors (' + list + '), so ' + n + ' is PRIME.';
+    } else {
+      fb.textContent = '✓ Done! ' + n + ' has ' + total + ' factors: ' + list + '. More than two, so ' + n + ' is COMPOSITE.';
+    }
+    const nb = document.getElementById('ff-next');
+    nb.classList.remove('hidden');
+    nb.textContent = (ffIdx === ffPuzzles.length - 1) ? 'Finish ✓' : 'Next →';
+  } else {
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Yes! ' + lo + ' × ' + hi + ' = ' + n + (lo === hi ? '. That pair is the same number twice, so it only counts once.' : '. Keep climbing — try the next number up.');
+  }
+  ffRender();
+}
+
+function ffNext() {
+  if (ffIdx >= ffPuzzles.length - 1) {
+    document.getElementById('ff-done').classList.add('show');
+    document.getElementById('seg2').classList.add('done');
+    document.getElementById('ff-next').classList.add('hidden');
+    ffIdx = ffPuzzles.length;
+    ffRenderTarget();
+    return;
+  }
+  ffLoad(ffIdx + 1);
+}
+
+function initFactorFinder() {
+  document.getElementById('ff-next').onclick = ffNext;
+  document.getElementById('ff-reset').onclick = function() {
+    if (ffIdx < ffPuzzles.length) ffLoad(ffIdx);
+  };
+  ffLoad(0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — PRIME HUNTER (sieve up to 30, clean numbers only)
+// state[k] = 'open' | 'out' | 'neither'
+// ═══════════════════════════════════════════════════════════
+const PH_MAX = 30;
+const phStages = [
+  { p:0, instr:"Round 1 — Start with the odd one out. Tap the number <b>1</b>: it has only ONE factor, so it is neither prime nor composite." },
+  { p:2, instr:"Round 2 — <b>2 is prime, so keep it.</b> Cross out every OTHER multiple of 2 (4, 6, 8 … up to 30). Each one has 2 as an extra factor, so it must be composite." },
+  { p:3, instr:"Round 3 — <b>3 is prime, so keep it.</b> Cross out every multiple of 3 that is still standing." },
+  { p:5, instr:"Round 4 — <b>5 is prime, so keep it.</b> Cross out every multiple of 5 that is still standing." }
+];
+
+let phState = [];
+let phStage = 0;
+let phRemaining = new Set();
+let phStageTotal = 0;
+
+function phRenderTarget() {
+  const el = document.getElementById('ph-target');
+  if (phStage >= phStages.length) {
+    el.innerHTML = '<b>Grid cleared!</b> 7 is prime too — but the first multiple of 7 that is not already crossed out is 7 × 7 = 49, which is off this grid. ' +
+      'So everything still standing is <span class="tt-num" style="font-size:16px">PRIME</span>.';
+    return;
+  }
+  el.innerHTML = phStages[phStage].instr;
+}
+
+function phRender() {
+  const grid = document.getElementById('ph-grid');
+  grid.innerHTML = '';
+  const finished = phStage >= phStages.length;
+  for (let k = 1; k <= PH_MAX; k++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.id = 'ph-cell-' + k;
+    b.textContent = k;
+    let cls = 'num-cell';
+    if (phState[k] === 'out') cls += ' out';
+    else if (phState[k] === 'neither') cls += ' neither';
+    else if (finished) cls += ' prime';
+    b.className = cls;
+    b.disabled = finished;
+    (function(kk){ b.onclick = function(){ phTap(kk); }; })(k);
+    grid.appendChild(b);
+  }
+
+  const read = document.getElementById('ph-read');
+  if (finished) {
+    const primes = [];
+    for (let k = 1; k <= PH_MAX; k++) if (phState[k] === 'open') primes.push(k);
+    read.innerHTML = 'The <b>' + primes.length + ' primes under 30</b>: <b>' + primes.join(', ') + '</b>';
+  } else {
+    const done = phStageTotal - phRemaining.size;
+    read.innerHTML = 'This round: <b>' + done + ' of ' + phStageTotal + '</b> crossed out';
+  }
+}
+
+function phStartStage(i) {
+  phStage = i;
+  phRemaining = new Set();
+  if (i === 0) {
+    phRemaining.add(1);
+  } else if (i < phStages.length) {
+    const p = phStages[i].p;
+    for (let k = 2; k <= PH_MAX; k++) {
+      if (k !== p && k % p === 0 && phState[k] === 'open') phRemaining.add(k);
+    }
+  }
+  phStageTotal = phRemaining.size;
+  phRenderTarget();
+  phRender();
+}
+
+function phTap(k) {
+  if (phStage >= phStages.length) return;
+  const fb = document.getElementById('ph-feedback');
+
+  if (phState[k] === 'out') {
+    fb.className = 'pa-feedback show tip';
+    fb.textContent = k + ' is already crossed out. Look for one that is still standing.';
+    return;
+  }
+  if (phState[k] === 'neither') {
+    fb.className = 'pa-feedback show tip';
+    fb.textContent = '1 is already handled — it is neither prime nor composite.';
+    return;
+  }
+
+  if (phRemaining.has(k)) {
+    phState[k] = (phStage === 0) ? 'neither' : 'out';
+    phRemaining.delete(k);
+    if (phRemaining.size === 0) {
+      if (phStage === 0) {
+        fb.className = 'pa-feedback show ok';
+        fb.textContent = '✓ Right. 1 stands alone — its only factor is 1 itself, so it cannot be prime (needs two) or composite (needs more than two).';
+      } else {
+        fb.className = 'pa-feedback show ok';
+        fb.textContent = '✓ Round finished! Every multiple of ' + phStages[phStage].p + ' above ' + phStages[phStage].p + ' is gone.';
+      }
+      if (phStage < phStages.length - 1) {
+        phStartStage(phStage + 1);
+      } else {
+        phStage = phStages.length;
+        phRenderTarget();
+        phRender();
+        document.getElementById('ph-done').classList.add('show');
+        document.getElementById('seg3').classList.add('done');
+      }
+      return;
+    }
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ ' + k + ' is out — ' + phStages[phStage].p + ' × ' + (k / phStages[phStage].p) + ' = ' + k + ', so it has an extra factor and must be composite.';
+    phRender();
+    return;
+  }
+
+  // Wrong tap
+  const cell = document.getElementById('ph-cell-' + k);
+  if (cell) {
+    cell.classList.add('bad');
+    setTimeout(function(){ cell.classList.remove('bad'); }, 700);
+  }
+  fb.className = 'pa-feedback show no';
+  if (phStage === 0) {
+    fb.textContent = '✗ Only the number 1 this round — it is the one number that is neither prime nor composite.';
+  } else {
+    const p = phStages[phStage].p;
+    if (k === p) {
+      fb.textContent = '✗ Keep ' + p + '! ' + p + ' is PRIME — its only factors are 1 and ' + p + '. Cross out only the multiples that come after it.';
+    } else if (k % p !== 0) {
+      fb.textContent = '✗ ' + k + ' is not a multiple of ' + p + '. ' + p + ' does not divide into ' + k + ' evenly, so leave it standing.';
+    } else {
+      fb.textContent = '✗ Not that one — pick a multiple of ' + p + ' that is still standing.';
+    }
+  }
+}
+
+function initPrimeHunter() {
+  document.getElementById('ph-reset').onclick = function() {
+    const fb = document.getElementById('ph-feedback');
+    fb.className = 'pa-feedback';
+    fb.textContent = '';
+    document.getElementById('ph-done').classList.remove('show');
+    phResetGrid();
+  };
+  phResetGrid();
+}
+
+function phResetGrid() {
+  phState = [];
+  for (let k = 0; k <= PH_MAX; k++) phState[k] = 'open';
+  phStartStage(0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — PRACTICE (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const practiceQs = [
+  {
+    q: "What is the greatest common factor (GCF) of 12 and 18?",
+    choices: ["3", "6", "36", "2"],
+    correct: 1,
+    explain: "Factors of 12: 1, 2, 3, 4, 6, 12. Factors of 18: 1, 2, 3, 6, 9, 18. They share 1, 2, 3 and 6 — the biggest is 6."
+  },
+  {
+    q: "What is the least common multiple (LCM) of 4 and 6?",
+    choices: ["24", "2", "12", "10"],
+    correct: 2,
+    explain: "Multiples of 4: 4, 8, 12… Multiples of 6: 6, 12… The first one on both lists is 12. (24 is shared too, but it is not the LEAST.)"
+  },
+  {
+    q: "Which of these numbers is PRIME?",
+    choices: ["21", "27", "29", "33"],
+    correct: 2,
+    explain: "29 has only 1 and 29 as factors. The others are composite: 21 = 3 × 7, 27 = 3 × 9, 33 = 3 × 11."
+  },
+  {
+    q: "How many factors does 16 have?",
+    choices: ["4", "5", "6", "8"],
+    correct: 1,
+    explain: "Pairs: 1 × 16, 2 × 8, 4 × 4. That gives 1, 2, 4, 8, 16 — five factors. The 4 counts once because it pairs with itself."
+  },
+  {
+    q: "Which sentence is TRUE?",
+    choices: [
+      "8 is a factor of 24 and 24 is a multiple of 8",
+      "24 is a factor of 8 and 8 is a multiple of 24",
+      "8 and 24 are both factors of each other here",
+      "24 is a factor of 8 because 24 is the bigger one"
+    ],
+    correct: 0,
+    explain: "24 ÷ 8 = 3 with nothing left over, so 8 is a factor of 24 — and that same fact means 24 is a multiple of 8."
+  },
+  {
+    q: "Without dividing, how can you tell 435 is divisible by 5?",
+    choices: [
+      "Its digits add up to 12, which is an even number",
+      "It is an odd number, and odd numbers all divide by 5",
+      "It is bigger than 100, so 5 must divide into it",
+      "It ends in 5 — multiples of 5 end in 0 or 5"
+    ],
+    correct: 3,
+    explain: "Every multiple of 5 ends in 0 or 5. 435 ends in 5, so 5 divides in: 435 ÷ 5 = 87."
+  }
+];
+
+let prIdx = 0, prCorrect = 0, prAnswered = false;
+
+function renderPractice() {
+  const q = practiceQs[prIdx];
+  document.getElementById('pr-label').textContent = 'Question ' + (prIdx+1) + ' of 6';
+  document.getElementById('pr-prompt').textContent = q.q;
+  const fb = document.getElementById('pr-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('pr-next').classList.add('hidden');
+  prAnswered = false;
+
+  const choicesEl = document.getElementById('pr-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerPractice(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('pr-progress').textContent = prCorrect + ' / 6 correct so far';
+}
+
+function answerPractice(idx) {
+  if (prAnswered) return;
+  prAnswered = true;
+  const q = practiceQs[prIdx];
+  const btns = document.querySelectorAll('#pr-choices .choice-btn');
+  const fb = document.getElementById('pr-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    prCorrect++;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('pr-progress').textContent = prCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('pr-next');
+  nextBtn.classList.remove('hidden');
+  if (prIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishPractice;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = practiceNext;
+  }
+}
+
+function practiceNext() {
+  prIdx++;
+  if (prIdx < 6) renderPractice();
+}
+
+function finishPractice() {
+  document.getElementById('pr-done').classList.add('show');
+  document.getElementById('pr-next').classList.add('hidden');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — WORD PROBLEMS (phoenix appears in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A phoenix rebuilds its nest out of <strong>24 cinnamon twigs</strong>, and it insists on laying them out in <strong>equal rows</strong> with none left over. List every factor pair of 24, then say whether 24 is prime or composite.",
+    solution: [
+      {label:"Try 1", math:"1 × 24 = 24 ✓"},
+      {label:"Try 2", math:"2 × 12 = 24 ✓"},
+      {label:"Try 3", math:"3 × 8 = 24 ✓"},
+      {label:"Try 4", math:"4 × 6 = 24 ✓"},
+      {label:"Try 5", text:"24 ÷ 5 = 4 remainder 4 ✗ — 5 is not a factor."},
+      {label:"Stop here", text:"The next number to test is 6, but 6 already appeared as the partner of 4. The pairs have met, so every factor is found."},
+      {label:"Answer", math:"1, 2, 3, 4, 6, 8, 12, 24 — eight factors"},
+      {label:"Prime or composite", text:"Eight factors is more than two, so 24 is COMPOSITE ✓"}
+    ]
+  },
+  {
+    text: "Legend says a phoenix bursts into flame and is reborn from its ashes <strong>every 9 years</strong>. The last rebirth was in year 0 of the temple calendar. What are the <strong>next five</strong> rebirth years?",
+    solution: [
+      {label:"What we need", text:"The multiples of 9 — skip-counting by 9."},
+      {label:"Count up", math:"9 × 1 = 9, 9 × 2 = 18, 9 × 3 = 27, 9 × 4 = 36, 9 × 5 = 45"},
+      {label:"Answer", text:"Years 9, 18, 27, 36 and 45."},
+      {label:"Watch the direction", text:"These are MULTIPLES, so they get bigger and the list never ends. The FACTORS of 9 are only 1, 3 and 9 — a short list that goes the other way."},
+      {label:"Check", math:"45 ÷ 9 = 5 ✓ (so 45 really is the 5th rebirth)"}
+    ]
+  },
+  {
+    text: "Two phoenixes nest on the same volcano. The red one returns <strong>every 4 years</strong>. The gold one returns <strong>every 6 years</strong>. Both are on the volcano this year. How many years until they are both there again?",
+    solution: [
+      {label:"What we need", text:"The LEAST common multiple of 4 and 6 — the first year both lists share."},
+      {label:"Red phoenix", math:"4, 8, 12, 16, 20, 24 …"},
+      {label:"Gold phoenix", math:"6, 12, 18, 24 …"},
+      {label:"First match", math:"12"},
+      {label:"Answer", text:"12 years."},
+      {label:"Check", math:"12 ÷ 4 = 3 red visits and 12 ÷ 6 = 2 gold visits ✓"},
+      {label:"Careful", text:"24 is also on both lists, but it is not the LEAST — they meet at 12 first."}
+    ]
+  },
+  {
+    text: "A temple keeper has <strong>18 fire-lilies</strong> and <strong>24 ember-seeds</strong>. She wants to make <strong>identical offering bundles</strong>, using every lily and every seed with nothing left over. What is the greatest number of bundles she can make, and what goes in each one?",
+    solution: [
+      {label:"What we need", text:"The GREATEST common factor of 18 and 24."},
+      {label:"Factors of 18", math:"1, 2, 3, 6, 9, 18"},
+      {label:"Factors of 24", math:"1, 2, 3, 4, 6, 8, 12, 24"},
+      {label:"Shared", math:"1, 2, 3, 6 → the greatest is 6"},
+      {label:"Split them up", math:"18 ÷ 6 = 3 lilies, 24 ÷ 6 = 4 seeds"},
+      {label:"Answer", text:"6 bundles, each holding 3 fire-lilies and 4 ember-seeds."},
+      {label:"Check", math:"6 × 3 = 18 ✓ and 6 × 4 = 24 ✓ — nothing left over"}
+    ]
+  },
+  {
+    text: "Five phoenix feathers glow with the numbers <strong>17, 21, 23, 25 and 29</strong>. A feather only stays lit if its number is <strong>PRIME</strong>. Which feathers stay lit?",
+    solution: [
+      {label:"The test", text:"For a number under 30 you only need to try 2, 3 and 5. If none of them divide in evenly, the number is prime."},
+      {label:"17", text:"Not even, 1 + 7 = 8 (not a multiple of 3), does not end in 0 or 5 → PRIME, stays lit ✓"},
+      {label:"21", math:"3 × 7 = 21 → composite, goes out ✗"},
+      {label:"23", text:"Not even, 2 + 3 = 5 (not a multiple of 3), does not end in 0 or 5 → PRIME, stays lit ✓"},
+      {label:"25", math:"5 × 5 = 25 → composite, goes out ✗"},
+      {label:"29", text:"Not even, 2 + 9 = 11 (not a multiple of 3), does not end in 0 or 5 → PRIME, stays lit ✓"},
+      {label:"Answer", text:"17, 23 and 29 stay lit."},
+      {label:"Trap", text:"21 and 25 are odd, but odd does NOT mean prime — always count the factors."}
+    ]
+  },
+  {
+    text: "A phoenix's tail has <strong>45 glowing feathers</strong>. The keeper wants to lay them out in equal rows with none left over. Using only the <strong>divisibility shortcuts</strong> (no long division!), decide whether rows of <strong>2</strong>, rows of <strong>3</strong>, rows of <strong>5</strong> and rows of <strong>10</strong> would work.",
+    solution: [
+      {label:"Rows of 2", text:"45 ends in 5, so it is odd → NO ✗"},
+      {label:"Rows of 3", math:"4 + 5 = 9, and 9 is a multiple of 3 → YES ✓"},
+      {label:"Rows of 5", text:"45 ends in 5 → YES ✓"},
+      {label:"Rows of 10", text:"45 does not end in 0 → NO ✗"},
+      {label:"Answer", text:"Rows of 3 and rows of 5 work. Rows of 2 and rows of 10 do not."},
+      {label:"Check", math:"3 × 15 = 45 ✓ and 5 × 9 = 45 ✓"},
+      {label:"Notice", text:"Anything divisible by 10 must be divisible by 2 as well — and 45 failed the 2 test, so it never had a chance at 10."}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg5').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"Which is a factor of 15?",       choices:["4","5","6"],                  correct:1 },
+  { q:"Which is a multiple of 7?",      choices:["27","32","28"],               correct:2 },
+  { q:"Is 9 prime or composite?",       choices:["Composite","Prime","Neither"],correct:0 },
+  { q:"Is 2 prime or composite?",       choices:["Composite","Neither","Prime"],correct:2 },
+  { q:"How many factors does 7 have?",  choices:["2","1","7"],                  correct:0 },
+  { q:"GCF of 8 and 12 = ?",            choices:["2","24","4"],                 correct:2 },
+  { q:"LCM of 3 and 5 = ?",             choices:["15","8","30"],                correct:0 },
+  { q:"Which is divisible by 10?",      choices:["45","60","36"],               correct:1 },
+  { q:"The number 1 is …",              choices:["Prime","Composite","Neither"],correct:2 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(9).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/9';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg6').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 7 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "What does it mean for one number to be a factor of another?",
+    opts: [
+      "A number you get by skip-counting from it over and over",
+      "A number that divides into it with no remainder",
+      "Any number that is smaller than it, no matter what it is",
+      "The answer you get when you add the number to itself"
+    ],
+    correct: 1,
+    explain: "A factor divides in evenly, nothing left over. Skip-counting gives you multiples, not factors."
+  },
+  {
+    q: "Which list shows ALL the factors of 12?",
+    opts: ["1, 2, 3, 4, 6, 12", "1, 2, 3, 4, 5, 6, 12", "12, 24, 36, 48", "2, 3, 4, 6"],
+    correct: 0,
+    explain: "Pairs: 1 × 12, 2 × 6, 3 × 4 → 1, 2, 3, 4, 6, 12. 5 is not a factor, 12, 24, 36, 48 are multiples, and the last list forgets 1 and 12."
+  },
+  {
+    q: "Which of these is a multiple of 8?",
+    opts: ["4", "18", "56", "12"],
+    correct: 2,
+    explain: "8, 16, 24, 32, 40, 48, 56 — yes, 8 × 7 = 56. (4 is a factor of 8, not a multiple.)"
+  },
+  {
+    q: "Which of these numbers is PRIME?",
+    opts: ["25", "23", "27", "21"],
+    correct: 1,
+    explain: "23 has only 1 and 23 as factors. 25 = 5 × 5, 27 = 3 × 9 and 21 = 3 × 7, so those are composite."
+  },
+  {
+    q: "Is 1 prime, composite, or neither?",
+    opts: [
+      "Prime, because it is the smallest counting number there is",
+      "Composite, since 1 can go into every other number easily",
+      "Prime, because you can only divide it by 1 and by itself",
+      "Neither — it has only one factor"
+    ],
+    correct: 3,
+    explain: "1 has exactly one factor. Prime needs two, composite needs more than two, so 1 is in neither group."
+  },
+  {
+    q: "Why is 2 the only even prime number?",
+    opts: [
+      "Because 2 is the smallest number that anyone ever counts with",
+      "Because even numbers cannot be divided by anything at all",
+      "Every other even number also has 2 as a factor",
+      "Because all of the other even numbers are much too large"
+    ],
+    correct: 2,
+    explain: "For 2 itself the factors are just 1 and 2. Every other even number picks up 2 as an EXTRA factor, giving it more than two — composite."
+  },
+  {
+    q: "What is the GCF of 16 and 24?",
+    opts: ["8", "4", "2", "48"],
+    correct: 0,
+    explain: "Factors of 16: 1, 2, 4, 8, 16. Factors of 24: 1, 2, 3, 4, 6, 8, 12, 24. They share 1, 2, 4, 8 — the greatest is 8."
+  },
+  {
+    q: "What is the LCM of 6 and 8?",
+    opts: ["14", "48", "2", "24"],
+    correct: 3,
+    explain: "Multiples of 6: 6, 12, 18, 24. Multiples of 8: 8, 16, 24. The first shared one is 24. (48 is shared but it is not the least.)"
+  },
+  {
+    q: "Aisha says 6 is a factor of 3 because 6 is the bigger number. Is she right?",
+    opts: [
+      "Yes — the bigger number is always the factor of the smaller one",
+      "No — 3 is a factor of 6, and 6 is a multiple of 3",
+      "Yes, because 3 and 6 are both in the same times table anyway",
+      "No, because 3 and 6 have nothing at all to do with each other"
+    ],
+    correct: 1,
+    explain: "She has it backwards. Factors are the smaller numbers that fit inside; 6 cannot fit inside 3."
+  },
+  {
+    q: "Which of these numbers is COMPOSITE?",
+    opts: ["19", "31", "25", "29"],
+    correct: 2,
+    explain: "25 = 5 × 5, so its factors are 1, 5 and 25 — three of them, which is more than two. 19, 31 and 29 are all prime."
+  }
+];
+
+let quizAnswers = new Array(10).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 10, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 10) { msg = 'Perfect score! Outstanding!'; sub = 'Factors, multiples, primes, GCF and LCM — you own all of it. Phoenix-level comeback!'; }
+  else if (quizScore >= 8) { msg = 'Great job!'; sub = 'Strong work — just keep factors (small, divide IN) and multiples (big, count UP) clearly apart.'; }
+  else if (quizScore >= 6) { msg = 'Good effort!'; sub = 'Review the ones you missed, then run the Factor Finder in Phase 2 again.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back to Phase 2 and Phase 3 and work through both tools one more time.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg7').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 10 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  initFactorFinder();
+  initPrimeHunter();
+  renderPractice();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -112,7 +112,7 @@ Math games, tools, and mechanics use CLEAN NUMBERS — no animals in the calcula
 ## All-in-one build
 Script: `/tmp/claude-.../scratchpad/build-allinone.js`
 Run with: `node build-allinone.js` from the scratchpad dir
-Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 4881KB, 114 lessons)
+Output: `Fourth-to-5th-Refresh-All-In-One.html` (currently 5164KB, 119 lessons)
 Each lesson is inlined into `window.LESSONS[file]` and opened in a **srcdoc iframe**
 (`frame.srcdoc = window.LESSONS[file]`). This is REQUIRED for saving to work:
 every lesson declares the same top-level names (`const QAKEY`, `let xp`, `function go`…),
