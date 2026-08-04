@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELA Day 22 — Kraken 🦑</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.65;min-height:100vh;}
+a{color:var(--accent2);text-decoration:none;}
+h1{font-size:1.7rem;font-weight:800;color:var(--accent);}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:8px;}
+h3{font-size:1.05rem;font-weight:600;}
+p{margin-bottom:.8em;}
+strong{color:var(--warn);}
+
+/* LAYOUT */
+#app{max-width:780px;margin:0 auto;padding:0 0 80px;}
+
+/* PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+}
+.pb-seg{
+  flex:1;min-width:60px;height:8px;border-radius:4px;
+  background:var(--line);cursor:pointer;transition:background .3s;
+  position:relative;
+}
+.pb-seg.done{background:var(--good);}
+.pb-seg.active{background:var(--accent2);}
+.pb-seg:hover::after{
+  content:attr(data-label);position:absolute;top:14px;left:50%;
+  transform:translateX(-50%);background:var(--panel2);
+  color:var(--ink);font-size:.72rem;padding:2px 7px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;z-index:200;
+}
+#pb-title{font-size:.8rem;color:var(--muted);width:100%;text-align:center;margin-top:2px;}
+
+/* HEADER */
+#hero{padding:28px 16px 16px;text-align:center;}
+#hero .day-badge{display:inline-block;background:var(--panel2);color:var(--accent2);
+  border-radius:20px;padding:3px 14px;font-size:.8rem;font-weight:700;margin-bottom:8px;}
+#hero p{color:var(--muted);font-size:.95rem;}
+
+/* PHASE SECTIONS */
+.phase{padding:0 16px;display:none;}
+.phase.visible{display:block;}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-top:4px;}
+.phase-num{width:36px;height:36px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.phase-title{font-size:1.1rem;font-weight:700;}
+.phase-time{font-size:.8rem;color:var(--muted);margin-left:auto;}
+
+/* CARDS */
+.card{background:var(--panel);border-radius:var(--radius);padding:18px;margin-bottom:12px;border:1px solid var(--line);}
+
+/* FACT CARDS */
+.fact-card{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+.fact-card.revealed{border-color:var(--accent2);}
+.fact-front{padding:18px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:60px;}
+.fact-icon{font-size:1.6rem;flex-shrink:0;}
+.fact-hint{color:var(--muted);font-size:.88rem;margin-left:auto;flex-shrink:0;}
+.fact-body{display:none;padding:0 18px 18px;}
+.fact-card.revealed .fact-body{display:block;}
+.fact-text{color:var(--ink);font-size:.97rem;margin-bottom:12px;}
+.fact-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.fact-btn{border:none;border-radius:8px;padding:8px 16px;font-size:.88rem;cursor:pointer;
+  background:var(--panel2);color:var(--ink);transition:background .2s;min-height:44px;}
+.fact-btn:hover{background:var(--line);}
+.fact-btn.knew{background:var(--good);color:#111;}
+.fact-btn.new{background:var(--accent2);color:#111;}
+
+/* READING PASSAGE */
+.passage{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);line-height:1.8;}
+.passage h3{color:var(--accent2);font-size:1.15rem;margin-bottom:14px;}
+.vocab-word{background:rgba(91,209,196,.15);color:var(--accent2);border-radius:4px;
+  padding:1px 5px;font-weight:600;cursor:help;position:relative;border-bottom:1px dashed var(--accent2);}
+.vocab-word:hover::after{
+  content:attr(data-def);position:absolute;bottom:calc(100%+4px);left:50%;
+  transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent2);
+  color:var(--ink);font-size:.78rem;padding:5px 9px;border-radius:7px;
+  white-space:normal;max-width:220px;text-align:center;pointer-events:none;z-index:50;
+  font-weight:400;line-height:1.4;
+}
+
+/* COMPREHENSION ACCORDION */
+.accord-item{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:10px;overflow:hidden;}
+.accord-q{padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:.97rem;min-height:54px;}
+.accord-arrow{margin-left:auto;color:var(--muted);transition:transform .3s;flex-shrink:0;}
+.accord-item.open .accord-arrow{transform:rotate(90deg);}
+.accord-a{display:none;padding:0 18px 16px;color:var(--muted);font-size:.93rem;line-height:1.65;}
+.accord-item.open .accord-a{display:block;}
+
+/* VOCABULARY MATCH */
+.vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.vocab-tile{
+  background:var(--panel2);border-radius:10px;padding:14px;min-height:54px;
+  border:2px solid var(--line);cursor:pointer;text-align:center;
+  font-size:.9rem;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;line-height:1.4;
+}
+.vocab-tile:hover:not(.matched):not(.selected){border-color:var(--muted);}
+.vocab-tile.selected{border-color:var(--accent);background:rgba(255,122,89,.12);}
+.vocab-tile.matched{border-color:var(--good);background:rgba(123,216,143,.12);
+  color:var(--good);pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease;}
+.vocab-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:8px;}
+
+/* SKILL PRACTICE */
+.se-card{background:var(--panel);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--line);}
+.se-para{background:var(--panel2);border-left:3px solid var(--accent2);border-radius:8px;
+  padding:12px 14px;font-size:.93rem;line-height:1.7;color:var(--ink);margin-bottom:12px;}
+.se-stmt{font-size:.97rem;margin-bottom:12px;font-weight:500;}
+.se-btns{display:flex;flex-direction:column;gap:8px;}
+.se-btn{width:100%;min-height:44px;border:2px solid var(--line);border-radius:8px;
+  background:transparent;color:var(--ink);cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .2s;padding:10px 12px;text-align:left;line-height:1.4;}
+.se-btn:hover:not(:disabled){border-color:var(--muted);}
+.se-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good);}
+.se-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad);}
+.se-feedback{font-size:.82rem;margin-top:8px;min-height:20px;}
+.se-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:12px;}
+.se-part{font-size:.85rem;font-weight:700;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.06em;margin:22px 0 10px;}
+
+/* VENN-STYLE CHART */
+.venn{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;}
+.venn-col{background:var(--panel2);border-radius:10px;padding:12px;font-size:.86rem;line-height:1.5;}
+.venn-col.mid{border:2px solid var(--accent2);}
+.venn-head{font-weight:700;font-size:.82rem;margin-bottom:6px;color:var(--accent);text-align:center;}
+.venn-col.mid .venn-head{color:var(--accent2);}
+@media(max-width:520px){ .venn{grid-template-columns:1fr;} }
+
+/* WRITING PAD */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:2px solid var(--line);
+  border-radius:var(--radius);padding:16px;color:var(--ink);font-size:.97rem;
+  line-height:1.7;resize:vertical;font-family:inherit;outline:none;
+  transition:border-color .2s;}
+.writing-area:focus{border-color:var(--accent2);}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;
+  margin-top:8px;font-size:.82rem;color:var(--muted);}
+.save-indicator{color:var(--good);font-size:.8rem;opacity:0;transition:opacity .4s;}
+.save-indicator.show{opacity:1;}
+
+/* QUIZ */
+.quiz-progress{display:flex;gap:6px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+.q-dot{width:14px;height:14px;border-radius:50%;background:var(--line);transition:background .3s;}
+.q-dot.active{background:var(--accent);}
+.q-dot.correct{background:var(--good);}
+.q-dot.wrong{background:var(--bad);}
+.quiz-q{font-size:1.05rem;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;}
+.quiz-opt{
+  background:var(--panel2);border:2px solid var(--line);border-radius:10px;
+  padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);
+  font-size:.95rem;min-height:54px;transition:border-color .2s,background .2s;
+  width:100%;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--muted);}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.12);}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);}
+.quiz-feedback{min-height:28px;font-size:.88rem;margin-top:10px;padding:6px 10px;
+  border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(123,216,143,.1);color:var(--good);}
+.quiz-feedback.wrong{background:rgba(255,107,129,.1);color:var(--bad);}
+.quiz-next{margin-top:14px;background:var(--accent);border:none;border-radius:10px;
+  padding:12px 28px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;
+  min-height:48px;display:none;}
+.quiz-next:hover{background:#e8693e;}
+.quiz-result{text-align:center;padding:24px 0;}
+.quiz-result .score-big{font-size:3rem;font-weight:800;color:var(--accent2);}
+.quiz-result .score-label{color:var(--muted);margin-top:4px;}
+.quiz-result .score-msg{margin-top:14px;font-size:1rem;}
+
+/* NAV BUTTONS */
+.phase-nav{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+.btn-primary{background:var(--accent);border:none;border-radius:10px;
+  padding:12px 26px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;min-height:48px;}
+.btn-primary:hover{background:#e8693e;}
+.btn-ghost{background:transparent;border:2px solid var(--line);border-radius:10px;
+  padding:10px 20px;color:var(--muted);font-size:.95rem;cursor:pointer;min-height:48px;}
+.btn-ghost:hover{border-color:var(--muted);color:var(--ink);}
+
+/* UTILITY */
+.divider{height:1px;background:var(--line);margin:20px 0;}
+.tag{display:inline-block;border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:700;}
+.tag-phase{background:rgba(91,209,196,.15);color:var(--accent2);}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .vocab-grid{grid-template-columns:1fr;}
+  h1{font-size:1.35rem;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PHASE BAR -->
+  <div id="phase-bar">
+    <div class="pb-seg" data-phase="1" data-label="Warm-Up"></div>
+    <div class="pb-seg" data-phase="2" data-label="Reading"></div>
+    <div class="pb-seg" data-phase="3" data-label="Comprehension"></div>
+    <div class="pb-seg" data-phase="4" data-label="Vocabulary"></div>
+    <div class="pb-seg" data-phase="5" data-label="Compare &amp; Contrast"></div>
+    <div class="pb-seg" data-phase="6" data-label="Writing"></div>
+    <div class="pb-seg" data-phase="7" data-label="Quiz"></div>
+    <div id="pb-title">Phase 1 — Warm-Up</div>
+  </div>
+
+  <!-- HERO -->
+  <div id="hero">
+    <div class="day-badge">ELA · Day 22</div>
+    <h1>🦑 Kraken</h1>
+    <p>Reading · Vocabulary · Writing · Quiz</p>
+  </div>
+
+  <!-- ======================== PHASE 1 ======================== -->
+  <section class="phase visible" id="phase-1">
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div>
+        <div class="phase-title">Warm-Up Fact Cards</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+      <div class="phase-time">4 cards</div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each card to reveal the fact, then tell us what you thought!</p>
+
+    <div class="fact-card" id="fc-1">
+      <div class="fact-front" onclick="revealFact('fc-1')">
+        <span class="fact-icon">🦑</span>
+        <span style="font-weight:600;">The Monster Is a Real Animal</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">For hundreds of years sailors told stories about the <strong>kraken</strong>, a creature big enough to pull a ship under. Then in 1857 a Danish scientist named Japetus Steenstrup used beaks and body parts washed ashore to show the world what was really out there: the <strong>giant squid</strong>. The monster was an animal the whole time — we just had never gotten a good look at it.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-1')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-1')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-2">
+      <div class="fact-front" onclick="revealFact('fc-2')">
+        <span class="fact-icon">👁️</span>
+        <span style="font-weight:600;">Eyes the Size of Dinner Plates</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">A giant squid has the <strong>largest eyes of any animal on Earth</strong> — around 10 inches across, about the width of a dinner plate. Down where it lives there is almost no sunlight, so those enormous eyes are for spotting the faint glow of other animals, and for seeing a sperm whale coming before it arrives.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-2')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-2')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-3">
+      <div class="fact-front" onclick="revealFact('fc-3')">
+        <span class="fact-icon">📹</span>
+        <span style="font-weight:600;">Nobody Filmed One Alive Until 2012</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">People had seen dead giant squid for over a century, but no one had ever filmed a living one in the deep ocean until <strong>2012</strong>, when a team off Japan finally caught one on camera. Think about that: for most of history, everything anybody "knew" about this animal came from washed-up bodies and scared guesses.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-3')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-3')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-4">
+      <div class="fact-front" onclick="revealFact('fc-4')">
+        <span class="fact-icon">🕸️</span>
+        <span style="font-weight:600;">Lost Fishing Nets Keep Fishing</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Fishing gear that gets lost overboard doesn't stop working. Divers call it <strong>ghost gear</strong>, and it drifts for years, tangling turtles, seals, dolphins, sharks, and squid. Rescue crews around the world do nothing but cut animals loose from it. A lot of "sea monster attacks" turn out to be an animal that is <strong>stuck</strong> and panicking.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-4')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-4')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-primary" onclick="goPhase(2)">Next: Reading →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 2 ======================== -->
+  <section class="phase" id="phase-2">
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <div>
+        <div class="phase-title">Reading Passage</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="passage">
+      <h3>The Thing Under the Silver Marlin</h3>
+
+      <p><strong>Part 1 — Eleven Nights of Stories</strong></p>
+
+      <p>Wren Alcott had been a deckhand on the sailing ship <em>Silver Marlin</em> for eleven days, and in that time she had heard the story of the Deepmaw six times.</p>
+
+      <p>It got bigger every time.</p>
+
+      <p>On Monday the Deepmaw had arms as long as the mainmast. By Thursday the arms were as long as the whole ship. By Saturday night, with the cook, Nan Bly, leaning in close over her mug, the Deepmaw was the size of an island — a thing that lay waiting under the waves for a ship to sail across it, closed around the hull like a fist closing on a beetle, and pulled it down without a sound.</p>
+
+      <p>"And not one sailor ever came home to tell about it," Nan finished, the way she always did.</p>
+
+      <p>Wren was twelve, and she was not stupid. <em>If nobody ever came home,</em> she wanted to ask, <em>then who told you?</em> But every grown sailor at that table reached into a pocket and touched an iron nail when the Deepmaw came up — an old <span class="vocab-word" data-def="a belief that something brings good or bad luck, with no proof behind it">superstition</span> against bad luck — and nobody was laughing, so Wren kept the question in her mouth.</p>
+
+      <p>Only Teodor Vask ever gave her a straight answer. He was the bosun, the oldest man aboard, and he had a habit of saying odd things while coiling rope.</p>
+
+      <p>"Each time that story goes around the table it grows an arm," he said. "Sailors <span class="vocab-word" data-def="to make something sound bigger, worse, or scarier than it really is">exaggerate</span>, girl. Not because they lie. Because there's a hole in the middle of that story where the truth ought to be, and fear moves into empty places."</p>
+
+      <p><strong>Part 2 — The Water Goes Wrong</strong></p>
+
+      <p>On the fourteenth night the wind died completely.</p>
+
+      <p>The sea went flat and black and glassy, and the <em>Silver Marlin</em> sat on it like a toy on a tabletop. Wren had the middle watch. She was counting stars and losing count when the deck jolted under her boots hard enough to sit her down.</p>
+
+      <p>Then the water off the starboard rail lifted.</p>
+
+      <p>It rose in a smooth dark hill, wider than the ship was long, and something inside that hill was pale. An <span class="vocab-word" data-def="so huge it is hard to believe your own eyes">immense</span> shape slid up out of the dark — an arm, thicker than a barrel, longer than the mast, streaked with white — and slapped down across the rail six feet from where Wren sat.</p>
+
+      <p>Somebody screamed. A lantern went over. Boots came pounding up from below, and Nan Bly was shouting one word over and over: <em>Deepmaw, Deepmaw, Deepmaw.</em></p>
+
+      <p><strong>Part 3 — Wren Looks</strong></p>
+
+      <p>Here is what Wren could never explain afterward: she did not run.</p>
+
+      <p>Everyone else went backward. Wren went forward, on her knees, dragging the lantern with her, until she was close enough to the rail to see.</p>
+
+      <p>The arm was not grabbing the ship. It was <span class="vocab-word" data-def="to twist and squirm around, usually because you are hurt or stuck">writhing</span> — twisting, yanking, pulling in one direction over and over, the way you pull your foot when your shoelace is caught in a bike chain. Faint blue-green sparks ran down its skin in waves, <span class="vocab-word" data-def="able to make its own light inside its body, like a firefly">bioluminescent</span> light flickering on and off like breath.</p>
+
+      <p>Wren lifted the lantern higher, and she saw the net.</p>
+
+      <p>A great gray snarl of it, hundreds of feet of lost fishing net and rope and floats, wound around the arm and the body beneath. The animal was completely <span class="vocab-word" data-def="caught and twisted up in something so badly you cannot get free">entangled</span> — and the far end of that net was hooked hard around the <em>Silver Marlin</em>'s anchor chain.</p>
+
+      <p>It wasn't dragging the ship down. It was stuck to the ship, and terrified, and trying to get away.</p>
+
+      <p>Then the water turned again, and an eye came up out of it. An eye as wide as a dinner plate, gold-rimmed, with a black slot down the middle of it. It rolled toward the lantern and it stopped, and it looked at Wren.</p>
+
+      <p>She had expected to see hate in it. There wasn't any. There was just an animal that wanted the net off.</p>
+
+      <p><strong>Part 4 — The Knife</strong></p>
+
+      <p>"Harpoons!" someone yelled. "Get the harpoons up!"</p>
+
+      <p>"NO." Wren was on her feet without deciding to be. "It isn't holding us! <em>We're</em> holding <em>it</em> — look at the anchor chain!"</p>
+
+      <p>Captain Orla Fenn shoved through the crowd, took one long look over the rail, and put a hand flat on Wren's shoulder. "Vask," she said. "Chair and lines. Nobody throws anything."</p>
+
+      <p>They rigged a bosun's chair off the rail. Wren went down it with a knife on a lanyard — she was the smallest and the net was tight — and Vask came after her on a second line.</p>
+
+      <p>Every cut had to be <span class="vocab-word" data-def="careful and slow on purpose, so nobody gets hurt">cautious</span>, because an arm that could crush a rowboat was ten inches from her elbow. Wren talked the whole time, low and steady, mostly nonsense — <em>almost, almost, hold still</em> — the way you talk to a dog with a thorn in its paw.</p>
+
+      <p>The animal held still.</p>
+
+      <p>The last strand went at half past three in the morning. The huge arm slid off the rail, unhurried, not even brushing her, and the whole immense shape sank backward into the black — and just before it disappeared it lit up, top to bottom, one long pulse of blue-green light.</p>
+
+      <p><strong>Part 5 — The Hole in the Story</strong></p>
+
+      <p>Nobody on deck said anything for a while.</p>
+
+      <p>"What did it look like?" Nan Bly finally asked. "Up close. What did it <em>really</em> look like?"</p>
+
+      <p>Wren thought about it. "Scared," she said.</p>
+
+      <p>Vask started coiling the cut net onto the deck, because that was Vask. "Fourteen nights you listened to us make that thing the size of an island," he said. "Took you about fourteen seconds with a lantern to find out what it actually was."</p>
+
+      <p>Wren spent the rest of that voyage filling a notebook. She drew the arm and marked its width against a barrel. She wrote down the shape of the eye, the color of the light, how the arm moved when it was stuck and how it moved when it was free. At the back she kept a list of the questions she still could not answer, because Vask said the list of what you don't know is the most honest page in any book.</p>
+
+      <p>The crew still told the Deepmaw story. Sailors always will. But now, when it reached the part about the island-sized monster that hates ships, Wren would slide her notebook down the table, open it, and say, "Want to see what it really looks like?"</p>
+
+      <p>And the hole in the middle of the story got a little smaller every time.</p>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(1)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(3)">Next: Comprehension →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 3 ======================== -->
+  <section class="phase" id="phase-3">
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <div>
+        <div class="phase-title">Comprehension Check</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each question to reveal the answer. Think about your answer first!</p>
+
+    <div class="accord-item" id="acc-1">
+      <div class="accord-q" onclick="toggleAccord('acc-1')">
+        <span>1.</span> How does the Deepmaw story change each time the crew tells it?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">It gets bigger. On Monday the arms are as long as the mainmast, by Thursday as long as the whole ship, and by Saturday the creature is the size of an island. Vask says the story "grows an arm" every time it goes around the table.</div>
+    </div>
+
+    <div class="accord-item" id="acc-2">
+      <div class="accord-q" onclick="toggleAccord('acc-2')">
+        <span>2.</span> What question does Wren want to ask about the story, and why doesn't she?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">If no sailor who saw the Deepmaw ever came home, then who told the story in the first place? She keeps quiet because the grown sailors touch iron nails for luck when the Deepmaw comes up, and nobody is laughing — she is the new deckhand and she doesn't want to be the one who laughs.</div>
+    </div>
+
+    <div class="accord-item" id="acc-3">
+      <div class="accord-q" onclick="toggleAccord('acc-3')">
+        <span>3.</span> What does Wren see when she brings the lantern close that everyone else missed?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">She sees that the arm is writhing, not grabbing, and that the animal is wrapped in a huge snarl of lost fishing net — and that the net is hooked around the ship's own anchor chain. The creature isn't attacking the ship; it is stuck to it and trying to get away.</div>
+    </div>
+
+    <div class="accord-item" id="acc-4">
+      <div class="accord-q" onclick="toggleAccord('acc-4')">
+        <span>4.</span> Why does Captain Fenn say "Nobody throws anything"?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Because Wren has just given her new information — the animal is caught, not attacking — and the captain looks for herself before deciding. A harpoon would hurt an animal that is already trapped, and it would not free the ship. Cutting the net solves the real problem.</div>
+    </div>
+
+    <div class="accord-item" id="acc-5">
+      <div class="accord-q" onclick="toggleAccord('acc-5')">
+        <span>5.</span> What is the THEME (big idea) of the story?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Fear grows in the gaps where knowledge is missing. Vask says it out loud: "fear moves into empty places." The crew filled fourteen nights of not-knowing with a monster; Wren filled the same gap with a lantern, a notebook, and a careful look — and the monster turned out to be a frightened animal in a net.</div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(2)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(4)">Next: Vocabulary →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 4 ======================== -->
+  <section class="phase" id="phase-4">
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <div>
+        <div class="phase-title">Vocabulary Match</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap a <strong style="color:var(--accent);">word</strong>, then tap its <strong style="color:var(--accent2);">definition</strong>. Match all 7 pairs!</p>
+
+    <div class="vocab-grid" id="vocab-grid"></div>
+    <div class="vocab-score" id="vocab-score">0 / 7 matched</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(3)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(5)">Next: Compare &amp; Contrast →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 5 ======================== -->
+  <section class="phase" id="phase-5">
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <div>
+        <div class="phase-title">Compare &amp; Contrast</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--accent2);">🔍 What Does "Compare &amp; Contrast" Mean?</h3>
+      <p style="font-size:.95rem;">Two words, two jobs:</p>
+      <p style="font-size:.95rem;background:var(--panel2);border-radius:8px;padding:12px;">
+        🤝 <strong>COMPARE</strong> = tell how two things are <strong>ALIKE</strong>.<br>
+        ✂️ <strong>CONTRAST</strong> = tell how two things are <strong>DIFFERENT</strong>.
+      </p>
+      <p style="font-size:.93rem;color:var(--muted);">Easy memory trick: <em>con-<strong>TRAST</strong></em> has a <strong>T</strong> in it, like <strong>T</strong>elling them apart.</p>
+
+      <p style="font-size:.95rem;margin-top:14px;"><strong>Signal words tell you which one is happening.</strong> Authors leave these lying around like footprints:</p>
+      <p style="font-size:.93rem;background:rgba(123,216,143,.1);border-left:3px solid var(--good);border-radius:8px;padding:12px 14px;">
+        🤝 <strong style="color:var(--good);">ALIKE signals:</strong> both · also · too · similarly · alike · just like · in the same way · as well as
+      </p>
+      <p style="font-size:.93rem;background:rgba(255,107,129,.1);border-left:3px solid var(--bad);border-radius:8px;padding:12px 14px;">
+        ✂️ <strong style="color:var(--bad);">DIFFERENT signals:</strong> but · however · unlike · while · instead · on the other hand · different from · although
+      </p>
+
+      <p style="font-size:.95rem;margin-top:14px;"><strong>The tool: a three-column chart.</strong> Left = only the first thing. Right = only the second thing. Middle = <strong>BOTH</strong>.</p>
+      <div class="venn">
+        <div class="venn-col">
+          <div class="venn-head">ONLY A SHARK</div>
+          breathes underwater through gills · lays eggs or gives birth and swims off · rows of replaceable teeth
+        </div>
+        <div class="venn-col mid">
+          <div class="venn-head">BOTH</div>
+          live in the ocean · have fins and smooth bodies · are strong swimmers · hunt fish
+        </div>
+        <div class="venn-col">
+          <div class="venn-head">ONLY A DOLPHIN</div>
+          a mammal — must surface to breathe air · feeds its babies milk · uses clicks to find food
+        </div>
+      </div>
+      <p style="font-size:.93rem;">Now turn the chart into sentences, using signal words:</p>
+      <p style="font-size:.93rem;background:var(--panel2);border-left:3px solid var(--accent2);border-radius:8px;padding:12px 14px;">
+        🤝 "<strong>Both</strong> sharks and dolphins are fast ocean hunters with fins."<br>
+        ✂️ "A shark breathes underwater through gills; a dolphin, <strong>however</strong>, has to come up for air."
+      </p>
+
+      <p style="font-size:.95rem;margin-bottom:6px;"><strong>Two traps to dodge:</strong></p>
+      <p style="font-size:.93rem;color:var(--muted);margin-bottom:0;">
+        🪤 <strong style="color:var(--bad);">The "it's in this paragraph so it's only true here" trap.</strong> Check BOTH sides before you say "only." Lots of details belong in the middle.<br>
+        🪤 <strong style="color:var(--bad);">The "true but not shared" trap.</strong> If only one side says it, it does <em>not</em> go in the middle — no matter how much you'd like it to.
+      </p>
+      <p style="font-size:.9rem;color:var(--warn);margin-top:12px;margin-bottom:0;">Golden rule: point at the exact words in the text that put it where you put it.</p>
+    </div>
+
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Ten challenges. First <strong>sort</strong> details between the legend and the real animal. Then work with <strong>signal words</strong> and the story itself. Wrong? Read the feedback and try again!</p>
+
+    <div id="se-container"></div>
+    <div class="se-score" id="se-score">0 / 10 answered correctly</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(4)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(6)">Next: Writing →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 6 ======================== -->
+  <section class="phase" id="phase-6">
+    <div class="phase-header">
+      <div class="phase-num">6</div>
+      <div>
+        <div class="phase-title">Writing Pad</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--warn);">✏️ Your Writing Prompt</h3>
+      <p style="font-size:.95rem;line-height:1.7;"><strong>Part 1 — Compare &amp; contrast.</strong> The crew's Deepmaw and the animal Wren actually found are not the same thing. Write <strong>two ways they are ALIKE</strong> and <strong>two ways they are DIFFERENT</strong>. Use at least one ALIKE signal word (<em>both, also, similarly</em>) and at least one DIFFERENT signal word (<em>but, however, unlike, while</em>) — and underline them by putting them in CAPS.</p>
+      <p style="font-size:.95rem;line-height:1.7;"><strong>Part 2 — Your turn.</strong> Write about <strong>a time something turned out less scary once you understood it</strong> — a dog, a new school, a doctor's visit, a dark hallway, a hard assignment. What did you imagine before? What did you find out when you looked closely? Use at least <strong>3 vocabulary words</strong>. <strong>(At least 5 sentences total.)</strong></p>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:0;">Vocabulary words: <em>superstition, exaggerate, immense, writhe, bioluminescent, entangled, cautious</em></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here… Two ways ALIKE and two ways DIFFERENT first, then your own less-scary-than-I-thought story with at least 3 vocab words!"></textarea>
+    <div class="writing-meta">
+      <span id="word-count" style="color:var(--muted);">0 words</span>
+      <span class="save-indicator" id="save-indicator">✓ Saved</span>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(5)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(7)">Next: Quiz →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 7 ======================== -->
+  <section class="phase" id="phase-7">
+    <div class="phase-header">
+      <div class="phase-num">7</div>
+      <div>
+        <div class="phase-title">Quiz</div>
+        <span class="tag tag-phase">3 min</span>
+      </div>
+    </div>
+
+    <div class="quiz-progress" id="quiz-dots"></div>
+    <div id="quiz-body"></div>
+
+    <div class="phase-nav" style="margin-top:16px;">
+      <button class="btn-ghost" onclick="goPhase(6)">← Back</button>
+    </div>
+  </section>
+
+</div><!-- #app -->
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────
+const QAKEY = "ela-l22-qans";
+const QKEY  = "ela-l22-quiz";
+const WKEY  = "ela-l22-writing";
+
+// ─── MISTAKE LOGGER ───────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'ELA|Day 22: Kraken|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'ELA', day: 'Day 22', q: questionText, file: 'ela-lesson-22-kraken.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── PHASE NAV ────────────────────────────────────────────────
+let currentPhase = 1;
+const PHASE_LABELS = ['','Warm-Up','Reading','Comprehension','Vocabulary','Compare & Contrast','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('visible');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('visible');
+  document.getElementById('phase-' + n).scrollIntoView({behavior:'smooth', block:'start'});
+  updatePhaseBar();
+  if (n === 4) buildVocab();
+  if (n === 5) buildSE();
+  if (n === 7) { buildQuiz(); restoreQuiz(); }
+}
+
+function updatePhaseBar() {
+  const segs = document.querySelectorAll('.pb-seg');
+  segs.forEach(s => {
+    const p = parseInt(s.dataset.phase);
+    s.classList.remove('active','done');
+    if (p === currentPhase) s.classList.add('active');
+    else if (p < currentPhase) s.classList.add('done');
+  });
+  document.getElementById('pb-title').textContent = 'Phase ' + currentPhase + ' — ' + PHASE_LABELS[currentPhase];
+}
+
+document.querySelectorAll('.pb-seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+updatePhaseBar();
+
+// ─── PHASE 1: FACT CARDS ─────────────────────────────────────
+function revealFact(id) {
+  document.getElementById(id).classList.add('revealed');
+}
+function reactFact(btn, type, id) {
+  const card = document.getElementById(id);
+  card.querySelectorAll('.fact-btn').forEach(b => { b.classList.remove('knew','new'); });
+  btn.classList.add(type);
+}
+
+// ─── PHASE 3: ACCORDION ───────────────────────────────────────
+function toggleAccord(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ─── SHUFFLE HELPER ───────────────────────────────────────────
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─── PHASE 4: VOCABULARY MATCH ────────────────────────────────
+const vocabPairs = [
+  { word: 'superstition',   def: 'a belief that something brings good or bad luck, with no proof behind it' },
+  { word: 'exaggerate',     def: 'to make something sound bigger, worse, or scarier than it really is' },
+  { word: 'immense',        def: 'so huge it is hard to believe your own eyes' },
+  { word: 'writhe',         def: 'to twist and squirm around, usually because you are hurt or stuck' },
+  { word: 'bioluminescent', def: 'able to make its own light inside its body, like a firefly' },
+  { word: 'entangled',      def: 'caught and twisted up in something so badly you cannot get free' },
+  { word: 'cautious',       def: 'careful and slow on purpose, so nobody gets hurt' },
+];
+
+let vocabSelected = null;
+let vocabMatched = 0;
+
+function buildVocab() {
+  const grid = document.getElementById('vocab-grid');
+  if (grid.children.length > 0) return; // already built
+
+  const words = shuffleArr(vocabPairs.map(p => ({ text: p.word, type: 'word', pair: p.word })));
+  const defs  = shuffleArr(vocabPairs.map(p => ({ text: p.def,  type: 'def',  pair: p.word })));
+
+  // interleave: left column = words, right column = defs
+  const all = [];
+  for (let i = 0; i < words.length; i++) {
+    all.push(words[i]);
+    all.push(defs[i]);
+  }
+
+  grid.innerHTML = '';
+  all.forEach((item, idx) => {
+    const tile = document.createElement('div');
+    tile.className = 'vocab-tile';
+    tile.dataset.type = item.type;
+    tile.dataset.pair = item.pair;
+    tile.dataset.idx  = idx;
+    tile.textContent = item.text;
+    tile.addEventListener('click', () => vocabClick(tile));
+    grid.appendChild(tile);
+  });
+}
+
+function vocabClick(tile) {
+  if (tile.classList.contains('matched') || tile.classList.contains('selected')) return;
+
+  if (!vocabSelected) {
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  const prev = vocabSelected;
+
+  // Same type — swap selection
+  if (prev.dataset.type === tile.dataset.type) {
+    prev.classList.remove('selected');
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  // Check match
+  if (prev.dataset.pair === tile.dataset.pair) {
+    prev.classList.remove('selected');
+    prev.classList.add('matched');
+    tile.classList.add('matched');
+    vocabSelected = null;
+    vocabMatched++;
+    document.getElementById('vocab-score').textContent = vocabMatched + ' / 7 matched';
+    if (vocabMatched === 7) {
+      document.getElementById('vocab-score').style.color = 'var(--good)';
+      document.getElementById('vocab-score').textContent = '🎉 All 7 matched! Great job!';
+    }
+  } else {
+    // Wrong
+    [prev, tile].forEach(t => {
+      t.classList.add('shake');
+      t.addEventListener('animationend', () => t.classList.remove('shake'), {once:true});
+    });
+    prev.classList.remove('selected');
+    vocabSelected = null;
+  }
+}
+
+// ─── PHASE 5: COMPARE & CONTRAST ──────────────────────────────
+// Part A: sort details into Only the legend / Only the real squid / Both.
+// Part B: signal words + comparing inside the story.
+const ccItems = [
+  {
+    part: 'Part A — Sort It: The Legend vs. The Real Animal',
+    para: '<strong>THE LEGEND.</strong> Sailors told of the kraken, a sea monster the size of an island. It lay waiting in the ocean far from land, and when a ship crossed over it, it threw its long arms around the hull and dragged the whole crew down into the dark. It sank ships on purpose, out of hatred for sailors. Nobody ever measured it, because nobody who met it came home.<br><br><strong>THE REAL ANIMAL.</strong> The giant squid is real. It lives in the deep ocean, in cold water people almost never visit, and it has eight arms plus two longer feeding tentacles it can whip out to grab fish and other squid. The biggest ones ever measured are around 40 feet long — longer than a school bus, but nowhere near the size of an island. Its eyes are about as wide as a dinner plate, which helps it see where sunlight never reaches. No one had ever filmed a living one in the ocean until 2012, and it has never been shown to attack a ship on purpose.',
+    stmt: 'Where does this detail go? → <em>"It has long arms it can throw around things."</em>',
+    choices: [
+      { t: 'Only the legend 🐙', ok: false, fb: 'Check the second passage too. The real giant squid has eight arms and two feeding tentacles it whips out to grab things.' },
+      { t: 'Both of them ⚖️', ok: true, fb: '' },
+      { t: 'Only the real squid 🦑', ok: false, fb: 'Look at the first passage again — the legend says the kraken "threw its long arms around the hull." Both sides say it.' },
+    ],
+    why: 'Both passages say it, so it goes in the MIDDLE. The legend "threw its long arms around the hull"; the real squid has eight arms plus two feeding tentacles.'
+  },
+  {
+    stmt: 'Where does this detail go? → <em>"It is the size of an island and can drag a whole ship under."</em>',
+    choices: [
+      { t: 'Only the real squid 🦑', ok: false, fb: 'The real one measures about 40 feet — longer than a bus, but the passage says nowhere near island-sized.' },
+      { t: 'Both of them ⚖️', ok: false, fb: 'For "both," you have to find it on BOTH sides. The real-animal passage says the opposite.' },
+      { t: 'Only the legend 🐙', ok: true, fb: '' },
+    ],
+    why: 'Only the legend. This is the biggest CONTRAST between the two: island-sized in the story, about 40 feet in real life.'
+  },
+  {
+    stmt: 'Where does this detail go? → <em>"Its eyes are about as wide as a dinner plate."</em>',
+    choices: [
+      { t: 'Only the real squid 🦑', ok: true, fb: '' },
+      { t: 'Only the legend 🐙', ok: false, fb: 'Reread the legend passage — it never mentions eyes at all. It only talks about size, arms, and hating sailors.' },
+      { t: 'Both of them ⚖️', ok: false, fb: 'A detail can only go in the middle if BOTH passages say it. The legend never describes the eyes.' },
+    ],
+    why: 'Only the real squid. The legend passage never mentions eyes — so this fact came from science, not from the story.'
+  },
+  {
+    stmt: 'Where does this detail go? → <em>"It lives out in the ocean, far from where people usually are."</em>',
+    choices: [
+      { t: 'Only the legend 🐙', ok: false, fb: 'True of the legend — but keep reading. The real squid lives in the deep ocean, in water people almost never visit.' },
+      { t: 'Only the real squid 🦑', ok: false, fb: 'Also true of the legend: the kraken "lay waiting in the ocean far from land." If both say it, it is a comparison.' },
+      { t: 'Both of them ⚖️', ok: true, fb: '' },
+    ],
+    why: 'Both. This is exactly the kind of detail people miss — it shows up in both passages, so it belongs in the middle, not on a side.'
+  },
+  {
+    stmt: 'Where does this detail go? → <em>"It sinks ships on purpose because it hates sailors."</em>',
+    choices: [
+      { t: 'Both of them ⚖️', ok: false, fb: 'The real-animal passage says the opposite: it has never been shown to attack a ship on purpose.' },
+      { t: 'Only the legend 🐙', ok: true, fb: '' },
+      { t: 'Only the real squid 🦑', ok: false, fb: 'Backwards! Hunting fish and squid is real; hating sailors and sinking ships on purpose is the story part.' },
+    ],
+    why: 'Only the legend. The real animal hunts fish and squid — the hatred is something people added to fill in what they did not know.'
+  },
+  {
+    stmt: 'Where does this detail go? → <em>"Nobody had ever filmed a living one until 2012."</em>',
+    choices: [
+      { t: 'Only the real squid 🦑', ok: true, fb: '' },
+      { t: 'Both of them ⚖️', ok: false, fb: 'Careful — the legend passage says nobody ever measured the kraken, which is close but not the same claim. Only one passage mentions film.' },
+      { t: 'Only the legend 🐙', ok: false, fb: 'This one comes from the real-animal passage. Filming an animal is something scientists do, not something legends talk about.' },
+    ],
+    why: 'Only the real squid. Fun fact worth noticing: BOTH passages admit that for a long time nobody got a good look — that shortage of knowledge is where the monster came from.'
+  },
+  {
+    part: 'Part B — Signal Words &amp; the Story',
+    stmt: 'Which word belongs in the blank? "Nan Bly called the shape in the water a monster. ______, Wren called it a frightened animal."',
+    choices: [
+      { t: 'Similarly', ok: false, fb: '"Similarly" is an ALIKE signal — it tells the reader the next thing matches. Monster vs. frightened animal do not match.' },
+      { t: 'However', ok: true, fb: '' },
+      { t: 'In the same way', ok: false, fb: 'That is another ALIKE signal. The sentence is showing a difference between two people, so you need a DIFFERENT signal.' },
+      { t: 'Also', ok: false, fb: '"Also" adds something that matches. Try a word from the DIFFERENT list: but, however, unlike, while.' },
+    ],
+    why: '"However" is a DIFFERENT signal, and the sentence contrasts two opposite reactions to the same animal.'
+  },
+  {
+    stmt: 'Which sentence COMPARES (shows how they are ALIKE) the Deepmaw of the stories and the animal Wren really found?',
+    choices: [
+      { t: 'The Deepmaw of the stories hates ships, while the animal Wren met simply wanted the net off its arm.', ok: false, fb: 'Look at the signal word "while." That is a DIFFERENT signal — this sentence is contrasting, not comparing.' },
+      { t: 'Both the Deepmaw and the real animal have arms long enough to reach a ship’s rail.', ok: true, fb: '' },
+      { t: 'Unlike the Deepmaw, the animal in the net never once tried to pull the Silver Marlin down.', ok: false, fb: '"Unlike" is a DIFFERENT signal word. This sentence tells them apart instead of showing what they share.' },
+      { t: 'The Deepmaw was the size of an entire island, but the animal alongside the ship was smaller than that.', ok: false, fb: '"But" is a DIFFERENT signal. It is a fine sentence — it just contrasts them instead of comparing them.' },
+    ],
+    why: '"Both" is an ALIKE signal, and it points at something genuinely shared: long arms that can reach a ship.'
+  },
+  {
+    stmt: 'How are Nan Bly’s Deepmaw stories and Wren’s notebook ALIKE?',
+    choices: [
+      { t: 'Both of them are careful records of what somebody actually measured with their own hands.', ok: false, fb: 'Only the notebook is measured. Nan’s story grew an arm every night — that is the difference between them, not the likeness.' },
+      { t: 'Both of them are trying to describe the same creature to the rest of the crew.', ok: true, fb: '' },
+      { t: 'Both of them get bigger and scarier each time they are passed around the table at night.', ok: false, fb: 'That is only true of the story. The notebook does the opposite: it makes the creature smaller and more ordinary.' },
+      { t: 'Both of them were made by sailors who were down in the water beside the animal.', ok: false, fb: 'Only Wren went over the side. Nan told her story from the table, which is exactly why the two are so different.' },
+    ],
+    why: 'Same subject, two ways of filling the gap: Nan fills it with imagination, Wren fills it with observation. Same goal — describing the creature.'
+  },
+  {
+    stmt: 'You are building a three-column chart for FEAR and CURIOSITY as Wren experiences them. Which detail belongs in the MIDDLE column?',
+    choices: [
+      { t: 'It made the crew back away from the rail and start shouting for the harpoons.', ok: false, fb: 'That is fear only. Curiosity moved Wren toward the rail, not away from it.' },
+      { t: 'It made Wren fill a notebook with drawings, measurements, and unanswered questions.', ok: false, fb: 'That is curiosity only. Fear does not send anybody looking for measurements.' },
+      { t: 'It made every last sailor touch an iron nail in a pocket whenever the Deepmaw was mentioned.', ok: false, fb: 'That is fear only — a superstition to keep bad luck away, not an attempt to find anything out.' },
+      { t: 'It starts with the same feeling: something enormous is out there and nobody knows what.', ok: true, fb: '' },
+    ],
+    why: 'The MIDDLE holds what they share. Fear and curiosity both begin at the same place — a gap in what you know. What differs is what you DO next: back away, or bring a lantern.'
+  },
+];
+
+let ccCorrectCount = 0;
+const ccSolved = {};
+
+function buildSE() {
+  const container = document.getElementById('se-container');
+  if (container.children.length > 0) return;
+
+  ccItems.forEach((item, i) => {
+    if (item.part) {
+      const h = document.createElement('div');
+      h.className = 'se-part';
+      h.innerHTML = item.part;
+      container.appendChild(h);
+    }
+    const card = document.createElement('div');
+    card.className = 'se-card';
+    card.id = 'se-' + i;
+    let html = '';
+    if (item.para) html += '<div class="se-para">' + item.para + '</div>';
+    html += '<div class="se-stmt">' + (i+1) + '. ' + item.stmt + '</div><div class="se-btns">';
+    item.choices.forEach((ch, oi) => {
+      html += '<button class="se-btn" data-correct="' + (ch.ok ? '1' : '0') + '" onclick="ansSE(' + i + ', this, ' + oi + ')">' + ch.t + '</button>';
+    });
+    html += '</div><div class="se-feedback" id="sef-' + i + '"></div>';
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function ansSE(i, btn, oi) {
+  const card = document.getElementById('se-' + i);
+  const feedback = document.getElementById('sef-' + i);
+  const correct = (btn.dataset.correct === '1');
+
+  if (correct) {
+    card.querySelectorAll('.se-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === '1') b.classList.add('correct');
+    });
+    feedback.style.color = 'var(--good)';
+    feedback.textContent = '✓ Correct! ' + (ccItems[i].why || '');
+    if (!ccSolved[i]) {
+      ccSolved[i] = true;
+      ccCorrectCount++;
+      const sc = document.getElementById('se-score');
+      sc.textContent = ccCorrectCount + ' / 10 answered correctly';
+      if (ccCorrectCount === 10) {
+        sc.style.color = 'var(--good)';
+        sc.textContent = '🎉 All 10 correct! You can tell alike from different like a pro!';
+      }
+    }
+  } else {
+    // Wrong — shake, explain why it does not belong there, and let them retry
+    btn.classList.add('wrong','shake');
+    btn.addEventListener('animationend', () => btn.classList.remove('shake'), {once:true});
+    feedback.style.color = 'var(--bad)';
+    const trap = (ccItems[i].choices[oi] && ccItems[i].choices[oi].fb) ? ccItems[i].choices[oi].fb : 'Not quite.';
+    feedback.textContent = '✗ ' + trap + ' Try again!';
+    setTimeout(() => { btn.classList.remove('wrong'); }, 1200);
+  }
+}
+
+// ─── PHASE 6: WRITING PAD ─────────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(saveWriting, 300);
+  });
+}
+
+function updateWordCount() {
+  const val = document.getElementById('writing-pad').value.trim();
+  const words = val ? val.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = words + ' word' + (words !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const val = document.getElementById('writing-pad').value;
+  localStorage.setItem(WKEY, val);
+  const ind = document.getElementById('save-indicator');
+  ind.classList.add('show');
+  setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+// ─── PHASE 7: QUIZ ────────────────────────────────────────────
+const quizData = [
+  {
+    q: 'The sailors touch an iron nail because of an old "superstition." A superstition is:',
+    opts: [
+      'A rule that every ship’s captain is required by law to follow at sea',
+      'A song that sailors sing together while they are hauling on the ropes',
+      'A belief that something brings good or bad luck, with no proof behind it',
+      'A story that has been written down carefully and checked over by many people',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'Vask says sailors "exaggerate." To exaggerate means:',
+    opts: [
+      'To make something sound bigger, worse, or scarier than it really is',
+      'To repeat the exact same story the same way every single time you tell it',
+      'To whisper',
+      'To refuse to talk about a thing at all, because talking about it is bad luck',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'The animal was completely "entangled." Entangled means:',
+    opts: [
+      'Swimming in wide, lazy circles somewhere far below the bottom of the ship',
+      'Lit up along the whole body with a soft blue-green light that comes and goes',
+      'Angry enough to attack the very next thing that happens to come near it',
+      'Caught and twisted up in something so badly you cannot get free',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'Every cut Wren made had to be "cautious." Cautious means:',
+    opts: [
+      'Done as fast as humanly possible so the whole job gets finished sooner',
+      'Being careful and going slowly on purpose, so that nobody ends up hurt',
+      'Made with a tool that has been sharpened until the edge shines in lantern light',
+      'Done over and over again in the same place until the rope finally gives way',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'The arm flickered with "bioluminescent" light. Bioluminescent means:',
+    opts: [
+      'Reflecting the light of the moon off wet skin the way a mirror would',
+      'Colored a pale blue-green all over, in stripes running from top to bottom',
+      'Lit up by the lanterns that the crew were holding out over the ship’s rail',
+      'Able to make its own light inside its body, like a firefly',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'When you COMPARE two things, you are telling how they are:',
+    opts: [
+      'Alike — the ways in which the two things match up with each other',
+      'Different — the ways in which the two things are not the same at all',
+      'In order — which one of the two things happened first in the story',
+      'Connected — the way that one of the two things caused the other one',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'Which of these words signals that the author is about to show a DIFFERENCE?',
+    opts: [
+      'Similarly',
+      'Both',
+      'Unlike',
+      'In the same way',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'Which sentence CONTRASTS the crew and Wren?',
+    opts: [
+      'Both the crew and Wren were out on deck in the middle of the night when it happened.',
+      'The crew backed away from the rail; Wren, however, crawled toward it with a lantern.',
+      'The crew and Wren alike had listened to Nan Bly tell the Deepmaw story many times over.',
+      'Like the rest of the crew, Wren had heard about the Deepmaw on her very first night.',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'Why was the animal bumping and shaking the Silver Marlin?',
+    opts: [
+      'It was hunting the sailors on board and trying to knock them off the deck',
+      'It had mistaken the wooden hull of the ship for a very large sleeping whale',
+      'It was hungry, and the smell of the cook’s galley had drawn it up from below',
+      'It was tangled in a lost net that was hooked on the ship’s anchor chain',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'What is the big lesson (theme) of this story?',
+    opts: [
+      'Fear grows in the gaps where knowledge is missing — so go look closely',
+      'Sailors are usually right about the ocean, so you should believe what they tell you',
+      'Sea animals are all completely harmless, and there is never any reason to be careful',
+      'The bravest person on any ship is always the youngest and smallest member of the crew',
+    ],
+    correct: 0,
+  },
+];
+
+let quizBuilt = false;
+let quizAnswers = {};
+let quizCurrent = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  if (quizBuilt) return;
+  quizBuilt = true;
+
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  quizData.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot-' + i;
+    dots.appendChild(d);
+  });
+
+  renderQuestion(0);
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (!saved || !Object.keys(saved).length) return;
+    quizAnswers = saved;
+
+    // Find last answered
+    let lastAnswered = -1;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] !== undefined) lastAnswered = i;
+    }
+
+    if (lastAnswered < 0) return;
+
+    // Replay all answered questions to update dots
+    for (let i = 0; i <= lastAnswered; i++) {
+      if (quizAnswers[i] !== undefined) {
+        const correct = quizAnswers[i] === quizData[i].correct;
+        const dot = document.getElementById('dot-' + i);
+        if (dot) {
+          dot.classList.remove('active');
+          dot.classList.add(correct ? 'correct' : 'wrong');
+        }
+      }
+    }
+
+    // Check if all answered
+    if (Object.keys(quizAnswers).length >= quizData.length) {
+      const savedResult = localStorage.getItem(QKEY);
+      if (savedResult) {
+        showQuizResult(JSON.parse(savedResult));
+        quizDone = true;
+        return;
+      }
+    }
+
+    // Go to next unanswered
+    let nextQ = 0;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] === undefined) { nextQ = i; break; }
+    }
+    quizCurrent = nextQ;
+    const dot = document.getElementById('dot-' + nextQ);
+    if (dot) { dot.classList.remove('correct','wrong'); dot.classList.add('active'); }
+    renderQuestion(nextQ);
+  } catch(e) {}
+}
+
+function renderQuestion(idx) {
+  const body = document.getElementById('quiz-body');
+  const q = quizData[idx];
+
+  body.innerHTML = `
+    <div class="quiz-q">${idx + 1}. ${q.q}</div>
+    <div class="quiz-opts" id="qopts-${idx}">
+      ${q.opts.map((o, oi) => `
+        <button class="quiz-opt" data-oi="${oi}" onclick="ansQ(${idx},${oi})">${o}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb-${idx}"></div>
+    <button class="quiz-next" id="qnext-${idx}" onclick="nextQuestion(${idx})">${idx < quizData.length - 1 ? 'Next Question →' : 'See Results 🎉'}</button>
+  `;
+}
+
+function ansQ(qIdx, optIdx) {
+  if (quizAnswers[qIdx] !== undefined) return; // already answered
+
+  const q = quizData[qIdx];
+  const correct = (optIdx === q.correct);
+
+  quizAnswers[qIdx] = optIdx;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, q.q, 'Main Quiz Q' + (qIdx + 1));
+
+  // Style options
+  const opts = document.querySelectorAll(`#qopts-${qIdx} .quiz-opt`);
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === optIdx && !correct) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById('qfb-' + qIdx);
+  fb.classList.add('show', correct ? 'correct' : 'wrong');
+  fb.textContent = correct ? '✓ Correct!' : '✗ The correct answer was: ' + q.opts[q.correct];
+
+  // Update dot
+  const dot = document.getElementById('dot-' + qIdx);
+  dot.classList.remove('active');
+  dot.classList.add(correct ? 'correct' : 'wrong');
+
+  // Show next button
+  document.getElementById('qnext-' + qIdx).style.display = 'inline-block';
+}
+
+function nextQuestion(fromIdx) {
+  const next = fromIdx + 1;
+  if (next >= quizData.length) {
+    finishQuiz();
+    return;
+  }
+  quizCurrent = next;
+  document.getElementById('dot-' + next).classList.add('active');
+  renderQuestion(next);
+}
+
+function finishQuiz() {
+  let score = 0;
+  quizData.forEach((q, i) => { if (quizAnswers[i] === q.correct) score++; });
+  const result = { score, total: quizData.length, pct: Math.round(score / quizData.length * 100) };
+  try { localStorage.setItem(QKEY, JSON.stringify(result)); } catch(e) {}
+  showQuizResult(result);
+}
+
+function showQuizResult(result) {
+  const body = document.getElementById('quiz-body');
+  let msg = '';
+  if (result.pct >= 90) msg = 'Incredible! Alike, different — you sorted every one of them. 🦑';
+  else if (result.pct >= 75) msg = 'Great job! Your compare-and-contrast eyes are sharp! 🔍';
+  else if (result.pct >= 60) msg = 'Good effort! Reread the story and watch for the signal words. 📖';
+  else msg = 'Keep going — bring a lantern to it. Reread, sort the details, and try again! 💪';
+
+  body.innerHTML = `
+    <div class="quiz-result">
+      <div class="score-big">${result.score} / ${result.total}</div>
+      <div class="score-label">${result.pct}% correct</div>
+      <div class="score-msg">${msg}</div>
+      ${result.pct < 100 ? `<button class="btn-primary" style="margin-top:20px;" onclick="retakeQuiz()">Retake Quiz ↺</button>` : ''}
+    </div>
+  `;
+}
+
+function retakeQuiz() {
+  quizAnswers = {};
+  quizBuilt = false;
+  quizDone = false;
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── SAVE ALL ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── INIT ─────────────────────────────────────────────────────
+initWriting();
+</script>
+</body>
+</html>

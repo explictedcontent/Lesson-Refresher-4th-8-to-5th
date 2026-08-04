@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Roblox Studio: Code Your Own Game 🎮</title>
+<style>
+:root{
+  --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
+  --muted:#8890b0;--accent:#ff5533;--accent2:#00e5c8;--good:#39e07a;
+  --warn:#ffcc00;--bad:#ff4466;--line:#252840;--purple:#b06eff;--rbx:#00a2ff
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.mbar{display:flex;background:#0a0b13;border-bottom:2px solid #1a1b2e;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:50}
+.mbar::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.mtab.active{color:var(--rbx);border-bottom-color:var(--rbx)}
+.mtab.done{color:var(--good)}
+.xp-bar{position:fixed;top:6px;right:10px;z-index:100;background:#0a0b13;border:2px solid var(--warn);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:900;color:var(--warn)}
+.screen{display:none;padding:16px;max-width:660px;margin:0 auto}
+.screen.active{display:block}
+.mission-header{background:linear-gradient(135deg,#001a2e,#00243f);border:2px solid var(--rbx);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.mission-tag{font-size:11px;font-weight:900;color:var(--rbx);text-transform:uppercase;letter-spacing:.1em}
+.mission-title{font-size:21px;font-weight:900;margin:3px 0}
+.mission-brief{font-size:14px;color:var(--muted);line-height:1.5}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.goal{background:#0a1c12;border:1px solid var(--good);border-radius:10px;padding:10px 12px;font-size:14px;color:#bff0cf;margin-bottom:10px;line-height:1.5}
+.goal b{color:var(--good)}
+.teach{background:linear-gradient(135deg,#0a0f24,#0d1430);border:2px solid var(--accent2);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.teach-title{font-size:13px;font-weight:900;color:var(--accent2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.teach-body{font-size:14.5px;line-height:1.65;color:#dfe6f5}
+.teach-body b{color:var(--warn)}
+.teach-ex{background:#05060b;border:1px solid #2a2f4a;border-radius:8px;padding:10px 12px;margin-top:10px;font-family:'Courier New',monospace;font-size:13px;color:#9fe8d8;white-space:pre;overflow-x:auto;line-height:1.5}
+.studio{background:linear-gradient(135deg,#001322,#002138);border:2px solid var(--rbx);border-radius:12px;padding:12px 14px;margin:12px 0}
+.studio-title{font-size:12px;font-weight:900;color:var(--rbx);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.studio ol{margin:0 0 0 18px;font-size:13.5px;line-height:1.7;color:#cfe0f0}
+.studio li{margin-bottom:3px}
+.studio code{background:#001a2e;color:#7fd4ff;padding:1px 6px;border-radius:5px;font-family:'Courier New',monospace;font-size:12.5px}
+.viewport{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.vp-main{flex:1 1 300px;min-width:260px}
+.vp-side{flex:0 0 150px}
+.vp-label{font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+canvas{display:block;background:linear-gradient(#0a1420,#0d1b2a);border:2px solid var(--line);border-radius:10px;width:100%;max-width:100%}
+.explorer{background:#0a0b13;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:12px;min-height:80px;max-height:190px;overflow-y:auto}
+.exp-row{padding:3px 5px;border-radius:4px;color:#bcd;font-family:'Courier New',monospace;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-root{color:var(--rbx);font-weight:900}
+.exp-part{padding-left:14px}
+.exp-swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;border:1px solid #0006;vertical-align:middle}
+.editor-wrap{margin-bottom:10px}
+.editor-label{font-size:11px;font-weight:900;color:var(--rbx);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+textarea.code{width:100%;min-height:160px;background:#08090f;color:#e6edf3;border:2px solid #2a2f4a;border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;font-size:15px;line-height:1.6;resize:vertical;tab-size:2}
+textarea.code:focus{outline:none;border-color:var(--rbx)}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:11px 18px;font-size:15px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.95)}
+.btn.go{background:var(--good);border-color:var(--good);color:#021008;font-size:16px}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted)}
+.btn.blue{background:var(--rbx);border-color:var(--rbx);color:#00121f}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.console{background:#05060b;border:1px solid #2a2f4a;border-radius:10px;padding:10px 12px;font-family:'Courier New',monospace;font-size:13.5px;color:#9fb0d0;min-height:46px;margin-top:10px;white-space:pre-wrap;line-height:1.6}
+.console .ok{color:var(--good)}
+.console .err{color:var(--bad)}
+.console .out{color:#cfe0f0}
+.win-banner{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:12px;padding:14px;text-align:center;margin-top:12px;display:none}
+.win-banner.show{display:block}
+.win-banner h3{color:var(--good);font-size:18px;margin-bottom:4px}
+.hintbox{font-size:13px;color:var(--muted);background:#0f1220;border-left:3px solid var(--warn);padding:8px 12px;border-radius:0 8px 8px 0;margin-top:10px;line-height:1.5}
+.hintbox code,.mission-brief code,.goal code{background:#1a1f36;color:#ffcc88;padding:1px 6px;border-radius:5px;font-family:'Courier New',monospace;font-size:13px}
+.chip{display:inline-block;background:#1a1f36;color:#ffcc88;font-family:'Courier New',monospace;font-size:12.5px;padding:3px 9px;border-radius:6px;margin:3px 4px 0 0}
+.swatch{display:inline-flex;align-items:center;gap:5px;background:#1a1f36;border-radius:6px;padding:3px 9px;margin:3px 4px 0 0;font-family:'Courier New',monospace;font-size:12px;color:#ffcc88}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid #0006}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--warn);color:#140e00;font-weight:900;font-size:15px;padding:10px 22px;border-radius:20px;z-index:200;display:none}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="xp-bar">⚡ <span id="xpNum">0</span> XP</div>
+<div class="mbar" id="mbar"></div>
+
+<div class="screen active" id="sc0">
+  <div class="mission-header">
+    <div class="mission-tag">Roblox Studio · Lua</div>
+    <div class="mission-title">🎮 Code Your Own Roblox Game</div>
+    <div class="mission-brief">This is the real thing. Roblox games are coded in a language called <b>Lua</b>, and that's exactly what you'll type here. Build it in this window first, then copy it straight into <b>Roblox Studio</b> on your computer — the code is identical.</div>
+  </div>
+  <div class="stage">
+    <div class="teach">
+      <div class="teach-title">🧠 Start here — how Roblox code works</div>
+      <div class="teach-body">
+        Everything in a Roblox game is an <b>Object</b>. A block is a <b>Part</b>. The 3-D world your parts live in is called <b>workspace</b>.<br><br>
+        Two things you'll do constantly:<br>
+        1️⃣ <b>Make</b> an object — <code style="background:#1a1f36;color:#ffcc88;padding:1px 5px;border-radius:4px">Instance.new("Part")</code><br>
+        2️⃣ <b>Change</b> its properties — its color, its size, whether it floats.
+        <pre class="teach-ex">local block = Instance.new("Part")   -- make one
+block.Parent = workspace             -- put it in the world</pre>
+        That word <b>local</b> just means "make a variable." And <b>--</b> starts a comment — a note for humans that Lua ignores.
+      </div>
+    </div>
+    <div class="studio">
+      <div class="studio-title">🎮 Get Roblox Studio ready (do this once)</div>
+      <ol>
+        <li>Open <b>Roblox Studio</b> on a computer (it's free — download it from the Roblox site; it doesn't run on a phone).</li>
+        <li>Click <b>New</b> → pick the <b>Baseplate</b> template.</li>
+        <li>Top menu: <b>View</b> → turn on <b>Output</b> and <b>Explorer</b>.</li>
+        <li>In the Explorer panel, hover over <b>Workspace</b>, click the <b>+</b>, and choose <b>Script</b>.</li>
+        <li>Delete the <code>print("Hello world!")</code> line it starts with — you'll type your own.</li>
+        <li>Press <b>▶ Play</b> to run it, and <b>Stop</b> when you're done.</li>
+      </ol>
+    </div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6">Colors you can use (these are real Roblox BrickColor names):</p>
+    <div style="margin:8px 0">
+      <span class="swatch"><i class="dot" style="background:#c4281c"></i>"Bright red"</span>
+      <span class="swatch"><i class="dot" style="background:#0d69ac"></i>"Bright blue"</span>
+      <span class="swatch"><i class="dot" style="background:#4b974b"></i>"Bright green"</span>
+      <span class="swatch"><i class="dot" style="background:#f5cd30"></i>"Bright yellow"</span>
+      <span class="swatch"><i class="dot" style="background:#d96b2b"></i>"Bright orange"</span>
+      <span class="swatch"><i class="dot" style="background:#a75ec4"></i>"Bright violet"</span>
+      <span class="swatch"><i class="dot" style="background:#f2f3f3"></i>"Institutional white"</span>
+      <span class="swatch"><i class="dot" style="background:#1b2a34"></i>"Really black"</span>
+    </div>
+    <div class="btn-row"><button class="btn go" onclick="go(1)">Start Building 🧱</button></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ STATE ═══════════ */
+const XKEY='coding-l19-xp', CKEY='coding-l19-code';
+const PREFIX='Coding|Roblox Studio: Lua|';
+let xp=0, cur=0, codeStore={};
+try{ xp=parseInt(localStorage.getItem(XKEY)||'0',10)||0; }catch(e){}
+try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
+
+function addXP(n){ xp+=n; document.getElementById('xpNum').textContent=xp; saveAll(); }
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1500);}
+function saveAll(){
+  try{ const s=parseInt(localStorage.getItem(XKEY)||'0',10)||0; localStorage.setItem(XKEY,String(Math.max(s,xp))); }catch(e){}
+  try{ let st={}; try{ st=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){ st={}; }
+    localStorage.setItem(CKEY,JSON.stringify(Object.assign({},st,codeStore))); }catch(e){}
+}
+function logMistake(ok,text,title){
+  try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}'); const k=PREFIX+title;
+    if(!ok){ m[k]={subject:'Coding',day:'Roblox',q:text,file:'coding-lesson-19-roblox.html'}; } else { delete m[k]; }
+    localStorage.setItem('refresher-mistakes',JSON.stringify(m));
+  }catch(e){}
+}
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+const BRICK={
+ 'bright red':'#c4281c','bright blue':'#0d69ac','bright green':'#4b974b','bright yellow':'#f5cd30',
+ 'bright orange':'#d96b2b','bright violet':'#a75ec4','institutional white':'#f2f3f3','really black':'#1b2a34',
+ 'medium stone grey':'#a3a2a5','dark stone grey':'#6d6e6c','bright bluish green':'#00a19b','white':'#f2f3f3',
+ 'lime green':'#a1c48c','really blue':'#0000ff','deep orange':'#e07f2b'
+};
+
+/* ═══════════════════════════════════════════════════════════
+   MINI-LUA INTERPRETER
+   Runs a real subset of Lua/Luau so the syntax the kid types
+   is the same syntax Roblox Studio accepts.
+   ═══════════════════════════════════════════════════════════ */
+const KW=['local','function','end','if','then','elseif','else','for','do','while','return','true','false','nil','and','or','not'];
+
+function lex(src){
+  const T=[]; let i=0, line=1;
+  const isD=c=>c>='0'&&c<='9', isA=c=>/[A-Za-z_]/.test(c), isAN=c=>/[A-Za-z0-9_]/.test(c);
+  while(i<src.length){
+    const c=src[i];
+    if(c==='\n'){ line++; i++; continue; }
+    if(c===' '||c==='\t'||c==='\r'){ i++; continue; }
+    if(c==='-'&&src[i+1]==='-'){ while(i<src.length&&src[i]!=='\n') i++; continue; }
+    if(isD(c)||(c==='.'&&isD(src[i+1]))){
+      let s=i; while(i<src.length&&(isD(src[i])||src[i]==='.')) i++;
+      T.push({t:'num',v:parseFloat(src.slice(s,i)),line}); continue;
+    }
+    if(c==='"'||c==="'"){
+      const q=c; i++; let s='';
+      while(i<src.length&&src[i]!==q){ if(src[i]==='\\'){ i++; s+=src[i]==='n'?'\n':src[i]; } else s+=src[i]; i++; }
+      if(i>=src.length) throw {luaMsg:'A piece of text is missing its closing quote '+q, line};
+      i++; T.push({t:'str',v:s,line}); continue;
+    }
+    if(isA(c)){
+      let s=i; while(i<src.length&&isAN(src[i])) i++;
+      const w=src.slice(s,i);
+      T.push({t:KW.indexOf(w)>=0?'kw':'name',v:w,line}); continue;
+    }
+    const three=src.substr(i,2);
+    if(['==','~=','<=','>=','..'].indexOf(three)>=0){ T.push({t:'op',v:three,line}); i+=2; continue; }
+    if('+-*/%()<>=,.{}[]:#'.indexOf(c)>=0){ T.push({t:'op',v:c,line}); i++; continue; }
+    if(c==='!'&&src[i+1]==='='){ throw {luaMsg:'Lua writes "not equal" as ~= (not !=)', line}; }
+    throw {luaMsg:'I don\'t understand the symbol "'+c+'"', line};
+  }
+  T.push({t:'eof',v:'<end>',line}); return T;
+}
+
+function parse(T){
+  let p=0;
+  const peek=()=>T[p], next=()=>T[p++];
+  const isv=(t,v)=>T[p].t===t&&T[p].v===v;
+  function expect(t,v,what){
+    if(T[p].t===t&&(v===undefined||T[p].v===v)){ return next(); }
+    throw {luaMsg:'I expected '+(what||('"'+v+'"'))+' but found "'+T[p].v+'"', line:T[p].line};
+  }
+  function block(stops){
+    const st=[];
+    while(true){
+      const tk=peek();
+      if(tk.t==='eof') break;
+      if(tk.t==='kw'&&stops.indexOf(tk.v)>=0) break;
+      st.push(statement());
+    }
+    return st;
+  }
+  function statement(){
+    const tk=peek();
+    if(tk.t==='kw'){
+      if(tk.v==='local'){
+        next();
+        if(isv('kw','function')){
+          next(); const nm=expect('name',undefined,'a function name').v;
+          const ps=params(); const body=block(['end']); expect('kw','end','the word "end" to close your function');
+          return {k:'func',name:nm,params:ps,body,line:tk.line};
+        }
+        const nm=expect('name',undefined,'a variable name').v;
+        expect('op','=','an = sign'); const e=expr();
+        return {k:'local',name:nm,expr:e,line:tk.line};
+      }
+      if(tk.v==='function'){
+        next(); const nm=expect('name',undefined,'a function name').v;
+        const ps=params(); const body=block(['end']); expect('kw','end','the word "end" to close your function');
+        return {k:'func',name:nm,params:ps,body,line:tk.line};
+      }
+      if(tk.v==='if'){
+        next(); const cls=[]; let cond=expr(); expect('kw','then','the word "then"');
+        let body=block(['elseif','else','end']); cls.push({cond,body});
+        while(isv('kw','elseif')){ next(); const c2=expr(); expect('kw','then','the word "then"'); cls.push({cond:c2,body:block(['elseif','else','end'])}); }
+        let els=null;
+        if(isv('kw','else')){ next(); els=block(['end']); }
+        expect('kw','end','the word "end" to close your if');
+        return {k:'if',clauses:cls,els,line:tk.line};
+      }
+      if(tk.v==='for'){
+        next(); const v=expect('name',undefined,'a loop variable').v;
+        expect('op','=','an = sign'); const a=expr(); expect('op',',','a comma'); const b=expr();
+        let stp=null; if(isv('op',',')){ next(); stp=expr(); }
+        expect('kw','do','the word "do"'); const body=block(['end']); expect('kw','end','the word "end" to close your loop');
+        return {k:'for',var:v,from:a,to:b,step:stp,body,line:tk.line};
+      }
+      if(tk.v==='while'){
+        next(); const c=expr(); expect('kw','do','the word "do"');
+        const body=block(['end']); expect('kw','end','the word "end" to close your loop');
+        return {k:'while',cond:c,body,line:tk.line};
+      }
+      if(tk.v==='return'){ next(); let e=null; if(!(peek().t==='kw'&&['end','else','elseif'].indexOf(peek().v)>=0)&&peek().t!=='eof') e=expr(); return {k:'return',expr:e,line:tk.line}; }
+    }
+    // expression statement: call, or assignment to name / name.prop
+    const start=p; const e=expr();
+    if(isv('op','=')){
+      next(); const val=expr();
+      if(e.k!=='var'&&e.k!=='index') throw {luaMsg:'You can only put a value into a variable or a property', line:tk.line};
+      return {k:'assign',target:e,expr:val,line:tk.line};
+    }
+    if(e.k!=='call'&&e.k!=='method') throw {luaMsg:'This line doesn\'t do anything. Did you mean to call something, like print(...)?', line:tk.line};
+    return {k:'exprstat',expr:e,line:tk.line};
+  }
+  function params(){
+    expect('op','(','an opening (');
+    const ps=[];
+    if(!isv('op',')')){ ps.push(expect('name',undefined,'a parameter name').v);
+      while(isv('op',',')){ next(); ps.push(expect('name',undefined,'a parameter name').v); } }
+    expect('op',')','a closing )'); return ps;
+  }
+  // expressions (precedence climbing)
+  function expr(){ return orE(); }
+  function orE(){ let l=andE(); while(isv('kw','or')){ next(); l={k:'bin',op:'or',l,r:andE()}; } return l; }
+  function andE(){ let l=cmpE(); while(isv('kw','and')){ next(); l={k:'bin',op:'and',l,r:cmpE()}; } return l; }
+  function cmpE(){ let l=conE();
+    while(peek().t==='op'&&['==','~=','<','>','<=','>='].indexOf(peek().v)>=0){ const o=next().v; l={k:'bin',op:o,l,r:conE()}; }
+    if(peek().t==='op'&&peek().v==='='&&l) { /* caught by caller for assignment */ }
+    return l; }
+  function conE(){ let l=addE(); while(peek().t==='op'&&peek().v==='..'){ next(); l={k:'bin',op:'..',l,r:addE()}; } return l; }
+  function addE(){ let l=mulE(); while(peek().t==='op'&&(peek().v==='+'||peek().v==='-')){ const o=next().v; l={k:'bin',op:o,l,r:mulE()}; } return l; }
+  function mulE(){ let l=unE(); while(peek().t==='op'&&(peek().v==='*'||peek().v==='/'||peek().v==='%')){ const o=next().v; l={k:'bin',op:o,l,r:unE()}; } return l; }
+  function unE(){
+    if(isv('kw','not')){ next(); return {k:'un',op:'not',e:unE()}; }
+    if(peek().t==='op'&&peek().v==='-'){ next(); return {k:'un',op:'-',e:unE()}; }
+    return postE();
+  }
+  function postE(){
+    let e=primary();
+    while(true){
+      if(peek().t==='op'&&peek().v==='.'){ next(); const nt=expect('name',undefined,'a property name'); e={k:'index',obj:e,key:nt.v,line:nt.line}; continue; }
+      if(peek().t==='op'&&peek().v===':'){ next(); const nm=expect('name',undefined,'a method name').v; const args=argList(); e={k:'method',obj:e,name:nm,args}; continue; }
+      if(peek().t==='op'&&peek().v==='('){ const args=argList(); e={k:'call',fn:e,args}; continue; }
+      break;
+    }
+    return e;
+  }
+  function argList(){
+    expect('op','(','an opening ( for the values');
+    const a=[];
+    if(!isv('op',')')){ a.push(expr()); while(isv('op',',')){ next(); a.push(expr()); } }
+    expect('op',')','a closing )');
+    return a;
+  }
+  function primary(){
+    const tk=peek();
+    if(tk.t==='num'){ next(); return {k:'num',v:tk.v}; }
+    if(tk.t==='str'){ next(); return {k:'str',v:tk.v}; }
+    if(tk.t==='name'){ next(); return {k:'var',name:tk.v,line:tk.line}; }
+    if(tk.t==='kw'){
+      if(tk.v==='true'){ next(); return {k:'bool',v:true}; }
+      if(tk.v==='false'){ next(); return {k:'bool',v:false}; }
+      if(tk.v==='nil'){ next(); return {k:'nil'}; }
+      if(tk.v==='function'){ next(); const ps=params(); const body=block(['end']); expect('kw','end','the word "end" to close your function'); return {k:'anonfunc',params:ps,body}; }
+    }
+    if(tk.t==='op'&&tk.v==='('){ next(); const e=expr(); expect('op',')','a closing )'); return e; }
+    throw {luaMsg:'I got stuck at "'+tk.v+'"', line:tk.line};
+  }
+  const prog=block([]);
+  if(peek().t!=='eof') throw {luaMsg:'Extra "'+peek().v+'" that I don\'t know what to do with', line:peek().line};
+  return prog;
+}
+
+/* ── runtime ── */
+function LuaError(msg,line){ return {luaMsg:msg,line}; }
+function runLua(src, world, out){
+  const T=lex(src); const prog=parse(T);
+  let steps=0;
+  const tick=(line)=>{ if(++steps>20000) throw LuaError('Your code ran way too long — is a loop missing its stopping point?',line); };
+  const globals=Object.create(null);
+
+  const partProto=(o)=>o&&o.__t==='Part';
+  function mkPart(){
+    return {__t:'Part', Name:'Part', Parent:null, Anchored:false,
+      Size:{__t:'Vector3',X:4,Y:1,Z:2}, Position:{__t:'Vector3',X:0,Y:0,Z:0},
+      BrickColor:{__t:'BrickColor',Name:'Medium stone grey'}, Transparency:0};
+  }
+  globals['workspace']={__t:'Workspace',Name:'Workspace'};
+  globals['Workspace']=globals['workspace'];
+  globals['game']={__t:'Game',Name:'game'};
+  globals['Instance']={__t:'lib',Name:'Instance',fns:{
+    'new':(args,line)=>{
+      const what=args[0];
+      if(typeof what!=='string') throw LuaError('Instance.new needs the kind of object in quotes, like Instance.new("Part")',line);
+      if(what.toLowerCase()!=='part') throw LuaError('For now this lesson only builds "Part" objects. Try Instance.new("Part")',line);
+      const pt=mkPart(); world.created.push(pt); return pt;
+    }}};
+  globals['Vector3']={__t:'lib',Name:'Vector3',fns:{
+    'new':(a,line)=>{
+      if(a.length<3||a.some(v=>typeof v!=='number')) throw LuaError('Vector3.new needs three numbers, like Vector3.new(4, 1, 2)',line);
+      return {__t:'Vector3',X:a[0],Y:a[1],Z:a[2]};
+    }}};
+  globals['BrickColor']={__t:'lib',Name:'BrickColor',fns:{
+    'new':(a,line)=>{
+      if(typeof a[0]!=='string') throw LuaError('BrickColor.new needs a color name in quotes, like BrickColor.new("Bright red")',line);
+      if(!BRICK[a[0].toLowerCase()]) throw LuaError('"'+a[0]+'" isn\'t a Roblox color I know. Try "Bright red", "Bright blue", "Bright green", "Bright yellow", "Bright orange", "Bright violet", "Institutional white" or "Really black".',line);
+      return {__t:'BrickColor',Name:a[0]};
+    }}};
+  globals['Color3']={__t:'lib',Name:'Color3',fns:{
+    'fromRGB':(a,line)=>({__t:'Color3',R:a[0]||0,G:a[1]||0,B:a[2]||0})}};
+  globals['print']=(a)=>{ out.push(a.map(fmt).join('  ')); };
+  globals['wait']=()=>null;
+  globals['task']={__t:'lib',Name:'task',fns:{'wait':()=>null}};
+
+  function fmt(v){
+    if(v===null||v===undefined) return 'nil';
+    if(typeof v==='boolean') return v?'true':'false';
+    if(typeof v==='number') return String(v);
+    if(typeof v==='string') return v;
+    if(v.__t==='Vector3') return v.X+', '+v.Y+', '+v.Z;
+    if(v.__t==='BrickColor') return v.Name;
+    if(v.__t==='Part') return 'Part';
+    return String(v.Name||v.__t||'value');
+  }
+
+  const scopes=[Object.create(null)];
+  function lookup(n){
+    for(let i=scopes.length-1;i>=0;i--) if(n in scopes[i]) return scopes[i][n];
+    if(n in globals) return globals[n];
+    return undefined;
+  }
+  function setVar(n,v){
+    for(let i=scopes.length-1;i>=0;i--) if(n in scopes[i]){ scopes[i][n]=v; return; }
+    globals[n]=v;
+  }
+
+  function ev(e){
+    switch(e.k){
+      case 'num': return e.v;
+      case 'str': return e.v;
+      case 'bool': return e.v;
+      case 'nil': return null;
+      case 'var': {
+        const v=lookup(e.name);
+        if(v===undefined) throw LuaError('I don\'t know what "'+e.name+'" is. Did you make it with "local '+e.name+' = ..." first, or spell it differently?',e.line);
+        return v;
+      }
+      case 'index': {
+        const o=ev(e.obj);
+        if(o===null||o===undefined) throw LuaError('You tried to read ".'+e.key+'" from something that doesn\'t exist yet.',e.line);
+        if(o.__t==='lib') return (a,line)=>o.fns[e.key]?o.fns[e.key](a,line):(()=>{throw LuaError(o.Name+'.'+e.key+' isn\'t something I know.',line)})();
+        if(!(e.key in o)) return null;
+        return o[e.key];
+      }
+      case 'bin': {
+        if(e.op==='and'){ const l=ev(e.l); return truthy(l)?ev(e.r):l; }
+        if(e.op==='or'){ const l=ev(e.l); return truthy(l)?l:ev(e.r); }
+        const a=ev(e.l), b=ev(e.r);
+        switch(e.op){
+          case '+': case '-': case '*': case '/': case '%': {
+            if(typeof a!=='number'||typeof b!=='number')
+              throw LuaError('You can only do math with numbers (got '+fmt(a)+' and '+fmt(b)+').',e.line);
+            return e.op==='+'?a+b:e.op==='-'?a-b:e.op==='*'?a*b:e.op==='/'?a/b:a%b;
+          }
+          case '..': return fmt(a)+fmt(b);
+          case '==': return eq(a,b);
+          case '~=': return !eq(a,b);
+          case '<': return a<b; case '>': return a>b; case '<=': return a<=b; case '>=': return a>=b;
+        }
+        break;
+      }
+      case 'un': {
+        if(e.op==='not') return !truthy(ev(e.e));
+        const v=ev(e.e); if(typeof v!=='number') throw LuaError('Only numbers can be negative here.',e.line); return -v;
+      }
+      case 'anonfunc': return {__t:'fn',params:e.params,body:e.body,closure:scopes.slice()};
+      case 'call': {
+        const fnv=ev(e.fn);
+        const args=e.args.map(ev);
+        return callVal(fnv,args,e.fn.line||e.line,e.fn);
+      }
+      case 'method': {
+        const o=ev(e.obj); const args=e.args.map(ev);
+        if(o&&o.__t==='Part'&&e.name==='Destroy'){ o.Parent=null; return null; }
+        if(o&&o.__t==='Signal'){ if(e.name==='Connect'){ o.handlers.push(args[0]); return {__t:'Connection'}; } }
+        throw LuaError('I don\'t know the action ":'+e.name+'" on that object yet.',e.line);
+      }
+    }
+  }
+  function eq(a,b){
+    if(a&&b&&a.__t&&b.__t){ if(a.__t!==b.__t) return false; if(a.__t==='BrickColor') return a.Name===b.Name;
+      if(a.__t==='Vector3') return a.X===b.X&&a.Y===b.Y&&a.Z===b.Z; return a===b; }
+    return a===b;
+  }
+  function truthy(v){ return !(v===false||v===null||v===undefined); }
+  function callVal(fnv,args,line,fnNode){
+    if(typeof fnv==='function') return fnv(args,line);
+    if(fnv&&fnv.__t==='fn'){
+      const saved=scopes.length;
+      const sc=Object.create(null);
+      fnv.params.forEach((pn,i)=>sc[pn]=args[i]===undefined?null:args[i]);
+      scopes.push(sc);
+      let ret=null;
+      try{ const r=execBlock(fnv.body); if(r&&r.__ret) ret=r.v; }
+      finally{ scopes.length=saved; }
+      return ret;
+    }
+    const nm=fnNode&&fnNode.k==='var'?fnNode.name:(fnNode&&fnNode.k==='index'?fnNode.key:'that');
+    throw LuaError('"'+nm+'" isn\'t something you can call like a function.',line);
+  }
+
+  const READONLY={Workspace:1,Game:1};
+  function assign(target,val,line){
+    if(target.k==='var'){ setVar(target.name,val); return; }
+    const o=ev(target.obj);
+    if(o===null||o===undefined) throw LuaError('You tried to set ".'+target.key+'" on something that doesn\'t exist yet.',line);
+    if(o.__t!=='Part') throw LuaError('You can only change properties on a Part right now.',line);
+    const k=target.key;
+    if(k==='Parent'){
+      if(val&&val.__t==='Workspace'){ o.Parent='workspace'; if(world.parts.indexOf(o)<0) world.parts.push(o); }
+      else if(val===null){ o.Parent=null; const ix=world.parts.indexOf(o); if(ix>=0) world.parts.splice(ix,1); }
+      else throw LuaError('A Part\'s Parent should be workspace, like: part.Parent = workspace',line);
+      return;
+    }
+    if(k==='Size'||k==='Position'){
+      if(!val||val.__t!=='Vector3') throw LuaError(k+' needs a Vector3, like Vector3.new(4, 1, 2)',line);
+      o[k]=val; return;
+    }
+    if(k==='BrickColor'){
+      if(!val||val.__t!=='BrickColor') throw LuaError('BrickColor needs BrickColor.new("Bright red") — with the color name in quotes.',line);
+      o[k]=val; return;
+    }
+    if(k==='Anchored'){
+      if(typeof val!=='boolean') throw LuaError('Anchored is true or false (no quotes).',line);
+      o[k]=val; return;
+    }
+    if(k==='Name'){ o.Name=String(val); return; }
+    if(k==='Transparency'){ o.Transparency=Number(val)||0; return; }
+    o[k]=val;
+  }
+
+  function execBlock(b){
+    for(const s of b){
+      const r=execStat(s);
+      if(r&&r.__ret) return r;
+    }
+    return null;
+  }
+  function execStat(s){
+    tick(s.line);
+    switch(s.k){
+      case 'local': scopes[scopes.length-1][s.name]=ev(s.expr); return null;
+      case 'assign': assign(s.target,ev(s.expr),s.line); return null;
+      case 'exprstat': ev(s.expr); return null;
+      case 'func': {
+        const f={__t:'fn',params:s.params,body:s.body};
+        scopes[scopes.length-1][s.name]=f; globals[s.name]=globals[s.name]||f; return null;
+      }
+      case 'return': return {__ret:true,v:s.expr?ev(s.expr):null};
+      case 'if': {
+        for(const c of s.clauses){ if(truthy(ev(c.cond))){ return runScoped(c.body); } }
+        if(s.els) return runScoped(s.els);
+        return null;
+      }
+      case 'for': {
+        const a=ev(s.from), b=ev(s.to), st=s.step?ev(s.step):1;
+        if(typeof a!=='number'||typeof b!=='number') throw LuaError('A for loop needs numbers, like: for i = 1, 5 do',s.line);
+        if(st===0) throw LuaError('A for loop step of 0 would never finish.',s.line);
+        for(let i=a; st>0? i<=b : i>=b; i+=st){
+          tick(s.line);
+          const sc=Object.create(null); sc[s.var]=i; scopes.push(sc);
+          try{ const r=execBlock(s.body); if(r&&r.__ret) return r; } finally{ scopes.pop(); }
+        }
+        return null;
+      }
+      case 'while': {
+        while(truthy(ev(s.cond))){ tick(s.line); const r=runScoped(s.body); if(r&&r.__ret) return r; }
+        return null;
+      }
+    }
+    return null;
+  }
+  function runScoped(b){ scopes.push(Object.create(null)); try{ return execBlock(b); } finally{ scopes.pop(); } }
+
+  execBlock(prog);
+}
+
+/* ═══════════ MISSIONS ═══════════ */
+const LV=[
+ { key:'r1', label:'① PRINT', title:'Say Hello in Lua',
+   teach:{title:'print() talks to you, not to the game',
+     body:'<b>print()</b> writes a message into the <b>Output</b> window. Players never see it — it\'s for YOU, to check that your code is running and to see what\'s going on.<br><br>Text goes in <b>quotes</b>. This is the first thing every Roblox coder writes.',
+     example:'print("Hello Roblox!")'},
+   studio:['Open your Baseplate place in Roblox Studio.','In <b>Explorer</b>, hover <b>Workspace</b> → click <b>+</b> → <b>Script</b>.','Type your line into the script.','Make sure <b>View → Output</b> is on.','Press <b>▶ Play</b> — your message appears in Output.'],
+   goal:'Use <code>print()</code> to send a message to the Output window. Make it say <b>Hello Roblox!</b> exactly.',
+   starter:'-- Type your message between the quotes\nprint("")\n',
+   check:(w,out)=>out.some(l=>l.trim().toLowerCase()==='hello roblox!')?null:'Output should show exactly: Hello Roblox!',
+   hint:'Put the words inside the quotes: print("Hello Roblox!")' },
+
+ { key:'r2', label:'② A PART', title:'Make Your First Block',
+   teach:{title:'Two lines make a block appear',
+     body:'<b>Instance.new("Part")</b> creates a block — but it exists nowhere yet, like a piece still in the box.<br><br>Setting its <b>Parent</b> to <b>workspace</b> is what actually puts it into the world. Forget that line and nothing shows up. That trips up every beginner at least once.',
+     example:'local block = Instance.new("Part")\nblock.Parent = workspace'},
+   studio:['In your script, type the same two lines.','Press <b>▶ Play</b> — a grey block appears at the center of the baseplate.','Look in <b>Explorer</b> under Workspace: you\'ll see <b>Part</b> listed.','Press <b>Stop</b>. (Parts made by a script disappear when you stop — that\'s normal.)'],
+   goal:'Create <b>one Part</b> and put it into the <b>workspace</b> so it shows up in the world.',
+   starter:'local block = Instance.new("Part")\n\n-- Now put it into the world!\n',
+   check:(w)=>w.parts.length===1?null:(w.parts.length===0?'No Part made it into the world. Did you set block.Parent = workspace?':'That made '+w.parts.length+' parts — this mission needs exactly 1.'),
+   hint:'Add the line: block.Parent = workspace' },
+
+ { key:'r3', label:'③ PROPERTIES', title:'Color It, Size It, Freeze It',
+   teach:{title:'Properties change how a Part looks and acts',
+     body:'Every Part has <b>properties</b> you can set:<br><br>• <b>BrickColor</b> — its color, written <code style="background:#1a1f36;color:#ffcc88;padding:1px 5px;border-radius:4px">BrickColor.new("Bright red")</code><br>• <b>Size</b> — how big, as <b>Vector3.new(width, height, depth)</b> — three numbers<br>• <b>Anchored</b> — <b>true</b> means it floats in place; <b>false</b> means gravity pulls it down<br><br>Anchored is <b>true</b> or <b>false</b> with NO quotes — it\'s a yes/no, not text.',
+     example:'block.BrickColor = BrickColor.new("Bright red")\nblock.Size = Vector3.new(6, 1, 6)\nblock.Anchored = true'},
+   studio:['Add the property lines under your Instance.new line.','Press <b>▶ Play</b> — the block is now red, wide, and floating.','Click the Part in Explorer and look at the <b>Properties</b> panel — you\'ll see the same values you typed.','Try changing <code>true</code> to <code>false</code> and Play again: it falls!'],
+   goal:'Make a part that is <b>Bright red</b>, sized <b>6, 1, 6</b>, and <b>Anchored</b> so it floats. Put it in the workspace.',
+   starter:'local block = Instance.new("Part")\nblock.BrickColor = BrickColor.new("Bright red")\n\n-- Add the Size and Anchored lines, then the Parent line!\n',
+   check:(w)=>{
+     if(w.parts.length!==1) return w.parts.length===0?'No Part reached the workspace yet — remember block.Parent = workspace':'This mission needs exactly 1 part.';
+     const p=w.parts[0];
+     if((p.BrickColor.Name||'').toLowerCase()!=='bright red') return 'The part isn\'t Bright red yet.';
+     if(!(p.Size.X===6&&p.Size.Y===1&&p.Size.Z===6)) return 'Size should be Vector3.new(6, 1, 6) — yours is '+p.Size.X+', '+p.Size.Y+', '+p.Size.Z+'.';
+     if(p.Anchored!==true) return 'The part still needs Anchored = true so it floats.';
+     return null; },
+   hint:'Three lines: BrickColor, then Size = Vector3.new(6, 1, 6), then Anchored = true. And don\'t forget Parent = workspace.' },
+
+ { key:'r4', label:'④ A TOWER', title:'Build a Tower With a Loop',
+   teach:{title:'A loop builds many parts',
+     body:'Making 5 blocks by hand means copying 5 blocks of code. A <b>for loop</b> does it for you.<br><br>Read it as: “<b>for</b> i going from 1 to 5, <b>do</b> this.”<br><br>Two Roblox things to notice:<br>• <b>Lua counts from 1</b>, not 0 like some languages.<br>• <b>Position</b> is <b>Vector3.new(x, y, z)</b> where <b>y is HEIGHT</b>. Using <code style="background:#1a1f36;color:#ffcc88;padding:1px 5px;border-radius:4px">i * 4</code> for y stacks each block 4 studs higher than the last.',
+     example:'for i = 1, 5 do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(0, i * 4, 0)\n  b.Parent = workspace\nend'},
+   studio:['Type the loop into your script.','Press <b>▶ Play</b> — a tower of 5 blocks stacks up instantly.','In Explorer you\'ll see 5 Parts appear under Workspace.','Change the <b>5</b> to <b>10</b> and Play again for a taller tower.'],
+   goal:'Build a tower of <b>exactly 8 blocks</b>, each one <b>4 studs</b> higher than the one below, all <b>Anchored</b>. The loop below only builds 3 — <b>fix the number</b>.',
+   starter:'for i = 1, 3 do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(0, i * 4, 0)\n  b.Parent = workspace\nend\n',
+   check:(w)=>{
+     if(w.parts.length!==8) return 'The tower has '+w.parts.length+(w.parts.length===1?' block':' blocks')+' — it needs exactly 8.';
+     const ys=w.parts.map(p=>p.Position.Y).sort((a,b)=>a-b);
+     for(let i=0;i<8;i++) if(ys[i]!==(i+1)*4) return 'The blocks should sit at heights 4, 8, 12 ... 32. Use Vector3.new(0, i * 4, 0).';
+     if(!w.parts.every(p=>p.Anchored===true)) return 'Every block needs Anchored = true or the tower falls over.';
+     return null; },
+   hint:'Change "for i = 1, 3 do" to "for i = 1, 8 do".' },
+
+ { key:'r5', label:'⑤ DECISIONS', title:'A Striped Path',
+   teach:{title:'if / then / else picks the color',
+     body:'Inside a loop you can <b>decide</b> what each block should look like.<br><br>Read it as: “<b>if</b> i is less than 4, <b>then</b> make it red, <b>else</b> make it blue.”<br><br>In Lua an if always ends with the word <b>end</b>. Notice the shape: <b>if … then … else … end</b>.',
+     example:'if i < 4 then\n  b.BrickColor = BrickColor.new("Bright red")\nelse\n  b.BrickColor = BrickColor.new("Bright blue")\nend'},
+   studio:['Put the if/else inside your loop, before the Parent line.','Press <b>▶ Play</b> — the first blocks are red, the rest are blue.','Try swapping the colors, or changing <code>i &lt; 4</code> to <code>i &lt; 2</code>.'],
+   goal:'Lay a path of <b>6 blocks</b> in a row (spaced <b>5 studs</b> apart along x). The first <b>3</b> must be <b>Bright red</b> and the last <b>3</b> must be <b>Bright blue</b>. All Anchored.',
+   starter:'for i = 1, 6 do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(i * 5, 1, 0)\n\n  -- Add the if / then / else here to pick the color!\n\n  b.Parent = workspace\nend\n',
+   check:(w)=>{
+     if(w.parts.length!==6) return 'The path has '+w.parts.length+(w.parts.length===1?' block':' blocks')+' — it needs exactly 6.';
+     const ps=w.parts.slice().sort((a,b)=>a.Position.X-b.Position.X);
+     for(let i=0;i<6;i++) if(ps[i].Position.X!==(i+1)*5) return 'Blocks should be at x = 5, 10, 15, 20, 25, 30. Use Vector3.new(i * 5, 1, 0).';
+     for(let i=0;i<3;i++) if((ps[i].BrickColor.Name||'').toLowerCase()!=='bright red') return 'The first 3 blocks should be Bright red.';
+     for(let i=3;i<6;i++) if((ps[i].BrickColor.Name||'').toLowerCase()!=='bright blue') return 'The last 3 blocks should be Bright blue.';
+     return null; },
+   hint:'Inside the loop: if i < 4 then (red) else (blue) end — remember the word end.' },
+
+ { key:'r6', label:'⑥ YOUR FUNCTION', title:'Write Your Own Builder',
+   teach:{title:'Your own command, with inputs',
+     body:'Real Roblox scripts are full of custom functions. Here you make one called <b>makeBlock</b> that takes two <b>inputs</b>: where to put it, and what color.<br><br>Then one short line builds a block anywhere you want. Write the recipe once, use it forever — that\'s the whole point of functions.',
+     example:'local function makeBlock(x, color)\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(x, 1, 0)\n  b.BrickColor = BrickColor.new(color)\n  b.Parent = workspace\nend\n\nmakeBlock(0, "Bright green")'},
+   studio:['Type the function into your script.','Below it, call it a few times with different numbers and colors.','Press <b>▶ Play</b> — every call builds a block.','This is exactly how real Roblox games build maps, spawn coins, and place obstacles.'],
+   goal:'Use your <code>makeBlock</code> function to build <b>3 blocks</b>: one <b>Bright green</b> at x = 0, one <b>Bright yellow</b> at x = 6, and one <b>Bright violet</b> at x = 12.',
+   starter:'local function makeBlock(x, color)\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(x, 1, 0)\n  b.BrickColor = BrickColor.new(color)\n  b.Parent = workspace\nend\n\nmakeBlock(0, "Bright green")\n\n-- Add two more calls: yellow at 6, violet at 12\n',
+   check:(w)=>{
+     if(w.parts.length!==3) return 'That built '+w.parts.length+(w.parts.length===1?' block':' blocks')+' — this mission needs exactly 3.';
+     const want=[[0,'bright green'],[6,'bright yellow'],[12,'bright violet']];
+     const ps=w.parts.slice().sort((a,b)=>a.Position.X-b.Position.X);
+     for(let i=0;i<3;i++){
+       if(ps[i].Position.X!==want[i][0]) return 'Blocks should be at x = 0, 6 and 12.';
+       if((ps[i].BrickColor.Name||'').toLowerCase()!==want[i][1]) return 'At x = '+want[i][0]+' the block should be '+want[i][1].replace(/\b\w/g,c=>c.toUpperCase())+'.';
+     }
+     return null; },
+   hint:'Add two lines: makeBlock(6, "Bright yellow") and makeBlock(12, "Bright violet")' },
+];
+
+/* ═══════════ BUILD SCREENS ═══════════ */
+const mbar=document.getElementById('mbar');
+mbar.innerHTML='<div class="mtab active" onclick="go(0)" id="tab0">🎮 START</div>'+
+  LV.map((l,i)=>`<div class="mtab" onclick="go(${i+1})" id="tab${i+1}">${l.label}</div>`).join('');
+
+LV.forEach((l,i)=>{
+  const n=i+1;
+  const sc=document.createElement('div');
+  sc.className='screen'; sc.id='sc'+n;
+  sc.innerHTML=
+    `<div class="mission-header"><div class="mission-tag">Mission ${n} · Lua</div>`+
+    `<div class="mission-title">${l.title}</div></div>`+
+    `<div class="stage">`+
+      `<div class="goal">🎯 ${l.goal}</div>`+
+      `<div class="teach"><div class="teach-title">🧠 ${l.teach.title}</div>`+
+        `<div class="teach-body">${l.teach.body}</div>`+
+        `<pre class="teach-ex">${esc(l.teach.example)}</pre></div>`+
+      `<div class="viewport">`+
+        `<div class="vp-main"><div class="vp-label">🌍 Workspace (your world)</div><canvas id="cv${n}" width="380" height="230"></canvas></div>`+
+        `<div class="vp-side"><div class="vp-label">🗂️ Explorer</div><div class="explorer" id="exp${n}"></div></div>`+
+      `</div>`+
+      `<div class="editor-wrap"><div class="editor-label">📝 Script (Lua)</div>`+
+      `<textarea class="code" id="ed${n}" spellcheck="false" oninput="onEdit('${l.key}',${n})"></textarea></div>`+
+      `<div class="btn-row">`+
+        `<button class="btn go" onclick="runMission(${n})">▶ PLAY</button>`+
+        `<button class="btn ghost" onclick="resetWorld(${n})">↺ Stop / Clear world</button>`+
+        `<button class="btn ghost" onclick="restarter(${n})">Reset code</button>`+
+      `</div>`+
+      `<div class="vp-label" style="margin-top:6px">🖥️ Output</div>`+
+      `<div class="console" id="con${n}">Ready. Write your script and press PLAY.</div>`+
+      `<div class="hintbox">💡 ${l.hint}</div>`+
+      `<div class="studio"><div class="studio-title">🎮 Do this in real Roblox Studio</div><ol>`+
+        l.studio.map(s=>`<li>${s}</li>`).join('')+`</ol></div>`+
+      `<div class="win-banner" id="win${n}"><h3>✅ It works! +25 XP</h3><div style="color:var(--muted);font-size:13px">That's real Lua — paste it into Roblox Studio and it runs there too.</div>`+
+        (n<LV.length?`<div class="btn-row" style="justify-content:center;margin-top:10px"><button class="btn blue" onclick="go(${n+1})">Next Mission →</button></div>`:`<div style="color:var(--good);font-weight:900;margin-top:10px">🏆 You can build in Roblox Studio now!</div>`)+
+      `</div>`+
+    `</div>`;
+  document.body.insertBefore(sc, document.querySelector('script'));
+});
+
+/* ═══════════ WORLD / RENDER ═══════════ */
+const W={};
+function go(n){
+  cur=n;
+  document.querySelectorAll('.screen').forEach((s,i)=>s.classList.toggle('active',i===n));
+  document.querySelectorAll('.mtab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  window.scrollTo(0,0);
+  if(n>=1){
+    const l=LV[n-1]; const ed=document.getElementById('ed'+n);
+    if(ed && ed.value==='') ed.value=(codeStore[l.key]!==undefined?codeStore[l.key]:l.starter);
+    resetWorld(n);
+    for(let i=0;i<n;i++){const t=document.getElementById('tab'+i);if(t)t.classList.add('done');}
+  }
+}
+function onEdit(k,n){ codeStore[k]=document.getElementById('ed'+n).value; clearTimeout(onEdit._h); onEdit._h=setTimeout(saveAll,300); }
+function restarter(n){ const l=LV[n-1]; document.getElementById('ed'+n).value=l.starter; codeStore[l.key]=l.starter; saveAll(); }
+function resetWorld(n){
+  W[n]={parts:[],created:[],solved:W[n]&&W[n].solved};
+  document.getElementById('win'+n).classList.toggle('show',!!(W[n]&&W[n].solved));
+  render(n); renderExp(n);
+}
+function colorOf(p){ return BRICK[(p.BrickColor.Name||'').toLowerCase()]||'#a3a2a5'; }
+function shade(hex,f){
+  const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  r=Math.max(0,Math.min(255,Math.round(r*f))); g=Math.max(0,Math.min(255,Math.round(g*f))); b=Math.max(0,Math.min(255,Math.round(b*f)));
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function render(n){
+  const c=document.getElementById('cv'+n); const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  const parts=(W[n]&&W[n].parts)||[];
+  // auto-fit scale
+  let maxR=12;
+  parts.forEach(p=>{ maxR=Math.max(maxR, Math.abs(p.Position.X)+p.Size.X, Math.abs(p.Position.Z)+p.Size.Z, (p.Position.Y+p.Size.Y)*0.9); });
+  const k=Math.max(2.2, Math.min(9, 150/maxR));
+  const cx=c.width/2, cy=c.height*0.74;
+  const proj=(x,y,z)=>({X:cx+(x-z)*k*0.9, Y:cy-(y*k)+(x+z)*k*0.42});
+  // baseplate
+  const g=[proj(-14,0,-14),proj(14,0,-14),proj(14,0,14),proj(-14,0,14)];
+  ctx.beginPath(); ctx.moveTo(g[0].X,g[0].Y); g.slice(1).forEach(q=>ctx.lineTo(q.X,q.Y)); ctx.closePath();
+  ctx.fillStyle='#16324a'; ctx.fill(); ctx.strokeStyle='#24506f'; ctx.stroke();
+  // sort back-to-front
+  const sorted=parts.slice().sort((a,b)=>((a.Position.X+a.Position.Z)-(b.Position.X+b.Position.Z))||(a.Position.Y-b.Position.Y));
+  sorted.forEach(p=>{
+    const hw=p.Size.X/2, hh=p.Size.Y, hd=p.Size.Z/2;
+    const x=p.Position.X, y=p.Position.Y, z=p.Position.Z;
+    const base=colorOf(p);
+    const T=[proj(x-hw,y+hh/2,z-hd),proj(x+hw,y+hh/2,z-hd),proj(x+hw,y+hh/2,z+hd),proj(x-hw,y+hh/2,z+hd)];
+    const B=[proj(x-hw,y-hh/2,z-hd),proj(x+hw,y-hh/2,z-hd),proj(x+hw,y-hh/2,z+hd),proj(x-hw,y-hh/2,z+hd)];
+    const poly=(pts,fill)=>{ctx.beginPath();ctx.moveTo(pts[0].X,pts[0].Y);pts.slice(1).forEach(q=>ctx.lineTo(q.X,q.Y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.35)';ctx.stroke();};
+    poly([T[1],T[2],B[2],B[1]],shade(base,.7));   // right face
+    poly([T[2],T[3],B[3],B[2]],shade(base,.85));  // front face
+    poly(T,shade(base,1.12));                     // top
+  });
+  if(!parts.length){
+    ctx.fillStyle='#5b7691'; ctx.font='12px system-ui'; ctx.textAlign='center';
+    ctx.fillText('Empty baseplate — press PLAY', c.width/2, c.height*0.5);
+  }
+}
+function renderExp(n){
+  const parts=(W[n]&&W[n].parts)||[];
+  document.getElementById('exp'+n).innerHTML =
+    `<div class="exp-row exp-root">📁 Workspace</div>`+
+    (parts.length? parts.map(p=>`<div class="exp-row exp-part"><i class="exp-swatch" style="background:${colorOf(p)}"></i>${esc(p.Name)}</div>`).join('')
+     : `<div class="exp-row exp-part" style="color:#4a5a72">(no parts yet)</div>`);
+}
+
+/* ═══════════ RUN ═══════════ */
+function runMission(n){
+  const l=LV[n-1]; const src=document.getElementById('ed'+n).value;
+  codeStore[l.key]=src; saveAll();
+  document.getElementById('win'+n).classList.remove('show');
+  W[n]={parts:[],created:[],solved:W[n]&&W[n].solved};
+  const out=[]; const con=document.getElementById('con'+n);
+  try{
+    runLua(src, W[n], out);
+  }catch(err){
+    render(n); renderExp(n);
+    if(err&&err.luaMsg){
+      con.innerHTML=`<span class="err">❌ Line ${err.line||'?'}: ${esc(err.luaMsg)}</span>`;
+    }else{
+      con.innerHTML=`<span class="err">❌ ${esc((err&&err.message)||String(err))}</span>`;
+    }
+    logMistake(false,l.title,'M'+n);
+    return;
+  }
+  render(n); renderExp(n);
+  const printed=out.map(t=>`<span class="out">${esc(t)}</span>`).join('\n');
+  const problem=l.check(W[n],out);
+  if(problem===null){
+    const first=!(W[n].solved);
+    W[n].solved=true;
+    con.innerHTML=(printed?printed+'\n':'')+`<span class="ok">✅ ${l.key==='r1'?'Output looks right!':'Your world matches the goal!'}</span>`;
+    document.getElementById('win'+n).classList.add('show');
+    logMistake(true,l.title,'M'+n);
+    if(first){ addXP(25); showToast('🎮 +25 XP — real Lua!'); }
+    document.getElementById('tab'+n).classList.add('done');
+  }else{
+    con.innerHTML=(printed?printed+'\n':'')+`<span class="err">Not yet — ${esc(problem)}</span>`;
+    logMistake(false,l.title,'M'+n);
+  }
+}
+
+/* ═══════════ SAVE LIFECYCLE ═══════════ */
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') saveAll(); });
+window.addEventListener('pagehide',saveAll);
+window.addEventListener('beforeunload',saveAll);
+window.addEventListener('blur',saveAll);
+
+document.getElementById('xpNum').textContent=xp;
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>

@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Day 22 — Multiplying Fractions</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;padding-bottom:80px}
+h1,h2,h3{line-height:1.3}
+button{cursor:pointer;font-family:inherit;font-size:inherit}
+input{font-family:inherit;font-size:inherit}
+
+/* STICKY PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--panel);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+}
+.ph-seg{
+  flex:1;min-width:0;padding:6px 4px;border-radius:8px;
+  background:var(--panel2);border:none;color:var(--muted);
+  font-size:11px;font-weight:600;text-align:center;cursor:pointer;
+  transition:background .2s,color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+}
+.ph-seg.active{background:var(--accent);color:#fff}
+.ph-seg.done{background:var(--good);color:#111}
+
+/* HEADER */
+.hero{padding:32px 20px 24px;text-align:center;max-width:780px;margin:0 auto}
+.hero .animal-icon{font-size:64px;line-height:1;margin-bottom:8px}
+.hero h1{font-size:clamp(22px,5vw,32px);color:var(--accent2)}
+.hero .subtitle{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* MAIN LAYOUT */
+main{max-width:780px;margin:0 auto;padding:0 16px}
+
+/* PHASE SECTIONS */
+.phase-section{
+  background:var(--panel);border-radius:var(--radius);
+  padding:24px 20px;margin-bottom:24px;
+  border:1px solid var(--line);
+}
+.phase-section h2{
+  font-size:18px;color:var(--accent);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-section .phase-meta{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* WARM-UP */
+.warmup-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.warmup-q{font-size:20px;font-weight:600;margin-bottom:16px;min-height:2em;line-height:1.4}
+.warmup-q .q-num{color:var(--muted);font-size:14px;display:block;margin-bottom:6px;font-weight:400}
+.warmup-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:520px){.warmup-choices{grid-template-columns:1fr}}
+.choice-btn{
+  padding:12px 10px;border-radius:10px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:15px;
+  transition:border-color .15s,background .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--accent2)}
+.choice-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.choice-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-feedback{
+  padding:10px 14px;border-radius:8px;font-size:14px;margin-top:6px;
+  display:none;min-height:36px;
+}
+.warmup-feedback.show{display:block}
+.warmup-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.warmup-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.warmup-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
+.warmup-progress{font-size:13px;color:var(--muted)}
+.btn{
+  padding:10px 22px;border-radius:10px;border:none;font-weight:600;font-size:15px;
+  min-height:44px;transition:opacity .15s;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-teal{background:var(--accent2);color:#111}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+
+/* TEACHING CARDS */
+.teach-card{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);margin-bottom:20px;
+}
+.teach-card h3{font-size:15px;color:var(--warn);margin-bottom:14px}
+.teach-note{
+  font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;margin-top:14px;line-height:1.6;
+}
+.teach-note .hl{color:var(--warn);font-weight:700}
+
+/* CONCEPT / REFERENCE BOXES */
+.concept-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.concept-box{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.concept-box .cb-name{font-weight:700;color:var(--accent2);font-size:14px;margin-bottom:6px}
+.concept-box .cb-eq{font-size:14px;color:var(--warn);font-weight:700;line-height:1.9}
+
+/* ORDER LIST */
+.order-list{margin-top:14px;display:grid;gap:10px}
+.order-step{
+  display:flex;align-items:center;gap:12px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+}
+.order-num{
+  flex:0 0 32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;
+  font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.order-txt{font-size:14px;line-height:1.5}
+.order-txt b{color:var(--warn)}
+.order-txt .lr{color:var(--accent2);font-weight:700}
+
+/* FORMULA BANNER */
+.formula-banner{
+  text-align:center;font-size:clamp(18px,4.5vw,24px);font-weight:700;color:var(--warn);
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 12px;margin:14px 0 4px;letter-spacing:.02em;
+}
+
+/* STACKED FRACTION */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;margin:0 3px;font-weight:700}
+.fr .top{border-bottom:2px solid currentColor;padding:0 6px}
+.fr .bot{padding:0 6px}
+
+/* WORKED EXAMPLES */
+.work-ex{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin-top:14px;
+}
+.work-ex .we-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:8px}
+.work-line{font-size:clamp(15px,4vw,18px);font-weight:700;padding:5px 0;line-height:1.7;color:var(--ink)}
+.work-line .hl-step{background:rgba(255,209,102,.22);color:var(--warn);border-radius:6px;padding:2px 7px}
+.work-line .why{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
+.work-line.final{color:var(--good)}
+.work-line.miss{color:var(--muted)}
+
+/* SIDE-BY-SIDE COMPARE */
+.cmp-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:520px){.cmp-row{grid-template-columns:1fr}}
+.cmp-col{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.cmp-col h4{font-size:14px;margin-bottom:8px}
+.cmp-col.fac h4{color:var(--accent2)}
+.cmp-col.mul h4{color:var(--warn)}
+.cmp-col ul{margin:0 0 0 18px;font-size:13.5px;line-height:1.7;color:var(--ink)}
+.cmp-col ul li{margin-bottom:2px}
+.cmp-col b{color:var(--warn)}
+
+/* TOOLS (clean numbers only — no theme inside the tools) */
+.builder{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.ag-label{font-size:13px;color:var(--muted);text-align:center;display:block;margin-bottom:10px}
+.step-log{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:10px 14px;font-size:14px;color:var(--muted);min-height:44px;
+}
+.step-log .log-row{padding:3px 0}
+.step-log .log-row b{color:var(--good)}
+.step-log .log-row .arrow{color:var(--accent2)}
+.step-log .log-empty{color:var(--muted);font-style:italic}
+.pa-feedback{
+  text-align:center;font-size:14px;padding:8px 12px;border-radius:8px;
+  min-height:38px;display:none;max-width:600px;margin:10px auto 0;
+}
+.pa-feedback.show{display:block}
+.pa-feedback.ok{background:rgba(123,216,143,.15);color:var(--good)}
+.pa-feedback.no{background:rgba(255,107,129,.12);color:var(--bad)}
+.pa-feedback.tip{background:rgba(255,209,102,.12);color:var(--warn)}
+.pa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px;flex-wrap:wrap}
+.tool-target{
+  margin-top:4px;padding:12px 14px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);text-align:center;font-size:15px;
+}
+.tool-target .tt-num{font-size:24px;font-weight:700;color:var(--accent2)}
+
+/* NUMBER GRIDS (clean numbers only) */
+.num-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:12px 0}
+.num-cell{
+  padding:0;border-radius:9px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;font-weight:700;
+  min-height:46px;display:flex;align-items:center;justify-content:center;
+  transition:border-color .12s,background .12s,color .12s,opacity .12s;
+}
+.num-cell:hover:not(:disabled){border-color:var(--accent2)}
+.num-cell.good{border-color:var(--good);background:rgba(123,216,143,.18);color:var(--good)}
+.num-cell.bad{border-color:var(--bad);background:rgba(255,107,129,.14);color:var(--bad)}
+.num-cell:disabled{cursor:default;opacity:.55}
+.found-read{text-align:center;font-size:14px;color:var(--muted);margin-top:8px;min-height:24px}
+.found-read b{color:var(--ink)}
+.grid-legend{
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  font-size:12px;color:var(--muted);margin-top:8px;
+}
+.grid-legend span b{font-weight:700}
+.swatch{display:inline-block;width:13px;height:13px;border-radius:3px;border:1px solid var(--line);vertical-align:-2px;margin-right:4px}
+
+/* GROUP SPLITTER (Phase 2 tool — clean counters, no theme) */
+.gs-stepline{font-size:13px;color:var(--muted);text-align:center;margin:14px 0 4px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.gs-pool{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:430px;margin:12px auto}
+.gs-chip{width:22px;height:22px;border-radius:50%;background:var(--accent2);opacity:.85}
+.gs-groups{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:14px 0}
+.gs-group{
+  border:2px dashed var(--line);border-radius:12px;padding:10px;background:var(--panel);
+  cursor:pointer;transition:border-color .15s,background .15s;
+}
+.gs-group .gs-dots{display:grid;gap:7px;justify-content:center}
+.gs-group .gs-cap{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
+.gs-group.on{border-style:solid;border-color:var(--good);background:rgba(123,216,143,.14)}
+.gs-group.on .gs-chip{background:var(--good);opacity:1}
+.gs-group.on .gs-cap{color:var(--good)}
+
+/* AREA MODEL BUILDER (Phase 3 tool — clean numbers, no theme) */
+.frac-ctrl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:560px){.frac-ctrl{grid-template-columns:1fr}}
+.frac-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 10px;text-align:center}
+.frac-box h5{font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.frac-box.a h5{color:var(--accent2)}
+.frac-box.b h5{color:var(--accent)}
+.stp{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 0}
+.stp-lab{font-size:11px;color:var(--muted);width:96px;text-align:right}
+.stp-btn{
+  width:44px;height:44px;border-radius:9px;border:2px solid var(--line);
+  background:var(--panel2);color:var(--ink);font-size:20px;font-weight:700;line-height:1;
+}
+.stp-btn:hover:not(:disabled){border-color:var(--accent2)}
+.stp-btn:disabled{opacity:.3;cursor:not-allowed}
+.stp-val{min-width:40px;font-size:22px;font-weight:700;color:var(--warn)}
+.am-frame{max-width:420px;margin:16px auto 6px}
+.am-grid{display:grid;gap:2px;background:var(--line);border:2px solid var(--line);border-radius:8px;overflow:hidden}
+.am-cell{background:var(--panel);min-height:22px;transition:background .18s}
+.am-cell.inA{background:rgba(91,209,196,.32)}
+.am-cell.inB{background:rgba(255,122,89,.32)}
+.am-cell.both{background:var(--warn)}
+.am-read{
+  text-align:center;font-size:clamp(17px,4.6vw,22px);font-weight:700;color:var(--ink);
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;
+}
+.am-read .simp{display:block;font-size:14px;color:var(--good);font-weight:600;margin-top:6px}
+.am-read .note{display:block;font-size:12.5px;color:var(--muted);font-weight:400;margin-top:6px}
+
+/* PRACTICE GAME */
+.pa-game{
+  background:var(--panel2);border-radius:var(--radius);padding:20px;
+  border:1px solid var(--line);
+}
+.pa-prompt{text-align:center;font-size:20px;font-weight:700;margin-bottom:8px;line-height:1.5}
+.pa-prompt .hl{color:var(--accent)}
+
+/* WORD PROBLEMS */
+.wp-card{
+  background:var(--panel2);border-radius:var(--radius);
+  padding:20px;border:1px solid var(--line);
+}
+.wp-q-num{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.wp-q-text{font-size:18px;line-height:1.7;margin-bottom:16px;color:var(--ink)}
+.wp-q-text strong{color:var(--accent2)}
+.work-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block}
+.wp-input{
+  width:100%;padding:10px 14px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:16px;
+  transition:border-color .15s;min-height:44px;
+}
+.wp-input:focus{outline:none;border-color:var(--accent2)}
+.wp-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.reveal-btn{
+  padding:9px 18px;border-radius:8px;border:2px solid var(--accent2);
+  background:transparent;color:var(--accent2);font-weight:600;font-size:14px;
+  min-height:44px;transition:background .15s,color .15s;
+}
+.reveal-btn:hover{background:var(--accent2);color:#111}
+.solution-box{
+  margin-top:14px;padding:14px 16px;border-radius:10px;
+  background:rgba(91,209,196,.08);border:1px solid var(--accent2);
+  display:none;
+}
+.solution-box.show{display:block}
+.solution-box h4{font-size:13px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.solution-step{font-size:14px;padding:4px 0;line-height:1.5;color:var(--ink)}
+.solution-step .math{color:var(--warn);font-weight:600}
+.wp-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.wp-counter{font-size:13px;color:var(--muted)}
+.wp-dots{display:flex;gap:6px}
+.wp-dot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer}
+.wp-dot.active{background:var(--accent)}
+.wp-dot.done{background:var(--good)}
+
+/* SPEED ROUND */
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.mm-card{
+  background:var(--panel2);border-radius:var(--radius);padding:16px;
+  border:2px solid var(--line);text-align:center;transition:border-color .2s;
+}
+.mm-card.answered-right{border-color:var(--good);background:rgba(123,216,143,.07)}
+.mm-card.answered-wrong{border-color:var(--bad);background:rgba(255,107,129,.07)}
+.mm-q-num{font-size:11px;color:var(--muted);margin-bottom:6px}
+.mm-question{font-size:16px;font-weight:700;margin-bottom:10px;min-height:28px;line-height:1.4}
+.mm-choices{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mm-btn{
+  padding:8px 4px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:600;
+  min-height:44px;transition:border-color .12s,background .12s;
+}
+.mm-btn:hover:not(:disabled){border-color:var(--accent2)}
+.mm-btn.correct{border-color:var(--good);background:rgba(123,216,143,.2);color:var(--good)}
+.mm-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad)}
+.mm-btn.reveal-correct{border-color:var(--good);color:var(--good)}
+.mm-score-bar{
+  background:var(--panel2);border-radius:10px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.mm-score-num{font-size:28px;font-weight:700;color:var(--warn)}
+.mm-score-label{color:var(--muted);font-size:14px}
+
+/* QUIZ */
+.quiz-item{
+  background:var(--panel2);border-radius:10px;padding:16px 18px;margin-bottom:14px;
+  border:1px solid var(--line);
+}
+.quiz-q-text{font-size:15px;margin-bottom:12px;line-height:1.6}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:420px){.quiz-opts{grid-template-columns:1fr}}
+.quiz-opt{
+  padding:10px 12px;border-radius:8px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:14px;
+  text-align:left;min-height:44px;transition:border-color .12s,background .12s;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good)}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);color:var(--bad)}
+.quiz-opt.reveal-correct{border-color:var(--good);color:var(--good)}
+.quiz-feedback{font-size:13px;margin-top:8px;padding:6px 10px;border-radius:6px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.ok{color:var(--good);background:rgba(123,216,143,.1)}
+.quiz-feedback.no{color:var(--bad);background:rgba(255,107,129,.1)}
+.score-card{
+  background:var(--panel2);border-radius:var(--radius);padding:28px 24px;
+  text-align:center;border:2px solid var(--accent2);margin-top:20px;display:none;
+}
+.score-card.show{display:block}
+.score-big{font-size:56px;font-weight:700;color:var(--accent2);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin-top:6px}
+.score-msg{font-size:18px;font-weight:600;margin-top:12px;color:var(--ink)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.section-done-banner{
+  text-align:center;padding:16px;color:var(--good);font-weight:600;font-size:16px;
+  background:rgba(123,216,143,.1);border-radius:10px;margin-top:16px;display:none;
+}
+.section-done-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- STICKY PHASE BAR -->
+<div id="phase-bar">
+  <button class="ph-seg active" onclick="scrollToPhase(1)" id="seg1">1. Warm-Up</button>
+  <button class="ph-seg" onclick="scrollToPhase(2)" id="seg2">2. Part of a Group</button>
+  <button class="ph-seg" onclick="scrollToPhase(3)" id="seg3">3. Area Model</button>
+  <button class="ph-seg" onclick="scrollToPhase(4)" id="seg4">4. Practice</button>
+  <button class="ph-seg" onclick="scrollToPhase(5)" id="seg5">5. Problems</button>
+  <button class="ph-seg" onclick="scrollToPhase(6)" id="seg6">6. Speed Round</button>
+  <button class="ph-seg" onclick="scrollToPhase(7)" id="seg7">7. Quiz</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="animal-icon">🦑</div>
+  <h1>Math Day 22 — Multiplying Fractions</h1>
+  <p class="subtitle">4th → 5th Grade Summer Refresher &nbsp;·&nbsp; Kraken Edition</p>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — WARM-UP
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase1">
+  <h2>🌊 Phase 1 — Warm-Up <span style="font-size:13px;color:var(--muted);font-weight:400">(5 min)</span></h2>
+  <p class="phase-meta">4 quick questions. You already know how to add and subtract fractions — today is about MULTIPLYING them.</p>
+
+  <div class="teach-card">
+    <h3>📋 One Word Runs This Whole Lesson: "OF"</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">In fraction land, the word <strong style="color:var(--warn)">"of"</strong> means <strong style="color:var(--warn)">×</strong>. That is the whole trick.</p>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">"Half <strong style="color:var(--ink)">of</strong> 10" and "<span class="fr" style="color:var(--accent2)"><span class="top">1</span><span class="bot">2</span></span> <strong style="color:var(--ink)">×</strong> 10" are the exact same question. Both answers are 5.</p>
+    <p style="font-size:14px;color:var(--muted)">So every time you see "of" in a problem today, you can swap in a × sign and nothing changes.</p>
+  </div>
+
+  <div class="warmup-card" id="warmup-container">
+    <div class="warmup-q">
+      <span class="q-num" id="wu-q-label">Question 1 of 4</span>
+      <span id="wu-q-text"></span>
+    </div>
+    <div class="warmup-choices" id="wu-choices"></div>
+    <div class="warmup-feedback" id="wu-feedback"></div>
+    <div class="warmup-nav">
+      <span class="warmup-progress" id="wu-progress">0 / 4 correct</span>
+      <button class="btn btn-teal hidden" id="wu-next" onclick="warmupNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="warmup-done">✓ Warm-up complete! Great start.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — GROUP SPLITTER (interactive tool, clean numbers)
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase2">
+  <h2>🔢 Phase 2 — A Fraction OF a Whole Number <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">Divide by the bottom, multiply by the top. Then prove it with the Group Splitter — 5 rounds.</p>
+
+  <div class="teach-card">
+    <h3>📋 Divide by the Bottom, Multiply by the Top</h3>
+
+    <p style="font-size:14px;color:var(--muted)">To find a fraction <strong style="color:var(--warn)">of</strong> a whole number, the two numbers in the fraction each have a job:</p>
+
+    <div class="order-list">
+      <div class="order-step">
+        <div class="order-num">1</div>
+        <div class="order-txt">The <b>BOTTOM</b> number says how many <span class="lr">equal groups</span> to break the whole thing into. So you <b>divide</b> by it.</div>
+      </div>
+      <div class="order-step">
+        <div class="order-num">2</div>
+        <div class="order-txt">The <b>TOP</b> number says how many of those groups you <span class="lr">keep</span>. So you <b>multiply</b> by it.</div>
+      </div>
+    </div>
+
+    <div class="formula-banner">bottom → ÷ &nbsp;&nbsp;·&nbsp;&nbsp; top → ×</div>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — <span class="fr"><span class="top">2</span><span class="bot">3</span></span> of 12</div>
+      <div class="work-line">Bottom is <span class="hl-step">3</span> → break 12 into 3 equal groups<span class="why">12 ÷ 3 = 4, so each group holds 4</span></div>
+      <div class="work-line">Top is <span class="hl-step">2</span> → keep 2 of those groups<span class="why">4 × 2 = 8</span></div>
+      <div class="work-line final"><span class="fr"><span class="top">2</span><span class="bot">3</span></span> of 12 = 8</div>
+      <div class="work-line miss">Check: the other group left over holds 4, and 8 + 4 = 12 ✓<span class="why">the groups always add back up to the whole</span></div>
+    </div>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — <span class="fr"><span class="top">3</span><span class="bot">4</span></span> of 20</div>
+      <div class="work-line">Bottom is <span class="hl-step">4</span><span class="why">20 ÷ 4 = 5 in each group</span></div>
+      <div class="work-line">Top is <span class="hl-step">3</span><span class="why">5 × 3 = 15</span></div>
+      <div class="work-line final"><span class="fr"><span class="top">3</span><span class="bot">4</span></span> of 20 = 15</div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Do it in that order and the numbers stay small.</span> You could also multiply first (20 × 3 = 60) and then divide (60 ÷ 4 = 15) — you get the same 15. But dividing first keeps you working with 5s instead of 60s, and small numbers mean fewer mistakes.
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Sanity check every single time.</span> A fraction of something is only a <b>piece</b> of it, so your answer must be <b>smaller than the number you started with</b> (unless the top and bottom are equal). If you ask for <span class="fr"><span class="top">2</span><span class="bot">3</span></span> of 12 and get 18, you have gone the wrong way.
+    </div>
+  </div>
+
+  <div class="builder">
+    <span class="ag-label">Group Splitter — split the counters, keep the right number of groups, then name the answer.</span>
+    <div class="tool-target" id="gs-target"></div>
+
+    <div class="gs-stepline" id="gs-stepline">Step 1 — how many equal groups?</div>
+    <div class="gs-pool" id="gs-pool"></div>
+    <div class="num-grid" id="gs-splitrow" style="grid-template-columns:repeat(5,minmax(0,1fr));max-width:340px;margin-left:auto;margin-right:auto"></div>
+    <div class="gs-groups" id="gs-groups"></div>
+    <div class="warmup-choices" id="gs-answers" style="max-width:420px;margin:12px auto 0"></div>
+
+    <div class="found-read" id="gs-read"></div>
+    <div class="pa-feedback" id="gs-feedback"></div>
+    <div class="pa-nav">
+      <button class="btn btn-muted" id="gs-reset" type="button">↺ Start this one over</button>
+      <button class="btn btn-teal hidden" id="gs-next" type="button">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="gs-done">✓ All 5 rounds done! You can take a fraction of any whole number.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — AREA MODEL BUILDER (interactive tool, clean numbers)
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase3">
+  <h2>▦ Phase 3 — Fraction × Fraction: The Area Model <span style="font-size:13px;color:var(--muted);font-weight:400">(15 min)</span></h2>
+  <p class="phase-meta">This picture is the heart of the whole lesson. Build it yourself, then hit 6 targets.</p>
+
+  <div class="teach-card">
+    <h3>📋 Why "Multiply the Tops, Multiply the Bottoms" Actually Works</h3>
+
+    <p style="font-size:14px;color:var(--muted)">Take a rectangle and cut it <strong style="color:var(--accent2)">one way</strong> for the first fraction. Then cut the <strong style="color:var(--ink)">same</strong> rectangle <strong style="color:var(--accent)">the other way</strong> for the second fraction. The little boxes that got shaded <strong style="color:var(--warn)">BOTH</strong> ways are your answer.</p>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — <span class="fr"><span class="top">1</span><span class="bot">2</span></span> × <span class="fr"><span class="top">1</span><span class="bot">3</span></span></div>
+      <div class="work-line">Cut into <span class="hl-step">3 columns</span>, shade 1<span class="why">that is one third of the rectangle, going up-and-down</span></div>
+      <div class="work-line">Cut into <span class="hl-step">2 rows</span>, shade 1<span class="why">that is one half of the rectangle, going across</span></div>
+      <div class="work-line">Now count the little boxes: 2 rows × 3 columns = <span class="hl-step">6 boxes</span> in the whole rectangle<span class="why">the BOTTOMS multiplied: 2 × 3 = 6</span></div>
+      <div class="work-line">Only <span class="hl-step">1 box</span> is shaded both ways<span class="why">the TOPS multiplied: 1 × 1 = 1</span></div>
+      <div class="work-line final"><span class="fr"><span class="top">1</span><span class="bot">2</span></span> × <span class="fr"><span class="top">1</span><span class="bot">3</span></span> = <span class="fr"><span class="top">1</span><span class="bot">6</span></span></div>
+    </div>
+
+    <div class="formula-banner">top × top &nbsp;over&nbsp; bottom × bottom</div>
+
+    <div class="teach-note">
+      <span class="hl">No common denominator needed — and that surprises people.</span> When you ADD fractions you have to make the bottoms match first. When you <b>MULTIPLY</b> them you do not. Just go straight across: tops with tops, bottoms with bottoms. Multiplying is the easier one.
+    </div>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — <span class="fr"><span class="top">2</span><span class="bot">3</span></span> × <span class="fr"><span class="top">3</span><span class="bot">4</span></span></div>
+      <div class="work-line">Tops: <span class="hl-step">2 × 3 = 6</span></div>
+      <div class="work-line">Bottoms: <span class="hl-step">3 × 4 = 12</span></div>
+      <div class="work-line">So far: <span class="fr"><span class="top">6</span><span class="bot">12</span></span><span class="why">correct, but not finished — it can be simplified</span></div>
+      <div class="work-line final">= <span class="fr"><span class="top">1</span><span class="bot">2</span></span> &nbsp;(divide top and bottom by 6)</div>
+    </div>
+  </div>
+
+  <div class="builder">
+    <span class="ag-label">Area Model Builder — set both fractions with the − and + buttons. The rectangle redraws itself.</span>
+    <div class="tool-target" id="am-target"></div>
+
+    <div class="frac-ctrl">
+      <div class="frac-box a">
+        <h5>Fraction 1 — cuts the COLUMNS</h5>
+        <div class="stp">
+          <span class="stp-lab">top (shaded)</span>
+          <button class="stp-btn" type="button" id="am-an-dn">−</button>
+          <span class="stp-val" id="am-an">1</span>
+          <button class="stp-btn" type="button" id="am-an-up">+</button>
+        </div>
+        <div class="stp">
+          <span class="stp-lab">bottom (columns)</span>
+          <button class="stp-btn" type="button" id="am-ad-dn">−</button>
+          <span class="stp-val" id="am-ad">2</span>
+          <button class="stp-btn" type="button" id="am-ad-up">+</button>
+        </div>
+      </div>
+      <div class="frac-box b">
+        <h5>Fraction 2 — cuts the ROWS</h5>
+        <div class="stp">
+          <span class="stp-lab">top (shaded)</span>
+          <button class="stp-btn" type="button" id="am-bn-dn">−</button>
+          <span class="stp-val" id="am-bn">1</span>
+          <button class="stp-btn" type="button" id="am-bn-up">+</button>
+        </div>
+        <div class="stp">
+          <span class="stp-lab">bottom (rows)</span>
+          <button class="stp-btn" type="button" id="am-bd-dn">−</button>
+          <span class="stp-val" id="am-bd">2</span>
+          <button class="stp-btn" type="button" id="am-bd-up">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="am-frame">
+      <div class="am-grid" id="am-grid"></div>
+    </div>
+    <div class="grid-legend">
+      <span><span class="swatch" style="background:rgba(91,209,196,.32)"></span>Fraction 1 only</span>
+      <span><span class="swatch" style="background:rgba(255,122,89,.32)"></span>Fraction 2 only</span>
+      <span><span class="swatch" style="background:#ffd166"></span><b>both = the answer</b></span>
+    </div>
+
+    <div class="am-read" id="am-read"></div>
+    <div class="pa-feedback" id="am-feedback"></div>
+    <div class="pa-nav">
+      <button class="btn btn-muted" id="am-reset" type="button">↺ Reset to 1/2 × 1/2</button>
+      <button class="btn btn-teal hidden" id="am-next" type="button">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="am-done">✓ All 6 targets hit! You can build any fraction product as a picture.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — SMALLER?! + SIMPLIFYING + PRACTICE
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase4">
+  <h2>🤯 Phase 4 — Why It Gets SMALLER, and Simplifying <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">The part that trips up almost every 5th grader, plus tidying up your answer. Then 6 practice questions.</p>
+
+  <div class="teach-card">
+    <h3>📋 The Surprising Part: Multiplying Can Make Things SMALLER</h3>
+
+    <p style="font-size:14px;color:var(--muted)">For years, multiplying meant "make it bigger." 8 × 3 = 24. 8 × 5 = 40. Bigger, bigger, bigger. Then fractions show up and break the pattern:</p>
+
+    <div class="formula-banner">8 × <span class="fr"><span class="top">1</span><span class="bot">2</span></span> = 4</div>
+
+    <p style="font-size:14px;color:var(--muted);text-align:center">Four is <strong style="color:var(--bad)">smaller</strong> than eight. That is not a mistake.</p>
+
+    <div class="teach-note">
+      <span class="hl">Here is plainly why.</span> Multiplying by a whole number means "make <b>copies</b>." 8 × 3 means three whole copies of 8, so of course it grows. But multiplying by <span class="fr"><span class="top">1</span><span class="bot">2</span></span> means "take <b>a PART of it</b>" — half of one single 8. You are not making copies, you are <b>cutting a piece off</b>. Taking a piece of something always leaves you with less than you started with.
+    </div>
+
+    <div class="cmp-row">
+      <div class="cmp-col fac">
+        <h4>MULTIPLIER BIGGER THAN 1</h4>
+        <ul>
+          <li>8 × 3 = <b>24</b></li>
+          <li>8 × 2 = <b>16</b></li>
+          <li>You make whole copies</li>
+          <li>Answer <b>GROWS</b></li>
+        </ul>
+      </div>
+      <div class="cmp-col mul">
+        <h4>MULTIPLIER LESS THAN 1</h4>
+        <ul>
+          <li>8 × <span class="fr"><span class="top">3</span><span class="bot">4</span></span> = <b>6</b></li>
+          <li>8 × <span class="fr"><span class="top">1</span><span class="bot">2</span></span> = <b>4</b></li>
+          <li>You take a piece</li>
+          <li>Answer <b>SHRINKS</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">The in-between case.</span> 8 × 1 = 8 — no change at all, because one whole copy is just the thing itself. So the full rule is: multiply by <b>more than 1</b> → answer grows. Multiply by <b>exactly 1</b> → answer stays. Multiply by <b>less than 1</b> → answer shrinks. You can predict which way it goes <b>before</b> you calculate, which makes it a great way to catch your own mistakes.
+    </div>
+
+    <div class="teach-note" style="border-color:var(--bad)">
+      <span class="hl" style="color:var(--bad)">⚠️ Two fractions less than 1 make an even tinier answer.</span> <span class="fr"><span class="top">1</span><span class="bot">2</span></span> × <span class="fr"><span class="top">1</span><span class="bot">3</span></span> = <span class="fr"><span class="top">1</span><span class="bot">6</span></span>, and a sixth is smaller than BOTH a half and a third. Look back at the area model: you took a third, and then you only kept half of that. Cutting a piece off a piece leaves something very small.
+    </div>
+
+    <h3 style="margin-top:22px">📋 Simplifying: Finishing the Job</h3>
+    <p style="font-size:14px;color:var(--muted)">Multiplying straight across often leaves a fraction that can be written in a smaller, tidier way. To simplify, divide the top <strong style="color:var(--ink)">and</strong> the bottom by the same number, and keep going until nothing but 1 divides into both.</p>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — simplify 6/12</div>
+      <div class="work-line">Both 6 and 12 divide by <span class="hl-step">6</span></div>
+      <div class="work-line">6 ÷ 6 = 1 &nbsp;and&nbsp; 12 ÷ 6 = 2</div>
+      <div class="work-line final"><span class="fr"><span class="top">6</span><span class="bot">12</span></span> = <span class="fr"><span class="top">1</span><span class="bot">2</span></span></div>
+      <div class="work-line miss">Slower route: ÷2 gives 3/6, then ÷3 gives 1/2 — same place, more steps ✓<span class="why">small steps are fine, they just take longer</span></div>
+    </div>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — simplify 8/12</div>
+      <div class="work-line">Biggest number dividing into both 8 and 12 is <span class="hl-step">4</span></div>
+      <div class="work-line">8 ÷ 4 = 2 &nbsp;and&nbsp; 12 ÷ 4 = 3</div>
+      <div class="work-line final"><span class="fr"><span class="top">8</span><span class="bot">12</span></span> = <span class="fr"><span class="top">2</span><span class="bot">3</span></span></div>
+      <div class="work-line miss">Only 1 divides into both 2 and 3 now, so it is fully simplified<span class="why">that is what "lowest terms" means</span></div>
+    </div>
+
+    <h3 style="margin-top:22px">📋 Whole Number × Fraction</h3>
+    <p style="font-size:14px;color:var(--muted)">A whole number is secretly a fraction — it is just sitting over a 1. So <strong style="color:var(--warn)">6</strong> is <span class="fr"><span class="top">6</span><span class="bot">1</span></span>, and you can multiply straight across like always.</p>
+
+    <div class="work-ex">
+      <div class="we-title">Worked example — 6 × <span class="fr"><span class="top">1</span><span class="bot">3</span></span></div>
+      <div class="work-line">Write 6 as <span class="hl-step"><span class="fr"><span class="top">6</span><span class="bot">1</span></span></span></div>
+      <div class="work-line">Tops: 6 × 1 = 6 &nbsp;·&nbsp; Bottoms: 1 × 3 = 3</div>
+      <div class="work-line"><span class="fr"><span class="top">6</span><span class="bot">3</span></span> means 6 ÷ 3<span class="why">a fraction bar is a division sign</span></div>
+      <div class="work-line final">6 × <span class="fr"><span class="top">1</span><span class="bot">3</span></span> = 2</div>
+      <div class="work-line miss">Same answer the Phase 2 way: 6 ÷ 3 = 2, then 2 × 1 = 2 ✓</div>
+    </div>
+
+    <div class="teach-note">
+      <span class="hl">Not every answer lands on a whole number.</span> 4 × <span class="fr"><span class="top">2</span><span class="bot">3</span></span> = <span class="fr"><span class="top">8</span><span class="bot">3</span></span>, and 8 ÷ 3 = 2 with 2 left over, so that is 2 and <span class="fr"><span class="top">2</span><span class="bot">3</span></span>. Notice it is still <b>smaller than 4</b> — two thirds of each of the 4 pieces, so less than 4. Today's practice sticks to the ones that come out clean, but do not be alarmed when a leftover shows up.
+    </div>
+  </div>
+
+  <div class="pa-game">
+    <span class="ag-label" id="pr-label">Question 1 of 6</span>
+    <div class="pa-prompt" id="pr-prompt"></div>
+    <div class="warmup-choices" id="pr-choices" style="margin-top:8px"></div>
+    <div class="pa-feedback" id="pr-feedback"></div>
+    <div class="pa-nav">
+      <span class="warmup-progress" id="pr-progress">0 / 6 correct</span>
+      <button class="btn btn-teal hidden" id="pr-next" onclick="practiceNext()">Next →</button>
+    </div>
+  </div>
+  <div class="section-done-banner" id="pr-done">✓ Practice complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 5 — WORD PROBLEMS
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase5">
+  <h2>🦑 Phase 5 — Kraken Word Problems <span style="font-size:13px;color:var(--muted);font-weight:400">(12 min)</span></h2>
+  <p class="phase-meta">6 problems from the deep. Ask yourself first: a fraction of a whole number, or a fraction of a fraction?</p>
+
+  <div class="wp-card" id="wp1-container">
+    <div class="wp-q-num" id="wp1-label">Problem 1 of 6</div>
+    <div class="wp-q-text" id="wp1-text"></div>
+    <label class="work-label">Your answer:</label>
+    <input class="wp-input" id="wp1-input" type="text" placeholder="Type your answer here…" autocomplete="off">
+    <div class="wp-actions">
+      <button class="reveal-btn" id="wp1-reveal" onclick="revealWP(1)">Show Solution</button>
+      <button class="btn btn-teal" id="wp1-next" onclick="wpNext(1)" style="display:none">Next →</button>
+    </div>
+    <div class="solution-box" id="wp1-solution"></div>
+    <div class="wp-nav">
+      <div class="wp-dots" id="wp1-dots"></div>
+      <span class="wp-counter" id="wp1-counter">1 / 6</span>
+    </div>
+  </div>
+  <div class="section-done-banner" id="wp1-done">✓ Word problems complete! Nicely done.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 6 — SPEED ROUND
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase6">
+  <h2>⚡ Phase 6 — Fraction Speed Round <span style="font-size:13px;color:var(--muted);font-weight:400">(8 min)</span></h2>
+  <p class="phase-meta">9 quick ones. Read carefully — some want lowest terms.</p>
+
+  <div class="mm-score-bar" id="mm-score-bar">
+    <span class="mm-score-num" id="mm-score-num">0</span>
+    <span class="mm-score-label">/ 9 correct</span>
+    <span id="mm-status" style="font-size:13px;color:var(--muted);margin-left:auto"></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mm-grid" id="mm-grid"></div>
+  <div class="section-done-banner" id="mm-done">⚡ Speed Round complete!</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 7 — QUIZ
+═══════════════════════════════════════════ -->
+<section class="phase-section" id="phase7">
+  <h2>📝 Phase 7 — Quiz <span style="font-size:13px;color:var(--muted);font-weight:400">(6 min)</span></h2>
+  <p class="phase-meta">10 multiple-choice questions. Each answer saves automatically.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="score-card" id="score-card">
+    <div class="score-big" id="score-big"></div>
+    <div class="score-label">out of 10</div>
+    <div class="score-msg" id="score-msg"></div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)" id="score-sub"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS & STORAGE
+// ═══════════════════════════════════════════════════════════
+const QAKEY = "math-l22-qans";
+const QKEY  = "math-l22-quiz";
+
+function saveAll() {
+  saveQuizState();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ═══════════════════════════════════════════════════════════
+// logMistake
+// ═══════════════════════════════════════════════════════════
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Math|Day 22: Kraken|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Math', day: 'Day 22', q: questionText, file: 'math-lesson-22-kraken.html' };
+    } else { delete m[key]; }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE BAR & SCROLL
+// ═══════════════════════════════════════════════════════════
+function scrollToPhase(n) {
+  const el = document.getElementById('phase' + n);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updatePhaseBar() {
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('phase' + i);
+    const seg = document.getElementById('seg' + i);
+    if (!el || !seg) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 120 && rect.bottom > 60) {
+      seg.classList.add('active');
+    } else {
+      seg.classList.remove('active');
+    }
+  }
+}
+window.addEventListener('scroll', updatePhaseBar, {passive:true});
+
+// ═══════════════════════════════════════════════════════════
+// FRACTION HELPERS (clean numbers only — power both tools)
+// ═══════════════════════════════════════════════════════════
+function gcd(a, b) {
+  a = Math.abs(a); b = Math.abs(b);
+  while (b) { const t = b; b = a % b; a = t; }
+  return a || 1;
+}
+
+function simplify(n, d) {
+  const g = gcd(n, d);
+  return [n / g, d / g];
+}
+
+function fr(n, d) {
+  return '<span class="fr"><span class="top">' + n + '</span><span class="bot">' + d + '</span></span>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 1 — WARM-UP
+// ═══════════════════════════════════════════════════════════
+const warmupQs = [
+  {
+    q: "What is 1/2 of 10?",
+    choices: ["5", "4", "20", "7"],
+    correct: 0,
+    explain: "Half means split into 2 equal groups: 10 ÷ 2 = 5."
+  },
+  {
+    q: "What is 1/4 of 12?",
+    choices: ["4", "6", "3", "8"],
+    correct: 2,
+    explain: "The bottom number 4 says make 4 equal groups: 12 ÷ 4 = 3."
+  },
+  {
+    q: "Which fraction is 6/8 written in lowest terms?",
+    choices: ["2/4", "3/4", "6/8", "4/6"],
+    correct: 1,
+    explain: "Divide the top and the bottom by 2: 6 ÷ 2 = 3 and 8 ÷ 2 = 4, so 6/8 = 3/4."
+  },
+  {
+    q: "When you multiply two whole numbers that are both bigger than 1, the answer is…",
+    choices: [
+      "Bigger than both of the numbers you started with",
+      "Smaller than both of the numbers you started with",
+      "Always exactly the same as one of them",
+      "Impossible to tell without a calculator"
+    ],
+    correct: 0,
+    explain: "3 × 5 = 15, which beats both 3 and 5. Hold on to that idea — today fractions are going to break it."
+  }
+];
+
+let wuIdx = 0;
+let wuCorrect = 0;
+let wuAnswered = false;
+
+function renderWarmup() {
+  const q = warmupQs[wuIdx];
+  document.getElementById('wu-q-label').textContent = 'Question ' + (wuIdx+1) + ' of 4';
+  document.getElementById('wu-q-text').textContent = q.q;
+  const fb = document.getElementById('wu-feedback');
+  fb.className = 'warmup-feedback';
+  fb.textContent = '';
+  document.getElementById('wu-next').classList.add('hidden');
+  wuAnswered = false;
+
+  const choicesEl = document.getElementById('wu-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerWarmup(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+}
+
+function answerWarmup(idx) {
+  if (wuAnswered) return;
+  wuAnswered = true;
+  const q = warmupQs[wuIdx];
+  const btns = document.querySelectorAll('#wu-choices .choice-btn');
+  const fb = document.getElementById('wu-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    wuCorrect++;
+    fb.className = 'warmup-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'warmup-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('wu-progress').textContent = wuCorrect + ' / 4 correct so far';
+  const nextBtn = document.getElementById('wu-next');
+  nextBtn.classList.remove('hidden');
+  if (wuIdx === 3) {
+    nextBtn.textContent = 'Finish Warm-Up ✓';
+    nextBtn.onclick = finishWarmup;
+  }
+}
+
+function warmupNext() {
+  wuIdx++;
+  if (wuIdx < 4) renderWarmup();
+}
+
+function finishWarmup() {
+  document.getElementById('warmup-done').classList.add('show');
+  document.getElementById('wu-next').classList.add('hidden');
+  document.getElementById('seg1').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 2 — GROUP SPLITTER (clean counters, no theme)
+// Step 1: pick the number of equal groups (= the denominator)
+// Step 2: shade the right number of groups (= the numerator)
+// Step 3: name the answer
+// ═══════════════════════════════════════════════════════════
+const gsPuzzles = [
+  { num:1, den:2, total:8,  answers:["2","4","6","16"],  aCorrect:1, note:"Half of 8. The easiest one — get the routine into your hands." },
+  { num:1, den:3, total:12, answers:["3","6","4","9"],   aCorrect:2, note:"Careful: the answer is not 3. The 3 is how many GROUPS, not how many counters." },
+  { num:2, den:3, total:9,  answers:["6","3","5","18"],  aCorrect:0, note:"Now the top number is 2, so you keep more than one group." },
+  { num:3, den:4, total:20, answers:["5","8","12","15"], aCorrect:3, note:"Bigger numbers, same two steps. Divide first, then multiply." },
+  { num:2, den:5, total:15, answers:["3","10","6","7"],  aCorrect:2, note:"Last one. Predict the answer in your head before you tap anything." }
+];
+
+let gsIdx = 0;
+let gsStep = 1;              // 1 = choose groups, 2 = shade groups, 3 = pick answer
+let gsShaded = new Set();
+let gsDoneThis = false;
+
+function gsP() { return gsPuzzles[gsIdx]; }
+
+function gsRenderTarget() {
+  const el = document.getElementById('gs-target');
+  if (gsIdx >= gsPuzzles.length) {
+    el.innerHTML = '<b>All 5 finished!</b> Divide by the bottom, multiply by the top.';
+    return;
+  }
+  const p = gsP();
+  el.innerHTML = 'Round <span class="tt-num">' + (gsIdx+1) + '</span> of ' + gsPuzzles.length +
+    ' — find ' + fr(p.num, p.den) + ' of <span class="tt-num">' + p.total + '</span>' +
+    '<div style="font-size:13px;color:var(--muted);margin-top:6px">' + p.note + '</div>';
+}
+
+function gsRender() {
+  const p = gsP();
+  const pool = document.getElementById('gs-pool');
+  const splitRow = document.getElementById('gs-splitrow');
+  const groupsEl = document.getElementById('gs-groups');
+  const answersEl = document.getElementById('gs-answers');
+  const stepline = document.getElementById('gs-stepline');
+
+  pool.innerHTML = '';
+  splitRow.innerHTML = '';
+  groupsEl.innerHTML = '';
+  answersEl.innerHTML = '';
+
+  if (gsStep === 1) {
+    stepline.textContent = 'Step 1 — how many equal groups?';
+    // loose pool of counters
+    for (let i = 0; i < p.total; i++) {
+      const d = document.createElement('div');
+      d.className = 'gs-chip';
+      pool.appendChild(d);
+    }
+    [2,3,4,5,6].forEach(function(k){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'num-cell';
+      b.textContent = k;
+      b.onclick = function(){ gsPickGroups(k); };
+      splitRow.appendChild(b);
+    });
+    document.getElementById('gs-read').innerHTML =
+      '<b>' + p.total + '</b> counters, still in one pile. The BOTTOM number of ' + fr(p.num, p.den) + ' tells you how many groups to make.';
+    return;
+  }
+
+  // Steps 2 and 3 both show the groups
+  const per = p.total / p.den;
+  stepline.textContent = (gsStep === 2)
+    ? 'Step 2 — tap the groups you KEEP'
+    : 'Step 3 — so what is the answer?';
+
+  for (let g = 0; g < p.den; g++) {
+    const box = document.createElement('div');
+    box.className = 'gs-group' + (gsShaded.has(g) ? ' on' : '');
+    const dots = document.createElement('div');
+    dots.className = 'gs-dots';
+    dots.style.gridTemplateColumns = 'repeat(' + Math.min(per, 3) + ',auto)';
+    for (let i = 0; i < per; i++) {
+      const d = document.createElement('div');
+      d.className = 'gs-chip';
+      dots.appendChild(d);
+    }
+    const cap = document.createElement('div');
+    cap.className = 'gs-cap';
+    cap.textContent = per + ' each';
+    box.appendChild(dots);
+    box.appendChild(cap);
+    if (gsStep === 2) {
+      (function(gg){ box.onclick = function(){ gsToggle(gg); }; })(g);
+    } else {
+      box.style.cursor = 'default';
+    }
+    groupsEl.appendChild(box);
+  }
+
+  if (gsStep === 2) {
+    document.getElementById('gs-read').innerHTML =
+      p.total + ' ÷ ' + p.den + ' = <b>' + per + '</b> in each group. Keep <b>' + p.num + '</b> of them &nbsp;·&nbsp; kept so far: <b>' + gsShaded.size + '</b>';
+  } else {
+    document.getElementById('gs-read').innerHTML =
+      'You kept <b>' + p.num + '</b> group' + (p.num === 1 ? '' : 's') + ' of <b>' + per + '</b>. Now name the total.';
+    p.answers.forEach(function(a, i){
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.textContent = a;
+      b.onclick = function(){ gsPickAnswer(i); };
+      answersEl.appendChild(b);
+    });
+  }
+}
+
+function gsLoad(i) {
+  gsIdx = i;
+  gsStep = 1;
+  gsShaded = new Set();
+  gsDoneThis = false;
+  const fb = document.getElementById('gs-feedback');
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  document.getElementById('gs-next').classList.add('hidden');
+  gsRenderTarget();
+  gsRender();
+}
+
+function gsPickGroups(k) {
+  const p = gsP();
+  const fb = document.getElementById('gs-feedback');
+  if (k !== p.den) {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not ' + k + '. The BOTTOM number of the fraction says how many equal groups — the bottom of this one is ' + p.den + '.';
+    return;
+  }
+  fb.className = 'pa-feedback show ok';
+  fb.textContent = '✓ Yes. ' + p.total + ' ÷ ' + p.den + ' = ' + (p.total / p.den) + ' in each group. Now the TOP number tells you how many groups to keep.';
+  gsStep = 2;
+  gsRender();
+}
+
+function gsToggle(g) {
+  const p = gsP();
+  const fb = document.getElementById('gs-feedback');
+  if (gsShaded.has(g)) {
+    gsShaded.delete(g);
+    fb.className = 'pa-feedback show tip';
+    fb.textContent = 'Put back. You are keeping ' + gsShaded.size + ' of ' + p.num + ' groups.';
+    gsRender();
+    return;
+  }
+  if (gsShaded.size >= p.num) {
+    fb.className = 'pa-feedback show tip';
+    fb.textContent = 'You already have ' + p.num + ' group' + (p.num === 1 ? '' : 's') + ' kept — the top number is ' + p.num + '. Tap one to put it back if you want to change your mind.';
+    return;
+  }
+  gsShaded.add(g);
+  if (gsShaded.size === p.num) {
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ That is ' + p.num + ' group' + (p.num === 1 ? '' : 's') + ' of ' + (p.total / p.den) + '. Now say how many counters that is altogether.';
+    gsStep = 3;
+  } else {
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Kept ' + gsShaded.size + ' of ' + p.num + '. Keep going.';
+  }
+  gsRender();
+}
+
+function gsPickAnswer(i) {
+  if (gsDoneThis) return;
+  const p = gsP();
+  const per = p.total / p.den;
+  const ans = per * p.num;
+  const fb = document.getElementById('gs-feedback');
+  const btns = document.querySelectorAll('#gs-answers .choice-btn');
+
+  if (i !== p.aCorrect) {
+    btns[i].classList.add('wrong');
+    btns[i].disabled = true;
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Count the shaded counters: ' + p.num + ' group' + (p.num === 1 ? '' : 's') + ' × ' + per + ' each. Try again.';
+    return;
+  }
+
+  gsDoneThis = true;
+  btns.forEach(function(b, k){ b.disabled = true; if (k === p.aCorrect) b.classList.add('correct'); });
+  fb.className = 'pa-feedback show ok';
+  fb.textContent = '✓ Correct! ' + p.total + ' ÷ ' + p.den + ' = ' + per + ', then ' + per + ' × ' + p.num + ' = ' + ans +
+    '. And ' + ans + ' is smaller than ' + p.total + ', which is exactly what taking a part should do.';
+  const nb = document.getElementById('gs-next');
+  nb.classList.remove('hidden');
+  nb.textContent = (gsIdx === gsPuzzles.length - 1) ? 'Finish ✓' : 'Next →';
+}
+
+function gsNext() {
+  if (gsIdx >= gsPuzzles.length - 1) {
+    document.getElementById('gs-done').classList.add('show');
+    document.getElementById('seg2').classList.add('done');
+    document.getElementById('gs-next').classList.add('hidden');
+    gsIdx = gsPuzzles.length;
+    gsRenderTarget();
+    return;
+  }
+  gsLoad(gsIdx + 1);
+}
+
+function initGroupSplitter() {
+  document.getElementById('gs-next').onclick = gsNext;
+  document.getElementById('gs-reset').onclick = function() {
+    if (gsIdx < gsPuzzles.length) gsLoad(gsIdx);
+  };
+  gsLoad(0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 3 — AREA MODEL BUILDER (clean numbers, no theme)
+// Fraction 1 shades COLUMNS, fraction 2 shades ROWS,
+// the overlap is the product.
+// ═══════════════════════════════════════════════════════════
+const amTargets = [
+  { n:1, d:6,  hint:"Halves one way, thirds the other." },
+  { n:1, d:9,  hint:"Thirds BOTH ways." },
+  { n:3, d:8,  hint:"One of your fractions needs a 3 on top and a 4 on the bottom." },
+  { n:2, d:15, hint:"Fifteenths come from thirds × fifths." },
+  { n:1, d:2,  hint:"The answer does not need a 1 on top before you simplify — 6/12 counts as 1/2." },
+  { n:5, d:12, hint:"Twelfths come from sixths × halves." }
+];
+
+const AM_MIN_D = 2, AM_MAX_D = 6;
+let amAN = 1, amAD = 2, amBN = 1, amBD = 2;
+let amIdx = 0;
+let amDoneThis = false;
+let amFinished = false;
+
+function amDrawGrid() {
+  const grid = document.getElementById('am-grid');
+  grid.style.gridTemplateColumns = 'repeat(' + amAD + ',1fr)';
+  grid.style.gridTemplateRows = 'repeat(' + amBD + ',1fr)';
+  grid.innerHTML = '';
+  for (let r = 1; r <= amBD; r++) {
+    for (let c = 1; c <= amAD; c++) {
+      const cell = document.createElement('div');
+      const inA = c <= amAN;
+      const inB = r <= amBN;
+      let cls = 'am-cell';
+      if (inA && inB) cls += ' both';
+      else if (inA) cls += ' inA';
+      else if (inB) cls += ' inB';
+      cell.className = cls;
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function amUpdateReadout() {
+  document.getElementById('am-an').textContent = amAN;
+  document.getElementById('am-ad').textContent = amAD;
+  document.getElementById('am-bn').textContent = amBN;
+  document.getElementById('am-bd').textContent = amBD;
+
+  document.getElementById('am-an-dn').disabled = (amAN <= 1);
+  document.getElementById('am-an-up').disabled = (amAN >= amAD - 1);
+  document.getElementById('am-ad-dn').disabled = (amAD <= AM_MIN_D);
+  document.getElementById('am-ad-up').disabled = (amAD >= AM_MAX_D);
+  document.getElementById('am-bn-dn').disabled = (amBN <= 1);
+  document.getElementById('am-bn-up').disabled = (amBN >= amBD - 1);
+  document.getElementById('am-bd-dn').disabled = (amBD <= AM_MIN_D);
+  document.getElementById('am-bd-up').disabled = (amBD >= AM_MAX_D);
+
+  const pn = amAN * amBN;
+  const pd = amAD * amBD;
+  const s = simplify(pn, pd);
+
+  let html = fr(amAN, amAD) + ' × ' + fr(amBN, amBD) + ' = ' + fr(pn, pd);
+  if (s[0] !== pn) {
+    html += '<span class="simp">' + pn + '/' + pd + ' simplifies to ' + s[0] + '/' + s[1] + ' (divide both by ' + gcd(pn, pd) + ')</span>';
+  } else {
+    html += '<span class="simp">' + pn + '/' + pd + ' is already in lowest terms</span>';
+  }
+  html += '<span class="note">Tops: ' + amAN + ' × ' + amBN + ' = ' + pn + ' shaded boxes &nbsp;·&nbsp; Bottoms: ' +
+          amAD + ' × ' + amBD + ' = ' + pd + ' boxes in the whole rectangle</span>';
+  document.getElementById('am-read').innerHTML = html;
+
+  amDrawGrid();
+}
+
+function amRenderTarget() {
+  const el = document.getElementById('am-target');
+  if (amFinished) {
+    el.innerHTML = '<b>All 6 targets hit!</b> Keep playing with the buttons if you like — the picture always matches the arithmetic.';
+    return;
+  }
+  const t = amTargets[amIdx];
+  el.innerHTML = 'Target <span class="tt-num">' + (amIdx+1) + '</span> of ' + amTargets.length +
+    ' — build a product that equals <span class="tt-num">' + t.n + '/' + t.d + '</span>' +
+    '<div style="font-size:13px;color:var(--muted);margin-top:6px">Hint: ' + t.hint + '</div>';
+}
+
+function amCheck() {
+  if (amFinished || amDoneThis) return;
+  const t = amTargets[amIdx];
+  const s = simplify(amAN * amBN, amAD * amBD);
+  const ts = simplify(t.n, t.d);
+  const fb = document.getElementById('am-feedback');
+  if (s[0] === ts[0] && s[1] === ts[1]) {
+    amDoneThis = true;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Target hit! ' + amAN + '/' + amAD + ' × ' + amBN + '/' + amBD + ' = ' +
+      (amAN*amBN) + '/' + (amAD*amBD) +
+      ((amAN*amBN) === ts[0] && (amAD*amBD) === ts[1] ? '' : ' = ' + ts[0] + '/' + ts[1]) + '.';
+    const nb = document.getElementById('am-next');
+    nb.classList.remove('hidden');
+    nb.textContent = (amIdx === amTargets.length - 1) ? 'Finish ✓' : 'Next →';
+  }
+}
+
+function amBump(which, delta) {
+  if (which === 'an') {
+    const v = amAN + delta;
+    if (v >= 1 && v <= amAD - 1) amAN = v;
+  } else if (which === 'ad') {
+    const v = amAD + delta;
+    if (v >= AM_MIN_D && v <= AM_MAX_D) {
+      amAD = v;
+      if (amAN > amAD - 1) amAN = amAD - 1;
+    }
+  } else if (which === 'bn') {
+    const v = amBN + delta;
+    if (v >= 1 && v <= amBD - 1) amBN = v;
+  } else if (which === 'bd') {
+    const v = amBD + delta;
+    if (v >= AM_MIN_D && v <= AM_MAX_D) {
+      amBD = v;
+      if (amBN > amBD - 1) amBN = amBD - 1;
+    }
+  }
+  amUpdateReadout();
+  amCheck();
+}
+
+function amLoadTarget(i) {
+  amIdx = i;
+  amDoneThis = false;
+  const fb = document.getElementById('am-feedback');
+  fb.className = 'pa-feedback';
+  fb.textContent = '';
+  document.getElementById('am-next').classList.add('hidden');
+  amRenderTarget();
+  amUpdateReadout();
+}
+
+function amNext() {
+  if (amIdx >= amTargets.length - 1) {
+    amFinished = true;
+    document.getElementById('am-done').classList.add('show');
+    document.getElementById('seg3').classList.add('done');
+    document.getElementById('am-next').classList.add('hidden');
+    amRenderTarget();
+    return;
+  }
+  amLoadTarget(amIdx + 1);
+}
+
+function initAreaModel() {
+  const pairs = [
+    ['am-an-dn','an',-1], ['am-an-up','an',1],
+    ['am-ad-dn','ad',-1], ['am-ad-up','ad',1],
+    ['am-bn-dn','bn',-1], ['am-bn-up','bn',1],
+    ['am-bd-dn','bd',-1], ['am-bd-up','bd',1]
+  ];
+  pairs.forEach(function(p){
+    document.getElementById(p[0]).onclick = function(){ amBump(p[1], p[2]); };
+  });
+  document.getElementById('am-next').onclick = amNext;
+  document.getElementById('am-reset').onclick = function(){
+    amAN = 1; amAD = 2; amBN = 1; amBD = 2;
+    amUpdateReadout();
+  };
+  amLoadTarget(0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 4 — PRACTICE (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const practiceQs = [
+  {
+    q: "What is 1/3 of 18?",
+    choices: ["9", "6", "3", "15"],
+    correct: 1,
+    explain: "Bottom is 3, so 18 ÷ 3 = 6. Top is 1, so keep one group: 6."
+  },
+  {
+    q: "1/4 × 1/5 = ?",
+    choices: ["1/20", "2/9", "1/9", "5/4"],
+    correct: 0,
+    explain: "Tops: 1 × 1 = 1. Bottoms: 4 × 5 = 20. So 1/20 — smaller than both, because you took a fifth of a quarter."
+  },
+  {
+    q: "2/3 × 3/5 = ? (lowest terms)",
+    choices: ["5/8", "6/15", "2/5", "6/8"],
+    correct: 2,
+    explain: "Straight across: 2 × 3 = 6 and 3 × 5 = 15, giving 6/15. Divide both by 3 → 2/5. (6/15 is right but not finished.)"
+  },
+  {
+    q: "Without working it out — is 12 × 3/4 bigger than 12, equal to 12, or smaller?",
+    choices: ["Bigger than 12", "Equal to 12", "You cannot tell without doing it", "Smaller than 12"],
+    correct: 3,
+    explain: "3/4 is less than 1, so you are taking a PART of 12 and it must shrink. (It is 9.)"
+  },
+  {
+    q: "Write 8/12 in lowest terms.",
+    choices: ["4/6", "8/12", "2/3", "3/4"],
+    correct: 2,
+    explain: "The biggest number that divides into both 8 and 12 is 4: 8 ÷ 4 = 2 and 12 ÷ 4 = 3, so 2/3. (4/6 is only halfway there.)"
+  },
+  {
+    q: "What is 12 × 1/6?",
+    choices: ["2", "18", "6", "72"],
+    correct: 0,
+    explain: "12 ÷ 6 = 2, then 2 × 1 = 2. Multiplying by a sixth made it much smaller, not bigger."
+  }
+];
+
+let prIdx = 0, prCorrect = 0, prAnswered = false;
+
+function renderPractice() {
+  const q = practiceQs[prIdx];
+  document.getElementById('pr-label').textContent = 'Question ' + (prIdx+1) + ' of 6';
+  document.getElementById('pr-prompt').textContent = q.q;
+  const fb = document.getElementById('pr-feedback');
+  fb.className = 'pa-feedback'; fb.textContent = '';
+  document.getElementById('pr-next').classList.add('hidden');
+  prAnswered = false;
+
+  const choicesEl = document.getElementById('pr-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c;
+    btn.onclick = () => answerPractice(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('pr-progress').textContent = prCorrect + ' / 6 correct so far';
+}
+
+function answerPractice(idx) {
+  if (prAnswered) return;
+  prAnswered = true;
+  const q = practiceQs[prIdx];
+  const btns = document.querySelectorAll('#pr-choices .choice-btn');
+  const fb = document.getElementById('pr-feedback');
+  const correct = idx === q.correct;
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  if (correct) {
+    prCorrect++;
+    fb.className = 'pa-feedback show ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'pa-feedback show no';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+  document.getElementById('pr-progress').textContent = prCorrect + ' / 6 correct so far';
+  const nextBtn = document.getElementById('pr-next');
+  nextBtn.classList.remove('hidden');
+  if (prIdx === 5) {
+    nextBtn.textContent = 'Finish ✓';
+    nextBtn.onclick = finishPractice;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = practiceNext;
+  }
+}
+
+function practiceNext() {
+  prIdx++;
+  if (prIdx < 6) renderPractice();
+}
+
+function finishPractice() {
+  document.getElementById('pr-done').classList.add('show');
+  document.getElementById('pr-next').classList.add('hidden');
+  document.getElementById('seg4').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 5 — WORD PROBLEMS (kraken appears in TEXT only)
+// ═══════════════════════════════════════════════════════════
+const wp1Data = [
+  {
+    text: "A kraken drags <strong>24 barrels</strong> off a ship's deck and down into the dark. <strong>1/3</strong> of the barrels turn out to be full of lantern oil. How many barrels of lantern oil did it get?",
+    solution: [
+      {label:"What it is asking", text:"A fraction OF a whole number — 1/3 of 24."},
+      {label:"Bottom → divide", math:"24 ÷ 3 = 8 in each group"},
+      {label:"Top → multiply", math:"8 × 1 = 8"},
+      {label:"Answer", text:"8 barrels of lantern oil."},
+      {label:"Check", math:"8 + 8 + 8 = 24 ✓ (three equal groups rebuild the whole pile)"},
+      {label:"Sanity check", text:"8 is smaller than 24, which is right — a third of something is only a piece of it."}
+    ]
+  },
+  {
+    text: "Deep in a trench, the kraken guards a hoard of <strong>36 pearls</strong>. <strong>3/4</strong> of them are rare black pearls. How many black pearls is it sitting on?",
+    solution: [
+      {label:"What it is asking", text:"3/4 of 36."},
+      {label:"Bottom → divide", math:"36 ÷ 4 = 9 in each group"},
+      {label:"Top → multiply", math:"9 × 3 = 27"},
+      {label:"Answer", text:"27 black pearls."},
+      {label:"Check", math:"the leftover quarter is 9, and 27 + 9 = 36 ✓"},
+      {label:"Watch out", text:"A common slip is to stop at 9. That is only ONE quarter — the top number 3 says keep three of them."}
+    ]
+  },
+  {
+    text: "A sunken deck is <strong>1/2 covered in seaweed</strong>. The kraken sweeps a tentacle through <strong>1/3 of that seaweed patch</strong> looking for crabs. What fraction of the <strong>whole deck</strong> did it search?",
+    solution: [
+      {label:"What it is asking", text:"A fraction of a fraction. 'Of' means ×, so this is 1/3 × 1/2."},
+      {label:"Picture it", text:"Cut the deck into 2 rows and shade 1 (the seaweed half). Cut it into 3 columns and shade 1 (the part swept). The boxes shaded both ways are the answer."},
+      {label:"Bottoms", math:"2 × 3 = 6 little boxes in the whole deck"},
+      {label:"Tops", math:"1 × 1 = 1 box shaded both ways"},
+      {label:"Answer", math:"1/6 of the whole deck"},
+      {label:"Sanity check", text:"1/6 is smaller than both 1/2 and 1/3 — it should be, because a piece of a piece is tiny."}
+    ]
+  },
+  {
+    text: "The kraken's ink sac is <strong>3/4 full</strong>. It blasts <strong>2/3 of what is left</strong> at a passing whale. What fraction of a <strong>completely full</strong> ink sac did that blast use?",
+    solution: [
+      {label:"What it is asking", text:"2/3 OF 3/4 — so 2/3 × 3/4."},
+      {label:"Tops", math:"2 × 3 = 6"},
+      {label:"Bottoms", math:"3 × 4 = 12"},
+      {label:"So far", math:"6/12 — correct, but not in lowest terms"},
+      {label:"Simplify", math:"6 ÷ 6 = 1 and 12 ÷ 6 = 2, so 6/12 = 1/2"},
+      {label:"Answer", text:"1/2 of a full ink sac."},
+      {label:"Does that make sense?", text:"Yes — it started with 3/4 and used most (but not all) of it, so an answer a bit under 3/4 is exactly what you expect."}
+    ]
+  },
+  {
+    text: "There are <strong>10 kraken hatchlings</strong> in the nursery cave, and each one eats <strong>2/5 of a bucket</strong> of krill every day. How many <strong>whole buckets</strong> do they get through in one day?",
+    solution: [
+      {label:"What it is asking", text:"10 groups of 2/5, which is 10 × 2/5."},
+      {label:"Bottom → divide", math:"10 ÷ 5 = 2"},
+      {label:"Top → multiply", math:"2 × 2 = 4"},
+      {label:"Answer", text:"4 buckets a day."},
+      {label:"The straight-across way", math:"10/1 × 2/5 = 20/5, and 20 ÷ 5 = 4 ✓"},
+      {label:"Notice", text:"THIS answer is bigger than 2/5 because there are 10 hatchlings — but it is still smaller than 10, since each one eats less than a whole bucket."}
+    ]
+  },
+  {
+    text: "A sailor is drawing a chart. He says: <em>\"The kraken's hunting ground is <strong>20 sea-miles</strong> across, and multiplying always makes numbers bigger — so <strong>20 × 3/4</strong> has to be more than 20.\"</em> Work out 20 × 3/4 and say whether he is right.",
+    solution: [
+      {label:"Do the maths first", math:"20 ÷ 4 = 5, then 5 × 3 = 15"},
+      {label:"Answer", math:"20 × 3/4 = 15 sea-miles"},
+      {label:"Is he right?", text:"No. 15 is SMALLER than 20, so his rule is wrong."},
+      {label:"Why he is wrong", text:"Multiplying only makes things bigger when the multiplier is more than 1. 3/4 is LESS than 1, so he is taking a part of the 20 rather than making copies of it."},
+      {label:"The full rule", text:"× more than 1 → bigger. × exactly 1 → the same. × less than 1 → smaller."},
+      {label:"Check", math:"the missing quarter is 5, and 15 + 5 = 20 ✓"}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// WORD PROBLEMS ENGINE
+// ═══════════════════════════════════════════════════════════
+const wpState = {
+  1: { idx: 0, revealed: new Set() }
+};
+
+function buildSolutionHTML(steps) {
+  return steps.map(s =>
+    `<div class="solution-step"><span class="math">${s.label}:</span> ${s.math ? '<span class="math">' + s.math + '</span>' : s.text}</div>`
+  ).join('');
+}
+
+function renderWP(set) {
+  const data = wp1Data;
+  const state = wpState[set];
+  const idx = state.idx;
+  const item = data[idx];
+  const pfx = 'wp' + set;
+
+  document.getElementById(pfx + '-label').textContent = 'Problem ' + (idx+1) + ' of 6';
+  document.getElementById(pfx + '-text').innerHTML = item.text;
+  document.getElementById(pfx + '-input').value = '';
+  document.getElementById(pfx + '-input').className = 'wp-input';
+
+  const sol = document.getElementById(pfx + '-solution');
+  sol.className = 'solution-box';
+  sol.innerHTML = '<h4>Step-by-Step Solution</h4>' + buildSolutionHTML(item.solution);
+
+  const revealBtn = document.getElementById(pfx + '-reveal');
+  const nextBtn = document.getElementById(pfx + '-next');
+  revealBtn.style.display = '';
+  nextBtn.style.display = 'none';
+
+  if (state.revealed.has(idx)) {
+    sol.classList.add('show');
+    revealBtn.style.display = 'none';
+    nextBtn.style.display = '';
+    if (idx < 5) {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = () => wpNext(set);
+    } else {
+      nextBtn.textContent = 'Finish ✓';
+      nextBtn.onclick = () => finishWP(set);
+    }
+  }
+
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('button');
+    d.className = 'wp-dot' + (i === idx ? ' active' : '') + (state.revealed.has(i) ? ' done' : '');
+    d.title = 'Problem ' + (i+1);
+    d.onclick = () => { state.idx = i; renderWP(set); };
+    dotsEl.appendChild(d);
+  }
+
+  document.getElementById(pfx + '-counter').textContent = (idx+1) + ' / 6';
+}
+
+function revealWP(set) {
+  const state = wpState[set];
+  state.revealed.add(state.idx);
+  renderWP(set);
+}
+
+function wpNext(set) {
+  const state = wpState[set];
+  if (state.idx < 5) {
+    state.idx++;
+    renderWP(set);
+  }
+}
+
+function finishWP(set) {
+  document.getElementById('wp' + set + '-done').classList.add('show');
+  document.getElementById('seg5').classList.add('done');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 6 — SPEED ROUND (clean numbers, no theme)
+// ═══════════════════════════════════════════════════════════
+const mmData = [
+  { q:"1/2 of 6 = ?",                 choices:["3","2","12"],       correct:0 },
+  { q:"1/3 of 9 = ?",                 choices:["9","6","3"],        correct:2 },
+  { q:"1/2 × 1/4 = ?",                choices:["1/6","1/8","2/8"],  correct:1 },
+  { q:"1/3 × 1/3 = ?",                choices:["1/9","2/3","2/6"],  correct:0 },
+  { q:"2/3 of 12 = ?",                choices:["4","6","8"],        correct:2 },
+  { q:"6 × 1/2 = ?",                  choices:["12","3","6"],       correct:1 },
+  { q:"1/4 × 2/3 = ? (lowest terms)", choices:["1/6","2/7","1/12"], correct:0 },
+  { q:"Simplify 4/8",                 choices:["2/3","1/4","1/2"],  correct:2 },
+  { q:"8 × 3/4 = ?",                  choices:["12","6","32"],      correct:1 }
+];
+
+let mmScore = 0;
+let mmAnswered = new Array(9).fill(false);
+
+function buildMM() {
+  const grid = document.getElementById('mm-grid');
+  grid.innerHTML = '';
+  mmData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.id = 'mm-card-' + i;
+    card.innerHTML = `
+      <div class="mm-q-num">Problem ${i+1}</div>
+      <div class="mm-question">${item.q}</div>
+      <div class="mm-choices" id="mm-choices-${i}"></div>
+    `;
+    grid.appendChild(card);
+
+    const choicesEl = card.querySelector('#mm-choices-' + i);
+    item.choices.forEach((c, ci) => {
+      const btn = document.createElement('button');
+      btn.className = 'mm-btn';
+      btn.textContent = c;
+      btn.onclick = () => answerMM(i, ci);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+function answerMM(qi, ci) {
+  if (mmAnswered[qi]) return;
+  mmAnswered[qi] = true;
+  const item = mmData[qi];
+  const card = document.getElementById('mm-card-' + qi);
+  const btns = card.querySelectorAll('.mm-btn');
+  const correct = ci === item.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    mmScore++;
+    card.classList.add('answered-right');
+  } else {
+    card.classList.add('answered-wrong');
+    btns[item.correct].classList.add('reveal-correct');
+  }
+
+  document.getElementById('mm-score-num').textContent = mmScore;
+
+  if (mmAnswered.every(Boolean)) {
+    document.getElementById('mm-status').textContent = 'All done! Score: ' + mmScore + '/9';
+    document.getElementById('mm-done').classList.add('show');
+    document.getElementById('seg6').classList.add('done');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHASE 7 — QUIZ
+// ═══════════════════════════════════════════════════════════
+const quizData = [
+  {
+    q: "What is 1/2 of 14?",
+    opts: ["7", "28", "12", "6"],
+    correct: 0,
+    explain: "Half means 2 equal groups: 14 ÷ 2 = 7."
+  },
+  {
+    q: "To find 3/4 of 20, what do you do?",
+    opts: [
+      "Multiply 20 by 4, then divide that answer by 3",
+      "Divide 20 by 4, then multiply that answer by 3",
+      "Add 3 and 4 together and subtract the total from 20",
+      "Divide 20 by 3, then multiply that answer by 4"
+    ],
+    correct: 1,
+    explain: "Bottom → divide, top → multiply. 20 ÷ 4 = 5, then 5 × 3 = 15."
+  },
+  {
+    q: "1/3 × 1/5 = ?",
+    opts: ["2/8", "1/8", "1/15", "2/15"],
+    correct: 2,
+    explain: "Tops: 1 × 1 = 1. Bottoms: 3 × 5 = 15. So 1/15. You never add the bottoms when multiplying."
+  },
+  {
+    q: "2/3 × 4/5 = ?",
+    opts: ["6/8", "2/15", "6/15", "8/15"],
+    correct: 3,
+    explain: "Straight across: 2 × 4 = 8 on top, 3 × 5 = 15 on the bottom → 8/15. Nothing but 1 divides into both 8 and 15, so it is already in lowest terms."
+  },
+  {
+    q: "Why does 8 × 1/2 come out SMALLER than 8?",
+    opts: [
+      "Multiplying is really just another way of subtracting numbers",
+      "The 8 is an even number, and even numbers always shrink",
+      "You are taking a PART of the 8, not whole copies of it",
+      "You have to flip the fraction upside down before multiplying"
+    ],
+    correct: 2,
+    explain: "Multiplying by a whole number makes copies, so it grows. Multiplying by a fraction under 1 cuts off a piece, so it shrinks. 8 × 1/2 = 4."
+  },
+  {
+    q: "Which of these has an answer SMALLER than 12?",
+    opts: ["12 × 3/2", "12 × 4", "12 × 1", "12 × 2/3"],
+    correct: 3,
+    explain: "Only 2/3 is less than 1, so only that one shrinks: 12 × 2/3 = 8. (3/2 is more than 1 and gives 18; 12 × 1 stays 12.)"
+  },
+  {
+    q: "Write 6/9 in lowest terms.",
+    opts: ["3/6", "1/3", "6/9", "2/3"],
+    correct: 3,
+    explain: "3 divides into both: 6 ÷ 3 = 2 and 9 ÷ 3 = 3, so 6/9 = 2/3."
+  },
+  {
+    q: "What is 15 × 2/5?",
+    opts: ["6", "10", "3", "30"],
+    correct: 0,
+    explain: "15 ÷ 5 = 3, then 3 × 2 = 6. (The 3 is only ONE fifth — the top number 2 says take two of them.)"
+  },
+  {
+    q: "You split a rectangle into 5 columns and shade 2. Then you split the SAME rectangle into 3 rows and shade 1. How many little boxes are shaded both ways, out of how many?",
+    opts: ["3 out of 15", "6 out of 15", "2 out of 15", "2 out of 8"],
+    correct: 2,
+    explain: "Boxes altogether: 5 × 3 = 15 (the bottoms). Shaded both ways: 2 × 1 = 2 (the tops). That is the picture of 2/5 × 1/3 = 2/15."
+  },
+  {
+    q: "Which statement about 1/2 × 1/2 is TRUE?",
+    opts: [
+      "The answer is 2/4, because you add the bottom numbers",
+      "The answer is 1/4, which is smaller than 1/2",
+      "The answer is 1, because a half plus a half makes one",
+      "The answer is 2/2, since the halves cancel each other out"
+    ],
+    correct: 1,
+    explain: "Multiply across: 1 × 1 = 1 and 2 × 2 = 4, giving 1/4. Half of a half is a quarter — smaller, not bigger. Adding is what gives you 1."
+  }
+];
+
+let quizAnswers = new Array(10).fill(null);
+let quizScore = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-item';
+    div.id = 'quiz-item-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-text"><strong>Q${i+1}.</strong> ${item.q}</div>
+      <div class="quiz-opts" id="quiz-opts-${i}"></div>
+      <div class="quiz-feedback" id="quiz-fb-${i}"></div>
+    `;
+    container.appendChild(div);
+
+    const optsEl = div.querySelector('#quiz-opts-' + i);
+    item.opts.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.id = 'qopt-' + i + '-' + oi;
+      btn.textContent = opt;
+      btn.onclick = () => ansQ(i, oi);
+      optsEl.appendChild(btn);
+    });
+  });
+}
+
+function ansQ(qi, oi) {
+  if (quizAnswers[qi] !== null) return;
+  quizAnswers[qi] = oi;
+  const item = quizData[qi];
+  const correct = oi === item.correct;
+
+  const optsEl = document.getElementById('quiz-opts-' + qi);
+  const btns = optsEl.querySelectorAll('.quiz-opt');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.correct) btn.classList.add(correct ? 'correct' : 'reveal-correct');
+    if (i === oi && !correct) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quiz-fb-' + qi);
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'no');
+  fb.textContent = correct ? '✓ Correct! ' + item.explain : '✗ ' + item.explain;
+
+  // Save immediately + log the mistake
+  saveQuizState();
+  logMistake(correct, item.q, 'Q' + (qi+1));
+
+  if (quizAnswers.every(a => a !== null)) finishQuiz();
+}
+
+function finishQuiz() {
+  if (quizDone) return;
+  quizDone = true;
+  quizScore = 0;
+  quizData.forEach((item, i) => { if (quizAnswers[i] === item.correct) quizScore++; });
+
+  try { localStorage.setItem(QKEY, JSON.stringify({score: quizScore, total: 10, ts: Date.now()})); } catch(e){}
+
+  const card = document.getElementById('score-card');
+  card.classList.add('show');
+  document.getElementById('score-big').textContent = quizScore;
+  let msg = '', sub = '';
+  if (quizScore === 10) { msg = 'Perfect score! Outstanding!'; sub = 'Fraction of a whole, fraction × fraction, simplifying and the shrinking rule — all of it. Kraken-strength work!'; }
+  else if (quizScore >= 8) { msg = 'Great job!'; sub = 'Strong work — just keep remembering: multiply straight across, then simplify.'; }
+  else if (quizScore >= 6) { msg = 'Good effort!'; sub = 'Review the ones you missed, then rebuild a couple of targets in the Phase 3 Area Model.'; }
+  else { msg = 'Keep practicing!'; sub = 'Go back to Phase 2 and Phase 3 and work both tools through one more time.'; }
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('seg7').classList.add('done');
+
+  card.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function saveQuizState() {
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e){}
+}
+
+function restoreQuiz() {
+  try {
+    const saved = localStorage.getItem(QAKEY);
+    if (saved) {
+      const ans = JSON.parse(saved);
+      if (Array.isArray(ans)) {
+        ans.forEach((choice, i) => {
+          if (choice !== null && choice !== undefined && i < 10 && quizAnswers[i] === null) {
+            ansQ(i, choice);
+          }
+        });
+      }
+    }
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderWarmup();
+  initGroupSplitter();
+  initAreaModel();
+  renderPractice();
+  renderWP(1);
+  buildMM();
+  buildQuiz();
+  restoreQuiz();
+  updatePhaseBar();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

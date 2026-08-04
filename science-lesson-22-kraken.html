@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Day 22 — Kraken</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+a{color:var(--accent2)}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;align-items:center}
+.ph-seg{flex:1;height:8px;border-radius:4px;background:var(--line);transition:background .3s,transform .2s;cursor:pointer;position:relative}
+.ph-seg.done{background:var(--good)}
+.ph-seg.active{background:var(--accent2);transform:scaleY(1.4)}
+.ph-label{font-size:11px;color:var(--muted);white-space:nowrap;margin-left:4px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+.phase-section{margin-bottom:48px;scroll-margin-top:60px}
+.phase-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.phase-meta{font-size:13px;color:var(--muted);margin-bottom:20px}
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;color:var(--accent2);border:1px solid var(--line)}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.card-sm{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+
+/* Flip cards — Phase 1 (mystery cards) */
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.flip-card{height:150px;cursor:pointer;perspective:900px;border-radius:var(--radius)}
+.flip-inner{width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;position:relative}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;border:2px solid var(--line)}
+.flip-front{background:var(--panel2);color:var(--accent2);flex-direction:column;gap:6px}
+.flip-front .big-num{font-weight:800;font-size:34px;color:var(--ink);letter-spacing:-1px}
+.flip-back{background:var(--panel);transform:rotateY(180deg);flex-direction:column;gap:8px}
+.flip-back .answer{font-weight:700;font-size:15px;color:var(--accent2)}
+.flip-back .explain{font-size:13px;color:var(--muted)}
+.flip-hint{position:absolute;bottom:8px;right:12px;font-size:11px;color:var(--accent);opacity:.85}
+
+/* Reading passage */
+.passage{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;line-height:1.8}
+.passage h3{color:var(--accent2);font-size:15px;margin:20px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+.passage h3:first-child{margin-top:0}
+.passage p{margin-bottom:12px;color:var(--ink)}
+.passage strong{color:var(--warn)}
+.passage .fact-pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--accent2);margin:2px 3px}
+
+/* Match game — Phase 3 */
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.match-wrap{grid-template-columns:1fr}}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-item{min-height:44px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);cursor:pointer;font-size:14px;transition:border-color .2s,background .2s,transform .15s;user-select:none;display:flex;align-items:center}
+.match-item:hover{border-color:var(--accent2)}
+.match-item.selected{border-color:var(--accent2);background:rgba(91,209,196,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.85}
+.match-item.wrong{animation:shake .35s}
+.match-score{font-size:15px;font-weight:600;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 22px;border-radius:8px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* Sequencer — Phase 4 */
+.seq-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.seq-intro{font-size:15px;line-height:1.6;margin-bottom:16px}
+.seq-list{display:flex;flex-direction:column;gap:8px}
+.seq-item{min-height:44px;padding:12px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .2s,background .2s,transform .15s;user-select:none;text-align:left}
+.seq-item:hover{border-color:var(--accent2)}
+.seq-num{min-width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.seq-item.picked .seq-num{background:var(--accent);color:#fff}
+.seq-item.correct-pos{border-color:var(--good);background:rgba(123,216,143,.12)}
+.seq-item.wrong-pos{animation:shake .35s;border-color:var(--bad);background:rgba(255,107,129,.1)}
+.seq-bonus{padding:16px;border-radius:8px;margin-top:14px;border-left:4px solid var(--accent2);background:rgba(91,209,196,.1);font-size:14px;line-height:1.6}
+.seq-bonus strong{color:var(--accent2)}
+
+/* Writing pad — Phase 5 */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:15px;font-family:inherit;line-height:1.7;padding:14px;resize:vertical;outline:none;transition:border-color .2s}
+.writing-area:focus{border-color:var(--accent2)}
+.writing-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:var(--muted)}
+.saved-indicator{color:var(--good);opacity:0;transition:opacity .3s}
+.saved-indicator.show{opacity:1}
+
+/* Quiz — Phase 6 */
+.progress-dots{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line);transition:background .2s}
+.dot.answered{background:var(--accent2)}
+.dot.current{background:var(--accent);transform:scale(1.25)}
+.dot.correct{background:var(--good)}
+.dot.incorrect{background:var(--bad)}
+.quiz-q{font-size:17px;font-weight:600;margin-bottom:16px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.opt-btn{min-height:44px;padding:11px 16px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:15px;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:10px}
+.opt-btn:hover:not(:disabled){border-color:var(--accent2)}
+.opt-btn.chosen{border-color:var(--accent2);background:rgba(91,209,196,.1)}
+.opt-btn.correct-ans{border-color:var(--good);background:rgba(123,216,143,.12)}
+.opt-btn.wrong-ans{border-color:var(--bad);background:rgba(255,107,129,.1)}
+.opt-btn:disabled{cursor:default}
+.opt-letter{min-width:26px;height:26px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.feedback-box{padding:12px 16px;border-radius:8px;margin-bottom:12px;font-size:14px;border-left:4px solid}
+.feedback-box.good{background:rgba(123,216,143,.1);border-color:var(--good);color:var(--good)}
+.feedback-box.bad{background:rgba(255,107,129,.1);border-color:var(--bad);color:var(--bad)}
+.quiz-nav{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.score-board{text-align:center;padding:32px 20px}
+.score-big{font-size:56px;font-weight:800;color:var(--accent2)}
+.score-msg{font-size:18px;color:var(--muted);margin-top:8px}
+.score-breakdown{margin-top:24px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.score-row{display:flex;gap:12px;align-items:flex-start;font-size:14px;padding:8px 12px;border-radius:8px;background:var(--panel2)}
+.score-row .icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* Misc */
+.divider{height:1px;background:var(--line);margin:24px 0}
+.tip-box{background:var(--panel2);border:1px solid var(--accent2);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+.tip-box strong{color:var(--accent2)}
+.safety-box{background:rgba(255,209,102,.08);border:1px solid var(--warn);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+.safety-box strong{color:var(--warn)}
+</style>
+</head>
+<body>
+
+<!-- Phase progress bar -->
+<div id="phase-bar">
+  <div class="ph-seg active" id="seg-1" onclick="scrollToPhase(1)" title="Phase 1: Mystery Flip Cards"></div>
+  <div class="ph-seg" id="seg-2" onclick="scrollToPhase(2)" title="Phase 2: Core Reading"></div>
+  <div class="ph-seg" id="seg-3" onclick="scrollToPhase(3)" title="Phase 3: Deep-Sea Words Match"></div>
+  <div class="ph-seg" id="seg-4" onclick="scrollToPhase(4)" title="Phase 4: The Descent Sequencer"></div>
+  <div class="ph-seg" id="seg-5" onclick="scrollToPhase(5)" title="Phase 5: Writing Pad"></div>
+  <div class="ph-seg" id="seg-6" onclick="scrollToPhase(6)" title="Phase 6: Quiz"></div>
+  <span class="ph-label">🦑 Kraken</span>
+</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:36px;padding-top:8px">
+    <div style="font-size:52px;margin-bottom:8px">🦑🌊</div>
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">Sailors Told of a Monster. The Real Animal Is Stranger.</div>
+    <div style="color:var(--muted);font-size:14px;margin-top:4px">Science · Day 22 · Approx. 38 min</div>
+    <div style="color:var(--accent2);font-size:14px;margin-top:10px;font-weight:600">An eye the size of a dinner plate. Blue blood and three hearts. A body no human had ever filmed alive until <em>2012</em>.</div>
+  </div>
+
+  <!-- ══════════════ PHASE 1 ══════════════ -->
+  <section class="phase-section" id="phase-1">
+    <div class="phase-title">
+      <span class="badge">Phase 1</span>
+      Mystery Flip Cards
+    </div>
+    <div class="phase-meta">5 min · Tap each card to reveal the real deep-sea fact</div>
+
+    <div class="flip-grid" id="flip-grid"></div>
+
+    <div class="tip-box" style="margin-top:16px">
+      <strong>Guess first!</strong> Every number on these cards was measured by a real scientist on a real animal. Before you flip, try to guess: how long is the longest squid ever measured? How big is its eye? And why would an animal need <em>three</em> hearts just to stay alive down there?
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 2 ══════════════ -->
+  <section class="phase-section" id="phase-2">
+    <div class="phase-title">
+      <span class="badge">Phase 2</span>
+      Core Reading
+    </div>
+    <div class="phase-meta">10 min · Read carefully — quiz questions come from this passage</div>
+
+    <div class="passage">
+      <p style="font-size:19px;font-weight:700;color:var(--ink);margin-bottom:16px">The Kraken Was a Guess. The Squid Is the Evidence.</p>
+
+      <h3>A Monster in the Logbooks</h3>
+      <p>For hundreds of years, sailors in the cold seas off Norway and Iceland came home with the same story. Somewhere out past the last island there lived a thing called the <strong>kraken</strong> — a creature so vast that sailors mistook its back for an island, with arms that could reach a ship's mast and pull the whole vessel under. In the 1700s a Norwegian bishop named <strong>Erik Pontoppidan</strong> even wrote the kraken up in a natural history book as if it were a real, catalogued animal.</p>
+      <p>Let's be honest right away: <strong>the kraken is not real</strong>. No animal on Earth is the size of an island, and no squid has ever been shown to drag a ship under.</p>
+      <p>But here is the strange part, and it is the reason this lesson exists. The sailors were not making it up out of nothing. Sometimes a body washed ashore — a pale, torn thing with <strong>ten limbs</strong> and a beak like a parrot's, longer than a rowboat. Those bodies were real. They belonged to an animal that turned out to be <em>weirder</em> than the monster people invented for it.</p>
+
+      <h3>Meet the Real Giants</h3>
+      <p>The <strong>giant squid</strong>, scientific name <em>Architeuthis</em>, can reach about <strong>13 meters (43 feet)</strong> from the tip of its tail to the tips of its two long feeding tentacles. Most of that length is those two stretchy tentacles, so it is not 43 feet of solid animal — but a big female can still weigh a couple hundred kilograms.</p>
+      <p>Then there is the <strong>colossal squid</strong>, <em>Mesonychoteuthis</em>, which lives in the freezing water around Antarctica. It is not as long overall, but it is <strong>heavier and much bulkier</strong>, with a thicker body — and instead of only suckers, it carries <strong>sharp swiveling hooks</strong> on its arms. The colossal squid is the heaviest invertebrate (animal without a backbone) known to science.</p>
+      <p>Both are <strong>cephalopods</strong> — the group of mollusks that also includes octopuses, cuttlefish, and nautiluses. A quick check you can use forever: a squid has <strong>eight arms plus two longer feeding tentacles</strong>, ten limbs in all. An octopus has eight arms and no tentacles.</p>
+
+      <h3>The Eye the Size of a Dinner Plate</h3>
+      <p>Here is the fact that stops people. A giant squid's eye measures about <strong>25–27 centimeters (roughly 10 inches)</strong> across. That is the <strong>largest eye of any known animal</strong> — bigger than a basketball player's hand, about the width of a dinner plate. A human eye is about 2.4 cm.</p>
+      <p>Why build something that enormous? Because of where the squid lives. Deep down, sunlight is gone and the only light is the faint flicker that living things make themselves. A gigantic eye gathers more of that tiny light, the way a bigger bucket catches more rain. Scientists think it may let a giant squid notice the glow stirred up by an approaching <strong>sperm whale</strong> — its main predator — from far enough away to run. It is not an eye for seeing detail. It is an eye for seeing <em>almost nothing at all</em>.</p>
+
+      <h3>Down Through the Zones</h3>
+      <p>Scientists split the ocean into layers by how much sunlight reaches them.</p>
+      <p>The <strong>sunlight zone</strong> runs from the surface down to about <strong>200 meters</strong>. There is enough light here for <strong>photosynthesis</strong>, so this is where nearly all the ocean's plants and algae live, and where most of the fish you can name swim.</p>
+      <p>The <strong>twilight zone</strong> runs from about 200 m down to about <strong>1,000 m</strong>. A dim blue haze filters down — enough to see by, but far too little for a plant to live on. This is the layer where <strong>bioluminescence</strong> starts to take over as the main source of light.</p>
+      <p>The <strong>midnight zone</strong> begins around 1,000 m and runs down toward the abyss. Sunlight is <strong>completely gone</strong>. It is permanently black, near freezing, and the pressure is crushing — roughly one extra atmosphere of pressure for every 10 meters you go down, so at 1,000 m the water is pressing about 100 times harder than the air does at the beach. Giant squid are usually found in the twilight and midnight zones.</p>
+      <p>Notice the pattern going down: <strong>light disappears, pressure increases, temperature drops</strong>.</p>
+
+      <h3>Living Light</h3>
+      <p><strong>Bioluminescence</strong> is light an animal makes inside its own body with a <strong>chemical reaction</strong>. A chemical called luciferin reacts with oxygen, helped along by a protein, and the energy comes out as light instead of as much heat — which is why it is sometimes called "cold light." It is astonishingly common down there; most animals in the deep open ocean can do it.</p>
+      <p>What do they use it for? Three big jobs. Some animals <strong>lure prey</strong> with a glowing tip, like the anglerfish's lit-up fishing rod. Some <strong>confuse predators</strong> — a few deep-sea squid squirt a cloud of <em>glowing</em> mucus instead of black ink, since a black cloud is useless in a place that is already black. And some <strong>signal</strong> to their own kind, flashing patterns to find a mate or a group.</p>
+
+      <h3>The Squid's Toolkit</h3>
+      <p>A squid's body is a set of solutions to hard problems.</p>
+      <p><strong>Jet propulsion.</strong> A squid pulls water into its <strong>mantle</strong> — the muscular sac that makes up most of its body — then squeezes and forces that water out through a narrow nozzle called the <strong>siphon</strong>. Push water one way, the squid shoots the other way. The siphon can be aimed, so a squid can jet backward, forward, or sideways.</p>
+      <p><strong>Ink.</strong> Squid store dark ink and release it when threatened. Sometimes it spreads into a smokescreen; sometimes it holds together as a blob roughly the squid's own size and shape — a <strong>decoy</strong> for a predator to grab while the real squid jets away.</p>
+      <p><strong>Chromatophores.</strong> Squid skin is packed with these: tiny sacs of pigment with muscles attached. Pull the muscles and the sac stretches wide, showing its color; relax them and it shrinks to a dot. That is how a squid changes color in under a second, for camouflage or for signaling.</p>
+      <p><strong>The beak.</strong> A squid has no bones anywhere, but it does have a hard, sharp <strong>beak</strong> made of a tough material called chitin, shaped a lot like a parrot's. It is the toughest part of the animal, which matters for a reason we are about to get to.</p>
+      <p><strong>Three hearts and blue blood.</strong> A squid has <strong>three hearts</strong>: two branchial hearts that pump blood through the gills to load it with oxygen, and one systemic heart that pumps it to the rest of the body. And the blood is <strong>blue</strong>, not red. Our red blood carries oxygen using <strong>hemoglobin</strong>, which is built around <strong>iron</strong>. A squid uses <strong>hemocyanin</strong>, built around <strong>copper</strong> — and copper-based blood turns blue when it picks up oxygen. Hemocyanin does a better job than our blood in water that is <strong>very cold and low in oxygen</strong>, which is exactly the water a giant squid lives in. The extra hearts help push that thick blue blood through a big body in the cold.</p>
+
+      <h3>The Whale That Hunts Them</h3>
+      <p>The giant squid's great enemy is the <strong>sperm whale</strong>, which dives regularly past <strong>1,000 meters</strong> — and sometimes far deeper — holding its breath for well over an hour, hunting squid in total darkness using <strong>echolocation</strong> (sending out clicks and listening for the echoes).</p>
+      <p>And the whales left scientists evidence. Sperm whales are sometimes found with rings of <strong>round sucker scars</strong> on their skin, and squid <strong>beaks pile up inside their stomachs</strong>, because the beak is too tough to digest. Researchers could count those beaks and measure those scars long before anyone had seen a living giant squid at all. The animal was proven by the marks it left on its predator.</p>
+
+      <h3>How Science Actually Learned This</h3>
+      <p>Look at the order things happened, because it is a perfect example of how science works.</p>
+      <p><strong>First: carcasses.</strong> For centuries the only giant squid anyone examined were dead ones — washed up on a beach or hauled up torn in a fishing net. You can measure a body, but a dead animal cannot show you how it swims, hunts, or behaves.</p>
+      <p><strong>Then: stomach contents.</strong> Beaks from sperm whale stomachs told researchers which squid species the whales ate, roughly how big they were, and how many. Indirect evidence, but real evidence.</p>
+      <p><strong>Then: cameras.</strong> In 2004, Japanese scientists Tsunemi Kubodera and Kyoichi Mori got the first photographs of a living giant squid attacking a baited line in the deep. And in <strong>2012</strong>, a team finally <strong>filmed a live giant squid in its own deep-sea habitat</strong> — the first video of the real animal, alive, where it lives. People had been telling kraken stories for roughly 300 years before anyone got that footage.</p>
+      <p>That is the honest shape of science. The evidence got better; the story got corrected. A scientist saying "we don't know yet" is not a weakness — it is the sentence that keeps the search going.</p>
+
+      <div class="safety-box">
+        <strong>🔎 Myth check:</strong> Giant squid do not attack ships, hunt swimmers, or grow to the size of an island. They live far offshore and mostly very deep, and they are hunted by whales far more than they hunt anything of ours. When you meet a monster story, ask the scientist's question: <em>what is the evidence, and how good is it?</em>
+      </div>
+
+      <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="fact-pill">🦑 Giant squid ≈ 13 m (43 ft)</span>
+        <span class="fact-pill">👁️ Eye ≈ 25–27 cm — largest known</span>
+        <span class="fact-pill">🎥 First filmed alive in habitat: 2012</span>
+        <span class="fact-pill">💙 3 hearts · blue hemocyanin blood</span>
+        <span class="fact-pill">🌑 Midnight zone starts ≈ 1,000 m</span>
+        <span class="fact-pill">🐋 Sperm whale = main predator</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 3 ══════════════ -->
+  <section class="phase-section" id="phase-3">
+    <div class="phase-title">
+      <span class="badge">Phase 3</span>
+      Deep-Sea Words Match
+    </div>
+    <div class="phase-meta">8 min · Tap a word on the left, then tap what it means on the right</div>
+
+    <div class="match-wrap">
+      <div class="match-col" id="match-left"></div>
+      <div class="match-col" id="match-right"></div>
+    </div>
+    <div class="match-score" id="match-score"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-muted" id="retry-btn" onclick="retryWrong()" style="display:none">Retry unmatched</button>
+      <button class="btn btn-muted" onclick="resetMatch()">Reset all</button>
+    </div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Tip:</strong> If you get one wrong, the "Retry unmatched" button appears so you can try again without starting over.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 4 ══════════════ -->
+  <section class="phase-section" id="phase-4">
+    <div class="phase-title">
+      <span class="badge">Phase 4</span>
+      The Descent Sequencer
+    </div>
+    <div class="phase-meta">10 min · Ride the submersible down and put the ocean layers in order</div>
+
+    <div id="seq-body"></div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Think it through:</strong> Which zone can a seaweed actually live in? At what depth does the last of the sunlight give out? And once the sun is gone for good, where is <em>any</em> light in the water coming from?
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 5 ══════════════ -->
+  <section class="phase-section" id="phase-5">
+    <div class="phase-title">
+      <span class="badge">Phase 5</span>
+      Writing Pad
+    </div>
+    <div class="phase-meta">5 min · Write at least 5 sentences</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--accent2)">Your prompt:</div>
+      <p style="font-size:15px;line-height:1.7">A friend says, "The kraken story is way cooler than any real animal." You have just read about an eye the width of a dinner plate, blood that runs blue because it is built on copper, and an animal nobody managed to film alive in its own home until 2012.</p>
+      <p style="font-size:15px;line-height:1.7;margin-top:8px">Write your friend a careful answer. Use at least <strong>three</strong> real squid features from the reading and explain how each one is an <strong>adaptation</strong> to life in the deep — say what the problem is and how the feature solves it. Then explain how scientists <strong>learned</strong> about giant squid over time (carcasses → whale stomachs → cameras) and why better evidence matters. Finish by being fair: say what the kraken legend got wrong. <strong>(At least 5 sentences.)</strong></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="The kraken was invented, but the real giant squid is stranger, because…" oninput="onWritingInput()"></textarea>
+    <div class="writing-footer">
+      <span id="word-count">0 words</span>
+      <span class="saved-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 6 ══════════════ -->
+  <section class="phase-section" id="phase-6">
+    <div class="phase-title">
+      <span class="badge">Phase 6</span>
+      Quiz
+    </div>
+    <div class="phase-meta">5 min · 10 questions · One at a time</div>
+
+    <div class="progress-dots" id="q-dots"></div>
+    <div id="quiz-body"></div>
+  </section>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// ── Storage keys ──────────────────────────────────────────────
+const QAKEY = 'science-l22-qans';
+const QKEY  = 'science-l22-quiz';
+const WKEY  = 'science-l22-writing';
+
+// ── logMistake ────────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Science|Day 22: Kraken|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Science', day: 'Day 22', q: questionText, file: 'science-lesson-22-kraken.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ── Phase 1: Mystery Flip Cards ───────────────────────────────
+const flipCards = [
+  {
+    num: '43 FEET',
+    answer: 'Longest giant squid measured',
+    explain: 'About 13 meters, tail tip to tentacle tips. Most of that is the two stretchy feeding tentacles — the body itself is far shorter, and no giant squid has ever been shown to sink a ship.'
+  },
+  {
+    num: '10 INCHES',
+    answer: 'Across one giant squid eye',
+    explain: 'Roughly 25–27 cm — about the width of a dinner plate, and the largest eye of any known animal. A human eye is about 2.4 cm.'
+  },
+  {
+    num: '2012',
+    answer: 'First film of a live one at home',
+    explain: 'The first video of a living giant squid in its own deep-sea habitat. Photos of a live one came in 2004; before that, the animal was known almost entirely from dead bodies.'
+  },
+  {
+    num: 'THREE',
+    answer: 'Hearts inside one squid',
+    explain: 'Two branchial hearts push blood through the gills to pick up oxygen, and one systemic heart sends it to the rest of the body — extra pumping power for cold, low-oxygen water.'
+  },
+  {
+    num: 'BLUE',
+    answer: 'The color of squid blood',
+    explain: 'Squid carry oxygen with hemocyanin, which is built around copper instead of iron. Copper-based blood turns blue, and it works better than ours in cold water with little oxygen.'
+  },
+  {
+    num: '1,000 m',
+    answer: 'Where the midnight zone begins',
+    explain: 'Below about 1,000 meters no sunlight reaches at all. Sperm whales dive past this line to hunt squid, holding their breath and finding prey by echolocation in total darkness.'
+  }
+];
+
+function buildFlipCards() {
+  const grid = document.getElementById('flip-grid');
+  grid.innerHTML = '';
+  flipCards.forEach((fc, i) => {
+    grid.innerHTML += `
+      <div class="flip-card" id="fc-${i}" onclick="flipCard(${i})" role="button" tabindex="0" aria-label="Flip card ${i+1}" onkeydown="if(event.key==='Enter'||event.key===' ')flipCard(${i})">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="big-num">${fc.num}</span>
+            <span class="flip-hint">tap to reveal</span>
+          </div>
+          <div class="flip-back">
+            <span class="answer">${fc.answer}</span>
+            <span class="explain">${fc.explain}</span>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function flipCard(i) {
+  document.getElementById('fc-'+i).classList.toggle('flipped');
+}
+
+// ── Phase 3: Deep-Sea Words Match ─────────────────────────────
+const matchPairs = [
+  { left: 'Siphon', right: 'The nozzle a squid blasts water out of to jet away' },
+  { left: 'Mantle', right: 'The muscular body sac that fills with water before the jet' },
+  { left: 'Chromatophore', right: 'A tiny sac of pigment squeezed to change skin color' },
+  { left: 'Hemocyanin', right: 'The copper-based molecule that makes squid blood blue' },
+  { left: 'Bioluminescence', right: 'Light an animal makes itself with a chemical reaction' },
+  { left: 'Cephalopod', right: 'The mollusk group of squid, octopus, and cuttlefish' },
+  { left: 'Twilight zone', right: 'The dim layer from about 200 m down to about 1,000 m' },
+  { left: 'Beak', right: 'The hard parrot-like mouthpart found in whale stomachs' }
+];
+
+let matchState = {
+  selectedLeft: null,
+  selectedRight: null,
+  matched: new Set(),
+  score: 0
+};
+
+function buildMatch() {
+  const leftCol = document.getElementById('match-left');
+  const rightCol = document.getElementById('match-right');
+  leftCol.innerHTML = '';
+  rightCol.innerHTML = '';
+
+  const leftOrder = shuffle([...Array(matchPairs.length).keys()]);
+  const rightOrder = shuffle([...Array(matchPairs.length).keys()]);
+
+  leftOrder.forEach(i => {
+    leftCol.innerHTML += `<div class="match-item" id="ml-${i}" onclick="selectLeft(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectLeft(${i})">${matchPairs[i].left}</div>`;
+  });
+  rightOrder.forEach(i => {
+    rightCol.innerHTML += `<div class="match-item" id="mr-${i}" onclick="selectRight(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectRight(${i})">${matchPairs[i].right}</div>`;
+  });
+}
+
+function selectLeft(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedLeft !== null) {
+    const prev = document.getElementById('ml-'+matchState.selectedLeft);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedLeft = i;
+  document.getElementById('ml-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function selectRight(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedRight !== null) {
+    const prev = document.getElementById('mr-'+matchState.selectedRight);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedRight = i;
+  document.getElementById('mr-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function tryMatch() {
+  const { selectedLeft: l, selectedRight: r } = matchState;
+  if (l === null || r === null) return;
+
+  if (l === r) {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(l);
+    matchState.score++;
+    matchState.selectedLeft = null;
+    matchState.selectedRight = null;
+    updateMatchScore();
+  } else {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.add('wrong'); rEl.classList.add('wrong');
+    setTimeout(() => {
+      lEl.classList.remove('wrong','selected');
+      rEl.classList.remove('wrong','selected');
+      matchState.selectedLeft = null;
+      matchState.selectedRight = null;
+      document.getElementById('retry-btn').style.display = 'inline-flex';
+    }, 400);
+  }
+}
+
+function updateMatchScore() {
+  const total = matchPairs.length;
+  const s = matchState.score;
+  const el = document.getElementById('match-score');
+  if (s === total) {
+    el.innerHTML = `<span style="color:var(--good)">🎉 All ${total} matched! Deep-sea expert!</span>`;
+    document.getElementById('retry-btn').style.display = 'none';
+    markPhaseDone(3);
+  } else {
+    el.textContent = `${s} / ${total} matched`;
+  }
+}
+
+function retryWrong() {
+  if (matchState.selectedLeft !== null) {
+    const lEl = document.getElementById('ml-'+matchState.selectedLeft);
+    if (lEl) lEl.classList.remove('selected');
+  }
+  if (matchState.selectedRight !== null) {
+    const rEl = document.getElementById('mr-'+matchState.selectedRight);
+    if (rEl) rEl.classList.remove('selected');
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+  document.getElementById('retry-btn').style.display = 'none';
+}
+
+function resetMatch() {
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set(), score: 0 };
+  document.getElementById('match-score').textContent = '';
+  document.getElementById('retry-btn').style.display = 'none';
+  buildMatch();
+}
+
+// ── Phase 4: The Descent Sequencer ────────────────────────────
+// Correct order (order value = the real step number, 1..6)
+const seqStages = [
+  { order: 1, text: '0 m — the surface: full sunlight, and algae down here can photosynthesize' },
+  { order: 2, text: '100 m — still the sunlight zone, but dimmer, and red light has already vanished' },
+  { order: 3, text: '200 m — the twilight zone begins: dim blue haze, too little light for any plant' },
+  { order: 4, text: '600 m — deep in the twilight zone, most of the light you see is bioluminescence' },
+  { order: 5, text: '1,000 m — the midnight zone begins: zero sunlight, near freezing, crushing pressure' },
+  { order: 6, text: '1,200 m — a sperm whale clicks past in the black, hunting squid by echolocation' }
+];
+
+// seqState.slots holds the stage indexes the player has placed, in order
+let seqState = { slots: [], solved: false };
+
+function buildSeq() {
+  seqState = { slots: [], solved: false };
+  renderSeq();
+}
+
+function renderSeq() {
+  const body = document.getElementById('seq-body');
+
+  if (seqState.solved) {
+    let orderedHTML = '';
+    seqState.slots.forEach((si, pos) => {
+      orderedHTML += `<div class="seq-item correct-pos"><span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span></div>`;
+    });
+    body.innerHTML = `
+      <div class="seq-wrap">
+        <div class="seq-intro">🌊 <strong>You made it to the midnight zone!</strong> Here is the whole descent, layer by layer:</div>
+        <div class="seq-list">${orderedHTML}</div>
+        <div class="seq-bonus">
+          <strong>Read your list top to bottom and watch three things change together: the light disappears, the pressure climbs, and the temperature drops. Every deep-sea adaptation in this lesson is an answer to one of those three problems — a dinner-plate eye for the missing light, blue hemocyanin blood for the cold, and a soft boneless body that the pressure has nothing rigid to crush.</strong>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-muted" onclick="buildSeq()">Try Again</button></div>
+      </div>`;
+    markPhaseDone(4);
+    return;
+  }
+
+  // Build the "choices remaining" list (shuffled once per game) and the placed list
+  if (!seqState.shuffled) {
+    seqState.shuffled = shuffle([...Array(seqStages.length).keys()]);
+  }
+
+  let choicesHTML = '';
+  seqState.shuffled.forEach(si => {
+    if (seqState.slots.includes(si)) return; // already placed
+    choicesHTML += `<button class="seq-item" onclick="placeStage(${si})">
+      <span class="seq-num">?</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  let placedHTML = '';
+  seqState.slots.forEach((si, pos) => {
+    const cls = seqState.checked ? (seqStages[si].order === pos+1 ? ' correct-pos' : ' wrong-pos') : '';
+    placedHTML += `<button class="seq-item${cls}" onclick="removeStage(${pos})">
+      <span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  const allPlaced = seqState.slots.length === seqStages.length;
+
+  body.innerHTML = `
+    <div class="seq-wrap">
+      <div class="seq-intro">🔦 Your submersible is diving from the surface toward the deep. <strong>Tap the stops in the order you would really pass them, shallowest first.</strong></div>
+      ${seqState.slots.length ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Your dive log (tap a stop to remove it):</div><div class="seq-list" style="margin-bottom:16px">${placedHTML}</div>` : ''}
+      ${choicesHTML ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Stops to place:</div><div class="seq-list">${choicesHTML}</div>` : ''}
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        ${allPlaced ? `<button class="btn btn-accent" onclick="checkSeq()">Check Order</button>` : ''}
+        <button class="btn btn-muted" onclick="buildSeq()">Reset</button>
+      </div>
+    </div>`;
+}
+
+function placeStage(si) {
+  seqState.checked = false;
+  seqState.slots.push(si);
+  renderSeq();
+}
+
+function removeStage(pos) {
+  seqState.checked = false;
+  seqState.slots.splice(pos, 1);
+  renderSeq();
+}
+
+function checkSeq() {
+  const allCorrect = seqState.slots.every((si, pos) => seqStages[si].order === pos+1);
+  if (allCorrect) {
+    seqState.solved = true;
+    renderSeq();
+  } else {
+    seqState.checked = true;
+    renderSeq();
+    // clear the red marks after the shake so kid can rearrange
+    setTimeout(() => { seqState.checked = false; renderSeq(); }, 900);
+  }
+}
+
+// ── Phase 5: Writing Pad ──────────────────────────────────────
+let writeTimer = null;
+
+function countWords(txt) {
+  const t = txt.trim();
+  return t === '' ? 0 : t.split(/\s+/).length;
+}
+
+function onWritingInput() {
+  const txt = document.getElementById('writing-pad').value;
+  const w = countWords(txt);
+  document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(saveWriting, 300);
+}
+
+function saveWriting() {
+  try {
+    localStorage.setItem(WKEY, document.getElementById('writing-pad').value);
+    const ind = document.getElementById('save-indicator');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 1500);
+  } catch(e) {}
+}
+
+function restoreWriting() {
+  try {
+    const saved = localStorage.getItem(WKEY);
+    if (saved) {
+      document.getElementById('writing-pad').value = saved;
+      const w = countWords(saved);
+      document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+    }
+  } catch(e) {}
+}
+
+// ── Phase 6: Quiz ─────────────────────────────────────────────
+const questions = [
+  {
+    q: 'For hundreds of years, why did people know the giant squid mostly from dead bodies?',
+    opts: [
+      'Because giant squid live only in shallow bays where divers were forbidden to swim for many years',
+      'Because scientists had agreed not to photograph one until museums finished studying the old drawings',
+      'Because it lives deep in the open ocean, where cameras could not reach it until recently',
+      'Because every giant squid ever found had already been swallowed whole by a sperm whale first'
+    ],
+    ans: 2,
+    explain: 'A carcass on a beach or in a net was all anyone had. Photos of a living giant squid came in 2004, and the first video of one in its own deep habitat came in 2012.'
+  },
+  {
+    q: 'About how wide is a giant squid\'s eye?',
+    opts: [
+      'About 25–27 cm — roughly a dinner plate',
+      'About 2 cm — roughly a shirt button',
+      'About 90 cm — roughly a car tire',
+      'About 5 mm — roughly a pencil eraser'
+    ],
+    ans: 0,
+    explain: 'Around 25–27 cm (about 10 inches) across — the largest eye of any animal known to science. A human eye is only about 2.4 cm.'
+  },
+  {
+    q: 'What is that enormous eye actually for?',
+    opts: [
+      'It focuses sunlight into a narrow beam that stuns the fish swimming just above the squid',
+      'It lets the squid see brighter colors than any other animal living anywhere in the ocean',
+      'It reads the shape of the seafloor from hundreds of meters up, like a map of the bottom',
+      'It gathers the last faint light in the deep, including the glow of bioluminescence'
+    ],
+    ans: 3,
+    explain: 'A bigger eye catches more light, the way a bigger bucket catches more rain. It may help a giant squid spot the glow stirred up by an approaching sperm whale.'
+  },
+  {
+    q: 'How does jet propulsion move a squid through the water?',
+    opts: [
+      'It beats its two long feeding tentacles up and down like wings until the water pushes it along',
+      'It draws water into its mantle and forces it out the siphon, so it shoots the other way',
+      'It swallows seawater and then burps it back out through its beak in one hard blast of bubbles',
+      'It fills a gas bladder with air collected at the surface and lets that air carry it upward fast'
+    ],
+    ans: 1,
+    explain: 'The mantle is the muscular sac; the siphon is the nozzle. Push water one direction and the squid shoots the other. The siphon aims, so it can jet backward, forward, or sideways.'
+  },
+  {
+    q: 'Why is a squid\'s blood blue instead of red?',
+    opts: [
+      'It carries oxygen using hemocyanin, a copper-based molecule instead of an iron-based one',
+      'It gets stained blue by the ink the squid stores in a sac near the middle of its long body',
+      'The cold, dark water it lives in slowly turns its normally red blood a deep blue color',
+      'It reflects the blue light given off by the bioluminescent animals swimming all around it'
+    ],
+    ans: 0,
+    explain: 'Our hemoglobin is built on iron and runs red. Squid hemocyanin is built on copper and runs blue — and it works better in cold water that holds little oxygen.'
+  },
+  {
+    q: 'Before anyone had ever seen a living giant squid, what evidence showed that sperm whales hunt them?',
+    opts: [
+      'Whale songs recorded at the surface were slowed down until a squid\'s own voice could be heard in them',
+      'Sailors\' logbooks from the 1700s, which described a kraken dragging entire ships beneath the waves',
+      'Fossils of giant squid found in exactly the same rock layers as the fossils of ancient sperm whales',
+      'Round sucker scars marking whale skin, plus tough squid beaks found deep inside whale stomachs'
+    ],
+    ans: 3,
+    explain: 'The beak is too tough to digest, so beaks pile up in the stomach and can be counted. The animal was proven by the marks it left on its predator.'
+  },
+  {
+    q: 'Which list shows the ocean zones in order from the surface downward?',
+    opts: [
+      'Midnight zone → twilight zone → sunlight zone',
+      'Sunlight zone → twilight zone → midnight zone',
+      'Twilight zone → sunlight zone → midnight zone',
+      'Sunlight zone → midnight zone → twilight zone'
+    ],
+    ans: 1,
+    explain: 'Sunlight zone: surface to about 200 m. Twilight zone: about 200 m to 1,000 m. Midnight zone: below about 1,000 m, where no sunlight reaches at all.'
+  },
+  {
+    q: 'What is bioluminescence?',
+    opts: [
+      'Sunlight that bends so far down through the water that it finally reaches the deep sea floor',
+      'A glow that deep-sea animals pick up by eating tiny bits of glowing rock off the seafloor',
+      'Light that an animal produces for itself inside its own body, using a chemical reaction',
+      'Heat from underwater volcanoes that makes the water around a vent shine faintly in the dark'
+    ],
+    ans: 2,
+    explain: 'A chemical reaction inside the animal releases energy as light instead of much heat. Deep-sea animals use it to lure prey, confuse predators, and signal each other.'
+  },
+  {
+    q: 'How does ink help a squid escape?',
+    opts: [
+      'The ink is a poison strong enough to kill a sperm whale that swallows too much of it at once',
+      'The ink freezes the water around the squid so a predator cannot swim close enough to bite it',
+      'The ink makes the squid float upward quickly, because it is far lighter than the seawater is',
+      'It hangs as a dark cloud or decoy blob while the real squid jets off in another direction'
+    ],
+    ans: 3,
+    explain: 'Sometimes a smokescreen, sometimes a blob about the squid\'s own size and shape for a predator to grab. Some deep-sea squid release glowing mucus instead, since black ink is useless in the dark.'
+  },
+  {
+    q: 'How is the colossal squid different from the giant squid?',
+    opts: [
+      'The colossal squid is the only squid that lives in warm water near the equator all year long',
+      'The colossal squid is heavier and bulkier, and it carries sharp swiveling hooks on its arms',
+      'The colossal squid is much longer but so thin that it weighs far less than a giant squid does',
+      'The colossal squid has no eyes at all, because it lives even deeper than the giant squid does'
+    ],
+    ans: 1,
+    explain: 'The giant squid is longer overall, mostly because of its two stretchy tentacles, but the colossal squid of the Antarctic is bulkier and heavier and has swiveling hooks as well as suckers.'
+  }
+];
+
+let quizState = {
+  current: 0,
+  answers: {},
+  locked: {}
+};
+
+function buildQuiz() {
+  quizState = { current: 0, answers: {}, locked: {} };
+  renderDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || 'null');
+    if (!saved) return;
+    const finalScore = localStorage.getItem(QKEY);
+    if (finalScore !== null) {
+      quizState.answers = saved.answers || {};
+      quizState.locked = saved.locked || {};
+      quizState.current = saved.current !== undefined ? saved.current : 0;
+      showScore();
+      return;
+    }
+    quizState.answers = saved.answers || {};
+    quizState.locked = saved.locked || {};
+    quizState.current = saved.current !== undefined ? saved.current : 0;
+    renderDots();
+    renderQuestion();
+  } catch(e) {}
+}
+
+function saveQAns() {
+  try {
+    localStorage.setItem(QAKEY, JSON.stringify({
+      answers: quizState.answers,
+      locked: quizState.locked,
+      current: quizState.current
+    }));
+  } catch(e) {}
+}
+
+function renderDots() {
+  const dots = document.getElementById('q-dots');
+  dots.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (quizState.locked[i]) {
+      d.classList.add(quizState.answers[i] === questions[i].ans ? 'correct' : 'incorrect');
+    } else if (i === quizState.current) {
+      d.classList.add('current');
+    } else if (quizState.answers[i] !== undefined) {
+      d.classList.add('answered');
+    }
+    d.title = 'Question ' + (i+1);
+    d.onclick = () => { quizState.current = i; renderDots(); renderQuestion(); };
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const qb = document.getElementById('quiz-body');
+  const qi = quizState.current;
+  const q = questions[qi];
+  const locked = quizState.locked[qi];
+  const chosen = quizState.answers[qi];
+  const letters = ['A','B','C','D'];
+
+  let optsHTML = '';
+  q.opts.forEach((opt, oi) => {
+    let cls = 'opt-btn';
+    if (locked) {
+      if (oi === q.ans) cls += ' correct-ans';
+      else if (oi === chosen && oi !== q.ans) cls += ' wrong-ans';
+    } else if (oi === chosen) {
+      cls += ' chosen';
+    }
+    optsHTML += `<button class="${cls}" ${locked ? 'disabled' : ''} onclick="ansQ(${qi},${oi})">
+      <span class="opt-letter">${letters[oi]}</span>${opt}
+    </button>`;
+  });
+
+  let feedbackHTML = '';
+  if (locked) {
+    const correct = chosen === q.ans;
+    feedbackHTML = `<div class="feedback-box ${correct ? 'good' : 'bad'}">
+      ${correct ? '✓ Correct!' : '✗ Not quite.'} ${q.explain}
+    </div>`;
+  }
+
+  const isLast = qi === questions.length - 1;
+  const allDone = Object.keys(quizState.locked).length === questions.length;
+
+  qb.innerHTML = `
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Question ${qi+1} of ${questions.length}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHTML}</div>
+      ${feedbackHTML}
+      <div class="quiz-nav">
+        ${qi > 0 ? `<button class="btn btn-muted" onclick="navQ(${qi-1})">← Back</button>` : ''}
+        ${locked && !isLast ? `<button class="btn btn-accent" onclick="navQ(${qi+1})">Next →</button>` : ''}
+        ${allDone ? `<button class="btn btn-accent" onclick="showScore()">See Score 🎯</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function ansQ(qi, chosen) {
+  if (quizState.locked[qi]) return;
+  quizState.answers[qi] = chosen;
+  quizState.locked[qi] = true;
+  const correct = chosen === questions[qi].ans;
+  saveQAns();
+  logMistake(correct, questions[qi].q, 'Q' + (qi+1));
+  renderDots();
+  renderQuestion();
+}
+
+function navQ(qi) {
+  quizState.current = qi;
+  renderDots();
+  renderQuestion();
+}
+
+function showScore() {
+  let score = 0;
+  questions.forEach((q, i) => { if (quizState.answers[i] === q.ans) score++; });
+  try { localStorage.setItem(QKEY, score); } catch(e) {}
+
+  const pct = Math.round(score / questions.length * 100);
+  let msg = pct >= 88 ? '🌟 Excellent work!' : pct >= 63 ? '👍 Good job — review the ones you missed.' : '📖 Review the reading and try again.';
+  const letters = ['A','B','C','D'];
+
+  let breakdown = '';
+  questions.forEach((q, i) => {
+    const correct = quizState.answers[i] === q.ans;
+    breakdown += `<div class="score-row">
+      <span class="icon">${correct ? '✅' : '❌'}</span>
+      <div>
+        <div style="font-weight:600">${q.q}</div>
+        ${!correct ? `<div style="color:var(--bad);margin-top:2px">Your answer: ${letters[quizState.answers[i]] || '?'}) ${quizState.answers[i] !== undefined ? q.opts[quizState.answers[i]] : 'Not answered'}</div>` : ''}
+        <div style="color:var(--good);margin-top:2px">Correct: ${letters[q.ans]}) ${q.opts[q.ans]}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="score-board">
+      <div class="score-big">${score}/${questions.length}</div>
+      <div class="score-msg">${pct}% · ${msg}</div>
+      <div class="score-breakdown">${breakdown}</div>
+      <button class="btn btn-muted" style="margin-top:20px" onclick="resetQuiz()">Retake Quiz</button>
+    </div>`;
+  document.getElementById('q-dots').innerHTML = '';
+  markPhaseDone(6);
+}
+
+function resetQuiz() {
+  try { localStorage.removeItem(QKEY); localStorage.removeItem(QAKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ── Phase progress bar ────────────────────────────────────────
+function markPhaseDone(n) {
+  const seg = document.getElementById('seg-'+n);
+  if (seg) { seg.classList.remove('active'); seg.classList.add('done'); }
+}
+
+function scrollToPhase(n) {
+  const el = document.getElementById('phase-'+n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setupPhaseObserver() {
+  const phases = [1,2,3,4,5,6];
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        const n = parseInt(id.replace('phase-',''));
+        phases.forEach(p => {
+          const seg = document.getElementById('seg-'+p);
+          if (!seg) return;
+          if (p === n && !seg.classList.contains('done')) {
+            seg.classList.add('active');
+          } else if (p !== n) {
+            seg.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  phases.forEach(n => {
+    const el = document.getElementById('phase-'+n);
+    if (el) observer.observe(el);
+  });
+}
+
+// ── Auto-save ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  saveQAns();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ── Helpers ───────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── init ──────────────────────────────────────────────────────
+function init() {
+  buildFlipCards();
+  buildMatch();
+  buildSeq();
+  restoreWriting();
+  buildQuiz();
+  restoreQuiz();
+  setupPhaseObserver();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

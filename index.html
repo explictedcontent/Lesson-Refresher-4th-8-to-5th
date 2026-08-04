@@ -104,7 +104,7 @@
   <div class="hero">
     <div class="htop"><div class="hicon">🏫</div>
       <div><h1>Summer Refresher Course</h1>
-        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-07-31 · v7 — Day 21 (Phoenix) + Level 18: while loops</div>
+        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-08-01 · v8 — Day 22 (Kraken) + ROBLOX STUDIO coding (real Lua)</div>
       </div>
     </div>
     <p>A fun, hands-on review for a 4th-grader heading into 5th grade. Every lesson is interactive — games, a drawing pad, and a timed lesson plan — with a quiz at the end. Pick a subject tab, then a lesson. Wrong quiz answers are saved to the <b>Review</b> tab until they're answered correctly.</p>
@@ -138,7 +138,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 21 · Phoenix 🔥🦅 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 22 · Kraken 🦑 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — Sailors, Maps & Sea Monsters",topic:"Geography",time:"45 min",file:"social-studies-lesson-22-kraken.html",desc:"Norway, Iceland & the North Atlantic; Norse seafarers and how old maps mixed real coastlines with sea monsters."},
+      {n:2,emoji:"🔬",title:"Science — The Real Animal Behind the Kraken",topic:"Science",time:"45 min",file:"science-lesson-22-kraken.html",desc:"Giant & colossal squid, dinner-plate eyes, the deep-sea zones, bioluminescence and jet propulsion."},
+      {n:3,emoji:"📖",title:"ELA — Compare & Contrast",topic:"Reading",time:"45 min",file:"ela-lesson-22-kraken.html",desc:"An original story about looking closely at what scares you. 7 vocab words + comparing the legend to the real animal."},
+      {n:4,emoji:"📐",title:"Math — Multiplying Fractions",topic:"Number",time:"45 min",file:"math-lesson-22-kraken.html",desc:"Fractions of a number and fraction × fraction with an area model — and why the answer gets SMALLER."},
+      {n:5,emoji:"🎮",title:"Coding — Roblox Studio: Code Your Own Game",topic:"Coding",time:"60 min",file:"coding-lesson-19-roblox.html",desc:"Type REAL Lua — the actual language Roblox uses. Build parts, towers and colored paths, then paste the same code into Roblox Studio! 🧱"},
+    ]},
+    {label:"Day 21 · Phoenix 🔥🦅 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — The Firebird: One Idea, Many Lands",topic:"Geography",time:"45 min",file:"social-studies-lesson-21-phoenix.html",desc:"Egypt's Bennu, the Greek phoenix, China's fenghuang, Russia's firebird — and how the Silk Road carried stories."},
       {n:2,emoji:"🔬",title:"Science — Reborn From Fire (For Real)",topic:"Science",time:"45 min",file:"science-lesson-21-phoenix.html",desc:"Pine cones sealed with resin that only fire can open, fire-following woodpeckers, and how a forest grows back."},
       {n:3,emoji:"📖",title:"ELA — Summarizing",topic:"Reading",time:"45 min",file:"ela-lesson-21-phoenix.html",desc:"An original firebird story about starting over. 7 vocab words and how to retell the important parts in your own words."},
@@ -297,6 +304,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 22 · Kraken 🦑", items:[
+       {n:22,emoji:"🦑",title:"Multiplying Fractions",topic:"Number",time:"45 min",file:"math-lesson-22-kraken.html",desc:"Fraction of a number, fraction × fraction with an area model, simplifying, and why multiplying by a fraction shrinks the answer."},
+     ]},
      {label:"Day 21 · Phoenix 🔥🦅", items:[
        {n:21,emoji:"🔥",title:"Factors, Multiples & Primes",topic:"Number",time:"45 min",file:"math-lesson-21-phoenix.html",desc:"Factor pairs, multiples, prime vs composite (1 is neither!), divisibility tricks, and simple GCF & LCM."},
      ]},
@@ -366,6 +376,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 22 · Kraken 🦑", items:[
+       {n:22,emoji:"🦑",title:"The Real Animal Behind the Kraken",topic:"Science",time:"45 min",file:"science-lesson-22-kraken.html",desc:"Giant & colossal squid, the largest eyes on Earth, deep-sea zones, bioluminescence, jet propulsion and ink."},
+     ]},
      {label:"Day 21 · Phoenix 🔥🦅", items:[
        {n:21,emoji:"🔥",title:"Reborn From Fire (For Real)",topic:"Science",time:"45 min",file:"science-lesson-21-phoenix.html",desc:"Fire ecology — resin-sealed pine cones that need heat to open, fire-following woodpeckers, and forest succession."},
      ]},
@@ -433,6 +446,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 22 · Kraken 🦑", items:[
+       {n:22,emoji:"🦑",title:"Compare & Contrast",topic:"Reading",time:"45 min",file:"ela-lesson-22-kraken.html",desc:"An original sea story about curiosity over fear. 7 vocab words plus comparing the legend with the real squid."},
+     ]},
      {label:"Day 21 · Phoenix 🔥🦅", items:[
        {n:21,emoji:"🔥",title:"Summarizing",topic:"Reading",time:"45 min",file:"ela-lesson-21-phoenix.html",desc:"An original firebird story about hope after loss. 7 vocab words + retelling the important parts in your own words."},
      ]},
@@ -496,6 +512,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 22 · Kraken 🦑", items:[
+       {n:22,emoji:"🦑",title:"Sailors, Maps & Sea Monsters",topic:"Geography",time:"45 min",file:"social-studies-lesson-22-kraken.html",desc:"Norway, Iceland, Greenland & the North Atlantic; Norse voyages, navigating by sun and stars, and monsters on old maps."},
+     ]},
      {label:"Day 21 · Phoenix 🔥🦅", items:[
        {n:21,emoji:"🔥",title:"The Firebird: One Idea, Many Lands",topic:"Geography",time:"45 min",file:"social-studies-lesson-21-phoenix.html",desc:"Egypt's Bennu, the Greek phoenix, China's fenghuang, Russia's firebird, Japan's hō-ō — and the Silk Road."},
      ]},
@@ -582,6 +601,11 @@ const SUBJECTS=[
      ]},
      {label:"✍️ Write Real Code (new!)", items:[
        {n:15,emoji:"🌾",title:"Level 15: Panda Harvest (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-15-realcode.html",desc:"NEW STYLE — you TYPE real JavaScript and the panda does it! Loops, variables, nested loops & your own functions to harvest every bamboo. Real code, real error messages, run it live."},
+     ]},
+     {label:"🎮 Roblox Studio (real Lua!)", items:[
+       {n:19,emoji:"🎮",title:"Roblox Studio: Code Your Own Game",topic:"Coding",time:"60 min",file:"coding-lesson-19-roblox.html",desc:"Type REAL Lua — the actual language Roblox uses. Make Parts, set BrickColor/Size/Anchored, build towers with loops, and write your own builder function. Every mission shows how to do the same thing in real Roblox Studio."},
+     ]},
+     {label:"Boss the Panda — Write Real Code", items:[
        {n:18,emoji:"🔁",title:"Level 18: Panda Keeps Going (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-18-while.html",desc:"Type real JavaScript with WHILE loops — compare numbers, and keep repeating until the job is done instead of counting steps."},
        {n:17,emoji:"🤔",title:"Level 17: Panda Decides (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-17-decisions.html",desc:"Type real JavaScript that looks around and DECIDES — true/false, if, else, and putting a decision inside a loop."},
        {n:16,emoji:"🎨",title:"Level 16: Panda Painter (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-16-painter.html",desc:"Type real JavaScript to paint pictures and match the goal — commands with inputs, loops, variables that hold words, and your own command with an input."},
