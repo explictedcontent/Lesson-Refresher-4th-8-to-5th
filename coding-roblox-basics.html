@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Roblox: One Step at a Time 🧱</title>
+<style>
+:root{--bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;--muted:#8890b0;
+--good:#39e07a;--warn:#ffcc00;--bad:#ff4466;--line:#252840;--rbx:#00a2ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:30px}
+.topbar{position:sticky;top:0;z-index:60;background:#0a0b13;border-bottom:2px solid #1a1b2e;padding:8px 12px;display:flex;align-items:center;gap:10px}
+.dots{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.d{width:11px;height:11px;border-radius:50%;background:#2a2f4a}
+.d.done{background:var(--good)} .d.cur{background:var(--warn);box-shadow:0 0 0 3px #ffcc0033}
+.stepno{font-size:12px;font-weight:900;color:var(--muted);white-space:nowrap}
+.wrap{max-width:620px;margin:0 auto;padding:14px}
+.say{background:linear-gradient(135deg,#00243f,#001a2e);border:2px solid var(--rbx);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.say h2{font-size:19px;font-weight:900;margin-bottom:5px}
+.say p{font-size:16px;line-height:1.55;color:#dbe7f5}
+.say b{color:var(--warn)}
+.say code{background:#001a2e;color:#7fd4ff;padding:1px 6px;border-radius:5px;font-family:'Courier New',monospace;font-size:15px}
+.viewport{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.vp-main{flex:1 1 260px;min-width:240px}
+canvas{display:block;background:linear-gradient(#0a1420,#0d1b2a);border:2px solid var(--line);border-radius:10px;width:100%}
+.tools{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-bottom:10px}
+.tools-label{font-size:11px;font-weight:900;color:var(--warn);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#12142a;border:2px solid #2a2f4a;border-radius:9px;padding:7px 11px;margin:0 6px 6px 0;font-size:14px;font-weight:700;cursor:pointer;color:#ffd9a8;font-family:'Courier New',monospace}
+.chip:active{transform:scale(.94)}
+.chip .sw{width:14px;height:14px;border-radius:3px;border:1px solid #0006}
+.numrow{display:flex;align-items:center;gap:8px;margin:4px 0 2px}
+.numrow span{font-size:13.5px;color:#dbe7f5;flex:1}
+.nbtn{background:var(--rbx);color:#00121f;border:none;border-radius:9px;width:44px;height:38px;font-size:21px;font-weight:900;cursor:pointer}
+.nbtn:active{transform:scale(.92)}
+textarea.code{width:100%;min-height:150px;background:#08090f;color:#e6edf3;border:2px solid #2a2f4a;border-radius:10px;padding:11px 13px;font-family:'Courier New',monospace;font-size:15px;line-height:1.65;resize:vertical;tab-size:2}
+textarea.code:focus{outline:none;border-color:var(--rbx)}
+.editor-label{font-size:11px;font-weight:900;color:var(--rbx);text-transform:uppercase;letter-spacing:.06em;margin:0 0 5px}
+.btn{background:var(--panel2);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 20px;font-size:16px;font-weight:800;cursor:pointer}
+.btn:active{transform:scale(.95)}
+.play{background:var(--good);border-color:var(--good);color:#021008;font-size:19px;padding:15px 34px}
+.btn.ghost{background:transparent;border-color:var(--muted);color:var(--muted);font-size:14px;padding:10px 15px}
+.btn.blue{background:var(--rbx);border-color:var(--rbx);color:#00121f}
+.row{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0;align-items:center}
+.out{background:#05060b;border:1px solid #2a2f4a;border-radius:10px;padding:10px 12px;font-family:'Courier New',monospace;font-size:14px;color:#9fb0d0;min-height:44px;margin-top:8px;white-space:pre-wrap;line-height:1.55}
+.out .ok{color:var(--good)} .out .err{color:var(--bad)} .out .pr{color:#cfe0f0}
+.done-card{background:linear-gradient(135deg,#082012,#0a2a16);border:2px solid var(--good);border-radius:13px;padding:14px;text-align:center;margin-top:11px;display:none}
+.done-card.show{display:block}
+.done-card h3{color:var(--good);font-size:18px;margin-bottom:8px}
+.predict{background:#1a1330;border:2px solid #b06eff;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.predict .pq{font-size:15px;font-weight:800;margin-bottom:9px;color:#e9dcff}
+.pbtn{display:block;width:100%;text-align:left;background:#12142a;border:2px solid #2a2f4a;border-radius:10px;padding:11px 13px;font-size:15px;margin:6px 0;cursor:pointer;color:var(--ink);font-weight:600}
+.pbtn.right{border-color:var(--good);background:#041208;color:var(--good)}
+.pbtn.wrong{border-color:var(--bad);background:#130208;color:var(--bad)}
+.pfb{font-size:14px;margin-top:7px;display:none;line-height:1.5}
+.pfb.show{display:block}
+.finale{text-align:center;padding:24px 12px}
+.finale h1{font-size:26px;color:var(--good);margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="dots" id="dots"></div><div class="stepno" id="stepno"></div></div>
+<div class="wrap" id="wrap"></div>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MINI-LUA INTERPRETER
+   Runs a real subset of Lua/Luau so the syntax the kid types
+   is the same syntax Roblox Studio accepts.
+   ═══════════════════════════════════════════════════════════ */
+const KW=['local','function','end','if','then','elseif','else','for','do','while','return','true','false','nil','and','or','not'];
+
+function lex(src){
+  const T=[]; let i=0, line=1;
+  const isD=c=>c>='0'&&c<='9', isA=c=>/[A-Za-z_]/.test(c), isAN=c=>/[A-Za-z0-9_]/.test(c);
+  while(i<src.length){
+    const c=src[i];
+    if(c==='\n'){ line++; i++; continue; }
+    if(c===' '||c==='\t'||c==='\r'){ i++; continue; }
+    if(c==='-'&&src[i+1]==='-'){ while(i<src.length&&src[i]!=='\n') i++; continue; }
+    if(isD(c)||(c==='.'&&isD(src[i+1]))){
+      let s=i; while(i<src.length&&(isD(src[i])||src[i]==='.')) i++;
+      T.push({t:'num',v:parseFloat(src.slice(s,i)),line}); continue;
+    }
+    if(c==='"'||c==="'"){
+      const q=c; i++; let s='';
+      while(i<src.length&&src[i]!==q){ if(src[i]==='\\'){ i++; s+=src[i]==='n'?'\n':src[i]; } else s+=src[i]; i++; }
+      if(i>=src.length) throw {luaMsg:'A piece of text is missing its closing quote '+q, line};
+      i++; T.push({t:'str',v:s,line}); continue;
+    }
+    if(isA(c)){
+      let s=i; while(i<src.length&&isAN(src[i])) i++;
+      const w=src.slice(s,i);
+      T.push({t:KW.indexOf(w)>=0?'kw':'name',v:w,line}); continue;
+    }
+    const three=src.substr(i,2);
+    if(['==','~=','<=','>=','..'].indexOf(three)>=0){ T.push({t:'op',v:three,line}); i+=2; continue; }
+    if('+-*/%()<>=,.{}[]:#'.indexOf(c)>=0){ T.push({t:'op',v:c,line}); i++; continue; }
+    if(c==='!'&&src[i+1]==='='){ throw {luaMsg:'Lua writes "not equal" as ~= (not !=)', line}; }
+    throw {luaMsg:'I don\'t understand the symbol "'+c+'"', line};
+  }
+  T.push({t:'eof',v:'<end>',line}); return T;
+}
+
+function parse(T){
+  let p=0;
+  const peek=()=>T[p], next=()=>T[p++];
+  const isv=(t,v)=>T[p].t===t&&T[p].v===v;
+  function expect(t,v,what){
+    if(T[p].t===t&&(v===undefined||T[p].v===v)){ return next(); }
+    throw {luaMsg:'I expected '+(what||('"'+v+'"'))+' but found "'+T[p].v+'"', line:T[p].line};
+  }
+  function block(stops){
+    const st=[];
+    while(true){
+      const tk=peek();
+      if(tk.t==='eof') break;
+      if(tk.t==='kw'&&stops.indexOf(tk.v)>=0) break;
+      st.push(statement());
+    }
+    return st;
+  }
+  function statement(){
+    const tk=peek();
+    if(tk.t==='kw'){
+      if(tk.v==='local'){
+        next();
+        if(isv('kw','function')){
+          next(); const nm=expect('name',undefined,'a function name').v;
+          const ps=params(); const body=block(['end']); expect('kw','end','the word "end" to close your function');
+          return {k:'func',name:nm,params:ps,body,line:tk.line};
+        }
+        const nm=expect('name',undefined,'a variable name').v;
+        expect('op','=','an = sign'); const e=expr();
+        return {k:'local',name:nm,expr:e,line:tk.line};
+      }
+      if(tk.v==='function'){
+        next(); const nm=expect('name',undefined,'a function name').v;
+        const ps=params(); const body=block(['end']); expect('kw','end','the word "end" to close your function');
+        return {k:'func',name:nm,params:ps,body,line:tk.line};
+      }
+      if(tk.v==='if'){
+        next(); const cls=[]; let cond=expr(); expect('kw','then','the word "then"');
+        let body=block(['elseif','else','end']); cls.push({cond,body});
+        while(isv('kw','elseif')){ next(); const c2=expr(); expect('kw','then','the word "then"'); cls.push({cond:c2,body:block(['elseif','else','end'])}); }
+        let els=null;
+        if(isv('kw','else')){ next(); els=block(['end']); }
+        expect('kw','end','the word "end" to close your if');
+        return {k:'if',clauses:cls,els,line:tk.line};
+      }
+      if(tk.v==='for'){
+        next(); const v=expect('name',undefined,'a loop variable').v;
+        expect('op','=','an = sign'); const a=expr(); expect('op',',','a comma'); const b=expr();
+        let stp=null; if(isv('op',',')){ next(); stp=expr(); }
+        expect('kw','do','the word "do"'); const body=block(['end']); expect('kw','end','the word "end" to close your loop');
+        return {k:'for',var:v,from:a,to:b,step:stp,body,line:tk.line};
+      }
+      if(tk.v==='while'){
+        next(); const c=expr(); expect('kw','do','the word "do"');
+        const body=block(['end']); expect('kw','end','the word "end" to close your loop');
+        return {k:'while',cond:c,body,line:tk.line};
+      }
+      if(tk.v==='return'){ next(); let e=null; if(!(peek().t==='kw'&&['end','else','elseif'].indexOf(peek().v)>=0)&&peek().t!=='eof') e=expr(); return {k:'return',expr:e,line:tk.line}; }
+    }
+    // expression statement: call, or assignment to name / name.prop
+    const start=p; const e=expr();
+    if(isv('op','=')){
+      next(); const val=expr();
+      if(e.k!=='var'&&e.k!=='index') throw {luaMsg:'You can only put a value into a variable or a property', line:tk.line};
+      return {k:'assign',target:e,expr:val,line:tk.line};
+    }
+    if(e.k!=='call'&&e.k!=='method') throw {luaMsg:'This line doesn\'t do anything. Did you mean to call something, like print(...)?', line:tk.line};
+    return {k:'exprstat',expr:e,line:tk.line};
+  }
+  function params(){
+    expect('op','(','an opening (');
+    const ps=[];
+    if(!isv('op',')')){ ps.push(expect('name',undefined,'a parameter name').v);
+      while(isv('op',',')){ next(); ps.push(expect('name',undefined,'a parameter name').v); } }
+    expect('op',')','a closing )'); return ps;
+  }
+  // expressions (precedence climbing)
+  function expr(){ return orE(); }
+  function orE(){ let l=andE(); while(isv('kw','or')){ next(); l={k:'bin',op:'or',l,r:andE()}; } return l; }
+  function andE(){ let l=cmpE(); while(isv('kw','and')){ next(); l={k:'bin',op:'and',l,r:cmpE()}; } return l; }
+  function cmpE(){ let l=conE();
+    while(peek().t==='op'&&['==','~=','<','>','<=','>='].indexOf(peek().v)>=0){ const o=next().v; l={k:'bin',op:o,l,r:conE()}; }
+    if(peek().t==='op'&&peek().v==='='&&l) { /* caught by caller for assignment */ }
+    return l; }
+  function conE(){ let l=addE(); while(peek().t==='op'&&peek().v==='..'){ next(); l={k:'bin',op:'..',l,r:addE()}; } return l; }
+  function addE(){ let l=mulE(); while(peek().t==='op'&&(peek().v==='+'||peek().v==='-')){ const o=next().v; l={k:'bin',op:o,l,r:mulE()}; } return l; }
+  function mulE(){ let l=unE(); while(peek().t==='op'&&(peek().v==='*'||peek().v==='/'||peek().v==='%')){ const o=next().v; l={k:'bin',op:o,l,r:unE()}; } return l; }
+  function unE(){
+    if(isv('kw','not')){ next(); return {k:'un',op:'not',e:unE()}; }
+    if(peek().t==='op'&&peek().v==='#'){ next(); return {k:'un',op:'#',e:unE()}; }
+    if(peek().t==='op'&&peek().v==='-'){ next(); return {k:'un',op:'-',e:unE()}; }
+    return postE();
+  }
+  function postE(){
+    let e=primary();
+    while(true){
+      if(peek().t==='op'&&peek().v==='.'){ next(); const nt=expect('name',undefined,'a property name'); e={k:'index',obj:e,key:nt.v,line:nt.line}; continue; }
+      if(peek().t==='op'&&peek().v==='['){ next(); const ix=expr(); expect('op',']','a closing ]'); e={k:'idx',obj:e,index:ix,line:peek().line}; continue; }
+      if(peek().t==='op'&&peek().v===':'){ next(); const nm=expect('name',undefined,'a method name').v; const args=argList(); e={k:'method',obj:e,name:nm,args}; continue; }
+      if(peek().t==='op'&&peek().v==='('){ const args=argList(); e={k:'call',fn:e,args}; continue; }
+      break;
+    }
+    return e;
+  }
+  function argList(){
+    expect('op','(','an opening ( for the values');
+    const a=[];
+    if(!isv('op',')')){ a.push(expr()); while(isv('op',',')){ next(); a.push(expr()); } }
+    expect('op',')','a closing )');
+    return a;
+  }
+  function primary(){
+    const tk=peek();
+    if(tk.t==='num'){ next(); return {k:'num',v:tk.v}; }
+    if(tk.t==='str'){ next(); return {k:'str',v:tk.v}; }
+    if(tk.t==='name'){ next(); return {k:'var',name:tk.v,line:tk.line}; }
+    if(tk.t==='kw'){
+      if(tk.v==='true'){ next(); return {k:'bool',v:true}; }
+      if(tk.v==='false'){ next(); return {k:'bool',v:false}; }
+      if(tk.v==='nil'){ next(); return {k:'nil'}; }
+      if(tk.v==='function'){ next(); const ps=params(); const body=block(['end']); expect('kw','end','the word "end" to close your function'); return {k:'anonfunc',params:ps,body}; }
+    }
+    if(tk.t==='op'&&tk.v==='{'){
+      next(); const items=[];
+      if(!(peek().t==='op'&&peek().v==='}')){
+        items.push(expr());
+        while(peek().t==='op'&&peek().v===','){ next(); if(peek().t==='op'&&peek().v==='}') break; items.push(expr()); }
+      }
+      expect('op','}','a closing }'); return {k:'table',items,line:tk.line};
+    }
+    if(tk.t==='op'&&tk.v==='('){ next(); const e=expr(); expect('op',')','a closing )'); return e; }
+    throw {luaMsg:'I got stuck at "'+tk.v+'"', line:tk.line};
+  }
+  const prog=block([]);
+  if(peek().t!=='eof') throw {luaMsg:'Extra "'+peek().v+'" that I don\'t know what to do with', line:peek().line};
+  return prog;
+}
+
+/* ── runtime ── */
+function LuaError(msg,line){ return {luaMsg:msg,line}; }
+function runLua(src, world, out){
+  const T=lex(src); const prog=parse(T);
+  let steps=0;
+  const tick=(line)=>{ if(++steps>20000) throw LuaError('Your code ran way too long — is a loop missing its stopping point?',line); };
+  const globals=Object.create(null);
+
+  const partProto=(o)=>o&&o.__t==='Part';
+  function mkPart(){
+    return {__t:'Part', Name:'Part', Parent:null, Anchored:false,
+      Size:{__t:'Vector3',X:4,Y:1,Z:2}, Position:{__t:'Vector3',X:0,Y:0,Z:0},
+      BrickColor:{__t:'BrickColor',Name:'Medium stone grey'}, Transparency:0};
+  }
+  globals['workspace']={__t:'Workspace',Name:'Workspace'};
+  globals['Workspace']=globals['workspace'];
+  globals['game']={__t:'Game',Name:'game'};
+  globals['Instance']={__t:'lib',Name:'Instance',fns:{
+    'new':(args,line)=>{
+      const what=args[0];
+      if(typeof what!=='string') throw LuaError('Instance.new needs the kind of object in quotes, like Instance.new("Part")',line);
+      if(what.toLowerCase()!=='part') throw LuaError('For now this lesson only builds "Part" objects. Try Instance.new("Part")',line);
+      const pt=mkPart(); world.created.push(pt); return pt;
+    }}};
+  globals['Vector3']={__t:'lib',Name:'Vector3',fns:{
+    'new':(a,line)=>{
+      if(a.length<3||a.some(v=>typeof v!=='number')) throw LuaError('Vector3.new needs three numbers, like Vector3.new(4, 1, 2)',line);
+      return {__t:'Vector3',X:a[0],Y:a[1],Z:a[2]};
+    }}};
+  globals['BrickColor']={__t:'lib',Name:'BrickColor',fns:{
+    'new':(a,line)=>{
+      if(typeof a[0]!=='string') throw LuaError('BrickColor.new needs a color name in quotes, like BrickColor.new("Bright red")',line);
+      if(!BRICK[a[0].toLowerCase()]) throw LuaError('"'+a[0]+'" isn\'t a Roblox color I know. Try "Bright red", "Bright blue", "Bright green", "Bright yellow", "Bright orange", "Bright violet", "Institutional white" or "Really black".',line);
+      return {__t:'BrickColor',Name:a[0]};
+    }}};
+  globals['Color3']={__t:'lib',Name:'Color3',fns:{
+    'fromRGB':(a,line)=>({__t:'Color3',R:a[0]||0,G:a[1]||0,B:a[2]||0})}};
+  globals['print']=(a)=>{ out.push(a.map(fmt).join('  ')); };
+  globals['wait']=()=>null;
+  globals['task']={__t:'lib',Name:'task',fns:{'wait':()=>null}};
+
+  function fmt(v){
+    if(v===null||v===undefined) return 'nil';
+    if(typeof v==='boolean') return v?'true':'false';
+    if(typeof v==='number') return String(v);
+    if(typeof v==='string') return v;
+    if(v.__t==='Vector3') return v.X+', '+v.Y+', '+v.Z;
+    if(v.__t==='BrickColor') return v.Name;
+    if(v.__t==='Part') return v.Name||'Part';
+    if(v.__t==='table') return 'list of '+v.arr.length;
+    return String(v.Name||v.__t||'value');
+  }
+
+  const scopes=[Object.create(null)];
+  function lookup(n){
+    for(let i=scopes.length-1;i>=0;i--) if(n in scopes[i]) return scopes[i][n];
+    if(n in globals) return globals[n];
+    return undefined;
+  }
+  function setVar(n,v){
+    for(let i=scopes.length-1;i>=0;i--) if(n in scopes[i]){ scopes[i][n]=v; return; }
+    globals[n]=v;
+  }
+
+  function ev(e){
+    switch(e.k){
+      case 'num': return e.v;
+      case 'str': return e.v;
+      case 'bool': return e.v;
+      case 'nil': return null;
+      case 'var': {
+        const v=lookup(e.name);
+        if(v===undefined) throw LuaError('I don\'t know what "'+e.name+'" is. Did you make it with "local '+e.name+' = ..." first, or spell it differently?',e.line);
+        return v;
+      }
+      case 'index': {
+        const o=ev(e.obj);
+        if(o===null||o===undefined) throw LuaError('You tried to read ".'+e.key+'" from something that doesn\'t exist yet.',e.line);
+        if(o.__t==='lib') return (a,line)=>o.fns[e.key]?o.fns[e.key](a,line):(()=>{throw LuaError(o.Name+'.'+e.key+' isn\'t something I know.',line)})();
+        if(o.__t==='Part'&&e.key==='Touched'){ if(!o.__touched) o.__touched={__t:'Signal',handlers:[]}; return o.__touched; }
+        if(!(e.key in o)) return null;
+        return o[e.key];
+      }
+      case 'bin': {
+        if(e.op==='and'){ const l=ev(e.l); return truthy(l)?ev(e.r):l; }
+        if(e.op==='or'){ const l=ev(e.l); return truthy(l)?l:ev(e.r); }
+        const a=ev(e.l), b=ev(e.r);
+        switch(e.op){
+          case '+': case '-': case '*': case '/': case '%': {
+            if(typeof a!=='number'||typeof b!=='number')
+              throw LuaError('You can only do math with numbers (got '+fmt(a)+' and '+fmt(b)+').',e.line);
+            return e.op==='+'?a+b:e.op==='-'?a-b:e.op==='*'?a*b:e.op==='/'?a/b:a%b;
+          }
+          case '..': return fmt(a)+fmt(b);
+          case '==': return eq(a,b);
+          case '~=': return !eq(a,b);
+          case '<': return a<b; case '>': return a>b; case '<=': return a<=b; case '>=': return a>=b;
+        }
+        break;
+      }
+      case 'un': {
+        if(e.op==='not') return !truthy(ev(e.e));
+        if(e.op==='#'){ const v=ev(e.e);
+          if(v&&v.__t==='table') return v.arr.length;
+          if(typeof v==='string') return v.length;
+          throw LuaError('# counts how many things are in a list. Use it on a { } list.',e.line); }
+        const v=ev(e.e); if(typeof v!=='number') throw LuaError('Only numbers can be negative here.',e.line); return -v;
+      }
+      case 'table': return {__t:'table', arr:e.items.map(ev)};
+      case 'idx': {
+        const o=ev(e.obj); const i=ev(e.index);
+        if(!o||o.__t!=='table') throw LuaError('You can only use [ ] on a list you made with { }.',e.line);
+        if(typeof i!=='number') throw LuaError('A list position has to be a number, like myList[1].',e.line);
+        if(i<1||i>o.arr.length) throw LuaError('There is no item '+i+' in that list — it has '+o.arr.length+' item'+(o.arr.length===1?'':'s')+'. Remember Lua starts counting at 1.',e.line);
+        return o.arr[i-1];
+      }
+      case 'anonfunc': return {__t:'fn',params:e.params,body:e.body,closure:scopes.slice()};
+      case 'call': {
+        const fnv=ev(e.fn);
+        const args=e.args.map(ev);
+        return callVal(fnv,args,e.fn.line||e.line,e.fn);
+      }
+      case 'method': {
+        const o=ev(e.obj); const args=e.args.map(ev);
+        if(o&&o.__t==='Part'&&e.name==='Destroy'){ o.Parent=null; return null; }
+        if(o&&o.__t==='Signal'){ if(e.name==='Connect'){ o.handlers.push(args[0]); return {__t:'Connection'}; } }
+        throw LuaError('I don\'t know the action ":'+e.name+'" on that object yet.',e.line);
+      }
+    }
+  }
+  function eq(a,b){
+    if(a&&b&&a.__t&&b.__t){ if(a.__t!==b.__t) return false; if(a.__t==='BrickColor') return a.Name===b.Name;
+      if(a.__t==='Vector3') return a.X===b.X&&a.Y===b.Y&&a.Z===b.Z; return a===b; }
+    return a===b;
+  }
+  function truthy(v){ return !(v===false||v===null||v===undefined); }
+  function callVal(fnv,args,line,fnNode){
+    if(typeof fnv==='function') return fnv(args,line);
+    if(fnv&&fnv.__t==='fn'){
+      // Real closures: run the body in the scope chain captured when the
+      // function was DEFINED, so a Touched handler can still see the
+      // local variables from the function that created it.
+      const savedAll=scopes.slice();
+      if(fnv.closure){ scopes.length=0; fnv.closure.forEach(sc0=>scopes.push(sc0)); }
+      const sc=Object.create(null);
+      fnv.params.forEach((pn,i)=>sc[pn]=args[i]===undefined?null:args[i]);
+      scopes.push(sc);
+      let ret=null;
+      try{ const r=execBlock(fnv.body); if(r&&r.__ret) ret=r.v; }
+      finally{ scopes.length=0; savedAll.forEach(sc0=>scopes.push(sc0)); }
+      return ret;
+    }
+    const nm=fnNode&&fnNode.k==='var'?fnNode.name:(fnNode&&fnNode.k==='index'?fnNode.key:'that');
+    throw LuaError('"'+nm+'" isn\'t something you can call like a function.',line);
+  }
+
+  const READONLY={Workspace:1,Game:1};
+  function assign(target,val,line){
+    if(target.k==='var'){ setVar(target.name,val); return; }
+    const o=ev(target.obj);
+    if(o===null||o===undefined) throw LuaError('You tried to set ".'+target.key+'" on something that doesn\'t exist yet.',line);
+    if(o.__t!=='Part') throw LuaError('You can only change properties on a Part right now.',line);
+    const k=target.key;
+    if(k==='Parent'){
+      if(val&&val.__t==='Workspace'){ o.Parent='workspace'; if(world.parts.indexOf(o)<0) world.parts.push(o); }
+      else if(val===null){ o.Parent=null; const ix=world.parts.indexOf(o); if(ix>=0) world.parts.splice(ix,1); }
+      else throw LuaError('A Part\'s Parent should be workspace, like: part.Parent = workspace',line);
+      return;
+    }
+    if(k==='Size'||k==='Position'){
+      if(!val||val.__t!=='Vector3') throw LuaError(k+' needs a Vector3, like Vector3.new(4, 1, 2)',line);
+      o[k]=val; return;
+    }
+    if(k==='BrickColor'){
+      if(!val||val.__t!=='BrickColor') throw LuaError('BrickColor needs BrickColor.new("Bright red") — with the color name in quotes.',line);
+      o[k]=val; return;
+    }
+    if(k==='Anchored'){
+      if(typeof val!=='boolean') throw LuaError('Anchored is true or false (no quotes).',line);
+      o[k]=val; return;
+    }
+    if(k==='CanCollide'){ if(typeof val!=='boolean') throw LuaError('CanCollide is true or false (no quotes).',line); o.CanCollide=val; return; }
+    if(k==='Name'){ o.Name=String(val); return; }
+    if(k==='Transparency'){ o.Transparency=Number(val)||0; return; }
+    o[k]=val;
+  }
+
+  function execBlock(b){
+    for(const s of b){
+      const r=execStat(s);
+      if(r&&r.__ret) return r;
+    }
+    return null;
+  }
+  function execStat(s){
+    tick(s.line);
+    switch(s.k){
+      case 'local': scopes[scopes.length-1][s.name]=ev(s.expr); return null;
+      case 'assign': assign(s.target,ev(s.expr),s.line); return null;
+      case 'exprstat': ev(s.expr); return null;
+      case 'func': {
+        const f={__t:'fn',params:s.params,body:s.body,closure:scopes.slice()};
+        scopes[scopes.length-1][s.name]=f; globals[s.name]=globals[s.name]||f; return null;
+      }
+      case 'return': return {__ret:true,v:s.expr?ev(s.expr):null};
+      case 'if': {
+        for(const c of s.clauses){ if(truthy(ev(c.cond))){ return runScoped(c.body); } }
+        if(s.els) return runScoped(s.els);
+        return null;
+      }
+      case 'for': {
+        const a=ev(s.from), b=ev(s.to), st=s.step?ev(s.step):1;
+        if(typeof a!=='number'||typeof b!=='number') throw LuaError('A for loop needs numbers, like: for i = 1, 5 do',s.line);
+        if(st===0) throw LuaError('A for loop step of 0 would never finish.',s.line);
+        for(let i=a; st>0? i<=b : i>=b; i+=st){
+          tick(s.line);
+          const sc=Object.create(null); sc[s.var]=i; scopes.push(sc);
+          try{ const r=execBlock(s.body); if(r&&r.__ret) return r; } finally{ scopes.pop(); }
+        }
+        return null;
+      }
+      case 'while': {
+        while(truthy(ev(s.cond))){ tick(s.line); const r=runScoped(s.body); if(r&&r.__ret) return r; }
+        return null;
+      }
+    }
+    return null;
+  }
+  function runScoped(b){ scopes.push(Object.create(null)); try{ return execBlock(b); } finally{ scopes.pop(); } }
+
+  execBlock(prog);
+
+  // Let the page simulate a player walking into each part that connected .Touched
+  return {
+    fireTouches(){
+      let fired=0;
+      world.parts.slice().forEach(pt=>{
+        if(pt.__touched && pt.__touched.handlers.length){
+          const hit={__t:'Part',Name:'LeftFoot',Parent:'character',
+            Size:{__t:'Vector3',X:1,Y:1,Z:1},Position:{__t:'Vector3',X:0,Y:0,Z:0},
+            BrickColor:{__t:'BrickColor',Name:'Medium stone grey'},Anchored:false,Transparency:0};
+          pt.__touched.handlers.forEach(h=>{ callVal(h,[hit],0,null); fired++; });
+        }
+      });
+      return fired;
+    }
+  };
+}
+
+/* ═══════════ STATE ═══════════ */
+const XKEY='coding-basics-step', CKEY='coding-basics-code';
+let curStep=0, codeStore={};
+try{ curStep=parseInt(localStorage.getItem(XKEY)||'0',10)||0; }catch(e){}
+try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
+function saveAll(){
+  try{ localStorage.setItem(XKEY,String(curStep)); }catch(e){}
+  try{ let st={}; try{ st=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){ st={}; }
+    localStorage.setItem(CKEY,JSON.stringify(Object.assign({},st,codeStore))); }catch(e){}
+}
+function logMistake(ok,text,title){
+  try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}');
+    const k='Coding|Roblox Basics|'+title;
+    if(!ok){ m[k]={subject:'Coding',day:'Roblox Basics',q:text,file:'coding-roblox-basics.html'}; } else { delete m[k]; }
+    localStorage.setItem('refresher-mistakes',JSON.stringify(m));
+  }catch(e){}
+}
+function esc(s){return String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+const COLORNAMES=['Bright red','Bright blue','Bright green','Bright yellow','Bright orange','Bright violet'];
+
+/* ── helpers the steps use to edit code FOR the kid ── */
+function setQuoted(code, marker, value){
+  return code.split('\n').map(l=> l.includes(marker) ? l.replace(/"[^"]*"/, '"'+value+'"') : l).join('\n');
+}
+function bumpNum(code, marker, nth, delta, min, max){
+  return code.split('\n').map(l=>{
+    if(!l.includes(marker)) return l;
+    let i=0;
+    return l.replace(/(?<![A-Za-z_])-?\d+/g, m=>{
+      i++; if(i!==nth) return m;
+      let v=parseInt(m,10)+delta;
+      if(min!==undefined) v=Math.max(min,v);
+      if(max!==undefined) v=Math.min(max,v);
+      return String(v);
+    });
+  }).join('\n');
+}
+function readNum(code, marker, nth){
+  const line=code.split('\n').find(l=>l.includes(marker));
+  if(!line) return null;
+  const ms=line.match(/(?<![A-Za-z_])-?\d+/g); if(!ms||ms.length<nth) return null;
+  return parseInt(ms[nth-1],10);
+}
+function readQuoted(code, marker){
+  const line=code.split('\n').find(l=>l.includes(marker));
+  if(!line) return null;
+  const m=line.match(/"([^"]*)"/); return m?m[1]:null;
+}
+
+/* ═══════════ THE STEPS ═══════════
+   RULE: one change per step. Code is always already written.
+   The kid changes ONE thing, presses Play, sees it happen. */
+const STEPS=[
+ { t:'Press the green button', say:'The code below already makes a block. Just press <b>▶ PLAY</b> and watch.',
+   code:'local block = Instance.new("Part")\nblock.BrickColor = BrickColor.new("Bright red")  -- COLOR\nblock.Size = Vector3.new(6, 2, 6)  -- SIZE\nblock.Anchored = true\nblock.Parent = workspace\n',
+   check:w=>w.parts.length>=1?null:'Press PLAY to run the code.',
+   win:'You just ran real Roblox code. 🎉' },
+
+ { t:'Change the colour', say:'See the word <code>"Bright red"</code>? Tap a colour below to swap it, then press <b>▶ PLAY</b>.',
+   colors:'-- COLOR',
+   check:w=>{ if(!w.parts.length) return 'Press PLAY.';
+     return (w.parts[0].BrickColor.Name||'').toLowerCase()!=='bright red'?null:'Tap a different colour, then press PLAY.'; },
+   win:'The word in the quotes decides the colour.' },
+
+ { t:'Change it again', say:'Do it one more time — pick a <b>different</b> colour and press <b>▶ PLAY</b>. Same idea, so it sticks.',
+   colors:'-- COLOR',
+   check:(w,o,st)=>{ if(!w.parts.length) return 'Press PLAY.';
+     const c=(w.parts[0].BrickColor.Name||'').toLowerCase();
+     return (c!=='bright red'&&c!==st.prevColor)?null:'Pick a colour you have not used yet, then press PLAY.'; },
+   win:'You changed the colour by changing one word.' },
+
+ { t:'Make it taller', say:'Now a number. Tap <b>+</b> a few times to make the block taller, then press <b>▶ PLAY</b>.',
+   num:{marker:'-- SIZE',nth:2,label:'Height',min:1,max:14},
+   check:w=>{ if(!w.parts.length) return 'Press PLAY.';
+     return w.parts[0].Size.Y>2?null:'Tap + to raise the height above 2, then press PLAY.'; },
+   win:'Numbers change size. Bigger number, taller block.' },
+
+ { t:'Make it wider', say:'Same trick, different number. Make the block <b>wider</b>, then press <b>▶ PLAY</b>.',
+   num:{marker:'-- SIZE',nth:1,label:'Width',min:1,max:20},
+   check:w=>{ if(!w.parts.length) return 'Press PLAY.';
+     return w.parts[0].Size.X>6?null:'Tap + to make the width bigger than 6, then press PLAY.'; },
+   win:'Same idea as height — just a different number.' },
+
+ { t:'Lift it into the air', say:'This number is <b>height off the ground</b>. Lift the block up, then press <b>▶ PLAY</b>.',
+   code:'local block = Instance.new("Part")\nblock.BrickColor = BrickColor.new("Bright blue")  -- COLOR\nblock.Size = Vector3.new(6, 2, 6)\nblock.Anchored = true\nblock.Position = Vector3.new(0, 2, 0)  -- HEIGHT\nblock.Parent = workspace\n',
+   num:{marker:'-- HEIGHT',nth:2,label:'Height off ground',min:0,max:30},
+   check:w=>{ if(!w.parts.length) return 'Press PLAY.';
+     return w.parts[0].Position.Y>2?null:'Tap + to lift it higher than 2, then press PLAY.'; },
+   win:'The middle number is how high off the ground it floats.' },
+
+ { t:'Two blocks', say:'There are <b>two</b> blocks now. Give the second one a different colour, then press <b>▶ PLAY</b>.',
+   code:'local a = Instance.new("Part")\na.BrickColor = BrickColor.new("Bright red")\na.Anchored = true\na.Position = Vector3.new(0, 2, 0)\na.Parent = workspace\n\nlocal b = Instance.new("Part")\nb.BrickColor = BrickColor.new("Bright red")  -- COLOR\nb.Anchored = true\nb.Position = Vector3.new(8, 2, 0)\nb.Parent = workspace\n',
+   colors:'-- COLOR',
+   check:w=>{ if(w.parts.length<2) return 'Press PLAY.';
+     const c=w.parts.map(p=>(p.BrickColor.Name||'').toLowerCase());
+     return c[0]!==c[1]?null:'Give the second block a different colour, then press PLAY.'; },
+   win:'Two blocks, two sets of instructions.' },
+
+ { t:'Meet the loop', say:'This makes <b>3</b> blocks without writing it 3 times. Change the <b>3</b> to make more, then press <b>▶ PLAY</b>.',
+   code:'for i = 1, 3 do  -- COUNT\n  local b = Instance.new("Part")\n  b.BrickColor = BrickColor.new("Bright green")\n  b.Anchored = true\n  b.Position = Vector3.new(i * 6, 2, 0)\n  b.Parent = workspace\nend\n',
+   num:{marker:'-- COUNT',nth:2,label:'How many blocks',min:1,max:9},
+   predict:{q:'Before you press Play — if you change the 3 to a 6, what happens?',
+     opts:['You get 6 blocks','You get 1 giant block','The blocks turn a different colour'],a:0,
+     why:'The number tells the loop how many times to repeat.'},
+   check:w=>w.parts.length>3?null:'Make the number bigger than 3, then press PLAY.',
+   win:'One loop built them all. That is why loops are great.' },
+
+ { t:'Spread them out', say:'This number is the <b>gap</b> between blocks. Make the gap bigger, then press <b>▶ PLAY</b>.',
+   code:'for i = 1, 5 do\n  local b = Instance.new("Part")\n  b.BrickColor = BrickColor.new("Bright green")\n  b.Anchored = true\n  b.Position = Vector3.new(i * 6, 2, 0)  -- GAP\n  b.Parent = workspace\nend\n',
+   num:{marker:'-- GAP',nth:1,label:'Gap between blocks',min:2,max:14},
+   check:w=>{ if(w.parts.length<5) return 'Press PLAY.';
+     const xs=w.parts.map(p=>p.Position.X).sort((a,b)=>a-b);
+     return (xs[1]-xs[0])>6?null:'Tap + to make the gap bigger than 6, then press PLAY.'; },
+   win:'Same loop — you just changed the spacing.' },
+
+ { t:'Build a tower', say:'One tiny change turns the row into a <b>tower</b>: the loop number now sets <b>height</b>. Change how tall, then press <b>▶ PLAY</b>.',
+   code:'for i = 1, 4 do  -- COUNT\n  local b = Instance.new("Part")\n  b.BrickColor = BrickColor.new("Bright yellow")\n  b.Anchored = true\n  b.Position = Vector3.new(0, i * 3, 0)\n  b.Parent = workspace\nend\n',
+   num:{marker:'-- COUNT',nth:2,label:'How tall',min:1,max:10},
+   check:w=>w.parts.length>4?null:'Make it taller than 4 blocks, then press PLAY.',
+   win:'Stacking up instead of across — same loop.' },
+
+ { t:'Colour the whole tower', say:'Everything inside the loop happens to <b>every</b> block. Pick a colour, then press <b>▶ PLAY</b>.',
+   code:'for i = 1, 6 do\n  local b = Instance.new("Part")\n  b.BrickColor = BrickColor.new("Bright yellow")  -- COLOR\n  b.Anchored = true\n  b.Position = Vector3.new(0, i * 3, 0)\n  b.Parent = workspace\nend\n',
+   colors:'-- COLOR',
+   check:w=>{ if(w.parts.length<6) return 'Press PLAY.';
+     const c=(w.parts[0].BrickColor.Name||'').toLowerCase();
+     return c!=='bright yellow'?null:'Tap a different colour, then press PLAY.'; },
+   win:'One line changed all six blocks at once.' },
+
+ { t:'Make it decide', say:'This picks <b>red</b> for the low blocks and <b>blue</b> higher up. Change where it switches, then press <b>▶ PLAY</b>.',
+   code:'for i = 1, 8 do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(0, i * 3, 0)\n  if i < 4 then  -- SWITCH\n    b.BrickColor = BrickColor.new("Bright red")\n  else\n    b.BrickColor = BrickColor.new("Bright blue")\n  end\n  b.Parent = workspace\nend\n',
+   num:{marker:'-- SWITCH',nth:1,label:'Switch colour after block',min:1,max:8},
+   predict:{q:'If you change the 4 to a 7, what happens?',
+     opts:['More blocks turn red before it switches to blue','All the blocks turn red','The tower gets taller'],a:0,
+     why:'The if-line asks "is i still under this number?" A bigger number means more blocks answer yes.'},
+   check:(w,o,st)=>{ if(w.parts.length<8) return 'Press PLAY.';
+     return st.switchChanged?null:'Change the switch number, then press PLAY.'; },
+   win:'That is an if — the code chose, block by block.' },
+
+ { t:'Make it react', say:'Press <b>▶ PLAY</b>, then press <b>👆 TOUCH IT</b> and watch the pad change.',
+   code:'local pad = Instance.new("Part")\npad.BrickColor = BrickColor.new("Bright red")\npad.Size = Vector3.new(10, 1, 10)\npad.Anchored = true\npad.Parent = workspace\n\npad.Touched:Connect(function(hit)\n  pad.BrickColor = BrickColor.new("Bright green")  -- COLOR\nend)\n',
+   needsTouch:true,
+   check:w=>{ if(!w.parts.length) return 'Press PLAY first.';
+     return (w.parts[0].BrickColor.Name||'').toLowerCase()!=='bright red'?null:'Now press TOUCH IT.'; },
+   win:'That is an event — code that waits for something to happen.' },
+
+ { t:'Your turn to choose', say:'Same pad. Pick what colour it turns when touched, then <b>▶ PLAY</b> and <b>👆 TOUCH IT</b>.',
+   code:'local pad = Instance.new("Part")\npad.BrickColor = BrickColor.new("Medium stone grey")\npad.Size = Vector3.new(10, 1, 10)\npad.Anchored = true\npad.Parent = workspace\n\npad.Touched:Connect(function(hit)\n  pad.BrickColor = BrickColor.new("Bright green")  -- COLOR\nend)\n',
+   colors:'-- COLOR', needsTouch:true,
+   check:(w,o,st)=>{ if(!w.parts.length) return 'Press PLAY first.';
+     const c=(w.parts[0].BrickColor.Name||'').toLowerCase();
+     return c!=='medium stone grey'?null:'Now press TOUCH IT.'; },
+   win:'You made a Roblox pad that reacts however you want.' },
+
+ { t:'Free build', say:'No goal — just play. Change any colour or number and press <b>▶ PLAY</b> as many times as you like.',
+   code:'for i = 1, 5 do\n  local b = Instance.new("Part")\n  b.BrickColor = BrickColor.new("Bright violet")  -- COLOR\n  b.Anchored = true\n  b.Size = Vector3.new(4, 4, 4)\n  b.Position = Vector3.new(i * 6, 2, 0)  -- GAP\n  b.Parent = workspace\nend\n',
+   colors:'-- COLOR', num:{marker:'-- GAP',nth:1,label:'Gap',min:2,max:16},
+   free:true, check:()=>null, win:'Nice building. 🧱' },
+];
+/* ═══════════ RENDER ═══════════ */
+const BRICKHEX={'bright red':'#c4281c','bright blue':'#0d69ac','bright green':'#4b974b',
+ 'bright yellow':'#f5cd30','bright orange':'#d96b2b','bright violet':'#a75ec4',
+ 'institutional white':'#f2f3f3','really black':'#1b2a34','medium stone grey':'#a3a2a5'};
+const BRICK=BRICKHEX;   // the Lua interpreter looks up colours under this name
+let world={parts:[],created:[]}, api=null, stepState={};
+
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ r=Math.min(255,Math.round(r*f));g=Math.min(255,Math.round(g*f));b=Math.min(255,Math.round(b*f));
+ return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+function colorOf(p){return BRICKHEX[(p.BrickColor.Name||'').toLowerCase()]||'#a3a2a5';}
+function draw(){
+  const c=document.getElementById('cv'); if(!c) return;
+  const ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
+  let maxR=14;
+  world.parts.forEach(p=>{maxR=Math.max(maxR,Math.abs(p.Position.X)+p.Size.X,(p.Position.Y+p.Size.Y)*0.9);});
+  const k=Math.max(2.4,Math.min(10,150/maxR));
+  const cx=c.width*0.42, cy=c.height*0.78;
+  const proj=(x,y,z)=>({X:cx+(x-z)*k*0.9,Y:cy-(y*k)+(x+z)*k*0.42});
+  const g=[proj(-14,0,-14),proj(16,0,-14),proj(16,0,14),proj(-14,0,14)];
+  ctx.beginPath();ctx.moveTo(g[0].X,g[0].Y);g.slice(1).forEach(q=>ctx.lineTo(q.X,q.Y));ctx.closePath();
+  ctx.fillStyle='#16324a';ctx.fill();ctx.strokeStyle='#24506f';ctx.stroke();
+  world.parts.slice().sort((a,b)=>((a.Position.X+a.Position.Z)-(b.Position.X+b.Position.Z))||(a.Position.Y-b.Position.Y))
+   .forEach(p=>{
+    const hw=p.Size.X/2,hh=p.Size.Y,hd=p.Size.Z/2,x=p.Position.X,y=p.Position.Y,z=p.Position.Z;
+    const base=colorOf(p);
+    const T=[proj(x-hw,y+hh/2,z-hd),proj(x+hw,y+hh/2,z-hd),proj(x+hw,y+hh/2,z+hd),proj(x-hw,y+hh/2,z+hd)];
+    const B=[proj(x-hw,y-hh/2,z-hd),proj(x+hw,y-hh/2,z-hd),proj(x+hw,y-hh/2,z+hd),proj(x-hw,y-hh/2,z+hd)];
+    const poly=(pts,f)=>{ctx.beginPath();ctx.moveTo(pts[0].X,pts[0].Y);pts.slice(1).forEach(q=>ctx.lineTo(q.X,q.Y));
+      ctx.closePath();ctx.fillStyle=f;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.35)';ctx.stroke();};
+    poly([T[1],T[2],B[2],B[1]],shade(base,.7));
+    poly([T[2],T[3],B[3],B[2]],shade(base,.85));
+    poly(T,shade(base,1.12));
+  });
+  if(!world.parts.length){ctx.fillStyle='#5b7691';ctx.font='13px system-ui';ctx.textAlign='center';
+    ctx.fillText('Press ▶ PLAY',c.width/2,c.height*0.45);}
+}
+
+/* ═══════════ STEP UI ═══════════ */
+function codeFor(i){
+  if(codeStore['s'+i]!==undefined) return codeStore['s'+i];
+  for(let j=i;j>=0;j--) if(STEPS[j].code) return STEPS[j].code;
+  return STEPS[0].code;
+}
+function renderDots(){
+  document.getElementById('dots').innerHTML=STEPS.map((_,i)=>
+    `<span class="d${i<curStep?' done':(i===curStep?' cur':'')}" onclick="show(${i})" style="cursor:pointer"></span>`).join('');
+  document.getElementById('stepno').textContent='Step '+(Math.min(curStep,STEPS.length-1)+1)+' of '+STEPS.length;
+}
+function show(i){
+  curStep=Math.max(0,Math.min(i,STEPS.length-1)); saveAll(); renderDots();
+  const S=STEPS[curStep];
+  world={parts:[],created:[]}; api=null;
+  stepState={prevColor:null,switchChanged:false,startSwitch:null,touched:false,ran:false};
+  const code=codeFor(curStep);
+  const startSwitch=S.num&&S.num.marker==='-- SWITCH'?readNum(code,'-- SWITCH',1):null;
+  stepState.startSwitch=startSwitch;
+  stepState.prevColor=(readQuoted(code,S.colors||'')||'').toLowerCase();
+
+  let tools='';
+  if(S.colors){
+    tools+='<div class="tools"><div class="tools-label">Tap a colour</div>'+
+      COLORNAMES.map(c=>`<button class="chip" onclick="pickColor('${c}')"><i class="sw" style="background:${BRICKHEX[c.toLowerCase()]}"></i>${c.replace('Bright ','')}</button>`).join('')+'</div>';
+  }
+  if(S.num){
+    tools+=`<div class="tools"><div class="tools-label">Tap to change the number</div>
+      <div class="numrow"><span>${S.num.label}: <b id="numval">–</b></span>
+      <button class="nbtn" onclick="bump(-1)">−</button>
+      <button class="nbtn" onclick="bump(1)">+</button></div></div>`;
+  }
+  let predict='';
+  if(S.predict && !stepState.predicted){
+    predict=`<div class="predict" id="predict"><div class="pq">🤔 ${esc(S.predict.q)}</div>`+
+      S.predict.opts.map((o,ix)=>`<button class="pbtn" id="pb${ix}" onclick="answerPredict(${ix})">${esc(o)}</button>`).join('')+
+      `<div class="pfb" id="pfb"></div></div>`;
+  }
+  document.getElementById('wrap').innerHTML=
+    `<div class="say"><h2>${esc(S.t)}</h2><p>${S.say}</p></div>`+
+    predict+
+    `<div class="viewport"><div class="vp-main"><canvas id="cv" width="360" height="220"></canvas></div></div>`+
+    tools+
+    `<div class="editor-label">📝 The code</div>`+
+    `<textarea class="code" id="ed" spellcheck="false" oninput="onEdit()">${esc(code)}</textarea>`+
+    `<div class="row"><button class="btn play" onclick="play()">▶ PLAY</button>`+
+      (S.needsTouch?`<button class="btn blue" id="touchBtn" onclick="touch()" disabled>👆 TOUCH IT</button>`:'')+
+      `<button class="btn ghost" onclick="showMe()">I'm stuck</button>`+
+      (curStep>0?`<button class="btn ghost" onclick="show(${curStep-1})">← Back</button>`:'')+
+    `</div>`+
+    `<div class="out" id="out">Ready.</div>`+
+    `<div class="done-card" id="donecard"><h3 id="donetxt">Nice!</h3>`+
+      (curStep<STEPS.length-1?`<button class="btn blue" onclick="show(${curStep+1})">Next →</button>`
+        :`<div style="color:var(--good);font-weight:900">🏆 You finished! Go build something in Roblox Studio.</div>`)+
+    `</div>`;
+  syncNum(); draw();
+  window.scrollTo(0,0);
+}
+function onEdit(){ codeStore['s'+curStep]=document.getElementById('ed').value; syncNum(); clearTimeout(onEdit._h); onEdit._h=setTimeout(saveAll,300); }
+function syncNum(){
+  const S=STEPS[curStep]; if(!S.num) return;
+  const el=document.getElementById('numval'); if(!el) return;
+  const v=readNum(document.getElementById('ed').value,S.num.marker,S.num.nth);
+  el.textContent=v===null?'–':v;
+}
+function pickColor(c){
+  const S=STEPS[curStep]; const ed=document.getElementById('ed');
+  ed.value=setQuoted(ed.value,S.colors,c); codeStore['s'+curStep]=ed.value; saveAll();
+}
+function bump(d){
+  const S=STEPS[curStep]; const ed=document.getElementById('ed');
+  ed.value=bumpNum(ed.value,S.num.marker,S.num.nth,d,S.num.min,S.num.max);
+  codeStore['s'+curStep]=ed.value; syncNum(); saveAll();
+}
+function answerPredict(ix){
+  const S=STEPS[curStep]; const ok=ix===S.predict.a;
+  document.querySelectorAll('.pbtn').forEach((b,i)=>{ b.disabled=true;
+    if(i===S.predict.a) b.classList.add('right'); else if(i===ix) b.classList.add('wrong'); });
+  const f=document.getElementById('pfb');
+  f.innerHTML=(ok?'✅ Right! ':'Not quite — ')+esc(S.predict.why); f.className='pfb show';
+  stepState.predicted=true;
+  logMistake(ok,S.predict.q,'Step'+(curStep+1));
+}
+function showMe(){
+  const S=STEPS[curStep]; const ed=document.getElementById('ed');
+  if(S.colors){ const cur=(readQuoted(ed.value,S.colors)||'').toLowerCase();
+    const pick=COLORNAMES.find(c=>c.toLowerCase()!==cur&&c.toLowerCase()!==stepState.prevColor)||COLORNAMES[0];
+    ed.value=setQuoted(ed.value,S.colors,pick); }
+  else if(S.num){ ed.value=bumpNum(ed.value,S.num.marker,S.num.nth,S.num.marker==='-- SWITCH'?3:4,S.num.min,S.num.max); }
+  codeStore['s'+curStep]=ed.value; syncNum(); saveAll();
+  document.getElementById('out').innerHTML='<span class="pr">Done for you — now press ▶ PLAY.</span>';
+}
+function play(){
+  const S=STEPS[curStep]; const src=document.getElementById('ed').value;
+  codeStore['s'+curStep]=src; saveAll();
+  world={parts:[],created:[]}; const out=[];
+  const o=document.getElementById('out');
+  document.getElementById('donecard').classList.remove('show');
+  try{ api=runLua(src,world,out); }
+  catch(err){
+    draw();
+    const msg=err&&err.luaMsg?('Line '+(err.line||'?')+': '+err.luaMsg):((err&&err.message)||String(err));
+    o.innerHTML='<span class="err">❌ '+esc(msg)+'</span>\n<span class="pr">Tip: press “I\'m stuck” and it will fix it for you.</span>';
+    return;
+  }
+  stepState.ran=true;
+  if(S.num&&S.num.marker==='-- SWITCH'){
+    const now=readNum(src,'-- SWITCH',1);
+    if(stepState.startSwitch!==null&&now!==stepState.startSwitch) stepState.switchChanged=true;
+  }
+  draw();
+  const tb=document.getElementById('touchBtn');
+  const anyH=world.parts.some(p=>p.__touched&&p.__touched.handlers.length);
+  if(tb) tb.disabled=!anyH;
+  const printed=out.map(t=>'<span class="pr">'+esc(t)+'</span>').join('\n');
+  if(S.needsTouch&&!stepState.touched){
+    o.innerHTML=(printed?printed+'\n':'')+'<span class="pr">▶ It is running. Now press 👆 TOUCH IT.</span>';
+    return;
+  }
+  judge(printed);
+}
+function touch(){
+  if(!api) return;
+  try{ api.fireTouches(); }catch(e){}
+  stepState.touched=true; draw();
+  judge('<span class="pr">👆 Something touched it!</span>');
+}
+function judge(printed){
+  const S=STEPS[curStep];
+  const problem=S.check(world,[],stepState);
+  const o=document.getElementById('out');
+  if(problem===null){
+    o.innerHTML=(printed?printed+'\n':'')+'<span class="ok">✅ '+esc(S.win)+'</span>';
+    document.getElementById('donetxt').textContent=S.win;
+    document.getElementById('donecard').classList.add('show');
+    if(curStep+1>curStep) saveAll();
+  } else {
+    o.innerHTML=(printed?printed+'\n':'')+'<span class="pr">'+esc(problem)+'</span>';
+  }
+}
+/* save lifecycle */
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') saveAll(); });
+window.addEventListener('pagehide',saveAll);
+window.addEventListener('beforeunload',saveAll);
+window.addEventListener('blur',saveAll);
+show(curStep);
+</script>
+</body>
+</html>
