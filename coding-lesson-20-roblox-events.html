@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Roblox Studio: Code Your Own Game 🎮</title>
+<title>Roblox Studio 2: Make It Do Something ⚡</title>
 <style>
 :root{
   --bg:#0d0e17;--panel:#181926;--panel2:#1f2135;--ink:#f4f5fb;
@@ -79,53 +79,43 @@ textarea.code:focus{outline:none;border-color:var(--rbx)}
 
 <div class="screen active" id="sc0">
   <div class="mission-header">
-    <div class="mission-tag">Roblox Studio · Lua</div>
-    <div class="mission-title">🎮 Code Your Own Roblox Game</div>
-    <div class="mission-brief">This is the real thing. Roblox games are coded in a language called <b>Lua</b>, and that's exactly what you'll type here. Build it in this window first, then copy it straight into <b>Roblox Studio</b> on your computer — the code is identical.</div>
+    <div class="mission-tag">Roblox Studio · Part 2</div>
+    <div class="mission-title">⚡ Make It Do Something</div>
+    <div class="mission-brief">Last time you <b>built</b> things. Now you'll make them <b>react</b>. A block that just sits there isn't a game — a block that does something when a player touches it <i>is</i>. That one idea powers coins, traps, checkpoints and doors in almost every Roblox game.</div>
   </div>
   <div class="stage">
     <div class="teach">
-      <div class="teach-title">🧠 Start here — how Roblox code works</div>
+      <div class="teach-title">🧠 Start here — the two new ideas</div>
       <div class="teach-body">
-        Everything in a Roblox game is an <b>Object</b>. A block is a <b>Part</b>. The 3-D world your parts live in is called <b>workspace</b>.<br><br>
-        Two things you'll do constantly:<br>
-        1️⃣ <b>Make</b> an object — <code style="background:#1a1f36;color:#ffcc88;padding:1px 5px;border-radius:4px">Instance.new("Part")</code><br>
-        2️⃣ <b>Change</b> its properties — its color, its size, whether it floats.
-        <pre class="teach-ex">local block = Instance.new("Part")   -- make one
-block.Parent = workspace             -- put it in the world</pre>
-        That word <b>local</b> just means "make a variable." And <b>--</b> starts a comment — a note for humans that Lua ignores.
+        <b>1. A list</b> holds many things in one variable. You make one with <b>curly braces</b>, and you grab an item by its position number in <b>square brackets</b>.
+        <pre class="teach-ex">local colors = {"Bright red", "Bright blue"}
+print(colors[1])   --&gt; Bright red</pre>
+        ⚠️ <b>Lua counts from 1</b>, not 0. The first item is <b>[1]</b>. (Lots of languages start at 0 — Lua doesn't.)<br><br>
+        <b>2. An event</b> lets your code wait for something to happen and then run. <b>Touched</b> fires the moment a player bumps into your part.
+        <pre class="teach-ex">part.Touched:Connect(function(hit)
+  part.BrickColor = BrickColor.new("Bright green")
+end)</pre>
+        You're saying: “<b>when</b> this is touched, <b>run</b> this code.” Studio calls that <b>connecting</b> to the event.
       </div>
     </div>
     <div class="studio">
-      <div class="studio-title">🎮 Get Roblox Studio ready (do this once)</div>
+      <div class="studio-title">🎮 Reminder — running this in real Roblox Studio</div>
       <ol>
-        <li>Open <b>Roblox Studio</b> on a computer (it's free — download it from the Roblox site; it doesn't run on a phone).</li>
-        <li>Click <b>New</b> → pick the <b>Baseplate</b> template.</li>
-        <li>Top menu: <b>View</b> → turn on <b>Output</b> and <b>Explorer</b>.</li>
-        <li>In the Explorer panel, hover over <b>Workspace</b>, click the <b>+</b>, and choose <b>Script</b>.</li>
-        <li>Delete the <code>print("Hello world!")</code> line it starts with — you'll type your own.</li>
-        <li>Press <b>▶ Play</b> to run it, and <b>Stop</b> when you're done.</li>
+        <li>Open Studio → <b>New</b> → <b>Baseplate</b> (desktop only — Studio doesn't run on a phone).</li>
+        <li><b>View</b> → turn on <b>Output</b> and <b>Explorer</b>.</li>
+        <li>In Explorer, hover <b>Workspace</b> → <b>+</b> → <b>Script</b>.</li>
+        <li>Paste your code, press <b>▶ Play</b>, then <b>walk your character into the part</b> to fire the Touched event.</li>
       </ol>
     </div>
-    <p style="font-size:14px;color:var(--muted);line-height:1.6">Colors you can use (these are real Roblox BrickColor names):</p>
-    <div style="margin:8px 0">
-      <span class="swatch"><i class="dot" style="background:#c4281c"></i>"Bright red"</span>
-      <span class="swatch"><i class="dot" style="background:#0d69ac"></i>"Bright blue"</span>
-      <span class="swatch"><i class="dot" style="background:#4b974b"></i>"Bright green"</span>
-      <span class="swatch"><i class="dot" style="background:#f5cd30"></i>"Bright yellow"</span>
-      <span class="swatch"><i class="dot" style="background:#d96b2b"></i>"Bright orange"</span>
-      <span class="swatch"><i class="dot" style="background:#a75ec4"></i>"Bright violet"</span>
-      <span class="swatch"><i class="dot" style="background:#f2f3f3"></i>"Institutional white"</span>
-      <span class="swatch"><i class="dot" style="background:#1b2a34"></i>"Really black"</span>
-    </div>
-    <div class="btn-row"><button class="btn go" onclick="go(1)">Start Building 🧱</button></div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6">In this window there's no character to walk around — so after you press PLAY, hit the <b>👆 Touch it</b> button to fire the event, exactly like a player bumping into your part.</p>
+    <div class="btn-row"><button class="btn go" onclick="go(1)">Start ⚡</button></div>
   </div>
 </div>
 
 <script>
 /* ═══════════ STATE ═══════════ */
-const XKEY='coding-l19-xp', CKEY='coding-l19-code';
-const PREFIX='Coding|Roblox Studio: Lua|';
+const XKEY='coding-l20-xp', CKEY='coding-l20-code';
+const PREFIX='Coding|Roblox Studio 2: Events|';
 let xp=0, cur=0, codeStore={};
 try{ xp=parseInt(localStorage.getItem(XKEY)||'0',10)||0; }catch(e){}
 try{ codeStore=JSON.parse(localStorage.getItem(CKEY)||'{}')||{}; }catch(e){}
@@ -139,7 +129,7 @@ function saveAll(){
 }
 function logMistake(ok,text,title){
   try{ let m=JSON.parse(localStorage.getItem('refresher-mistakes')||'{}'); const k=PREFIX+title;
-    if(!ok){ m[k]={subject:'Coding',day:'Roblox',q:text,file:'coding-lesson-19-roblox.html'}; } else { delete m[k]; }
+    if(!ok){ m[k]={subject:'Coding',day:'Roblox 2',q:text,file:'coding-lesson-20-roblox-events.html'}; } else { delete m[k]; }
     localStorage.setItem('refresher-mistakes',JSON.stringify(m));
   }catch(e){}
 }
@@ -281,6 +271,7 @@ function parse(T){
   function mulE(){ let l=unE(); while(peek().t==='op'&&(peek().v==='*'||peek().v==='/'||peek().v==='%')){ const o=next().v; l={k:'bin',op:o,l,r:unE()}; } return l; }
   function unE(){
     if(isv('kw','not')){ next(); return {k:'un',op:'not',e:unE()}; }
+    if(peek().t==='op'&&peek().v==='#'){ next(); return {k:'un',op:'#',e:unE()}; }
     if(peek().t==='op'&&peek().v==='-'){ next(); return {k:'un',op:'-',e:unE()}; }
     return postE();
   }
@@ -288,6 +279,7 @@ function parse(T){
     let e=primary();
     while(true){
       if(peek().t==='op'&&peek().v==='.'){ next(); const nt=expect('name',undefined,'a property name'); e={k:'index',obj:e,key:nt.v,line:nt.line}; continue; }
+      if(peek().t==='op'&&peek().v==='['){ next(); const ix=expr(); expect('op',']','a closing ]'); e={k:'idx',obj:e,index:ix,line:peek().line}; continue; }
       if(peek().t==='op'&&peek().v===':'){ next(); const nm=expect('name',undefined,'a method name').v; const args=argList(); e={k:'method',obj:e,name:nm,args}; continue; }
       if(peek().t==='op'&&peek().v==='('){ const args=argList(); e={k:'call',fn:e,args}; continue; }
       break;
@@ -311,6 +303,14 @@ function parse(T){
       if(tk.v==='false'){ next(); return {k:'bool',v:false}; }
       if(tk.v==='nil'){ next(); return {k:'nil'}; }
       if(tk.v==='function'){ next(); const ps=params(); const body=block(['end']); expect('kw','end','the word "end" to close your function'); return {k:'anonfunc',params:ps,body}; }
+    }
+    if(tk.t==='op'&&tk.v==='{'){
+      next(); const items=[];
+      if(!(peek().t==='op'&&peek().v==='}')){
+        items.push(expr());
+        while(peek().t==='op'&&peek().v===','){ next(); if(peek().t==='op'&&peek().v==='}') break; items.push(expr()); }
+      }
+      expect('op','}','a closing }'); return {k:'table',items,line:tk.line};
     }
     if(tk.t==='op'&&tk.v==='('){ next(); const e=expr(); expect('op',')','a closing )'); return e; }
     throw {luaMsg:'I got stuck at "'+tk.v+'"', line:tk.line};
@@ -368,7 +368,8 @@ function runLua(src, world, out){
     if(typeof v==='string') return v;
     if(v.__t==='Vector3') return v.X+', '+v.Y+', '+v.Z;
     if(v.__t==='BrickColor') return v.Name;
-    if(v.__t==='Part') return 'Part';
+    if(v.__t==='Part') return v.Name||'Part';
+    if(v.__t==='table') return 'list of '+v.arr.length;
     return String(v.Name||v.__t||'value');
   }
 
@@ -398,6 +399,7 @@ function runLua(src, world, out){
         const o=ev(e.obj);
         if(o===null||o===undefined) throw LuaError('You tried to read ".'+e.key+'" from something that doesn\'t exist yet.',e.line);
         if(o.__t==='lib') return (a,line)=>o.fns[e.key]?o.fns[e.key](a,line):(()=>{throw LuaError(o.Name+'.'+e.key+' isn\'t something I know.',line)})();
+        if(o.__t==='Part'&&e.key==='Touched'){ if(!o.__touched) o.__touched={__t:'Signal',handlers:[]}; return o.__touched; }
         if(!(e.key in o)) return null;
         return o[e.key];
       }
@@ -420,7 +422,19 @@ function runLua(src, world, out){
       }
       case 'un': {
         if(e.op==='not') return !truthy(ev(e.e));
+        if(e.op==='#'){ const v=ev(e.e);
+          if(v&&v.__t==='table') return v.arr.length;
+          if(typeof v==='string') return v.length;
+          throw LuaError('# counts how many things are in a list. Use it on a { } list.',e.line); }
         const v=ev(e.e); if(typeof v!=='number') throw LuaError('Only numbers can be negative here.',e.line); return -v;
+      }
+      case 'table': return {__t:'table', arr:e.items.map(ev)};
+      case 'idx': {
+        const o=ev(e.obj); const i=ev(e.index);
+        if(!o||o.__t!=='table') throw LuaError('You can only use [ ] on a list you made with { }.',e.line);
+        if(typeof i!=='number') throw LuaError('A list position has to be a number, like myList[1].',e.line);
+        if(i<1||i>o.arr.length) throw LuaError('There is no item '+i+' in that list — it has '+o.arr.length+' item'+(o.arr.length===1?'':'s')+'. Remember Lua starts counting at 1.',e.line);
+        return o.arr[i-1];
       }
       case 'anonfunc': return {__t:'fn',params:e.params,body:e.body,closure:scopes.slice()};
       case 'call': {
@@ -445,7 +459,9 @@ function runLua(src, world, out){
   function callVal(fnv,args,line,fnNode){
     if(typeof fnv==='function') return fnv(args,line);
     if(fnv&&fnv.__t==='fn'){
-      // Real closures: run the body in the scope chain captured at definition.
+      // Real closures: run the body in the scope chain captured when the
+      // function was DEFINED, so a Touched handler can still see the
+      // local variables from the function that created it.
       const savedAll=scopes.slice();
       if(fnv.closure){ scopes.length=0; fnv.closure.forEach(sc0=>scopes.push(sc0)); }
       const sc=Object.create(null);
@@ -485,6 +501,7 @@ function runLua(src, world, out){
       if(typeof val!=='boolean') throw LuaError('Anchored is true or false (no quotes).',line);
       o[k]=val; return;
     }
+    if(k==='CanCollide'){ if(typeof val!=='boolean') throw LuaError('CanCollide is true or false (no quotes).',line); o.CanCollide=val; return; }
     if(k==='Name'){ o.Name=String(val); return; }
     if(k==='Transparency'){ o.Transparency=Number(val)||0; return; }
     o[k]=val;
@@ -534,94 +551,109 @@ function runLua(src, world, out){
   function runScoped(b){ scopes.push(Object.create(null)); try{ return execBlock(b); } finally{ scopes.pop(); } }
 
   execBlock(prog);
+
+  // Let the page simulate a player walking into each part that connected .Touched
+  return {
+    fireTouches(){
+      let fired=0;
+      world.parts.slice().forEach(pt=>{
+        if(pt.__touched && pt.__touched.handlers.length){
+          const hit={__t:'Part',Name:'LeftFoot',Parent:'character',
+            Size:{__t:'Vector3',X:1,Y:1,Z:1},Position:{__t:'Vector3',X:0,Y:0,Z:0},
+            BrickColor:{__t:'BrickColor',Name:'Medium stone grey'},Anchored:false,Transparency:0};
+          pt.__touched.handlers.forEach(h=>{ callVal(h,[hit],0,null); fired++; });
+        }
+      });
+      return fired;
+    }
+  };
 }
 
 /* ═══════════ MISSIONS ═══════════ */
 const LV=[
- { key:'r1', label:'① PRINT', title:'Say Hello in Lua',
-   teach:{title:'print() talks to you, not to the game',
-     body:'<b>print()</b> writes a message into the <b>Output</b> window. Players never see it — it\'s for YOU, to check that your code is running and to see what\'s going on.<br><br>Text goes in <b>quotes</b>. This is the first thing every Roblox coder writes.',
-     example:'print("Hello Roblox!")'},
-   studio:['Open your Baseplate place in Roblox Studio.','In <b>Explorer</b>, hover <b>Workspace</b> → click <b>+</b> → <b>Script</b>.','Type your line into the script.','Make sure <b>View → Output</b> is on.','Press <b>▶ Play</b> — your message appears in Output.'],
-   goal:'Use <code>print()</code> to send a message to the Output window. Make it say <b>Hello Roblox!</b> exactly.',
-   starter:'-- Type your message between the quotes\nprint("")\n',
-   check:(w,out)=>out.some(l=>l.trim().toLowerCase()==='hello roblox!')?null:'Output should show exactly: Hello Roblox!',
-   hint:'Put the words inside the quotes: print("Hello Roblox!")' },
+ { key:'e1', label:'① A LIST', title:'Keep Many Things in One Variable',
+   teach:{title:'Lists hold more than one value',
+     body:'A normal variable holds ONE thing. A <b>list</b> holds many, in order.<br><br>Make one with <b>{ }</b>, separating items with commas. Grab an item with <b>square brackets</b> and its position number.<br><br>⚠️ The big one: <b>Lua counts from 1.</b> The first item is <b>[1]</b>, not [0].',
+     example:'local colors = {"Bright red", "Bright blue", "Bright green"}\n\nprint(colors[1])   --> Bright red\nprint(colors[3])   --> Bright green'},
+   studio:['In your script, make the list and print an item.','Press <b>▶ Play</b> and read the <b>Output</b> window.','Try <code>print(#colors)</code> — the <b>#</b> tells you how many items are in the list.'],
+   goal:'Make a list called <code>colors</code> holding <b>"Bright red"</b>, <b>"Bright blue"</b> and <b>"Bright green"</b>, then <code>print</code> the <b>second</b> one so the Output shows <b>Bright blue</b>.',
+   starter:'local colors = {"Bright red", "Bright blue", "Bright green"}\n\n-- Print the SECOND colour in the list:\nprint(colors[1])\n',
+   needsTouch:false,
+   check:(w,out)=>out.some(l=>l.trim().toLowerCase()==='bright blue')?null:'Output should show exactly: Bright blue (the second item is [2])',
+   hint:'The second item is colors[2] — Lua starts counting at 1.' },
 
- { key:'r2', label:'② A PART', title:'Make Your First Block',
-   teach:{title:'Two lines make a block appear',
-     body:'<b>Instance.new("Part")</b> creates a block — but it exists nowhere yet, like a piece still in the box.<br><br>Setting its <b>Parent</b> to <b>workspace</b> is what actually puts it into the world. Forget that line and nothing shows up. That trips up every beginner at least once.',
-     example:'local block = Instance.new("Part")\nblock.Parent = workspace'},
-   studio:['In your script, type the same two lines.','Press <b>▶ Play</b> — a grey block appears at the center of the baseplate.','Look in <b>Explorer</b> under Workspace: you\'ll see <b>Part</b> listed.','Press <b>Stop</b>. (Parts made by a script disappear when you stop — that\'s normal.)'],
-   goal:'Create <b>one Part</b> and put it into the <b>workspace</b> so it shows up in the world.',
-   starter:'local block = Instance.new("Part")\n\n-- Now put it into the world!\n',
-   check:(w)=>w.parts.length===1?null:(w.parts.length===0?'No Part made it into the world. Did you set block.Parent = workspace?':'That made '+w.parts.length+' parts — this mission needs exactly 1.'),
-   hint:'Add the line: block.Parent = workspace' },
-
- { key:'r3', label:'③ PROPERTIES', title:'Color It, Size It, Freeze It',
-   teach:{title:'Properties change how a Part looks and acts',
-     body:'Every Part has <b>properties</b> you can set:<br><br>• <b>BrickColor</b> — its color, written <code style="background:#1a1f36;color:#ffcc88;padding:1px 5px;border-radius:4px">BrickColor.new("Bright red")</code><br>• <b>Size</b> — how big, as <b>Vector3.new(width, height, depth)</b> — three numbers<br>• <b>Anchored</b> — <b>true</b> means it floats in place; <b>false</b> means gravity pulls it down<br><br>Anchored is <b>true</b> or <b>false</b> with NO quotes — it\'s a yes/no, not text.',
-     example:'block.BrickColor = BrickColor.new("Bright red")\nblock.Size = Vector3.new(6, 1, 6)\nblock.Anchored = true'},
-   studio:['Add the property lines under your Instance.new line.','Press <b>▶ Play</b> — the block is now red, wide, and floating.','Click the Part in Explorer and look at the <b>Properties</b> panel — you\'ll see the same values you typed.','Try changing <code>true</code> to <code>false</code> and Play again: it falls!'],
-   goal:'Make a part that is <b>Bright red</b>, sized <b>6, 1, 6</b>, and <b>Anchored</b> so it floats. Put it in the workspace.',
-   starter:'local block = Instance.new("Part")\nblock.BrickColor = BrickColor.new("Bright red")\n\n-- Add the Size and Anchored lines, then the Parent line!\n',
+ { key:'e2', label:'② LIST + LOOP', title:'Build a Rainbow Path',
+   teach:{title:'Loop through a list',
+     body:'Because a list is in order, a loop can walk through it: <b>colors[i]</b> gives you a different colour every time round.<br><br><b>#colors</b> means “how many items are in the list,” so <b>for i = 1, #colors</b> loops exactly once per colour — even if you add more later. That is much better than typing the number yourself.',
+     example:'for i = 1, #colors do\n  local b = Instance.new("Part")\n  b.BrickColor = BrickColor.new(colors[i])\n  b.Parent = workspace\nend'},
+   studio:['Type the loop into your script.','Press <b>▶ Play</b> — one part appears per colour in your list.','Add a fourth colour to the list and Play again — the loop handles it with no other changes.'],
+   goal:'Use the list and a loop to build <b>4 blocks</b> in a row, spaced <b>5 studs</b> apart (x = 5, 10, 15, 20), each one the matching colour from the list. All <b>Anchored</b>.',
+   starter:'local colors = {"Bright red", "Bright yellow", "Bright green", "Bright blue"}\n\nfor i = 1, #colors do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(i * 5, 1, 0)\n\n  -- Set its colour from the list, then parent it!\n\nend\n',
+   needsTouch:false,
    check:(w)=>{
-     if(w.parts.length!==1) return w.parts.length===0?'No Part reached the workspace yet — remember block.Parent = workspace':'This mission needs exactly 1 part.';
-     const p=w.parts[0];
-     if((p.BrickColor.Name||'').toLowerCase()!=='bright red') return 'The part isn\'t Bright red yet.';
-     if(!(p.Size.X===6&&p.Size.Y===1&&p.Size.Z===6)) return 'Size should be Vector3.new(6, 1, 6) — yours is '+p.Size.X+', '+p.Size.Y+', '+p.Size.Z+'.';
-     if(p.Anchored!==true) return 'The part still needs Anchored = true so it floats.';
-     return null; },
-   hint:'Three lines: BrickColor, then Size = Vector3.new(6, 1, 6), then Anchored = true. And don\'t forget Parent = workspace.' },
-
- { key:'r4', label:'④ A TOWER', title:'Build a Tower With a Loop',
-   teach:{title:'A loop builds many parts',
-     body:'Making 5 blocks by hand means copying 5 blocks of code. A <b>for loop</b> does it for you.<br><br>Read it as: “<b>for</b> i going from 1 to 5, <b>do</b> this.”<br><br>Two Roblox things to notice:<br>• <b>Lua counts from 1</b>, not 0 like some languages.<br>• <b>Position</b> is <b>Vector3.new(x, y, z)</b> where <b>y is HEIGHT</b>. Using <code style="background:#1a1f36;color:#ffcc88;padding:1px 5px;border-radius:4px">i * 4</code> for y stacks each block 4 studs higher than the last.',
-     example:'for i = 1, 5 do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(0, i * 4, 0)\n  b.Parent = workspace\nend'},
-   studio:['Type the loop into your script.','Press <b>▶ Play</b> — a tower of 5 blocks stacks up instantly.','In Explorer you\'ll see 5 Parts appear under Workspace.','Change the <b>5</b> to <b>10</b> and Play again for a taller tower.'],
-   goal:'Build a tower of <b>exactly 8 blocks</b>, each one <b>4 studs</b> higher than the one below, all <b>Anchored</b>. The loop below only builds 3 — <b>fix the number</b>.',
-   starter:'for i = 1, 3 do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(0, i * 4, 0)\n  b.Parent = workspace\nend\n',
-   check:(w)=>{
-     if(w.parts.length!==8) return 'The tower has '+w.parts.length+(w.parts.length===1?' block':' blocks')+' — it needs exactly 8.';
-     const ys=w.parts.map(p=>p.Position.Y).sort((a,b)=>a-b);
-     for(let i=0;i<8;i++) if(ys[i]!==(i+1)*4) return 'The blocks should sit at heights 4, 8, 12 ... 32. Use Vector3.new(0, i * 4, 0).';
-     if(!w.parts.every(p=>p.Anchored===true)) return 'Every block needs Anchored = true or the tower falls over.';
-     return null; },
-   hint:'Change "for i = 1, 3 do" to "for i = 1, 8 do".' },
-
- { key:'r5', label:'⑤ DECISIONS', title:'A Striped Path',
-   teach:{title:'if / then / else picks the color',
-     body:'Inside a loop you can <b>decide</b> what each block should look like.<br><br>Read it as: “<b>if</b> i is less than 4, <b>then</b> make it red, <b>else</b> make it blue.”<br><br>In Lua an if always ends with the word <b>end</b>. Notice the shape: <b>if … then … else … end</b>.',
-     example:'if i < 4 then\n  b.BrickColor = BrickColor.new("Bright red")\nelse\n  b.BrickColor = BrickColor.new("Bright blue")\nend'},
-   studio:['Put the if/else inside your loop, before the Parent line.','Press <b>▶ Play</b> — the first blocks are red, the rest are blue.','Try swapping the colors, or changing <code>i &lt; 4</code> to <code>i &lt; 2</code>.'],
-   goal:'Lay a path of <b>6 blocks</b> in a row (spaced <b>5 studs</b> apart along x). The first <b>3</b> must be <b>Bright red</b> and the last <b>3</b> must be <b>Bright blue</b>. All Anchored.',
-   starter:'for i = 1, 6 do\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(i * 5, 1, 0)\n\n  -- Add the if / then / else here to pick the color!\n\n  b.Parent = workspace\nend\n',
-   check:(w)=>{
-     if(w.parts.length!==6) return 'The path has '+w.parts.length+(w.parts.length===1?' block':' blocks')+' — it needs exactly 6.';
+     if(w.parts.length!==4) return 'That made '+w.parts.length+' block'+(w.parts.length===1?'':'s')+' — this needs exactly 4 in the workspace.';
      const ps=w.parts.slice().sort((a,b)=>a.Position.X-b.Position.X);
-     for(let i=0;i<6;i++) if(ps[i].Position.X!==(i+1)*5) return 'Blocks should be at x = 5, 10, 15, 20, 25, 30. Use Vector3.new(i * 5, 1, 0).';
-     for(let i=0;i<3;i++) if((ps[i].BrickColor.Name||'').toLowerCase()!=='bright red') return 'The first 3 blocks should be Bright red.';
-     for(let i=3;i<6;i++) if((ps[i].BrickColor.Name||'').toLowerCase()!=='bright blue') return 'The last 3 blocks should be Bright blue.';
-     return null; },
-   hint:'Inside the loop: if i < 4 then (red) else (blue) end — remember the word end.' },
-
- { key:'r6', label:'⑥ YOUR FUNCTION', title:'Write Your Own Builder',
-   teach:{title:'Your own command, with inputs',
-     body:'Real Roblox scripts are full of custom functions. Here you make one called <b>makeBlock</b> that takes two <b>inputs</b>: where to put it, and what color.<br><br>Then one short line builds a block anywhere you want. Write the recipe once, use it forever — that\'s the whole point of functions.',
-     example:'local function makeBlock(x, color)\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(x, 1, 0)\n  b.BrickColor = BrickColor.new(color)\n  b.Parent = workspace\nend\n\nmakeBlock(0, "Bright green")'},
-   studio:['Type the function into your script.','Below it, call it a few times with different numbers and colors.','Press <b>▶ Play</b> — every call builds a block.','This is exactly how real Roblox games build maps, spawn coins, and place obstacles.'],
-   goal:'Use your <code>makeBlock</code> function to build <b>3 blocks</b>: one <b>Bright green</b> at x = 0, one <b>Bright yellow</b> at x = 6, and one <b>Bright violet</b> at x = 12.',
-   starter:'local function makeBlock(x, color)\n  local b = Instance.new("Part")\n  b.Anchored = true\n  b.Position = Vector3.new(x, 1, 0)\n  b.BrickColor = BrickColor.new(color)\n  b.Parent = workspace\nend\n\nmakeBlock(0, "Bright green")\n\n-- Add two more calls: yellow at 6, violet at 12\n',
-   check:(w)=>{
-     if(w.parts.length!==3) return 'That built '+w.parts.length+(w.parts.length===1?' block':' blocks')+' — this mission needs exactly 3.';
-     const want=[[0,'bright green'],[6,'bright yellow'],[12,'bright violet']];
-     const ps=w.parts.slice().sort((a,b)=>a.Position.X-b.Position.X);
-     for(let i=0;i<3;i++){
-       if(ps[i].Position.X!==want[i][0]) return 'Blocks should be at x = 0, 6 and 12.';
-       if((ps[i].BrickColor.Name||'').toLowerCase()!==want[i][1]) return 'At x = '+want[i][0]+' the block should be '+want[i][1].replace(/\b\w/g,c=>c.toUpperCase())+'.';
+     const want=['bright red','bright yellow','bright green','bright blue'];
+     for(let i=0;i<4;i++){
+       if(ps[i].Position.X!==(i+1)*5) return 'Blocks should sit at x = 5, 10, 15, 20.';
+       if((ps[i].BrickColor.Name||'').toLowerCase()!==want[i]) return 'Block '+(i+1)+' should be '+want[i]+' — use BrickColor.new(colors[i]).';
      }
      return null; },
-   hint:'Add two lines: makeBlock(6, "Bright yellow") and makeBlock(12, "Bright violet")' },
+   hint:'Inside the loop: b.BrickColor = BrickColor.new(colors[i])  then  b.Parent = workspace' },
+
+ { key:'e3', label:'③ TOUCHED', title:'Make It React',
+   teach:{title:'The Touched event',
+     body:'This is the heart of Roblox. <b>Touched</b> is an event — it fires the instant a player bumps into your part.<br><br>You <b>connect</b> code to it, and that code waits patiently until the touch happens:',
+     example:'part.Touched:Connect(function(hit)\n  part.BrickColor = BrickColor.new("Bright green")\nend)'},
+   studio:['Add the Touched code under your part.','Press <b>▶ Play</b>, then <b>walk your character into the part</b>.','It changes the moment you touch it. In here, press <b>👆 Touch it</b> instead.'],
+   goal:'Make one <b>Bright red</b> Anchored part. Then use <code>Touched</code> so that when a player touches it, it turns <b>Bright green</b>.',
+   starter:'local pad = Instance.new("Part")\npad.Anchored = true\npad.Size = Vector3.new(8, 1, 8)\npad.BrickColor = BrickColor.new("Bright red")\npad.Parent = workspace\n\n-- Make it turn green when touched:\npad.Touched:Connect(function(hit)\n\nend)\n',
+   needsTouch:true,
+   check:(w)=>{
+     if(w.parts.length!==1) return 'This mission needs exactly 1 part in the workspace.';
+     const p=w.parts[0];
+     if(!p.__touched||!p.__touched.handlers.length) return 'Nothing is connected to Touched yet, so the part can never react.';
+     if((p.BrickColor.Name||'').toLowerCase()!=='bright green') return 'After the touch the part should be Bright green — put the BrickColor line inside the function.';
+     return null; },
+   hint:'Inside the function put: pad.BrickColor = BrickColor.new("Bright green")' },
+
+ { key:'e4', label:'④ COLLECT IT', title:'Make a Coin You Can Collect',
+   teach:{title:'Two more properties: Transparency and CanCollide',
+     body:'To make something look collected, you make it <b>vanish</b> and <b>stop blocking</b> the player:<br><br>• <b>Transparency</b> — 0 is solid, <b>1 is invisible</b><br>• <b>CanCollide</b> — <b>false</b> means players pass straight through<br><br>Set both inside the Touched function and you have a coin. This is exactly how collectibles work in real games.',
+     example:'coin.Touched:Connect(function(hit)\n  coin.Transparency = 1\n  coin.CanCollide = false\nend)'},
+   studio:['Build the coin and connect Touched.','Press <b>▶ Play</b> and run into it — it disappears.','Real games usually play a sound and add to a score here too.'],
+   goal:'Make a <b>Bright yellow</b> Anchored coin. When touched it must become <b>invisible</b> (Transparency 1) <b>and</b> stop blocking the player (CanCollide false).',
+   starter:'local coin = Instance.new("Part")\ncoin.Anchored = true\ncoin.BrickColor = BrickColor.new("Bright yellow")\ncoin.Position = Vector3.new(0, 3, 0)\ncoin.Parent = workspace\n\ncoin.Touched:Connect(function(hit)\n  -- Make it vanish and stop blocking!\n\nend)\n',
+   needsTouch:true,
+   check:(w)=>{
+     if(w.parts.length!==1) return 'This mission needs exactly 1 part in the workspace.';
+     const p=w.parts[0];
+     if(!p.__touched||!p.__touched.handlers.length) return 'Nothing is connected to Touched yet.';
+     if((p.BrickColor.Name||'').toLowerCase()!=='bright yellow') return 'The coin should be Bright yellow.';
+     if(p.Transparency!==1) return 'After the touch, Transparency should be 1 so the coin is invisible.';
+     if(p.CanCollide!==false) return 'After the touch, CanCollide should be false so the player passes through.';
+     return null; },
+   hint:'Inside the function: coin.Transparency = 1  and  coin.CanCollide = false' },
+
+ { key:'e5', label:'⑤ MANY COINS', title:'A Function That Makes Coins',
+   teach:{title:'Put the whole coin — event and all — in a function',
+     body:'One coin is nice. A game needs lots.<br><br>Wrap the entire recipe — build the part <b>and</b> connect its Touched event — inside your own function. Then one short line makes a brand-new working coin anywhere you want.<br><br>Each coin gets its own event, so collecting one doesn\'t affect the others. This is exactly how a real game spawns pickups.',
+     example:'local function makeCoin(x)\n  local c = Instance.new("Part")\n  c.Anchored = true\n  c.BrickColor = BrickColor.new("Bright yellow")\n  c.Position = Vector3.new(x, 3, 0)\n  c.Parent = workspace\n  c.Touched:Connect(function(hit)\n    c.Transparency = 1\n  end)\nend\n\nmakeCoin(0)'},
+   studio:['Type the function, then call it a few times with different x values.','Press <b>▶ Play</b> and collect them one by one.','Add a <code>for</code> loop calling makeCoin to spawn a whole row automatically.'],
+   goal:'Use <code>makeCoin</code> to place <b>3 coins</b> at x = <b>0</b>, <b>6</b> and <b>12</b>. Every one must turn invisible when touched.',
+   starter:'local function makeCoin(x)\n  local c = Instance.new("Part")\n  c.Anchored = true\n  c.BrickColor = BrickColor.new("Bright yellow")\n  c.Position = Vector3.new(x, 3, 0)\n  c.Parent = workspace\n  c.Touched:Connect(function(hit)\n    c.Transparency = 1\n  end)\nend\n\nmakeCoin(0)\n\n-- Add two more coins at x = 6 and x = 12\n',
+   needsTouch:true,
+   check:(w)=>{
+     if(w.parts.length!==3) return 'That made '+w.parts.length+' coin'+(w.parts.length===1?'':'s')+' — this mission needs exactly 3.';
+     const ps=w.parts.slice().sort((a,b)=>a.Position.X-b.Position.X);
+     const xs=[0,6,12];
+     for(let i=0;i<3;i++){
+       if(ps[i].Position.X!==xs[i]) return 'Coins should be at x = 0, 6 and 12.';
+       if(!ps[i].__touched||!ps[i].__touched.handlers.length) return 'Every coin needs its own Touched connection — keep it inside the function.';
+       if(ps[i].Transparency!==1) return 'After the touch every coin should be invisible (Transparency 1).';
+     }
+     return null; },
+   hint:'Add two lines at the bottom: makeCoin(6) and makeCoin(12)' },
 ];
 
 /* ═══════════ BUILD SCREENS ═══════════ */
@@ -649,6 +681,7 @@ LV.forEach((l,i)=>{
       `<textarea class="code" id="ed${n}" spellcheck="false" oninput="onEdit('${l.key}',${n})"></textarea></div>`+
       `<div class="btn-row">`+
         `<button class="btn go" onclick="runMission(${n})">▶ PLAY</button>`+
+        (l.needsTouch?`<button class="btn blue" id="touch${n}" onclick="doTouch(${n})" disabled>👆 Touch it</button>`:'')+
         `<button class="btn ghost" onclick="resetWorld(${n})">↺ Stop / Clear world</button>`+
         `<button class="btn ghost" onclick="restarter(${n})">Reset code</button>`+
       `</div>`+
@@ -681,7 +714,8 @@ function go(n){
 function onEdit(k,n){ codeStore[k]=document.getElementById('ed'+n).value; clearTimeout(onEdit._h); onEdit._h=setTimeout(saveAll,300); }
 function restarter(n){ const l=LV[n-1]; document.getElementById('ed'+n).value=l.starter; codeStore[l.key]=l.starter; saveAll(); }
 function resetWorld(n){
-  W[n]={parts:[],created:[],solved:W[n]&&W[n].solved};
+  W[n]={parts:[],created:[],solved:W[n]&&W[n].solved,touched:false,out:[],api:null};
+  const tb=document.getElementById('touch'+n); if(tb) tb.disabled=true;
   document.getElementById('win'+n).classList.toggle('show',!!(W[n]&&W[n].solved));
   render(n); renderExp(n);
 }
@@ -736,10 +770,11 @@ function runMission(n){
   const l=LV[n-1]; const src=document.getElementById('ed'+n).value;
   codeStore[l.key]=src; saveAll();
   document.getElementById('win'+n).classList.remove('show');
-  W[n]={parts:[],created:[],solved:W[n]&&W[n].solved};
+  W[n]={parts:[],created:[],solved:W[n]&&W[n].solved,touched:false,out:[],api:null};
   const out=[]; const con=document.getElementById('con'+n);
+  W[n].out=out;
   try{
-    runLua(src, W[n], out);
+    W[n].api=runLua(src, W[n], out);
   }catch(err){
     render(n); renderExp(n);
     if(err&&err.luaMsg){
@@ -751,7 +786,18 @@ function runMission(n){
     return;
   }
   render(n); renderExp(n);
+  const tb=document.getElementById('touch'+n);
+  const anyHandler=W[n].parts.some(p=>p.__touched&&p.__touched.handlers.length);
+  if(tb){ tb.disabled=!anyHandler; }
   const printed=out.map(t=>`<span class="out">${esc(t)}</span>`).join('\n');
+  if(l.needsTouch && !W[n].touched){
+    if(!anyHandler){
+      con.innerHTML=(printed?printed+'\n':'')+`<span class="err">Nothing is connected to Touched yet, so nothing can react. Add the Touched code, then press PLAY again.</span>`;
+      logMistake(false,l.title,'M'+n); return;
+    }
+    con.innerHTML=(printed?printed+'\n':'')+`<span class="out">▶ Script running. Now press 👆 <b>Touch it</b> to walk into the part.</span>`;
+    return;
+  }
   const problem=l.check(W[n],out);
   if(problem===null){
     const first=!(W[n].solved);
@@ -763,6 +809,32 @@ function runMission(n){
     document.getElementById('tab'+n).classList.add('done');
   }else{
     con.innerHTML=(printed?printed+'\n':'')+`<span class="err">Not yet — ${esc(problem)}</span>`;
+    logMistake(false,l.title,'M'+n);
+  }
+}
+
+function doTouch(n){
+  const l=LV[n-1], w=W[n];
+  if(!w||!w.api){ return; }
+  try{ w.api.fireTouches(); }
+  catch(err){
+    document.getElementById('con'+n).innerHTML=`<span class="err">❌ ${err&&err.luaMsg?('Line '+(err.line||'?')+': '+esc(err.luaMsg)):esc((err&&err.message)||String(err))}</span>`;
+    return;
+  }
+  w.touched=true;
+  render(n); renderExp(n);
+  const printed=(w.out||[]).map(t=>`<span class="out">${esc(t)}</span>`).join('\n');
+  const con=document.getElementById('con'+n);
+  const problem=l.check(w,w.out||[]);
+  if(problem===null){
+    const first=!(w.solved); w.solved=true;
+    con.innerHTML=(printed?printed+'\n':'')+`<span class="out">👆 A player touched it!</span>\n<span class="ok">✅ It reacted exactly right!</span>`;
+    document.getElementById('win'+n).classList.add('show');
+    logMistake(true,l.title,'M'+n);
+    if(first){ addXP(25); showToast('⚡ +25 XP — real Lua events!'); }
+    document.getElementById('tab'+n).classList.add('done');
+  }else{
+    con.innerHTML=(printed?printed+'\n':'')+`<span class="out">👆 A player touched it!</span>\n<span class="err">Not yet — ${esc(problem)}</span>`;
     logMistake(false,l.title,'M'+n);
   }
 }

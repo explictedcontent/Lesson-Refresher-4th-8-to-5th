@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Day 23 — Yeti</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+a{color:var(--accent2)}
+
+/* Phase bar */
+#phase-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;align-items:center}
+.ph-seg{flex:1;height:8px;border-radius:4px;background:var(--line);transition:background .3s,transform .2s;cursor:pointer;position:relative}
+.ph-seg.done{background:var(--good)}
+.ph-seg.active{background:var(--accent2);transform:scaleY(1.4)}
+.ph-label{font-size:11px;color:var(--muted);white-space:nowrap;margin-left:4px}
+
+/* Layout */
+.container{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+.phase-section{margin-bottom:48px;scroll-margin-top:60px}
+.phase-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.phase-meta{font-size:13px;color:var(--muted);margin-bottom:20px}
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;color:var(--accent2);border:1px solid var(--line)}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.card-sm{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+
+/* Flip cards — Phase 1 (mystery cards) */
+.flip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.flip-card{height:150px;cursor:pointer;perspective:900px;border-radius:var(--radius)}
+.flip-inner{width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;position:relative}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;border:2px solid var(--line)}
+.flip-front{background:var(--panel2);color:var(--accent2);flex-direction:column;gap:6px}
+.flip-front .big-num{font-weight:800;font-size:34px;color:var(--ink);letter-spacing:-1px}
+.flip-back{background:var(--panel);transform:rotateY(180deg);flex-direction:column;gap:8px}
+.flip-back .answer{font-weight:700;font-size:15px;color:var(--accent2)}
+.flip-back .explain{font-size:13px;color:var(--muted)}
+.flip-hint{position:absolute;bottom:8px;right:12px;font-size:11px;color:var(--accent);opacity:.85}
+
+/* Reading passage */
+.passage{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;line-height:1.8}
+.passage h3{color:var(--accent2);font-size:15px;margin:20px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+.passage h3:first-child{margin-top:0}
+.passage p{margin-bottom:12px;color:var(--ink)}
+.passage strong{color:var(--warn)}
+.passage .fact-pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--accent2);margin:2px 3px}
+
+/* Match game — Phase 3 */
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.match-wrap{grid-template-columns:1fr}}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-item{min-height:44px;padding:10px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);cursor:pointer;font-size:14px;transition:border-color .2s,background .2s,transform .15s;user-select:none;display:flex;align-items:center}
+.match-item:hover{border-color:var(--accent2)}
+.match-item.selected{border-color:var(--accent2);background:rgba(91,209,196,.12)}
+.match-item.matched{border-color:var(--good);background:rgba(123,216,143,.12);cursor:default;opacity:.85}
+.match-item.wrong{animation:shake .35s}
+.match-score{font-size:15px;font-weight:600;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 22px;border-radius:8px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-muted{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* DNA Lab — Phase 4 */
+.lab-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.dna-strip{display:flex;gap:4px;flex-wrap:wrap;margin:10px 0}
+.base{width:28px;height:32px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;font-family:ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line)}
+.b-A{background:rgba(255,122,89,.20);color:var(--accent)}
+.b-T{background:rgba(91,209,196,.20);color:var(--accent2)}
+.b-C{background:rgba(255,209,102,.20);color:var(--warn)}
+.b-G{background:rgba(123,216,143,.20);color:var(--good)}
+.ref-box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:16px}
+.ref-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0;border-bottom:1px solid var(--line)}
+.ref-row:last-child{border-bottom:none}
+.ref-name{min-width:180px;font-size:14px;font-weight:600;color:var(--ink)}
+.ref-box .dna-strip{margin:0}
+.ref-box .base{width:24px;height:26px;font-size:12px}
+.sample-tag{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.lab-opts{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.lab-reveal{padding:14px 16px;border-radius:8px;border-left:4px solid var(--good);background:rgba(123,216,143,.10);font-size:14px;line-height:1.6;margin-bottom:12px}
+.lab-reveal strong{color:var(--good)}
+
+/* Sequencer — Phase 5 */
+.seq-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+.seq-intro{font-size:15px;line-height:1.6;margin-bottom:16px}
+.seq-list{display:flex;flex-direction:column;gap:8px}
+.seq-item{min-height:44px;padding:12px 14px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .2s,background .2s,transform .15s;user-select:none;text-align:left}
+.seq-item:hover{border-color:var(--accent2)}
+.seq-num{min-width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.seq-item.picked .seq-num{background:var(--accent);color:#fff}
+.seq-item.correct-pos{border-color:var(--good);background:rgba(123,216,143,.12)}
+.seq-item.wrong-pos{animation:shake .35s;border-color:var(--bad);background:rgba(255,107,129,.1)}
+.seq-bonus{padding:16px;border-radius:8px;margin-top:14px;border-left:4px solid var(--accent2);background:rgba(91,209,196,.1);font-size:14px;line-height:1.6}
+.seq-bonus strong{color:var(--accent2)}
+
+/* Writing pad — Phase 6 */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:15px;font-family:inherit;line-height:1.7;padding:14px;resize:vertical;outline:none;transition:border-color .2s}
+.writing-area:focus{border-color:var(--accent2)}
+.writing-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:var(--muted)}
+.saved-indicator{color:var(--good);opacity:0;transition:opacity .3s}
+.saved-indicator.show{opacity:1}
+
+/* Quiz — Phase 7 */
+.progress-dots{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line);transition:background .2s}
+.dot.answered{background:var(--accent2)}
+.dot.current{background:var(--accent);transform:scale(1.25)}
+.dot.correct{background:var(--good)}
+.dot.incorrect{background:var(--bad)}
+.quiz-q{font-size:17px;font-weight:600;margin-bottom:16px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.opt-btn{min-height:44px;padding:11px 16px;border-radius:8px;border:2px solid var(--line);background:var(--panel2);color:var(--ink);font-size:15px;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:10px}
+.opt-btn:hover:not(:disabled){border-color:var(--accent2)}
+.opt-btn.chosen{border-color:var(--accent2);background:rgba(91,209,196,.1)}
+.opt-btn.correct-ans{border-color:var(--good);background:rgba(123,216,143,.12)}
+.opt-btn.wrong-ans{border-color:var(--bad);background:rgba(255,107,129,.1)}
+.opt-btn:disabled{cursor:default}
+.opt-letter{min-width:26px;height:26px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.feedback-box{padding:12px 16px;border-radius:8px;margin-bottom:12px;font-size:14px;border-left:4px solid}
+.feedback-box.good{background:rgba(123,216,143,.1);border-color:var(--good);color:var(--good)}
+.feedback-box.bad{background:rgba(255,107,129,.1);border-color:var(--bad);color:var(--bad)}
+.quiz-nav{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.score-board{text-align:center;padding:32px 20px}
+.score-big{font-size:56px;font-weight:800;color:var(--accent2)}
+.score-msg{font-size:18px;color:var(--muted);margin-top:8px}
+.score-breakdown{margin-top:24px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.score-row{display:flex;gap:12px;align-items:flex-start;font-size:14px;padding:8px 12px;border-radius:8px;background:var(--panel2)}
+.score-row .icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* Misc */
+.divider{height:1px;background:var(--line);margin:24px 0}
+.tip-box{background:var(--panel2);border:1px solid var(--accent2);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+.tip-box strong{color:var(--accent2)}
+.safety-box{background:rgba(255,209,102,.08);border:1px solid var(--warn);border-radius:8px;padding:12px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+.safety-box strong{color:var(--warn)}
+</style>
+</head>
+<body>
+
+<!-- Phase progress bar -->
+<div id="phase-bar">
+  <div class="ph-seg active" id="seg-1" onclick="scrollToPhase(1)" title="Phase 1: Mystery Flip Cards"></div>
+  <div class="ph-seg" id="seg-2" onclick="scrollToPhase(2)" title="Phase 2: Core Reading"></div>
+  <div class="ph-seg" id="seg-3" onclick="scrollToPhase(3)" title="Phase 3: Cold and Thin Air Match"></div>
+  <div class="ph-seg" id="seg-4" onclick="scrollToPhase(4)" title="Phase 4: The DNA Lab"></div>
+  <div class="ph-seg" id="seg-5" onclick="scrollToPhase(5)" title="Phase 5: Claim to Conclusion Sequencer"></div>
+  <div class="ph-seg" id="seg-6" onclick="scrollToPhase(6)" title="Phase 6: Writing Pad"></div>
+  <div class="ph-seg" id="seg-7" onclick="scrollToPhase(7)" title="Phase 7: Quiz"></div>
+  <span class="ph-label">❄️ Yeti</span>
+</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:36px;padding-top:8px">
+    <div style="font-size:52px;margin-bottom:8px">❄️🏔️</div>
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">People Wondered for a Hundred Years. Then Somebody Tested It.</div>
+    <div style="color:var(--muted);font-size:14px;margin-top:4px">Science · Day 23 · Approx. 40 min</div>
+    <div style="color:var(--accent2);font-size:14px;margin-top:10px;font-weight:600">Museums kept hair, bone, skin and teeth labelled <em>yeti</em>. In 2017 scientists read the DNA inside them — and the answer came back in an afternoon of lab work.</div>
+  </div>
+
+  <!-- ══════════════ PHASE 1 ══════════════ -->
+  <section class="phase-section" id="phase-1">
+    <div class="phase-title">
+      <span class="badge">Phase 1</span>
+      Mystery Flip Cards
+    </div>
+    <div class="phase-meta">5 min · Tap each card to reveal the real mountain-science fact</div>
+
+    <div class="flip-grid" id="flip-grid"></div>
+
+    <div class="tip-box" style="margin-top:16px">
+      <strong>Guess first!</strong> Every number on these cards came out of real research — a DNA lab, a mountain survey, or a goose wearing a GPS tag. Before you flip, try to guess: how many "yeti" relics were tested? How much oxygen is left in a breath halfway up Everest? And how high can a bird actually fly?
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 2 ══════════════ -->
+  <section class="phase-section" id="phase-2">
+    <div class="phase-title">
+      <span class="badge">Phase 2</span>
+      Core Reading
+    </div>
+    <div class="phase-meta">12 min · Read carefully — quiz questions come from this passage</div>
+
+    <div class="passage">
+      <p style="font-size:19px;font-weight:700;color:var(--ink);margin-bottom:16px">The DNA Test That Solved a Legend</p>
+
+      <h3>A Hundred Years of Footprints</h3>
+      <p>In the high Himalaya — the mountain wall that runs along Nepal, Tibet, India and Bhutan — people have told stories for a very long time about a large, hairy, upright creature in the snow. Western climbers picked the stories up in the early 1900s. In <strong>1921</strong> a British expedition reported tracks in the snow and a name they had half-understood from their guides; a newspaper writer turned it into the phrase <strong>"abominable snowman,"</strong> and that phrase went around the world. In <strong>1951</strong> the climber Eric Shipton photographed a huge, strange footprint on a Himalayan glacier, with an ice axe laid beside it for scale. That single photograph kept the argument going for decades.</p>
+      <p>Here is something worth noticing right at the start. Several of the local names behind our word <em>yeti</em> — such as <em>dzu-teh</em> — were used by people in the mountains for a <strong>large bear</strong>. The bear was in the name the whole time. Nobody outside the mountains was listening closely enough to hear it.</p>
+      <p>For about a hundred years, that was the whole situation: stories, footprints, and arguments. What nobody had was a way to <strong>check</strong>.</p>
+
+      <h3>What DNA Actually Is</h3>
+      <p><strong>DNA</strong> is the instruction molecule packed inside almost every cell of almost every living thing. It is a long code written with just four chemical letters — <strong>A, T, C and G</strong> — repeated in a particular order. That order is the instructions for building and running the organism.</p>
+      <p>The important part for our mystery: <strong>every species has its own distinctive DNA</strong>. A brown bear's code is not a dog's code, and a dog's is not a snow leopard's. Closely related species have codes that look nearly the same, with only small differences; distant relatives look wildly different. So if you can pull DNA out of something and compare its code to the codes of known animals, the sample tells you <em>exactly</em> what it came from — no guessing, no opinion.</p>
+      <p>And you barely need any of it. A <strong>single hair</strong>, a fleck of skin, a chip of bone, a scrap of a feather, a bit of droppings — each carries cells, and cells carry DNA. Scientists use this trick constantly and not just for legends: they identify a bird from one feather found under a wind turbine, catch illegal ivory by testing which elephant population it came from, and count snow leopards in a valley by testing droppings without ever seeing the animal. This method of naming a species from a short standard stretch of its code is called <strong>DNA barcoding</strong>, because it works a bit like scanning a barcode at a shop.</p>
+
+      <h3>The Test</h3>
+      <p>In <strong>2017</strong>, a research team led by the biologist <strong>Charlotte Lindqvist</strong> did the obvious thing that nobody had properly done before. Museums, monasteries and private collectors around the world were holding relics said to be from a yeti. The team gathered <strong>24 samples</strong> in all — hair, bone, a tooth, skin and droppings — from purported yetis and from known bears of the region. <strong>Nine</strong> of those samples were specifically claimed to be yeti.</p>
+      <p>They extracted the DNA from each one and compared the codes against the codes of known species.</p>
+
+      <h3>What the Results Said</h3>
+      <p>Eight of the nine "yeti" samples came back as <strong>bears</strong> — <strong>Himalayan brown bears</strong>, <strong>Tibetan brown bears</strong>, and <strong>Asiatic black bears</strong>, all animals that genuinely live in those mountains.</p>
+      <p>The ninth came back as a <strong>dog</strong>.</p>
+      <p>That is the whole answer, and it is worth sitting with for a second. A question people had shouted about for a century — is there a giant unknown creature up there? — was answered for these relics by lab work, calmly, in a way anyone else can repeat and check. That is what makes it <strong>evidence</strong> instead of an opinion.</p>
+      <p>The bear result also explains the eyewitnesses without calling any of them liars. A brown bear <strong>standing up on its hind legs</strong> in snow is tall, broad-shouldered, and covered in shaggy hair. Seen at a distance, in bad light, on a slope where you cannot judge size, it is a genuinely confusing sight. And footprints in snow do not stay the way they were made: as the sun works on them, the edges <strong>melt and slump outward</strong>, so a normal track slowly widens into something enormous and strange-shaped. A bear also often plants its back foot partly on top of its front footprint, which merges two tracks into one big weird one. Honest people can report exactly what they saw and still be wrong about what made it.</p>
+
+      <h3>The Honest Limit</h3>
+      <p>Now the part that separates good science from a victory lap. The 2017 study can only tell you about <strong>the samples that were tested</strong>. It proved those particular relics came from bears and a dog. It <em>cannot</em> prove that nothing unknown lives in the Himalaya, because you cannot test something you do not have.</p>
+      <p>Scientists say this out loud on purpose. "Every relic we tested was a known animal" is a strong, careful claim you can defend. "Nothing unknown exists anywhere in those mountains" is a much bigger claim that the evidence does not support. Knowing the difference between <strong>what your evidence shows</strong> and <strong>what you wish it showed</strong> is one of the most valuable habits a person can have.</p>
+      <p>Science also fixes itself. In <strong>2014</strong>, an earlier study suggested that two Himalayan hair samples matched an unknown bear related to ancient polar bears — an exciting result that got a lot of headlines. Other scientists then re-examined the same data and found the match was simply a <strong>Himalayan brown bear</strong>. Nobody cheated; a result was published, checked by others, and corrected. That checking step is not a failure of science. It <em>is</em> science.</p>
+
+      <h3>The Real Animals Up There</h3>
+      <p>The animals the DNA pointed to are far more interesting than the legend, because every one of them is a machine built for a place that tries to kill things.</p>
+      <p><strong>Snow leopard.</strong> A ghost-grey cat of cliffs and scree, usually between about 3,000 and 4,500 m. Its fur is thick and dense, longest on the belly. Its <strong>paws are enormous and furry underneath</strong>, spreading its weight across soft snow like a pair of snowshoes so it does not sink. Its <strong>tail is nearly as long as its body</strong> — a counterweight for balancing on ledges, and a scarf it wraps over its face when it curls up to sleep. Inside its short muzzle is an <strong>unusually large nasal cavity</strong>, which warms the freezing thin air on the way to the lungs.</p>
+      <p><strong>Himalayan brown bear.</strong> Sandy-brown, big, and rare, living up around 3,000–5,000 m. It solves winter by not being awake for it: it fattens hard in autumn, then <strong>hibernates</strong> in a den for months, living off its own fat while food is impossible to find, insulated by that fat and by thick fur.</p>
+      <p><strong>Asiatic black bear.</strong> Also called the moon bear for the pale crescent on its chest. It climbs well, spends summer high in Himalayan forests, and moves down to lower, warmer elevations as winter closes in — a different answer to the same problem: don't endure the cold, leave it.</p>
+      <p><strong>Yak.</strong> A domesticated and wild ox of the Tibetan Plateau, at home from about 3,000 m to over 5,000 m. It wears a <strong>double coat</strong>: a soft woolly undercoat that traps a layer of warm air against the skin, under a long shaggy outer coat that sheds snow and wind. Inside, it has <strong>larger lungs and a larger heart</strong> than lowland cattle, and its blood carries <strong>about three times as many red blood cells</strong>, each one smaller. More red blood cells means more oxygen squeezed out of every thin-air breath. Take a yak down to the hot lowlands and it does badly — it is specialised for up there.</p>
+      <p><strong>Bar-headed goose.</strong> Twice a year this bird crosses the Himalaya. GPS trackers have recorded one at <strong>7,290 m</strong>, in air where a human would black out. Its trick is oxygen efficiency: a slightly different version of <strong>hemoglobin</strong> (the oxygen-carrying molecule in blood) that <strong>grabs oxygen more tightly</strong> where there is little of it, plus flight muscles packed with extra blood capillaries and extra mitochondria — the parts of a cell that turn fuel and oxygen into usable energy. It also flies mostly at night, when the air is colder and denser, and it climbs using its own muscle power.</p>
+
+      <h3>Why High Places Are So Hard to Live In</h3>
+      <p>Four problems stack up as you go higher, and every adaptation above is an answer to one of them.</p>
+      <p><strong>1. Less oxygen.</strong> The air is not a different mixture up high — it is just <strong>spread thinner</strong>. At about 5,500 m, each breath contains roughly <strong>half</strong> the oxygen of a breath at sea level. At the summit of <strong>Mount Everest (8,849 m)</strong> it is about a third. <em>Answers: extra red blood cells, bigger lungs and heart, tighter-gripping hemoglobin.</em></p>
+      <p><strong>2. Cold.</strong> Air temperature drops roughly <strong>6.5 °C for every 1,000 m</strong> you climb, and mountain wind strips heat away faster still. <em>Answers: dense double coats, fat layers, hibernation, a tail used as a scarf.</em></p>
+      <p><strong>3. Strong sun.</strong> There is less atmosphere overhead to absorb ultraviolet light, and snow reflects a lot of it straight back up at you. <em>Answers: thick fur and skin, and eyes adapted to glare.</em></p>
+      <p><strong>4. Little shelter and little food.</strong> Above the treeline there are no forests to hide in and plants grow slowly and small. <em>Answers: camouflage, huge home ranges, hibernating through the lean months, or migrating out entirely.</em></p>
+
+      <h3>Think Like the Lab Did</h3>
+      <p>Strip the story down and you get a pattern you can use on anything:</p>
+      <p><strong>Claim → Evidence → Test → Conclusion (with its limits).</strong></p>
+      <p>The <strong>claim</strong> was that an unknown creature leaves these relics. The <strong>evidence</strong> was the relics themselves, physically collected. The <strong>test</strong> was reading their DNA and comparing it to known species — a test that could have proved the claim right, which is what makes it a fair test. The <strong>conclusion</strong> was that these relics are bears and a dog, stated with its honest limit attached.</p>
+      <p>Notice the good question the scientists asked. Not "is the yeti real?" — that is nearly impossible to answer. But "<strong>what animal did these samples come from?</strong>" — that one has an answer you can actually go and get.</p>
+
+      <div class="safety-box">
+        <strong>🔎 Myth check:</strong> A footprint is not proof of what made it, and a blurry photo is not proof either. Ask the scientist's questions: <em>What exactly is the evidence? Could something ordinary explain it? Is there a test that could show me I'm wrong?</em> And be fair to the people in the stories — a mistake made honestly is not a lie.
+      </div>
+
+      <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="fact-pill">🧬 2017 study · 24 samples · 9 "yeti"</span>
+        <span class="fact-pill">🐻 8 bears · 🐕 1 dog</span>
+        <span class="fact-pill">🅰️🅃🅲🅶 DNA = A, T, C, G</span>
+        <span class="fact-pill">🏔️ Everest 8,849 m</span>
+        <span class="fact-pill">🫁 ~½ the oxygen at 5,500 m</span>
+        <span class="fact-pill">🦢 Bar-headed goose GPS: 7,290 m</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 3 ══════════════ -->
+  <section class="phase-section" id="phase-3">
+    <div class="phase-title">
+      <span class="badge">Phase 3</span>
+      Cold &amp; Thin Air Match
+    </div>
+    <div class="phase-meta">8 min · Tap a feature on the left, then tap the problem it solves on the right</div>
+
+    <div class="match-wrap">
+      <div class="match-col" id="match-left"></div>
+      <div class="match-col" id="match-right"></div>
+    </div>
+    <div class="match-score" id="match-score"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-muted" id="retry-btn" onclick="retryWrong()" style="display:none">Retry unmatched</button>
+      <button class="btn btn-muted" onclick="resetMatch()">Reset all</button>
+    </div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Tip:</strong> Every one of these is an answer to one of the four mountain problems — thin air, cold, strong sun, or no food and no shelter. Ask "which problem does this fix?" before you tap.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 4 ══════════════ -->
+  <section class="phase-section" id="phase-4">
+    <div class="phase-title">
+      <span class="badge">Phase 4</span>
+      The DNA Lab
+    </div>
+    <div class="phase-meta">8 min · You are the lab tech — read each sample's code and name the animal</div>
+
+    <div id="lab-body"></div>
+
+    <div class="tip-box" style="margin-top:14px">
+      <strong>How to read a code:</strong> Compare it to the reference library <em>letter by letter, left to right</em>. Two of the species differ by only ONE letter — that is real: closely related animals have codes that look almost the same, so the last letter matters as much as the first.
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 5 ══════════════ -->
+  <section class="phase-section" id="phase-5">
+    <div class="phase-title">
+      <span class="badge">Phase 5</span>
+      Claim → Evidence → Conclusion
+    </div>
+    <div class="phase-meta">8 min · Rebuild the investigation in the order it actually happened</div>
+
+    <div id="seq-body"></div>
+    <div class="tip-box" style="margin-top:14px">
+      <strong>Think it through:</strong> What has to exist before you can ask a question about it? Can you run a test before you have collected anything to test? And which step has to come dead last — the conclusion, or the result the conclusion is based on?
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 6 ══════════════ -->
+  <section class="phase-section" id="phase-6">
+    <div class="phase-title">
+      <span class="badge">Phase 6</span>
+      Writing Pad
+    </div>
+    <div class="phase-meta">5 min · Write at least 5 sentences</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--accent2)">Your prompt:</div>
+      <p style="font-size:15px;line-height:1.7">A friend says, "Scientists tested some hairs and now everyone acts like the mystery is over. Boring — and how would they even know from a hair?"</p>
+      <p style="font-size:15px;line-height:1.7;margin-top:8px">Write your friend a careful answer. Explain what <strong>DNA</strong> is and why a single hair can name a species. Say what the 2017 test actually found. Then be honest about the <strong>limit</strong> — what the study can and cannot prove — and explain why saying that out loud makes the science stronger, not weaker. Finish by describing <strong>two real Himalayan animals</strong> and one adaptation each, saying what problem the adaptation solves. <strong>(At least 5 sentences.)</strong></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="DNA is the instruction molecule inside almost every cell, and every species has its own version, so…" oninput="onWritingInput()"></textarea>
+    <div class="writing-footer">
+      <span id="word-count">0 words</span>
+      <span class="saved-indicator" id="save-indicator">Saved ✓</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ PHASE 7 ══════════════ -->
+  <section class="phase-section" id="phase-7">
+    <div class="phase-title">
+      <span class="badge">Phase 7</span>
+      Quiz
+    </div>
+    <div class="phase-meta">5 min · 10 questions · One at a time</div>
+
+    <div class="progress-dots" id="q-dots"></div>
+    <div id="quiz-body"></div>
+  </section>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// ── Storage keys ──────────────────────────────────────────────
+const QAKEY = 'science-l23-qans';
+const QKEY  = 'science-l23-quiz';
+const WKEY  = 'science-l23-writing';
+
+// ── logMistake ────────────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'Science|Day 23: Yeti|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'Science', day: 'Day 23', q: questionText, file: 'science-lesson-23-yeti.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ── Phase 1: Mystery Flip Cards ───────────────────────────────
+const flipCards = [
+  {
+    num: '2017',
+    answer: 'The year the DNA answer came in',
+    explain: 'A team led by biologist Charlotte Lindqvist read the DNA of relics that museums and collectors had labelled "yeti" — after about a century of arguing about footprints.'
+  },
+  {
+    num: '9',
+    answer: 'Relics claimed to be yeti',
+    explain: 'They were part of 24 samples in all: hair, bone, a tooth, skin and droppings, gathered from collections and from known bears of the region.'
+  },
+  {
+    num: '1 DOG',
+    answer: 'What one famous relic really was',
+    explain: 'Eight of the nine "yeti" samples came back as Himalayan brown bear, Tibetan brown bear, or Asiatic black bear. The ninth was a dog.'
+  },
+  {
+    num: 'HALF',
+    answer: 'Oxygen per breath at 5,500 m',
+    explain: 'The air is not a different mixture up high — it is just spread thinner. At Everest’s summit, 8,849 m, a breath holds only about a third of the oxygen it holds at the beach.'
+  },
+  {
+    num: '3×',
+    answer: 'A yak’s red blood cells vs. cattle',
+    explain: 'A yak carries roughly three times as many red blood cells as lowland cattle, each one smaller — plus bigger lungs and a bigger heart. More oxygen out of every thin breath.'
+  },
+  {
+    num: '7,290 m',
+    answer: 'A GPS-tracked goose’s altitude',
+    explain: 'A bar-headed goose crossing the Himalaya, in air where a human would black out. Its hemoglobin grips oxygen more tightly than ours does.'
+  }
+];
+
+function buildFlipCards() {
+  const grid = document.getElementById('flip-grid');
+  grid.innerHTML = '';
+  flipCards.forEach((fc, i) => {
+    grid.innerHTML += `
+      <div class="flip-card" id="fc-${i}" onclick="flipCard(${i})" role="button" tabindex="0" aria-label="Flip card ${i+1}" onkeydown="if(event.key==='Enter'||event.key===' ')flipCard(${i})">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <span class="big-num">${fc.num}</span>
+            <span class="flip-hint">tap to reveal</span>
+          </div>
+          <div class="flip-back">
+            <span class="answer">${fc.answer}</span>
+            <span class="explain">${fc.explain}</span>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function flipCard(i) {
+  document.getElementById('fc-'+i).classList.toggle('flipped');
+}
+
+// ── Phase 3: Cold & Thin Air Match ────────────────────────────
+const matchPairs = [
+  { left: 'Snow leopard’s huge furry paws', right: 'Spreads its weight on soft snow like snowshoes so it does not sink' },
+  { left: 'Snow leopard’s long thick tail', right: 'Balances it on cliff ledges, and wraps over its face as a scarf' },
+  { left: 'Snow leopard’s big nasal cavity', right: 'Warms the freezing thin air before it reaches the lungs' },
+  { left: 'Yak’s woolly undercoat', right: 'Traps a layer of warm air against the skin under shaggy outer hair' },
+  { left: 'Yak’s extra red blood cells', right: 'Pulls more oxygen out of every thin-air breath' },
+  { left: 'Bar-headed goose’s hemoglobin', right: 'Grips oxygen tightly even where there is very little of it' },
+  { left: 'Brown bear’s hibernation', right: 'Skips the months when almost no food can be found' },
+  { left: 'DNA', right: 'Names the exact species a single hair came from' }
+];
+
+let matchState = {
+  selectedLeft: null,
+  selectedRight: null,
+  matched: new Set(),
+  score: 0
+};
+
+function buildMatch() {
+  const leftCol = document.getElementById('match-left');
+  const rightCol = document.getElementById('match-right');
+  leftCol.innerHTML = '';
+  rightCol.innerHTML = '';
+
+  const leftOrder = shuffle([...Array(matchPairs.length).keys()]);
+  const rightOrder = shuffle([...Array(matchPairs.length).keys()]);
+
+  leftOrder.forEach(i => {
+    leftCol.innerHTML += `<div class="match-item" id="ml-${i}" onclick="selectLeft(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectLeft(${i})">${matchPairs[i].left}</div>`;
+  });
+  rightOrder.forEach(i => {
+    rightCol.innerHTML += `<div class="match-item" id="mr-${i}" onclick="selectRight(${i})" role="button" tabindex="0" onkeydown="if(event.key==='Enter')selectRight(${i})">${matchPairs[i].right}</div>`;
+  });
+}
+
+function selectLeft(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedLeft !== null) {
+    const prev = document.getElementById('ml-'+matchState.selectedLeft);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedLeft = i;
+  document.getElementById('ml-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function selectRight(i) {
+  if (matchState.matched.has(i)) return;
+  if (matchState.selectedRight !== null) {
+    const prev = document.getElementById('mr-'+matchState.selectedRight);
+    if (prev) prev.classList.remove('selected');
+  }
+  matchState.selectedRight = i;
+  document.getElementById('mr-'+i).classList.add('selected');
+  tryMatch();
+}
+
+function tryMatch() {
+  const { selectedLeft: l, selectedRight: r } = matchState;
+  if (l === null || r === null) return;
+
+  if (l === r) {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.remove('selected'); lEl.classList.add('matched');
+    rEl.classList.remove('selected'); rEl.classList.add('matched');
+    matchState.matched.add(l);
+    matchState.score++;
+    matchState.selectedLeft = null;
+    matchState.selectedRight = null;
+    updateMatchScore();
+  } else {
+    const lEl = document.getElementById('ml-'+l);
+    const rEl = document.getElementById('mr-'+r);
+    lEl.classList.add('wrong'); rEl.classList.add('wrong');
+    setTimeout(() => {
+      lEl.classList.remove('wrong','selected');
+      rEl.classList.remove('wrong','selected');
+      matchState.selectedLeft = null;
+      matchState.selectedRight = null;
+      document.getElementById('retry-btn').style.display = 'inline-flex';
+    }, 400);
+  }
+}
+
+function updateMatchScore() {
+  const total = matchPairs.length;
+  const s = matchState.score;
+  const el = document.getElementById('match-score');
+  if (s === total) {
+    el.innerHTML = `<span style="color:var(--good)">🎉 All ${total} matched! High-altitude expert!</span>`;
+    document.getElementById('retry-btn').style.display = 'none';
+    markPhaseDone(3);
+  } else {
+    el.textContent = `${s} / ${total} matched`;
+  }
+}
+
+function retryWrong() {
+  if (matchState.selectedLeft !== null) {
+    const lEl = document.getElementById('ml-'+matchState.selectedLeft);
+    if (lEl) lEl.classList.remove('selected');
+  }
+  if (matchState.selectedRight !== null) {
+    const rEl = document.getElementById('mr-'+matchState.selectedRight);
+    if (rEl) rEl.classList.remove('selected');
+  }
+  matchState.selectedLeft = null;
+  matchState.selectedRight = null;
+  document.getElementById('retry-btn').style.display = 'none';
+}
+
+function resetMatch() {
+  matchState = { selectedLeft: null, selectedRight: null, matched: new Set(), score: 0 };
+  document.getElementById('match-score').textContent = '';
+  document.getElementById('retry-btn').style.display = 'none';
+  buildMatch();
+}
+
+// ── Phase 4: The DNA Lab ──────────────────────────────────────
+const labRef = [
+  { sp: 'Himalayan brown bear', code: 'ATGCCATG' },
+  { sp: 'Tibetan brown bear',   code: 'ATGCCATA' },
+  { sp: 'Asiatic black bear',   code: 'TACGGTCA' },
+  { sp: 'Dog',                  code: 'CCGATTAG' },
+  { sp: 'Snow leopard',         code: 'GGATCACT' }
+];
+
+const labSamples = [
+  {
+    tag: 'Sample 1',
+    label: 'Coarse reddish-brown hair, kept in a monastery and labelled "yeti" for generations.',
+    code: 'ATGCCATG',
+    ans: 0,
+    reveal: 'Himalayan brown bear. In the real 2017 study this was the commonest answer of all — a big, sandy-brown bear that hibernates through the Himalayan winter and can stand up on its hind legs.'
+  },
+  {
+    tag: 'Sample 2',
+    label: 'A fragment of bone from a cave on the Tibetan Plateau, collected by a climber in the 1950s.',
+    code: 'ATGCCATA',
+    ans: 1,
+    reveal: 'Tibetan brown bear — and notice it differs from the Himalayan brown bear by a single letter at the very end. Close relatives have nearly identical codes, which is exactly why you must read to the last letter.'
+  },
+  {
+    tag: 'Sample 3',
+    label: 'A scrap of dark skin from a private collection, said to have come from a yeti’s arm.',
+    code: 'TACGGTCA',
+    ans: 2,
+    reveal: 'Asiatic black bear — the "moon bear," with a pale crescent on its chest. It summers high in Himalayan forests and moves downhill as winter comes.'
+  },
+  {
+    tag: 'Sample 4',
+    label: 'A tooth from one of the most famous "yeti" relics ever displayed.',
+    code: 'CCGATTAG',
+    ans: 3,
+    reveal: 'A dog. This one really happened: one of the nine relics tested in 2017 turned out to be a dog. Evidence does not care how famous a relic is.'
+  },
+  {
+    tag: 'Sample 5',
+    label: 'Thick grey hair snagged on a thorn bush at 4,000 m — nobody claimed this one was a yeti.',
+    code: 'GGATCACT',
+    ans: 4,
+    reveal: 'Snow leopard. This is the everyday job of DNA barcoding: researchers count snow leopards in a valley from hairs and droppings without ever laying eyes on the cat.'
+  }
+];
+
+let labState = { idx: 0, revealed: false, got: 0, wrongOn: null };
+
+function strip(code, small) {
+  let h = '<div class="dna-strip">';
+  for (const c of code) h += `<span class="base b-${c}">${c}</span>`;
+  return h + '</div>';
+}
+
+function buildLab() {
+  labState = { idx: 0, revealed: false, got: 0, wrongOn: null };
+  renderLab();
+}
+
+function renderLab() {
+  const body = document.getElementById('lab-body');
+
+  let refHTML = '';
+  labRef.forEach(r => {
+    refHTML += `<div class="ref-row"><span class="ref-name">${r.sp}</span>${strip(r.code)}</div>`;
+  });
+  const refBox = `<div class="ref-box">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">📚 REFERENCE LIBRARY — known species codes</div>
+      ${refHTML}
+    </div>`;
+
+  if (labState.idx >= labSamples.length) {
+    body.innerHTML = `
+      <div class="lab-wrap">
+        <div class="seq-intro">🧬 <strong>All ${labSamples.length} samples identified — ${labState.got} of ${labSamples.length} on the first try.</strong></div>
+        ${refBox}
+        <div class="seq-bonus">
+          <strong>That is genuinely how the 2017 study worked. Nobody had to hike a glacier or win an argument: the code inside each relic was compared to the codes of known animals, and the animals named themselves. Eight bears and one dog. And remember the limit — a test can only speak for the samples in the tray.</strong>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-muted" onclick="buildLab()">Run the lab again</button></div>
+      </div>`;
+    markPhaseDone(4);
+    return;
+  }
+
+  const s = labSamples[labState.idx];
+
+  let optsHTML = '';
+  labRef.forEach((r, i) => {
+    let cls = 'opt-btn';
+    if (labState.revealed && i === s.ans) cls += ' correct-ans';
+    else if (labState.wrongOn === i) cls += ' wrong-ans';
+    optsHTML += `<button class="${cls}" ${labState.revealed ? 'disabled' : ''} onclick="labPick(${i})">
+      <span class="opt-letter">${i+1}</span>${r.sp}
+    </button>`;
+  });
+
+  const revealHTML = labState.revealed
+    ? `<div class="lab-reveal"><strong>Match confirmed:</strong> ${s.reveal}</div>
+       <button class="btn btn-accent" onclick="labNext()">${labState.idx === labSamples.length-1 ? 'Finish lab 🧬' : 'Next sample →'}</button>`
+    : (labState.wrongOn !== null
+        ? `<div class="feedback-box bad">✗ Not that one. Go back to the library and compare the letters one at a time — a single letter can change the answer.</div>`
+        : '');
+
+  body.innerHTML = `
+    <div class="lab-wrap">
+      ${refBox}
+      <div class="sample-tag">${s.tag} of ${labSamples.length}</div>
+      <div style="font-size:15px;line-height:1.6;margin-top:4px">${s.label}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:10px">DNA read from this sample:</div>
+      ${strip(s.code)}
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Which species does this code belong to?</div>
+      <div class="lab-opts">${optsHTML}</div>
+      ${revealHTML}
+    </div>`;
+}
+
+function labPick(i) {
+  if (labState.revealed) return;
+  if (i === labSamples[labState.idx].ans) {
+    if (labState.wrongOn === null) labState.got++;
+    labState.revealed = true;
+    labState.wrongOn = null;
+  } else {
+    labState.wrongOn = i;
+  }
+  renderLab();
+}
+
+function labNext() {
+  labState.idx++;
+  labState.revealed = false;
+  labState.wrongOn = null;
+  renderLab();
+}
+
+// ── Phase 5: Claim → Evidence → Conclusion Sequencer ──────────
+// Correct order (order value = the real step number, 1..6)
+const seqStages = [
+  { order: 1, text: 'CLAIM — For a century, people report a large unknown creature, and collectors keep relics labelled "yeti"' },
+  { order: 2, text: 'QUESTION — A scientist picks a question that can actually be answered: what animal did these samples come from?' },
+  { order: 3, text: 'EVIDENCE — 24 samples of hair, bone, tooth, skin and droppings are borrowed from museums and collectors' },
+  { order: 4, text: 'TEST — DNA is pulled out of each sample and its code is compared with the codes of known species' },
+  { order: 5, text: 'RESULT — 8 of the 9 "yeti" relics match Himalayan brown, Tibetan brown or Asiatic black bears; the 9th matches a dog' },
+  { order: 6, text: 'CONCLUSION + LIMIT — These relics came from known animals, and a test can only speak for the samples tested' }
+];
+
+// seqState.slots holds the stage indexes the player has placed, in order
+let seqState = { slots: [], solved: false };
+
+function buildSeq() {
+  seqState = { slots: [], solved: false };
+  renderSeq();
+}
+
+function renderSeq() {
+  const body = document.getElementById('seq-body');
+
+  if (seqState.solved) {
+    let orderedHTML = '';
+    seqState.slots.forEach((si, pos) => {
+      orderedHTML += `<div class="seq-item correct-pos"><span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span></div>`;
+    });
+    body.innerHTML = `
+      <div class="seq-wrap">
+        <div class="seq-intro">🧠 <strong>That is the whole machine.</strong> Here is the investigation, start to finish:</div>
+        <div class="seq-list">${orderedHTML}</div>
+        <div class="seq-bonus">
+          <strong>Read it top to bottom and notice two things. First, the test could have proved the claim RIGHT — if a code had matched no known animal, that would have been front-page news. A fair test is one that could go either way. Second, the last step keeps its limit attached: "every relic we tested was a known animal" is a claim you can defend, while "nothing unknown exists up there" is not. In 2014 an earlier study reported an unknown bear; other scientists rechecked the data and found an ordinary Himalayan brown bear. Getting corrected is not science failing. It is science working.</strong>
+        </div>
+        <div style="margin-top:14px"><button class="btn btn-muted" onclick="buildSeq()">Try Again</button></div>
+      </div>`;
+    markPhaseDone(5);
+    return;
+  }
+
+  // Build the "choices remaining" list (shuffled once per game) and the placed list
+  if (!seqState.shuffled) {
+    seqState.shuffled = shuffle([...Array(seqStages.length).keys()]);
+  }
+
+  let choicesHTML = '';
+  seqState.shuffled.forEach(si => {
+    if (seqState.slots.includes(si)) return; // already placed
+    choicesHTML += `<button class="seq-item" onclick="placeStage(${si})">
+      <span class="seq-num">?</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  let placedHTML = '';
+  seqState.slots.forEach((si, pos) => {
+    const cls = seqState.checked ? (seqStages[si].order === pos+1 ? ' correct-pos' : ' wrong-pos') : '';
+    placedHTML += `<button class="seq-item${cls}" onclick="removeStage(${pos})">
+      <span class="seq-num">${pos+1}</span><span>${seqStages[si].text}</span>
+    </button>`;
+  });
+
+  const allPlaced = seqState.slots.length === seqStages.length;
+
+  body.innerHTML = `
+    <div class="seq-wrap">
+      <div class="seq-intro">🗂️ The 2017 investigation got scrambled. <strong>Tap the steps in the order they had to happen, first step first.</strong></div>
+      ${seqState.slots.length ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Your case file (tap a step to remove it):</div><div class="seq-list" style="margin-bottom:16px">${placedHTML}</div>` : ''}
+      ${choicesHTML ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Steps to place:</div><div class="seq-list">${choicesHTML}</div>` : ''}
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        ${allPlaced ? `<button class="btn btn-accent" onclick="checkSeq()">Check Order</button>` : ''}
+        <button class="btn btn-muted" onclick="buildSeq()">Reset</button>
+      </div>
+    </div>`;
+}
+
+function placeStage(si) {
+  seqState.checked = false;
+  seqState.slots.push(si);
+  renderSeq();
+}
+
+function removeStage(pos) {
+  seqState.checked = false;
+  seqState.slots.splice(pos, 1);
+  renderSeq();
+}
+
+function checkSeq() {
+  const allCorrect = seqState.slots.every((si, pos) => seqStages[si].order === pos+1);
+  if (allCorrect) {
+    seqState.solved = true;
+    renderSeq();
+  } else {
+    seqState.checked = true;
+    renderSeq();
+    // clear the red marks after the shake so kid can rearrange
+    setTimeout(() => { seqState.checked = false; renderSeq(); }, 900);
+  }
+}
+
+// ── Phase 6: Writing Pad ──────────────────────────────────────
+let writeTimer = null;
+
+function countWords(txt) {
+  const t = txt.trim();
+  return t === '' ? 0 : t.split(/\s+/).length;
+}
+
+function onWritingInput() {
+  const txt = document.getElementById('writing-pad').value;
+  const w = countWords(txt);
+  document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(saveWriting, 300);
+}
+
+function saveWriting() {
+  try {
+    localStorage.setItem(WKEY, document.getElementById('writing-pad').value);
+    const ind = document.getElementById('save-indicator');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 1500);
+  } catch(e) {}
+}
+
+function restoreWriting() {
+  try {
+    const saved = localStorage.getItem(WKEY);
+    if (saved) {
+      document.getElementById('writing-pad').value = saved;
+      const w = countWords(saved);
+      document.getElementById('word-count').textContent = w + ' word' + (w !== 1 ? 's' : '');
+    }
+  } catch(e) {}
+}
+
+// ── Phase 7: Quiz ─────────────────────────────────────────────
+const questions = [
+  {
+    q: 'In the 2017 study, what did nearly all of the "yeti" samples turn out to be?',
+    opts: [
+      'A great ape that no scientist had ever managed to collect a whole body from before',
+      'Bears — Himalayan brown bears, Tibetan brown bears, and Asiatic black bears',
+      'Wild yaks that had wandered above the treeline and frozen in the deep snow there',
+      'Snow leopards whose pale winter coats had been mistaken for the fur of a large ape'
+    ],
+    ans: 1,
+    explain: 'Eight of the nine relics claimed to be yeti came back as bears that really live in those mountains. The ninth came back as a dog.'
+  },
+  {
+    q: 'What is DNA?',
+    opts: [
+      'A kind of fur that grows only on animals living high in the coldest mountains',
+      'A photograph taken so close up that a scientist can count hairs in a footprint',
+      'A measurement of how much oxygen an animal’s blood can carry in thin mountain air',
+      'The instruction molecule inside almost every cell, different in every species'
+    ],
+    ans: 3,
+    explain: 'DNA is a code written with four chemical letters — A, T, C and G. Every species has its own distinctive version of that code.'
+  },
+  {
+    q: 'One of the nine famous "yeti" relics turned out to be from which animal?',
+    opts: [
+      'A dog',
+      'A wolf',
+      'A horse',
+      'A monkey'
+    ],
+    ans: 0,
+    explain: 'A dog. Eight relics were bears and the ninth was a dog — evidence does not care how famous or how old a relic is.'
+  },
+  {
+    q: 'Why can one single hair be enough to identify what animal it came from?',
+    opts: [
+      'Because hair from different animals is always a completely different color and thickness',
+      'Because every hair holds a tiny map of where the animal was standing when it fell out',
+      'Because cells in the hair carry DNA, and each species has its own distinctive code',
+      'Because scientists keep a museum drawer holding one hair from every animal on Earth'
+    ],
+    ans: 2,
+    explain: 'Naming a species from a short standard stretch of its code is called DNA barcoding. It also works on a feather, a chip of bone, or droppings.'
+  },
+  {
+    q: 'What is the honest LIMIT of what the 2017 study proved?',
+    opts: [
+      'It speaks only for the samples that were tested, not for everything unseen out there',
+      'It was thrown out after nobody could recall where the samples came from',
+      'It could not work, because DNA falls apart in freezing mountain weather',
+      'It proved for certain that no unknown large animal lives anywhere in the Himalaya'
+    ],
+    ans: 0,
+    explain: 'You cannot test something you do not have. "Every relic we tested was a known animal" is a claim you can defend; "nothing unknown exists up there" is not.'
+  },
+  {
+    q: 'Why does a snow leopard have such large, furry paws?',
+    opts: [
+      'They let it dig a burrow deep under the snow to sleep in on the coldest nights',
+      'They warm the thin mountain air on its way down to the lungs so it is easier to use',
+      'They spread its weight on deep soft snow so it does not sink, like snowshoes',
+      'They store extra fat that the leopard can live off when prey is hard to find'
+    ],
+    ans: 2,
+    explain: 'Big paws with fur underneath work like snowshoes. Its long tail is the balance tool, and its enlarged nasal cavity is what warms the cold air.'
+  },
+  {
+    q: 'How does a yak get enough oxygen high on the Tibetan Plateau?',
+    opts: [
+      'It breathes only through its nose, which filters ice crystals out of the air',
+      'It carries extra red blood cells, so each thin-air breath delivers more oxygen',
+      'It slows its heart nearly to a stop and hibernates through the coldest months',
+      'It has hollow hairs that fill with warm air and keep the snow off its back'
+    ],
+    ans: 1,
+    explain: 'A yak has roughly three times as many red blood cells as lowland cattle, each smaller, plus larger lungs and a larger heart.'
+  },
+  {
+    q: 'Why is living at very high altitude so hard?',
+    opts: [
+      'The air is so thick up high that animals have to push hard through it to move',
+      'The sunlight is far weaker up high, so the days are much darker than below',
+      'Each breath holds less oxygen, and it is colder, sunnier and more exposed',
+      'There is far more oxygen up high, which makes animals breathe too fast to rest'
+    ],
+    ans: 2,
+    explain: 'The air is spread thinner, so a breath at 5,500 m holds about half the oxygen of one at sea level. Temperature also drops about 6.5 °C per 1,000 m.'
+  },
+  {
+    q: 'How does a bar-headed goose manage to fly over the Himalaya?',
+    opts: [
+      'It grows an extra pair of wings each autumn before it starts the long journey',
+      'It rides on the backs of larger birds for the hardest part of the crossing',
+      'It holds one enormous breath for the entire flight across the mountain range',
+      'Its hemoglobin grips oxygen tightly, and its flight muscles use oxygen very well'
+    ],
+    ans: 3,
+    explain: 'A GPS-tracked bar-headed goose reached 7,290 m. Its flight muscles are packed with extra capillaries and mitochondria, and it usually climbs at night in denser air.'
+  },
+  {
+    q: 'How can an honest person report a giant footprint that no giant creature made?',
+    opts: [
+      'They were lying to become famous, which is what nearly every report turns out to be',
+      'Sun and melting widen and blur a real animal’s track until it looks huge and strange',
+      'Footprints in snow always stay exactly the same size for weeks after they are made',
+      'The camera adds a shape to snow photographs that was never really there on the ground'
+    ],
+    ans: 1,
+    explain: 'Melting slumps the edges outward, and a bear often plants a back foot partly over its own front print, merging two tracks into one huge odd one. Honest report, wrong conclusion.'
+  }
+];
+
+let quizState = {
+  current: 0,
+  answers: {},
+  locked: {}
+};
+
+function buildQuiz() {
+  quizState = { current: 0, answers: {}, locked: {} };
+  renderDots();
+  renderQuestion();
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || 'null');
+    if (!saved) return;
+    const finalScore = localStorage.getItem(QKEY);
+    if (finalScore !== null) {
+      quizState.answers = saved.answers || {};
+      quizState.locked = saved.locked || {};
+      quizState.current = saved.current !== undefined ? saved.current : 0;
+      showScore();
+      return;
+    }
+    quizState.answers = saved.answers || {};
+    quizState.locked = saved.locked || {};
+    quizState.current = saved.current !== undefined ? saved.current : 0;
+    renderDots();
+    renderQuestion();
+  } catch(e) {}
+}
+
+function saveQAns() {
+  try {
+    localStorage.setItem(QAKEY, JSON.stringify({
+      answers: quizState.answers,
+      locked: quizState.locked,
+      current: quizState.current
+    }));
+  } catch(e) {}
+}
+
+function renderDots() {
+  const dots = document.getElementById('q-dots');
+  dots.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (quizState.locked[i]) {
+      d.classList.add(quizState.answers[i] === questions[i].ans ? 'correct' : 'incorrect');
+    } else if (i === quizState.current) {
+      d.classList.add('current');
+    } else if (quizState.answers[i] !== undefined) {
+      d.classList.add('answered');
+    }
+    d.title = 'Question ' + (i+1);
+    d.onclick = () => { quizState.current = i; renderDots(); renderQuestion(); };
+    dots.appendChild(d);
+  });
+}
+
+function renderQuestion() {
+  const qb = document.getElementById('quiz-body');
+  const qi = quizState.current;
+  const q = questions[qi];
+  const locked = quizState.locked[qi];
+  const chosen = quizState.answers[qi];
+  const letters = ['A','B','C','D'];
+
+  let optsHTML = '';
+  q.opts.forEach((opt, oi) => {
+    let cls = 'opt-btn';
+    if (locked) {
+      if (oi === q.ans) cls += ' correct-ans';
+      else if (oi === chosen && oi !== q.ans) cls += ' wrong-ans';
+    } else if (oi === chosen) {
+      cls += ' chosen';
+    }
+    optsHTML += `<button class="${cls}" ${locked ? 'disabled' : ''} onclick="ansQ(${qi},${oi})">
+      <span class="opt-letter">${letters[oi]}</span>${opt}
+    </button>`;
+  });
+
+  let feedbackHTML = '';
+  if (locked) {
+    const correct = chosen === q.ans;
+    feedbackHTML = `<div class="feedback-box ${correct ? 'good' : 'bad'}">
+      ${correct ? '✓ Correct!' : '✗ Not quite.'} ${q.explain}
+    </div>`;
+  }
+
+  const isLast = qi === questions.length - 1;
+  const allDone = Object.keys(quizState.locked).length === questions.length;
+
+  qb.innerHTML = `
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Question ${qi+1} of ${questions.length}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts">${optsHTML}</div>
+      ${feedbackHTML}
+      <div class="quiz-nav">
+        ${qi > 0 ? `<button class="btn btn-muted" onclick="navQ(${qi-1})">← Back</button>` : ''}
+        ${locked && !isLast ? `<button class="btn btn-accent" onclick="navQ(${qi+1})">Next →</button>` : ''}
+        ${allDone ? `<button class="btn btn-accent" onclick="showScore()">See Score 🎯</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function ansQ(qi, chosen) {
+  if (quizState.locked[qi]) return;
+  quizState.answers[qi] = chosen;
+  quizState.locked[qi] = true;
+  const correct = chosen === questions[qi].ans;
+  saveQAns();
+  logMistake(correct, questions[qi].q, 'Q' + (qi+1));
+  renderDots();
+  renderQuestion();
+}
+
+function navQ(qi) {
+  quizState.current = qi;
+  renderDots();
+  renderQuestion();
+}
+
+function showScore() {
+  let score = 0;
+  questions.forEach((q, i) => { if (quizState.answers[i] === q.ans) score++; });
+  try { localStorage.setItem(QKEY, score); } catch(e) {}
+
+  const pct = Math.round(score / questions.length * 100);
+  let msg = pct >= 88 ? '🌟 Excellent work!' : pct >= 63 ? '👍 Good job — review the ones you missed.' : '📖 Review the reading and try again.';
+  const letters = ['A','B','C','D'];
+
+  let breakdown = '';
+  questions.forEach((q, i) => {
+    const correct = quizState.answers[i] === q.ans;
+    breakdown += `<div class="score-row">
+      <span class="icon">${correct ? '✅' : '❌'}</span>
+      <div>
+        <div style="font-weight:600">${q.q}</div>
+        ${!correct ? `<div style="color:var(--bad);margin-top:2px">Your answer: ${letters[quizState.answers[i]] || '?'}) ${quizState.answers[i] !== undefined ? q.opts[quizState.answers[i]] : 'Not answered'}</div>` : ''}
+        <div style="color:var(--good);margin-top:2px">Correct: ${letters[q.ans]}) ${q.opts[q.ans]}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('quiz-body').innerHTML = `
+    <div class="score-board">
+      <div class="score-big">${score}/${questions.length}</div>
+      <div class="score-msg">${pct}% · ${msg}</div>
+      <div class="score-breakdown">${breakdown}</div>
+      <button class="btn btn-muted" style="margin-top:20px" onclick="resetQuiz()">Retake Quiz</button>
+    </div>`;
+  document.getElementById('q-dots').innerHTML = '';
+  markPhaseDone(7);
+}
+
+function resetQuiz() {
+  try { localStorage.removeItem(QKEY); localStorage.removeItem(QAKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ── Phase progress bar ────────────────────────────────────────
+function markPhaseDone(n) {
+  const seg = document.getElementById('seg-'+n);
+  if (seg) { seg.classList.remove('active'); seg.classList.add('done'); }
+}
+
+function scrollToPhase(n) {
+  const el = document.getElementById('phase-'+n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setupPhaseObserver() {
+  const phases = [1,2,3,4,5,6,7];
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        const n = parseInt(id.replace('phase-',''));
+        phases.forEach(p => {
+          const seg = document.getElementById('seg-'+p);
+          if (!seg) return;
+          if (p === n && !seg.classList.contains('done')) {
+            seg.classList.add('active');
+          } else if (p !== n) {
+            seg.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  phases.forEach(n => {
+    const el = document.getElementById('phase-'+n);
+    if (el) observer.observe(el);
+  });
+}
+
+// ── Auto-save ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  saveQAns();
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ── Helpers ───────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── init ──────────────────────────────────────────────────────
+function init() {
+  buildFlipCards();
+  buildMatch();
+  buildLab();
+  buildSeq();
+  restoreWriting();
+  buildQuiz();
+  restoreQuiz();
+  setupPhaseObserver();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

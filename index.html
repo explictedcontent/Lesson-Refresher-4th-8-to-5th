@@ -104,7 +104,7 @@
   <div class="hero">
     <div class="htop"><div class="hicon">🏫</div>
       <div><h1>Summer Refresher Course</h1>
-        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-08-01 · v8.1 — Day 22 (Kraken) + ROBLOX STUDIO coding (real Lua)</div>
+        <div style="font-size:12px;color:var(--muted,#a7adc4);font-weight:700;margin-top:2px">Build: 2026-08-02 · v9 — Day 23 (Yeti) + Roblox 2: Touched events</div>
       </div>
     </div>
     <p>A fun, hands-on review for a 4th-grader heading into 5th grade. Every lesson is interactive — games, a drawing pad, and a timed lesson plan — with a quiz at the end. Pick a subject tab, then a lesson. Wrong quiz answers are saved to the <b>Review</b> tab until they're answered correctly.</p>
@@ -138,7 +138,14 @@ const TABKEY="refresher-active-tab";
 /* ---------------- SUBJECT + LESSON DATA ---------------- */
 const SUBJECTS=[
   {key:"today", emoji:"🐾", name:"Today", groups:[
-    {label:"Day 22 · Kraken 🦑 — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+    {label:"Day 23 · Yeti ❄️🏔️ — today's plan, in order (45 min/subject + 60 min Coding)", items:[
+      {n:1,emoji:"🌎",title:"Social Studies — The Roof of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-23-yeti.html",desc:"The Himalayas across Nepal, India, Bhutan, Tibet & Pakistan; how the mountains formed; the Sherpa people and Everest."},
+      {n:2,emoji:"🔬",title:"Science — The DNA Test That Solved a Legend",topic:"Science",time:"45 min",file:"science-lesson-23-yeti.html",desc:"How DNA identifies a species, what the yeti samples really were, and how snow leopards & yaks survive up high."},
+      {n:3,emoji:"📖",title:"ELA — Author's Purpose",topic:"Reading",time:"45 min",file:"ela-lesson-23-yeti.html",desc:"An original mountain mystery story. 7 vocab words plus Persuade / Inform / Entertain and the clues that reveal each."},
+      {n:4,emoji:"📐",title:"Math — Percents",topic:"Number",time:"45 min",file:"math-lesson-23-yeti.html",desc:"Percent means per hundred — convert between percents, fractions & decimals and find a percent of a number."},
+      {n:5,emoji:"🎮",title:"Coding — Roblox 2: Make It Do Something",topic:"Coding",time:"60 min",file:"coding-lesson-20-roblox-events.html",desc:"Real Lua again — lists, and the Touched EVENT that powers coins, traps and checkpoints in actual Roblox games! ⚡"},
+    ]},
+    {label:"Day 22 · Kraken 🦑 — previous day (45 min/subject + 60 min Coding)", items:[
       {n:1,emoji:"🌎",title:"Social Studies — Sailors, Maps & Sea Monsters",topic:"Geography",time:"45 min",file:"social-studies-lesson-22-kraken.html",desc:"Norway, Iceland & the North Atlantic; Norse seafarers and how old maps mixed real coastlines with sea monsters."},
       {n:2,emoji:"🔬",title:"Science — The Real Animal Behind the Kraken",topic:"Science",time:"45 min",file:"science-lesson-22-kraken.html",desc:"Giant & colossal squid, dinner-plate eyes, the deep-sea zones, bioluminescence and jet propulsion."},
       {n:3,emoji:"📖",title:"ELA — Compare & Contrast",topic:"Reading",time:"45 min",file:"ela-lesson-22-kraken.html",desc:"An original story about looking closely at what scares you. 7 vocab words + comparing the legend to the real animal."},
@@ -304,6 +311,9 @@ const SUBJECTS=[
    ]},
   {key:"math", emoji:"📐", name:"Math",
    groups:[
+     {label:"Day 23 · Yeti ❄️🏔️", items:[
+       {n:23,emoji:"❄️",title:"Percents",topic:"Number",time:"45 min",file:"math-lesson-23-yeti.html",desc:"Percent as per-hundred on a 100-grid, converting percent/fraction/decimal, benchmarks, and finding a percent of a number."},
+     ]},
      {label:"Day 22 · Kraken 🦑", items:[
        {n:22,emoji:"🦑",title:"Multiplying Fractions",topic:"Number",time:"45 min",file:"math-lesson-22-kraken.html",desc:"Fraction of a number, fraction × fraction with an area model, simplifying, and why multiplying by a fraction shrinks the answer."},
      ]},
@@ -376,6 +386,9 @@ const SUBJECTS=[
    ]},
   {key:"science", emoji:"🔬", name:"Science",
    groups:[
+     {label:"Day 23 · Yeti ❄️🏔️", items:[
+       {n:23,emoji:"❄️",title:"The DNA Test That Solved a Legend",topic:"Science",time:"45 min",file:"science-lesson-23-yeti.html",desc:"What DNA is and how it identifies a species, what the yeti samples turned out to be, and Himalayan cold adaptations."},
+     ]},
      {label:"Day 22 · Kraken 🦑", items:[
        {n:22,emoji:"🦑",title:"The Real Animal Behind the Kraken",topic:"Science",time:"45 min",file:"science-lesson-22-kraken.html",desc:"Giant & colossal squid, the largest eyes on Earth, deep-sea zones, bioluminescence, jet propulsion and ink."},
      ]},
@@ -446,6 +459,9 @@ const SUBJECTS=[
    ]},
   {key:"ela", emoji:"📖", name:"ELA",
    groups:[
+     {label:"Day 23 · Yeti ❄️🏔️", items:[
+       {n:23,emoji:"❄️",title:"Author's Purpose",topic:"Reading",time:"45 min",file:"ela-lesson-23-yeti.html",desc:"An original Himalayan mystery. 7 vocab words plus Persuade / Inform / Entertain and how to spot each one."},
+     ]},
      {label:"Day 22 · Kraken 🦑", items:[
        {n:22,emoji:"🦑",title:"Compare & Contrast",topic:"Reading",time:"45 min",file:"ela-lesson-22-kraken.html",desc:"An original sea story about curiosity over fear. 7 vocab words plus comparing the legend with the real squid."},
      ]},
@@ -512,6 +528,9 @@ const SUBJECTS=[
    ]},
   {key:"social", emoji:"🌎", name:"Social Studies",
    groups:[
+     {label:"Day 23 · Yeti ❄️🏔️", items:[
+       {n:23,emoji:"❄️",title:"The Roof of the World",topic:"Geography",time:"45 min",file:"social-studies-lesson-23-yeti.html",desc:"Nepal, India, Bhutan, Tibet & Pakistan; how plate collision built the Himalayas; the Sherpa people, Everest and clean-ups."},
+     ]},
      {label:"Day 22 · Kraken 🦑", items:[
        {n:22,emoji:"🦑",title:"Sailors, Maps & Sea Monsters",topic:"Geography",time:"45 min",file:"social-studies-lesson-22-kraken.html",desc:"Norway, Iceland, Greenland & the North Atlantic; Norse voyages, navigating by sun and stars, and monsters on old maps."},
      ]},
@@ -603,6 +622,7 @@ const SUBJECTS=[
        {n:15,emoji:"🌾",title:"Level 15: Panda Harvest (Type Real Code)",topic:"Coding",time:"60 min",file:"coding-lesson-15-realcode.html",desc:"NEW STYLE — you TYPE real JavaScript and the panda does it! Loops, variables, nested loops & your own functions to harvest every bamboo. Real code, real error messages, run it live."},
      ]},
      {label:"🎮 Roblox Studio (real Lua!)", items:[
+       {n:20,emoji:"⚡",title:"Roblox 2: Make It Do Something (Events)",topic:"Coding",time:"60 min",file:"coding-lesson-20-roblox-events.html",desc:"Real Lua part 2 — lists with { } and [1], looping a list, and the Touched event that makes parts react: colour-change pads and collectible coins."},
        {n:19,emoji:"🎮",title:"Roblox Studio: Code Your Own Game",topic:"Coding",time:"60 min",file:"coding-lesson-19-roblox.html",desc:"Type REAL Lua — the actual language Roblox uses. Make Parts, set BrickColor/Size/Anchored, build towers with loops, and write your own builder function. Every mission shows how to do the same thing in real Roblox Studio."},
      ]},
      {label:"Boss the Panda — Write Real Code", items:[
