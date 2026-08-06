@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELA Day 23 — Yeti ❄️🏔️</title>
+<style>
+:root {
+  --bg:#14151d; --panel:#1e2130; --panel2:#252a3a; --ink:#f4f5fb;
+  --muted:#a7adc4; --accent:#ff7a59; --accent2:#5bd1c4; --good:#7bd88f;
+  --warn:#ffd166; --bad:#ff6b81; --line:#2e3347;
+  --radius:12px; --gap:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.65;min-height:100vh;}
+a{color:var(--accent2);text-decoration:none;}
+h1{font-size:1.7rem;font-weight:800;color:var(--accent);}
+h2{font-size:1.25rem;font-weight:700;color:var(--accent2);margin-bottom:8px;}
+h3{font-size:1.05rem;font-weight:600;}
+p{margin-bottom:.8em;}
+strong{color:var(--warn);}
+
+/* LAYOUT */
+#app{max-width:780px;margin:0 auto;padding:0 0 80px;}
+
+/* PHASE BAR */
+#phase-bar{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);border-bottom:2px solid var(--line);
+  padding:10px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+}
+.pb-seg{
+  flex:1;min-width:60px;height:8px;border-radius:4px;
+  background:var(--line);cursor:pointer;transition:background .3s;
+  position:relative;
+}
+.pb-seg.done{background:var(--good);}
+.pb-seg.active{background:var(--accent2);}
+.pb-seg:hover::after{
+  content:attr(data-label);position:absolute;top:14px;left:50%;
+  transform:translateX(-50%);background:var(--panel2);
+  color:var(--ink);font-size:.72rem;padding:2px 7px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;z-index:200;
+}
+#pb-title{font-size:.8rem;color:var(--muted);width:100%;text-align:center;margin-top:2px;}
+
+/* HEADER */
+#hero{padding:28px 16px 16px;text-align:center;}
+#hero .day-badge{display:inline-block;background:var(--panel2);color:var(--accent2);
+  border-radius:20px;padding:3px 14px;font-size:.8rem;font-weight:700;margin-bottom:8px;}
+#hero p{color:var(--muted);font-size:.95rem;}
+
+/* PHASE SECTIONS */
+.phase{padding:0 16px;display:none;}
+.phase.visible{display:block;}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-top:4px;}
+.phase-num{width:36px;height:36px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.phase-title{font-size:1.1rem;font-weight:700;}
+.phase-time{font-size:.8rem;color:var(--muted);margin-left:auto;}
+
+/* CARDS */
+.card{background:var(--panel);border-radius:var(--radius);padding:18px;margin-bottom:12px;border:1px solid var(--line);}
+
+/* FACT CARDS */
+.fact-card{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+.fact-card.revealed{border-color:var(--accent2);}
+.fact-front{padding:18px;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:60px;}
+.fact-icon{font-size:1.6rem;flex-shrink:0;}
+.fact-hint{color:var(--muted);font-size:.88rem;margin-left:auto;flex-shrink:0;}
+.fact-body{display:none;padding:0 18px 18px;}
+.fact-card.revealed .fact-body{display:block;}
+.fact-text{color:var(--ink);font-size:.97rem;margin-bottom:12px;}
+.fact-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.fact-btn{border:none;border-radius:8px;padding:8px 16px;font-size:.88rem;cursor:pointer;
+  background:var(--panel2);color:var(--ink);transition:background .2s;min-height:44px;}
+.fact-btn:hover{background:var(--line);}
+.fact-btn.knew{background:var(--good);color:#111;}
+.fact-btn.new{background:var(--accent2);color:#111;}
+
+/* READING PASSAGE */
+.passage{background:var(--panel);border-radius:var(--radius);padding:22px;border:1px solid var(--line);line-height:1.8;}
+.passage h3{color:var(--accent2);font-size:1.15rem;margin-bottom:14px;}
+.vocab-word{background:rgba(91,209,196,.15);color:var(--accent2);border-radius:4px;
+  padding:1px 5px;font-weight:600;cursor:help;position:relative;border-bottom:1px dashed var(--accent2);}
+.vocab-word:hover::after{
+  content:attr(data-def);position:absolute;bottom:calc(100%+4px);left:50%;
+  transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent2);
+  color:var(--ink);font-size:.78rem;padding:5px 9px;border-radius:7px;
+  white-space:normal;max-width:220px;text-align:center;pointer-events:none;z-index:50;
+  font-weight:400;line-height:1.4;
+}
+
+/* COMPREHENSION ACCORDION */
+.accord-item{background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);
+  margin-bottom:10px;overflow:hidden;}
+.accord-q{padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:.97rem;min-height:54px;}
+.accord-arrow{margin-left:auto;color:var(--muted);transition:transform .3s;flex-shrink:0;}
+.accord-item.open .accord-arrow{transform:rotate(90deg);}
+.accord-a{display:none;padding:0 18px 16px;color:var(--muted);font-size:.93rem;line-height:1.65;}
+.accord-item.open .accord-a{display:block;}
+
+/* VOCABULARY MATCH */
+.vocab-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.vocab-tile{
+  background:var(--panel2);border-radius:10px;padding:14px;min-height:54px;
+  border:2px solid var(--line);cursor:pointer;text-align:center;
+  font-size:.9rem;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;line-height:1.4;
+}
+.vocab-tile:hover:not(.matched):not(.selected){border-color:var(--muted);}
+.vocab-tile.selected{border-color:var(--accent);background:rgba(255,122,89,.12);}
+.vocab-tile.matched{border-color:var(--good);background:rgba(123,216,143,.12);
+  color:var(--good);pointer-events:none;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease;}
+.vocab-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:8px;}
+
+/* SKILL PRACTICE */
+.se-card{background:var(--panel);border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--line);}
+.se-para{background:var(--panel2);border-left:3px solid var(--accent2);border-radius:8px;
+  padding:12px 14px;font-size:.93rem;line-height:1.7;color:var(--ink);margin-bottom:12px;}
+.se-stmt{font-size:.97rem;margin-bottom:12px;font-weight:500;}
+.se-btns{display:flex;flex-direction:column;gap:8px;}
+.se-btn{width:100%;min-height:44px;border:2px solid var(--line);border-radius:8px;
+  background:transparent;color:var(--ink);cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .2s;padding:10px 12px;text-align:left;line-height:1.4;}
+.se-btn:hover:not(:disabled){border-color:var(--muted);}
+.se-btn.correct{border-color:var(--good);background:rgba(123,216,143,.15);color:var(--good);}
+.se-btn.wrong{border-color:var(--bad);background:rgba(255,107,129,.15);color:var(--bad);}
+.se-feedback{font-size:.82rem;margin-top:8px;min-height:20px;}
+.se-score{color:var(--muted);font-size:.88rem;text-align:center;margin-top:12px;}
+.se-part{font-size:.85rem;font-weight:700;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.06em;margin:22px 0 10px;}
+
+/* PIE-STYLE CHART */
+.venn{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;}
+.venn-col{background:var(--panel2);border-radius:10px;padding:12px;font-size:.86rem;line-height:1.5;}
+.venn-col.mid{border:2px solid var(--accent2);}
+.venn-head{font-weight:700;font-size:.82rem;margin-bottom:6px;color:var(--accent);text-align:center;}
+.venn-col.mid .venn-head{color:var(--accent2);}
+@media(max-width:520px){ .venn{grid-template-columns:1fr;} }
+
+/* WRITING PAD */
+.writing-area{width:100%;min-height:180px;background:var(--panel2);border:2px solid var(--line);
+  border-radius:var(--radius);padding:16px;color:var(--ink);font-size:.97rem;
+  line-height:1.7;resize:vertical;font-family:inherit;outline:none;
+  transition:border-color .2s;}
+.writing-area:focus{border-color:var(--accent2);}
+.writing-meta{display:flex;justify-content:space-between;align-items:center;
+  margin-top:8px;font-size:.82rem;color:var(--muted);}
+.save-indicator{color:var(--good);font-size:.8rem;opacity:0;transition:opacity .4s;}
+.save-indicator.show{opacity:1;}
+
+/* QUIZ */
+.quiz-progress{display:flex;gap:6px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
+.q-dot{width:14px;height:14px;border-radius:50%;background:var(--line);transition:background .3s;}
+.q-dot.active{background:var(--accent);}
+.q-dot.correct{background:var(--good);}
+.q-dot.wrong{background:var(--bad);}
+.quiz-q{font-size:1.05rem;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;}
+.quiz-opt{
+  background:var(--panel2);border:2px solid var(--line);border-radius:10px;
+  padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink);
+  font-size:.95rem;min-height:54px;transition:border-color .2s,background .2s;
+  width:100%;
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--muted);}
+.quiz-opt.correct{border-color:var(--good);background:rgba(123,216,143,.12);}
+.quiz-opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.12);}
+.quiz-feedback{min-height:28px;font-size:.88rem;margin-top:10px;padding:6px 10px;
+  border-radius:7px;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(123,216,143,.1);color:var(--good);}
+.quiz-feedback.wrong{background:rgba(255,107,129,.1);color:var(--bad);}
+.quiz-next{margin-top:14px;background:var(--accent);border:none;border-radius:10px;
+  padding:12px 28px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;
+  min-height:48px;display:none;}
+.quiz-next:hover{background:#e8693e;}
+.quiz-result{text-align:center;padding:24px 0;}
+.quiz-result .score-big{font-size:3rem;font-weight:800;color:var(--accent2);}
+.quiz-result .score-label{color:var(--muted);margin-top:4px;}
+.quiz-result .score-msg{margin-top:14px;font-size:1rem;}
+
+/* NAV BUTTONS */
+.phase-nav{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+.btn-primary{background:var(--accent);border:none;border-radius:10px;
+  padding:12px 26px;color:#fff;font-size:.97rem;font-weight:700;cursor:pointer;min-height:48px;}
+.btn-primary:hover{background:#e8693e;}
+.btn-ghost{background:transparent;border:2px solid var(--line);border-radius:10px;
+  padding:10px 20px;color:var(--muted);font-size:.95rem;cursor:pointer;min-height:48px;}
+.btn-ghost:hover{border-color:var(--muted);color:var(--ink);}
+
+/* UTILITY */
+.divider{height:1px;background:var(--line);margin:20px 0;}
+.tag{display:inline-block;border-radius:6px;padding:2px 9px;font-size:.78rem;font-weight:700;}
+.tag-phase{background:rgba(91,209,196,.15);color:var(--accent2);}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .vocab-grid{grid-template-columns:1fr;}
+  h1{font-size:1.35rem;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PHASE BAR -->
+  <div id="phase-bar">
+    <div class="pb-seg" data-phase="1" data-label="Warm-Up"></div>
+    <div class="pb-seg" data-phase="2" data-label="Reading"></div>
+    <div class="pb-seg" data-phase="3" data-label="Comprehension"></div>
+    <div class="pb-seg" data-phase="4" data-label="Vocabulary"></div>
+    <div class="pb-seg" data-phase="5" data-label="Author&#39;s Purpose"></div>
+    <div class="pb-seg" data-phase="6" data-label="Writing"></div>
+    <div class="pb-seg" data-phase="7" data-label="Quiz"></div>
+    <div id="pb-title">Phase 1 — Warm-Up</div>
+  </div>
+
+  <!-- HERO -->
+  <div id="hero">
+    <div class="day-badge">ELA · Day 23</div>
+    <h1>❄️🏔️ Yeti</h1>
+    <p>Reading · Vocabulary · Writing · Quiz</p>
+  </div>
+
+  <!-- ======================== PHASE 1 ======================== -->
+  <section class="phase visible" id="phase-1">
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div>
+        <div class="phase-title">Warm-Up Fact Cards</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+      <div class="phase-time">4 cards</div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each card to reveal the fact, then tell us what you thought!</p>
+
+    <div class="fact-card" id="fc-1">
+      <div class="fact-front" onclick="revealFact('fc-1')">
+        <span class="fact-icon">🦶</span>
+        <span style="font-weight:600;">The Most Famous Footprint on Earth</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">In <strong>1951</strong>, a British climber named Eric Shipton was crossing a glacier in the Himalaya when he found a line of huge tracks in the snow. He laid his ice axe beside one and took a photograph. That single picture is the reason most of the world has heard of the yeti at all. People have been arguing about what made that print ever since — which tells you something important: <strong>one photo is not the same thing as an answer</strong>.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-1')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-1')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-2">
+      <div class="fact-front" onclick="revealFact('fc-2')">
+        <span class="fact-icon">🧬</span>
+        <span style="font-weight:600;">Somebody Finally Tested the Hair</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">For years, museums and collectors kept bones, teeth, and clumps of hair labelled "yeti." In <strong>2017</strong> a research team led by biologist Charlotte Lindqvist ran DNA tests on nine of those samples. Almost every one came back as a <strong>bear</strong> — Himalayan brown bear, Tibetan brown bear, Asian black bear. One turned out to be a <strong>dog</strong>. The test didn't just say "not a yeti." It said which real animal was standing there instead.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-2')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-2')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-3">
+      <div class="fact-front" onclick="revealFact('fc-3')">
+        <span class="fact-icon">☀️</span>
+        <span style="font-weight:600;">Footprints Grow During the Day</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">Here is a thing almost nobody knows. When sunlight hits a footprint in snow, the edges <strong>melt outward</strong>. The hole gets wider, shallower, and blurrier by the hour. A normal fox print left at dawn can look enormous and monstrous by mid-afternoon. That's why researchers photograph tracks with a <strong>ruler beside them</strong> and write down the <strong>time</strong> — because a track measured at 3 p.m. is telling you a slightly different story than the same track at 6 a.m.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-3')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-3')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact-card" id="fc-4">
+      <div class="fact-front" onclick="revealFact('fc-4')">
+        <span class="fact-icon">🐆</span>
+        <span style="font-weight:600;">The Ghost of the Mountains Is Real</span>
+        <span class="fact-hint">Tap to reveal ▾</span>
+      </div>
+      <div class="fact-body">
+        <p class="fact-text">People who live in the high Himalaya call the snow leopard the <strong>ghost of the mountains</strong>, and they are not exaggerating — its grey, spotted coat vanishes against rock so completely that researchers can look straight at one and miss it. Scientists think only a <strong>few thousand</strong> are left, spread across about twelve countries. Many researchers spend <strong>years</strong> setting camera traps before they get a single clear photo of one.</p>
+        <div class="fact-btns">
+          <button class="fact-btn" onclick="reactFact(this,'knew','fc-4')">I knew this! 👍</button>
+          <button class="fact-btn" onclick="reactFact(this,'new','fc-4')">New to me! 🤯</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-primary" onclick="goPhase(2)">Next: Reading →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 2 ======================== -->
+  <section class="phase" id="phase-2">
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <div>
+        <div class="phase-title">Reading Passage</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="passage">
+      <h3>The Tracks Behind Our House</h3>
+
+      <p><strong>Part 1 — Bigger Than Any Boot</strong></p>
+
+      <p>Pema Dolkar found them on the first clear morning after the storm.</p>
+
+      <p>Tracks. A whole line of them, running along the stone wall behind her family's house and up toward the ridge, pressed into snow so new that nothing else had touched it. Pema set her own boot down beside one and stared. Two of her boots, heel to toe, would have fit inside a single print. At the front there were rounded lumps that could almost — <em>almost</em> — have been toes.</p>
+
+      <p>Ranglung was a small village, high enough that clouds sometimes sat below it like a second valley. Everyone had heard about the tracks before lunch.</p>
+
+      <p>Her older brother Tashi laughed so hard he had to sit down on the woodpile.</p>
+
+      <p>Her grandmother, Ama Chodon, did not laugh. "People have watched that ridge for a very long time," she said. "The stories about it are older than this house. They are older than me, and that is saying something."</p>
+
+      <p>That night Pema lay awake and heard it: a low coughing grunt, close by, somewhere past the woodpile. Then a shadow crossed her window — a shape wide enough to darken the whole square of glass — and was gone.</p>
+
+      <p>By morning Pema was certain. There was a yeti on the ridge above her house.</p>
+
+      <p><strong>Part 2 — "Show Me Something I Can Measure"</strong></p>
+
+      <p>Dr. Sonam Yangzom arrived four days later with two metal cases and a bad cold. She had grown up two valleys over. For six years she had been trying to photograph snow leopards, which she described as the most <span class="vocab-word" data-def="very hard to find or catch, because it stays out of sight">elusive</span> animal she had ever worked with.</p>
+
+      <p>Pema told her everything in one breath: the tracks, the grunt, the shadow at the window.</p>
+
+      <p>Sonam did not laugh either. She also did not agree. "I'm <span class="vocab-word" data-def="not believing something right away, until you have seen proof">skeptical</span>," she said, blowing her nose. "That is not the same as saying you're wrong. It means I don't believe it <em>yet</em>. Show me something I can measure."</p>
+
+      <p>Ama Chodon poured the tea. "Keep both," she told Pema. "The old stories tell you what this mountain means to the people who live under it, and they have done that job well for hundreds of years. The measuring tells you what walked past your window on Tuesday night. Don't ask one to do the other's work."</p>
+
+      <p><strong>Part 3 — The Plan</strong></p>
+
+      <p>They made a list, and Sonam wrote it in pencil so that it could change.</p>
+
+      <p>1. Photograph every print with a ruler lying beside it.<br>
+      2. Measure the same print twice — once at sunrise, once in the afternoon.<br>
+      3. Follow the whole trail. One print is a guess; a hundred prints are <span class="vocab-word" data-def="facts and objects you can point to that show what really happened">evidence</span>.<br>
+      4. Set two camera traps: one at the wall, one at the top of the ridge.</p>
+
+      <p>Everything Sonam did was slow and <span class="vocab-word" data-def="done slowly and on purpose, with careful thought behind each step">deliberate</span>. She brushed loose snow off the prints with a paintbrush and wrote the time beside every photograph. When Pema asked why it took so long, Sonam said, "Because I have to <span class="vocab-word" data-def="to check something carefully to find out whether it is really true">verify</span> all of this later, and future-me gets extremely annoyed when present-me guesses."</p>
+
+      <p><strong>Part 4 — What the Snow Said</strong></p>
+
+      <p>At sunrise the biggest print measured seventeen centimetres, with sharp clean edges.</p>
+
+      <p>At three in the afternoon the exact same print measured twenty-six centimetres, with edges that were soft and rounded and blurry.</p>
+
+      <p>Pema measured it three times before she would believe it. "It <em>grew</em>."</p>
+
+      <p>"The sun melted the sides," Sonam said. "A track in snow gets bigger all day, and mushier, until it looks like nothing that ever lived. A lot of the giant footprints people have photographed were ordinary prints that spent an afternoon in the sunshine."</p>
+
+      <p>Then Sonam found where the trail crossed a patch of snow that stayed in shade all day, and knelt. In the shade, the print was not one shape at all. It was two <span class="vocab-word" data-def="clearly separate, and easy to tell apart from each other">distinct</span> shapes overlapping — a smaller oval, and a longer one landing right on top of it.</p>
+
+      <p>"Back foot coming down inside the front foot's print," she said. "Bears do that when they walk. Two prints stack up and make one monster."</p>
+
+      <p>The camera at the wall answered the rest of it. On the little screen, at 2:14 in the morning, a Himalayan brown bear ambled past the woodpile — thick, humped at the shoulder, entirely unbothered — and coughed once.</p>
+
+      <p>The ridge camera took eleven nights. Then, on a frame that Sonam stared at without speaking for a very long time, a snow leopard walked out of the dark, looked straight into the lens, and walked on.</p>
+
+      <p><strong>Part 5 — Rarer Than a Monster</strong></p>
+
+      <p>Pema went quiet for most of a day. She had wanted a yeti. What she had was a bear, a cat, and a lot of arithmetic about melting snow.</p>
+
+      <p>"You're disappointed," Sonam said. "Good. That is what a real <span class="vocab-word" data-def="the answer you settle on after weighing all of the evidence">conclusion</span> feels like sometimes. It doesn't always feel like winning."</p>
+
+      <p>"It's just a bear," Pema said.</p>
+
+      <p>"There may be only a few thousand snow leopards left in the entire world, spread across about twelve countries. In some places researchers count the brown bears in the low hundreds. I have been setting cameras for six years for the photograph that you and I took eleven nights ago." Sonam turned the screen around. "You didn't find a monster, Pema. You found two of the rarest animals on the planet standing in your grandmother's yard."</p>
+
+      <p>Ama Chodon looked up from the fire. "The mountain didn't get any smaller," she said. "You got closer to it."</p>
+
+      <p>Pema pinned the photograph above her bed and wrote the date under it. Then she started a notebook, and on the first page she wrote the only rule that mattered: <em>measure it twice — and once in the shade.</em></p>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(1)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(3)">Next: Comprehension →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 3 ======================== -->
+  <section class="phase" id="phase-3">
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <div>
+        <div class="phase-title">Comprehension Check</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap each question to reveal the answer. Think about your answer first!</p>
+
+    <div class="accord-item" id="acc-1">
+      <div class="accord-q" onclick="toggleAccord('acc-1')">
+        <span>1.</span> What three things made Pema certain there was a yeti?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Huge tracks along the stone wall (two of her boots would fit inside one print), a low coughing grunt near the woodpile at night, and a shadow wide enough to darken her whole window as something moved past it.</div>
+    </div>
+
+    <div class="accord-item" id="acc-2">
+      <div class="accord-q" onclick="toggleAccord('acc-2')">
+        <span>2.</span> Sonam says, "I'm skeptical. That is not the same as saying you're wrong." What does she mean?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">She is not calling Pema a liar and she is not making fun of her. She is saying she has not seen proof yet, so she is holding off on deciding. Being skeptical means keeping the question open until evidence arrives — which is why she immediately asks for something she can measure instead of just walking away.</div>
+    </div>
+
+    <div class="accord-item" id="acc-3">
+      <div class="accord-q" onclick="toggleAccord('acc-3')">
+        <span>3.</span> Why did the same footprint measure seventeen centimetres in the morning and twenty-six in the afternoon?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Sunlight melted the edges of the print, so the hole in the snow spread wider, shallower, and blurrier as the day went on. Nothing about the animal changed — only the snow did. This is exactly why Sonam insisted on measuring twice and writing down the time.</div>
+    </div>
+
+    <div class="accord-item" id="acc-4">
+      <div class="accord-q" onclick="toggleAccord('acc-4')">
+        <span>4.</span> What did the shaded patch of snow reveal, and why did it matter so much?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Because that snow never got direct sun, the print had not melted — and there it showed up as two distinct overlapping shapes instead of one giant one. A bear's back foot lands inside the print its front foot just made, so two ordinary prints stack up and look like one monstrous one. The shade preserved the evidence the sunshine had been erasing everywhere else.</div>
+    </div>
+
+    <div class="accord-item" id="acc-5">
+      <div class="accord-q" onclick="toggleAccord('acc-5')">
+        <span>5.</span> What is the THEME (big idea) of the story?
+        <span class="accord-arrow">▶</span>
+      </div>
+      <div class="accord-a">Careful evidence doesn't shrink the world — it makes it bigger. Pema trades a monster she imagined for two animals so rare that a scientist waited six years to photograph one of them. Ama Chodon says it best: "The mountain didn't get any smaller. You got closer to it." The story also respects the old stories: Ama Chodon says to keep BOTH, because stories and measurements do different jobs.</div>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(2)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(4)">Next: Vocabulary →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 4 ======================== -->
+  <section class="phase" id="phase-4">
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <div>
+        <div class="phase-title">Vocabulary Match</div>
+        <span class="tag tag-phase">8 min</span>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tap a <strong style="color:var(--accent);">word</strong>, then tap its <strong style="color:var(--accent2);">definition</strong>. Match all 7 pairs!</p>
+
+    <div class="vocab-grid" id="vocab-grid"></div>
+    <div class="vocab-score" id="vocab-score">0 / 7 matched</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(3)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(5)">Next: Author&#39;s Purpose →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 5 ======================== -->
+  <section class="phase" id="phase-5">
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <div>
+        <div class="phase-title">Author&#39;s Purpose</div>
+        <span class="tag tag-phase">10 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--accent2);">🥧 What Is "Author&#39;s Purpose"?</h3>
+      <p style="font-size:.95rem;">Every single thing you read was written by a person who wanted <em>something</em> to happen in your head. That "something" is the <strong>author's purpose</strong> — the reason they bothered to write it at all.</p>
+      <p style="font-size:.95rem;">There are three main ones, and they spell a word you will never forget:</p>
+
+      <p style="font-size:1.05rem;text-align:center;background:var(--panel2);border-radius:8px;padding:12px;font-weight:700;">
+        🥧 <span style="color:var(--accent);">P</span>ersuade · <span style="color:var(--accent2);">I</span>nform · <span style="color:var(--warn);">E</span>ntertain
+      </p>
+
+      <div class="venn">
+        <div class="venn-col">
+          <div class="venn-head">📣 PERSUADE</div>
+          Wants you to <strong>agree</strong> or <strong>do something</strong>. Ads, letters to the editor, "vote for me," "you should try this."
+        </div>
+        <div class="venn-col mid">
+          <div class="venn-head">📊 INFORM</div>
+          Wants to <strong>teach you facts</strong>. Textbooks, news articles, recipes, the back of a cereal box, a museum sign.
+        </div>
+        <div class="venn-col">
+          <div class="venn-head">🎭 ENTERTAIN</div>
+          Wants you to <strong>enjoy it</strong>. Stories, poems, comics, jokes, novels, anything with characters in it.
+        </div>
+      </div>
+
+      <p style="font-size:.95rem;margin-top:14px;"><strong>Every purpose leaves clues. Learn the clues and you never have to guess.</strong></p>
+
+      <p style="font-size:.93rem;background:rgba(255,122,89,.1);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;">
+        📣 <strong style="color:var(--accent);">PERSUADE clues:</strong> opinion words (<em>best, worst, terrible, amazing</em>) · <em>you should</em> · <em>we must</em> · <em>don't miss</em> · it asks you to <strong>do</strong> something
+      </p>
+      <p style="font-size:.93rem;background:rgba(91,209,196,.1);border-left:3px solid var(--accent2);border-radius:8px;padding:12px 14px;">
+        📊 <strong style="color:var(--accent2);">INFORM clues:</strong> facts you could check · <strong>numbers</strong>, dates, measurements · <strong>headings</strong> and sections · words like <em>because, causes, is made of</em> · no characters, no opinions
+      </p>
+      <p style="font-size:.93rem;background:rgba(255,209,102,.1);border-left:3px solid var(--warn);border-radius:8px;padding:12px 14px;">
+        🎭 <strong style="color:var(--warn);">ENTERTAIN clues:</strong> <strong>characters</strong> with names · <strong>dialogue</strong> in quotation marks · description you can picture · a problem and a surprise · it makes you laugh or worry
+      </p>
+
+      <p style="font-size:.95rem;margin-top:16px;"><strong>One short example of each:</strong></p>
+      <p style="font-size:.92rem;background:var(--panel2);border-radius:8px;padding:12px 14px;line-height:1.7;">
+        📣 <em>"Everyone in this school should learn to read a snow gauge. It takes ten minutes, and it is the most useful ten minutes of your life. Sign up today."</em><br>
+        <span style="color:var(--muted);font-size:.85rem;">→ PERSUADE. "should," "most useful," and a direct order: sign up.</span>
+      </p>
+      <p style="font-size:.92rem;background:var(--panel2);border-radius:8px;padding:12px 14px;line-height:1.7;">
+        📊 <em>"A snow gauge is a tube marked along the side. Snow falls in, and a reader checks the mark it reaches. The village gauge is read at seven o'clock each morning."</em><br>
+        <span style="color:var(--muted);font-size:.85rem;">→ INFORM. Facts and a time. Nobody's opinion appears anywhere.</span>
+      </p>
+      <p style="font-size:.92rem;background:var(--panel2);border-radius:8px;padding:12px 14px;line-height:1.7;">
+        🎭 <em>"'Snow tonight,' Tashi announced, tapping his kneecap. Outside, the goats were sunbathing on a wall under a cloudless sky. It snowed for eleven hours."</em><br>
+        <span style="color:var(--muted);font-size:.85rem;">→ ENTERTAIN. A character, dialogue, and a joke at the end.</span>
+      </p>
+
+      <p style="font-size:.95rem;margin-top:14px;margin-bottom:6px;"><strong>The trap that catches everybody:</strong></p>
+      <p style="font-size:.93rem;color:var(--muted);margin-bottom:0;">
+        🪤 <strong style="color:var(--bad);">A text can have TWO purposes.</strong> A magazine article about bears can open with a joke (entertain) and then spend four paragraphs on facts (inform). When that happens, look for the <strong>MAIN purpose</strong> — the job the text spends the most space doing — and call the other one the <strong>secondary purpose</strong>.<br>
+        🪤 <strong style="color:var(--bad);">Facts can be used to persuade.</strong> Numbers do not automatically mean "inform." If the facts are there as <em>reasons why you should do something</em>, the purpose is still to persuade.
+      </p>
+      <p style="font-size:.9rem;color:var(--warn);margin-top:12px;margin-bottom:0;">Golden rule: don't just name the purpose — point at the exact words that gave it away.</p>
+    </div>
+
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Ten challenges. First <strong>name the purpose</strong>, then <strong>find the clue</strong> that gives it away. Then some tricky ones. Wrong? Read the feedback and try again!</p>
+
+    <div id="se-container"></div>
+    <div class="se-score" id="se-score">0 / 10 answered correctly</div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(4)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(6)">Next: Writing →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 6 ======================== -->
+  <section class="phase" id="phase-6">
+    <div class="phase-header">
+      <div class="phase-num">6</div>
+      <div>
+        <div class="phase-title">Writing Pad</div>
+        <span class="tag tag-phase">5 min</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;color:var(--warn);">✏️ Your Writing Prompt</h3>
+      <p style="font-size:.95rem;line-height:1.7;"><strong>Part 1 — Same mountain, two purposes.</strong> Write <strong>two short paragraphs about the same snowy mountain</strong>. Label them.<br>
+      📊 <strong>INFORM:</strong> facts only — how deep the snow gets, what animals live there, how cold it is, a number or two. No characters, no opinions.<br>
+      🎭 <strong>ENTERTAIN:</strong> put a person on that mountain. Give them a name, let them <em>say</em> something out loud, and let something happen.</p>
+      <p style="font-size:.95rem;line-height:1.7;"><strong>Part 2 — Reflection.</strong> Write about <strong>a time evidence changed your mind</strong> — you were sure about something, then you looked closely (or somebody showed you proof) and you had to change your answer. What did you believe? What was the evidence? How did it feel to be wrong? Use at least <strong>3 vocabulary words</strong>. <strong>(At least 5 sentences total.)</strong></p>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:0;">Vocabulary words: <em>evidence, skeptical, verify, distinct, elusive, deliberate, conclusion</em></p>
+    </div>
+
+    <textarea class="writing-area" id="writing-pad" placeholder="Start writing here… INFORM paragraph first, then ENTERTAIN paragraph, then your own time-evidence-changed-my-mind story with at least 3 vocab words!"></textarea>
+    <div class="writing-meta">
+      <span id="word-count" style="color:var(--muted);">0 words</span>
+      <span class="save-indicator" id="save-indicator">✓ Saved</span>
+    </div>
+
+    <div class="phase-nav">
+      <button class="btn-ghost" onclick="goPhase(5)">← Back</button>
+      <button class="btn-primary" onclick="goPhase(7)">Next: Quiz →</button>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE 7 ======================== -->
+  <section class="phase" id="phase-7">
+    <div class="phase-header">
+      <div class="phase-num">7</div>
+      <div>
+        <div class="phase-title">Quiz</div>
+        <span class="tag tag-phase">3 min</span>
+      </div>
+    </div>
+
+    <div class="quiz-progress" id="quiz-dots"></div>
+    <div id="quiz-body"></div>
+
+    <div class="phase-nav" style="margin-top:16px;">
+      <button class="btn-ghost" onclick="goPhase(6)">← Back</button>
+    </div>
+  </section>
+
+</div><!-- #app -->
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────
+const QAKEY = "ela-l23-qans";
+const QKEY  = "ela-l23-quiz";
+const WKEY  = "ela-l23-writing";
+
+// ─── MISTAKE LOGGER ───────────────────────────────────────────
+function logMistake(correct, questionText, quizTitle) {
+  try {
+    let m = JSON.parse(localStorage.getItem('refresher-mistakes') || '{}');
+    const key = 'ELA|Day 23: Yeti|' + quizTitle;
+    if (!correct) {
+      m[key] = { subject: 'ELA', day: 'Day 23', q: questionText, file: 'ela-lesson-23-yeti.html' };
+    } else {
+      delete m[key];
+    }
+    localStorage.setItem('refresher-mistakes', JSON.stringify(m));
+  } catch(e) {}
+}
+
+// ─── PHASE NAV ────────────────────────────────────────────────
+let currentPhase = 1;
+const PHASE_LABELS = ['','Warm-Up','Reading','Comprehension','Vocabulary','Author’s Purpose','Writing','Quiz'];
+
+function goPhase(n) {
+  document.getElementById('phase-' + currentPhase).classList.remove('visible');
+  currentPhase = n;
+  document.getElementById('phase-' + n).classList.add('visible');
+  document.getElementById('phase-' + n).scrollIntoView({behavior:'smooth', block:'start'});
+  updatePhaseBar();
+  if (n === 4) buildVocab();
+  if (n === 5) buildSE();
+  if (n === 7) { buildQuiz(); restoreQuiz(); }
+}
+
+function updatePhaseBar() {
+  const segs = document.querySelectorAll('.pb-seg');
+  segs.forEach(s => {
+    const p = parseInt(s.dataset.phase);
+    s.classList.remove('active','done');
+    if (p === currentPhase) s.classList.add('active');
+    else if (p < currentPhase) s.classList.add('done');
+  });
+  document.getElementById('pb-title').textContent = 'Phase ' + currentPhase + ' — ' + PHASE_LABELS[currentPhase];
+}
+
+document.querySelectorAll('.pb-seg').forEach(s => {
+  s.addEventListener('click', () => goPhase(parseInt(s.dataset.phase)));
+});
+
+updatePhaseBar();
+
+// ─── PHASE 1: FACT CARDS ─────────────────────────────────────
+function revealFact(id) {
+  document.getElementById(id).classList.add('revealed');
+}
+function reactFact(btn, type, id) {
+  const card = document.getElementById(id);
+  card.querySelectorAll('.fact-btn').forEach(b => { b.classList.remove('knew','new'); });
+  btn.classList.add(type);
+}
+
+// ─── PHASE 3: ACCORDION ───────────────────────────────────────
+function toggleAccord(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ─── SHUFFLE HELPER ───────────────────────────────────────────
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ─── PHASE 4: VOCABULARY MATCH ────────────────────────────────
+const vocabPairs = [
+  { word: 'evidence',   def: 'facts and objects you can point to that show what really happened' },
+  { word: 'skeptical',  def: 'not believing something right away, until you have seen proof' },
+  { word: 'verify',     def: 'to check something carefully to find out whether it is really true' },
+  { word: 'distinct',   def: 'clearly separate, and easy to tell apart from each other' },
+  { word: 'elusive',    def: 'very hard to find or catch, because it stays out of sight' },
+  { word: 'deliberate', def: 'done slowly and on purpose, with careful thought behind each step' },
+  { word: 'conclusion', def: 'the answer you settle on after weighing all of the evidence' },
+];
+
+let vocabSelected = null;
+let vocabMatched = 0;
+
+function buildVocab() {
+  const grid = document.getElementById('vocab-grid');
+  if (grid.children.length > 0) return; // already built
+
+  const words = shuffleArr(vocabPairs.map(p => ({ text: p.word, type: 'word', pair: p.word })));
+  const defs  = shuffleArr(vocabPairs.map(p => ({ text: p.def,  type: 'def',  pair: p.word })));
+
+  // interleave: left column = words, right column = defs
+  const all = [];
+  for (let i = 0; i < words.length; i++) {
+    all.push(words[i]);
+    all.push(defs[i]);
+  }
+
+  grid.innerHTML = '';
+  all.forEach((item, idx) => {
+    const tile = document.createElement('div');
+    tile.className = 'vocab-tile';
+    tile.dataset.type = item.type;
+    tile.dataset.pair = item.pair;
+    tile.dataset.idx  = idx;
+    tile.textContent = item.text;
+    tile.addEventListener('click', () => vocabClick(tile));
+    grid.appendChild(tile);
+  });
+}
+
+function vocabClick(tile) {
+  if (tile.classList.contains('matched') || tile.classList.contains('selected')) return;
+
+  if (!vocabSelected) {
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  const prev = vocabSelected;
+
+  // Same type — swap selection
+  if (prev.dataset.type === tile.dataset.type) {
+    prev.classList.remove('selected');
+    tile.classList.add('selected');
+    vocabSelected = tile;
+    return;
+  }
+
+  // Check match
+  if (prev.dataset.pair === tile.dataset.pair) {
+    prev.classList.remove('selected');
+    prev.classList.add('matched');
+    tile.classList.add('matched');
+    vocabSelected = null;
+    vocabMatched++;
+    document.getElementById('vocab-score').textContent = vocabMatched + ' / 7 matched';
+    if (vocabMatched === 7) {
+      document.getElementById('vocab-score').style.color = 'var(--good)';
+      document.getElementById('vocab-score').textContent = '🎉 All 7 matched! Great job!';
+    }
+  } else {
+    // Wrong
+    [prev, tile].forEach(t => {
+      t.classList.add('shake');
+      t.addEventListener('animationend', () => t.classList.remove('shake'), {once:true});
+    });
+    prev.classList.remove('selected');
+    vocabSelected = null;
+  }
+}
+
+// ─── PHASE 5: AUTHOR'S PURPOSE ────────────────────────────────
+// Part A: name the purpose, then find the clue.
+// Part B: tricky ones — two purposes at once, and facts used to persuade.
+const ccItems = [
+  {
+    part: 'Part A — Name the Purpose, Then Find the Clue',
+    para: '<strong>Join the Valley Weather Club</strong><br>You should sign up for the weather club this winter. It meets twice a month, and honestly it is the best hour you will spend all week. Anyone can learn to read a snow gauge — you do not have to be a science genius. If enough of us join, the school will finally buy a real weather station. Don’t let this one melt away.',
+    stmt: 'What is the author’s MAIN purpose here?',
+    choices: [
+      { t: 'Inform 📊', ok: false, fb: 'There is one fact in there (it meets twice a month), but the rest is opinion. Ask yourself: does the author want me to KNOW something, or to DO something?' },
+      { t: 'Persuade 📣', ok: true, fb: '' },
+      { t: 'Entertain 🎭', ok: false, fb: 'No characters, no dialogue, no story. Nothing happens in this text — it is talking straight at you and asking you for something.' },
+    ],
+    why: 'PERSUADE. The author wants you to sign up, and everything in the paragraph is a reason to do it.'
+  },
+  {
+    stmt: 'Which clue in that weather-club paragraph gives the purpose away?',
+    choices: [
+      { t: 'It uses "you should" and "best," and it asks the reader to sign up.', ok: true, fb: '' },
+      { t: 'It is printed under a bold heading and it mentions how often the club meets.', ok: false, fb: 'Headings and numbers show up in ALL kinds of writing. They are not proof of a purpose by themselves — persuasive writing uses them too.' },
+      { t: 'It has characters who speak to each other and describes a snowy afternoon.', ok: false, fb: 'Read it again — nobody in this paragraph has a name and nobody says anything out loud. Those are entertain clues, and they are missing.' },
+      { t: 'It explains, step by step, how a snow gauge measures the depth of new snow.', ok: false, fb: 'It never explains that at all. It only claims the gauge is easy to learn, which is an opinion, not an explanation.' },
+    ],
+    why: 'Opinion words ("best") plus a direct request ("sign up") equals PERSUADE, every time.'
+  },
+  {
+    para: '<strong>How a Snow Gauge Works</strong><br>A snow gauge is a straight tube with marks along the side. New snow falls into the tube, and a reader checks which mark the snow reaches. In the village of Ranglung the gauge is read every morning at seven o’clock. Last February the deepest single snowfall measured 38 centimetres. Readings from hundreds of gauges are added together to build a picture of a whole mountain range.',
+    stmt: 'What is the author’s MAIN purpose here?',
+    choices: [
+      { t: 'Entertain 🎭', ok: false, fb: 'Nothing happens and nobody is in it. A text needs characters or a story to be entertaining you — this one only has equipment and numbers.' },
+      { t: 'Persuade 📣', ok: false, fb: 'Look for a "you should" or an opinion word. There isn’t one anywhere. The author never asks you to do a single thing.' },
+      { t: 'Inform 📊', ok: true, fb: '' },
+    ],
+    why: 'INFORM. Facts, a heading, a time, and a measurement — and no opinion or request anywhere in it.'
+  },
+  {
+    stmt: 'Which clue in the snow-gauge paragraph gives the purpose away?',
+    choices: [
+      { t: 'It tells you what the writer thinks is the most exciting job in the village.', ok: false, fb: 'The writer never says what they think about anything. Opinion is exactly what this paragraph is missing.' },
+      { t: 'It follows one character through a morning and lets you hear what she says.', ok: false, fb: 'There is no character in this paragraph at all — no name, no dialogue, nobody doing anything.' },
+      { t: 'It tries to talk the reader into putting a snow gauge up in their own yard.', ok: false, fb: 'It never asks you to do anything. Check the last sentence: it is about how readings are combined, not about what you should buy.' },
+      { t: 'It gives facts, a heading, and numbers: seven o’clock and 38 centimetres.', ok: true, fb: '' },
+    ],
+    why: 'Checkable facts + numbers + a heading = INFORM. You could go and verify every claim in it.'
+  },
+  {
+    para: 'Pema’s brother swore he could tell the weather from his knees.<br>“Snow tonight,” Tashi announced, tapping his left kneecap like a drum. “This one has never been wrong.”<br>Outside, the sky was a flat cloudless blue and the goats were sunbathing along the top of the wall.<br>“Your knee,” said Pema, “is a liar.”<br>It snowed for eleven hours.',
+    stmt: 'What is the author’s MAIN purpose here?',
+    choices: [
+      { t: 'Entertain 🎭', ok: true, fb: '' },
+      { t: 'Inform 📊', ok: false, fb: 'You cannot actually learn any weather science from this. "Eleven hours" is a number, but it is the punchline of a joke, not a fact you would look up.' },
+      { t: 'Persuade 📣', ok: false, fb: 'Nobody is asking you to believe or do anything. There is no "should" here — just two people teasing each other.' },
+    ],
+    why: 'ENTERTAIN. Named characters, dialogue in quotation marks, a picture you can see, and a funny twist at the end.'
+  },
+  {
+    stmt: 'Which clue in the knee-weather paragraph gives the purpose away?',
+    choices: [
+      { t: 'It lists facts about snowfall and gives measurements you could go and check.', ok: false, fb: 'The only number in it is part of the joke. There is nothing here you could look up or verify.' },
+      { t: 'It argues that everyone in the valley ought to learn to predict weather by feel.', ok: false, fb: 'It does the opposite — Pema calls the knee a liar. And the text never tells the reader to do anything.' },
+      { t: 'It has named characters, dialogue in quotation marks, and ends on a joke.', ok: true, fb: '' },
+      { t: 'It is organized under a bold heading so the reader can find each part fast.', ok: false, fb: 'There is no heading on it at all. Scroll back up and look — it starts straight into the story.' },
+    ],
+    why: 'Characters + dialogue + a surprise ending = ENTERTAIN. Those three clues almost never lie.'
+  },
+  {
+    part: 'Part B — The Tricky Ones',
+    para: '<strong>Meet Your Neighbour: The Himalayan Brown Bear</strong><br>Imagine waking up a bear that has been asleep since October. "Grumpy" does not begin to cover it.<br>Himalayan brown bears sleep through the coldest months in dens dug high on the slopes. They come out in spring hungry enough to eat almost anything — roots, grass, insects, and the occasional unlucky marmot. Adults can weigh more than 200 kilograms. In some countries researchers count them only in the low hundreds, which makes a real one far harder to find than the legends people tell about them.',
+    stmt: 'This one does TWO jobs. What is its MAIN purpose?',
+    choices: [
+      { t: 'Entertain 🎭', ok: false, fb: 'Close, but count the space. Only the first two lines are the joke — three sentences of facts, weights, and population numbers come after it. The joke is the hook, not the point.' },
+      { t: 'Inform 📊', ok: true, fb: '' },
+      { t: 'Persuade 📣', ok: false, fb: 'Look for a "should" or a request. There isn’t one — the author never asks you to protect, visit, or do anything at all.' },
+    ],
+    why: 'MAIN purpose = INFORM (dens, diet, 200 kilograms, low hundreds). SECONDARY purpose = ENTERTAIN (the grumpy-bear joke). A text can absolutely do two jobs — you name the one it spends the most space on FIRST.'
+  },
+  {
+    para: '<strong>Keep the Ridge Trail Closed in Spring</strong><br>Snow leopard cubs are born in late spring, and a mother will abandon her den if people come too close to it. Last year, 240 hikers walked the ridge trail in April alone. The village council should keep that trail closed until June. It is the least we can do for an animal that has lived here far longer than we have.',
+    stmt: 'It is full of facts and numbers. So what is its MAIN purpose?',
+    choices: [
+      { t: 'Inform 📊', ok: false, fb: 'This is the big trap. Facts do not automatically mean "inform" — here the facts are REASONS. Read the last two sentences and ask what the author wants to happen next.' },
+      { t: 'Entertain 🎭', ok: false, fb: 'No characters, no dialogue, no story. Nothing happens in it — somebody is arguing with you instead.' },
+      { t: 'Persuade 📣', ok: true, fb: '' },
+    ],
+    why: 'PERSUADE. "The council SHOULD keep it closed" and "it is the least we can do" are opinions and a request. The facts are ammunition for the argument, not the point of the text.'
+  },
+  {
+    stmt: 'In that ridge-trail paragraph, which sentence is the STRONGEST evidence that the purpose is to persuade?',
+    choices: [
+      { t: '"Snow leopard cubs are born in late spring, and a mother will abandon her den if people come too close."', ok: false, fb: 'That is a checkable fact. On its own it would be informing — it only becomes persuasion once the author uses it as a reason.' },
+      { t: '"Last year, 240 hikers walked the ridge trail in April alone."', ok: false, fb: 'A number. Numbers appear in all three purposes, so a number by itself never proves anything about purpose.' },
+      { t: '"The village council should keep that trail closed until June."', ok: true, fb: '' },
+      { t: 'The paragraph is written under a bold heading, the way news reports usually are.', ok: false, fb: 'Headings show up everywhere — including in persuasive writing. A heading tells you how a text is organized, not why it was written.' },
+    ],
+    why: 'The word "should" plus a specific action is the clearest persuade clue there is. Point at that sentence and you have proved it.'
+  },
+  {
+    stmt: 'Last one — what was the MAIN purpose of "The Tracks Behind Our House," the story you read today?',
+    choices: [
+      { t: 'Persuade 📣', ok: false, fb: 'The story never tells you what to do. Pema and Sonam figure things out; the author never turns around and gives the reader an order.' },
+      { t: 'Entertain 🎭', ok: true, fb: '' },
+      { t: 'Inform 📊', ok: false, fb: 'Good instinct — you really do learn things (melting tracks, overstepping bears). But that is the SECOND job. Count how much of it is characters, dialogue, and a mystery.' },
+    ],
+    why: 'MAIN purpose = ENTERTAIN: named characters, dialogue, a mystery, a twist. SECONDARY = INFORM: you also walk away knowing why snow tracks grow and how a bear makes one giant print. Main purpose plus a secondary one — that is most good writing.'
+  },
+];
+
+let ccCorrectCount = 0;
+const ccSolved = {};
+
+function buildSE() {
+  const container = document.getElementById('se-container');
+  if (container.children.length > 0) return;
+
+  ccItems.forEach((item, i) => {
+    if (item.part) {
+      const h = document.createElement('div');
+      h.className = 'se-part';
+      h.innerHTML = item.part;
+      container.appendChild(h);
+    }
+    const card = document.createElement('div');
+    card.className = 'se-card';
+    card.id = 'se-' + i;
+    let html = '';
+    if (item.para) html += '<div class="se-para">' + item.para + '</div>';
+    html += '<div class="se-stmt">' + (i+1) + '. ' + item.stmt + '</div><div class="se-btns">';
+    item.choices.forEach((ch, oi) => {
+      html += '<button class="se-btn" data-correct="' + (ch.ok ? '1' : '0') + '" onclick="ansSE(' + i + ', this, ' + oi + ')">' + ch.t + '</button>';
+    });
+    html += '</div><div class="se-feedback" id="sef-' + i + '"></div>';
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+}
+
+function ansSE(i, btn, oi) {
+  const card = document.getElementById('se-' + i);
+  const feedback = document.getElementById('sef-' + i);
+  const correct = (btn.dataset.correct === '1');
+
+  if (correct) {
+    card.querySelectorAll('.se-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === '1') b.classList.add('correct');
+    });
+    feedback.style.color = 'var(--good)';
+    feedback.textContent = '✓ Correct! ' + (ccItems[i].why || '');
+    if (!ccSolved[i]) {
+      ccSolved[i] = true;
+      ccCorrectCount++;
+      const sc = document.getElementById('se-score');
+      sc.textContent = ccCorrectCount + ' / 10 answered correctly';
+      if (ccCorrectCount === 10) {
+        sc.style.color = 'var(--good)';
+        sc.textContent = '🎉 All 10 correct! Persuade, Inform, Entertain — you can spot all three!';
+      }
+    }
+  } else {
+    // Wrong — shake, explain why it does not fit, and let them retry
+    btn.classList.add('wrong','shake');
+    btn.addEventListener('animationend', () => btn.classList.remove('shake'), {once:true});
+    feedback.style.color = 'var(--bad)';
+    const trap = (ccItems[i].choices[oi] && ccItems[i].choices[oi].fb) ? ccItems[i].choices[oi].fb : 'Not quite.';
+    feedback.textContent = '✗ ' + trap + ' Try again!';
+    setTimeout(() => { btn.classList.remove('wrong'); }, 1200);
+  }
+}
+
+// ─── PHASE 6: WRITING PAD ─────────────────────────────────────
+let writeTimer = null;
+
+function initWriting() {
+  const pad = document.getElementById('writing-pad');
+  const saved = localStorage.getItem(WKEY) || '';
+  pad.value = saved;
+  updateWordCount();
+
+  pad.addEventListener('input', () => {
+    updateWordCount();
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(saveWriting, 300);
+  });
+}
+
+function updateWordCount() {
+  const val = document.getElementById('writing-pad').value.trim();
+  const words = val ? val.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = words + ' word' + (words !== 1 ? 's' : '');
+}
+
+function saveWriting() {
+  const val = document.getElementById('writing-pad').value;
+  localStorage.setItem(WKEY, val);
+  const ind = document.getElementById('save-indicator');
+  ind.classList.add('show');
+  setTimeout(() => ind.classList.remove('show'), 1500);
+}
+
+// ─── PHASE 7: QUIZ ────────────────────────────────────────────
+const quizData = [
+  {
+    q: 'Sonam tells Pema that a hundred prints are "evidence." Evidence is:',
+    opts: [
+      'A guess that feels right the first time you hear it, with nothing to back it up',
+      'Facts and objects you can point to that show what really happened',
+      'A story passed down from grandparents to grandchildren for many years',
+      'The moment when a character finally decides what she is going to do next',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'Sonam says she is "skeptical." Skeptical means:',
+    opts: [
+      'Frightened of an animal that you have heard about but have never once seen',
+      'Certain that something is true the very moment somebody first tells you it',
+      'Willing to walk a long way up a mountain in bad weather to look at a print',
+      'Not believing something right away — waiting until you have seen proof',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'Snow leopards are described as "elusive." Elusive means:',
+    opts: [
+      'Very hard to find, because it stays out of sight almost all of the time',
+      'Extremely large, so that it leaves deep prints wherever it happens to walk',
+      'Dangerous to the people who live near the high ridges above a village',
+      'Awake at night and asleep during the daytime hours when the sun is up',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'Everything Sonam did was slow and "deliberate." Deliberate means:',
+    opts: [
+      'Done in a big hurry, before the sunshine has a chance to change anything',
+      'Done by accident, without anybody meaning for it to happen at all',
+      'Done slowly and on purpose, with careful thought behind each step',
+      'Done by a large group of people all working together on the same job',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'PIE helps you remember the three main author’s purposes. What does the E stand for?',
+    opts: [
+      'Entertain — to tell a story the reader enjoys',
+      'Explain — to give directions for doing a job',
+      'Examine — to look very closely at a problem',
+      'Encourage — to make the reader feel braver',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'A text uses opinion words like "best," and it tells you what you should do. Its main purpose is:',
+    opts: [
+      'To entertain 🎭',
+      'To inform 📊',
+      'To persuade 📣',
+      'To summarize 📝',
+    ],
+    correct: 2,
+  },
+  {
+    q: 'A magazine article opens with a joke, then spends four paragraphs on facts, numbers, and headings. The BEST way to describe its purpose is:',
+    opts: [
+      'To persuade you, because a joke at the start is trying to win the reader over',
+      'Mainly to inform, with entertaining the reader as a smaller second purpose',
+      'Only to entertain, because a text that tells a joke cannot also teach facts',
+      'It has no purpose at all, since an author may only ever pick one single job',
+    ],
+    correct: 1,
+  },
+  {
+    q: 'Why did the same footprint measure BIGGER at three in the afternoon than it did at sunrise?',
+    opts: [
+      'A second animal came along later and stepped down inside the very same print',
+      'Pema measured it wrong the first time, because she was in a hurry that morning',
+      'Fresh snow had fallen into the hole and packed the whole print out much wider',
+      'Sunshine melted the edges, so the hole in the snow spread wider and blurrier',
+    ],
+    correct: 3,
+  },
+  {
+    q: 'What did the two camera traps actually record?',
+    opts: [
+      'A Himalayan brown bear, and later a snow leopard up on the ridge',
+      'Nothing at all — both of the cameras had been buried by the storm',
+      'A tall shape that nobody on the research team was able to identify',
+      'Pema’s brother Tashi sneaking out to make prints with a snowshoe',
+    ],
+    correct: 0,
+  },
+  {
+    q: 'What is the big lesson (theme) of this story?',
+    opts: [
+      'The safest thing to do about strange tracks is stay inside and forget them',
+      'Grown-ups always know the answer, so ask one and then stop wondering',
+      'Gathering evidence can replace a legend with something even more amazing',
+      'A huge animal is always more interesting than a small one you can measure',
+    ],
+    correct: 2,
+  },
+];
+
+let quizBuilt = false;
+let quizAnswers = {};
+let quizCurrent = 0;
+let quizDone = false;
+
+function buildQuiz() {
+  if (quizBuilt) return;
+  quizBuilt = true;
+
+  const dots = document.getElementById('quiz-dots');
+  dots.innerHTML = '';
+  quizData.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' active' : '');
+    d.id = 'dot-' + i;
+    dots.appendChild(d);
+  });
+
+  renderQuestion(0);
+}
+
+function restoreQuiz() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(QAKEY) || '{}');
+    if (!saved || !Object.keys(saved).length) return;
+    quizAnswers = saved;
+
+    // Find last answered
+    let lastAnswered = -1;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] !== undefined) lastAnswered = i;
+    }
+
+    if (lastAnswered < 0) return;
+
+    // Replay all answered questions to update dots
+    for (let i = 0; i <= lastAnswered; i++) {
+      if (quizAnswers[i] !== undefined) {
+        const correct = quizAnswers[i] === quizData[i].correct;
+        const dot = document.getElementById('dot-' + i);
+        if (dot) {
+          dot.classList.remove('active');
+          dot.classList.add(correct ? 'correct' : 'wrong');
+        }
+      }
+    }
+
+    // Check if all answered
+    if (Object.keys(quizAnswers).length >= quizData.length) {
+      const savedResult = localStorage.getItem(QKEY);
+      if (savedResult) {
+        showQuizResult(JSON.parse(savedResult));
+        quizDone = true;
+        return;
+      }
+    }
+
+    // Go to next unanswered
+    let nextQ = 0;
+    for (let i = 0; i < quizData.length; i++) {
+      if (quizAnswers[i] === undefined) { nextQ = i; break; }
+    }
+    quizCurrent = nextQ;
+    const dot = document.getElementById('dot-' + nextQ);
+    if (dot) { dot.classList.remove('correct','wrong'); dot.classList.add('active'); }
+    renderQuestion(nextQ);
+  } catch(e) {}
+}
+
+function renderQuestion(idx) {
+  const body = document.getElementById('quiz-body');
+  const q = quizData[idx];
+
+  body.innerHTML = `
+    <div class="quiz-q">${idx + 1}. ${q.q}</div>
+    <div class="quiz-opts" id="qopts-${idx}">
+      ${q.opts.map((o, oi) => `
+        <button class="quiz-opt" data-oi="${oi}" onclick="ansQ(${idx},${oi})">${o}</button>
+      `).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb-${idx}"></div>
+    <button class="quiz-next" id="qnext-${idx}" onclick="nextQuestion(${idx})">${idx < quizData.length - 1 ? 'Next Question →' : 'See Results 🎉'}</button>
+  `;
+}
+
+function ansQ(qIdx, optIdx) {
+  if (quizAnswers[qIdx] !== undefined) return; // already answered
+
+  const q = quizData[qIdx];
+  const correct = (optIdx === q.correct);
+
+  quizAnswers[qIdx] = optIdx;
+  try { localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+  logMistake(correct, q.q, 'Main Quiz Q' + (qIdx + 1));
+
+  // Style options
+  const opts = document.querySelectorAll(`#qopts-${qIdx} .quiz-opt`);
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === optIdx && !correct) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById('qfb-' + qIdx);
+  fb.classList.add('show', correct ? 'correct' : 'wrong');
+  fb.textContent = correct ? '✓ Correct!' : '✗ The correct answer was: ' + q.opts[q.correct];
+
+  // Update dot
+  const dot = document.getElementById('dot-' + qIdx);
+  dot.classList.remove('active');
+  dot.classList.add(correct ? 'correct' : 'wrong');
+
+  // Show next button
+  document.getElementById('qnext-' + qIdx).style.display = 'inline-block';
+}
+
+function nextQuestion(fromIdx) {
+  const next = fromIdx + 1;
+  if (next >= quizData.length) {
+    finishQuiz();
+    return;
+  }
+  quizCurrent = next;
+  document.getElementById('dot-' + next).classList.add('active');
+  renderQuestion(next);
+}
+
+function finishQuiz() {
+  let score = 0;
+  quizData.forEach((q, i) => { if (quizAnswers[i] === q.correct) score++; });
+  const result = { score, total: quizData.length, pct: Math.round(score / quizData.length * 100) };
+  try { localStorage.setItem(QKEY, JSON.stringify(result)); } catch(e) {}
+  showQuizResult(result);
+}
+
+function showQuizResult(result) {
+  const body = document.getElementById('quiz-body');
+  let msg = '';
+  if (result.pct >= 90) msg = 'Incredible! Persuade, Inform, Entertain — you caught every one. ❄️';
+  else if (result.pct >= 75) msg = 'Great job! You are reading like someone who checks the evidence. 🔍';
+  else if (result.pct >= 60) msg = 'Good effort! Go back to the PIE card and reread the clue lists. 🥧';
+  else msg = 'Keep going — measure it twice. Reread the story and try again! 💪';
+
+  body.innerHTML = `
+    <div class="quiz-result">
+      <div class="score-big">${result.score} / ${result.total}</div>
+      <div class="score-label">${result.pct}% correct</div>
+      <div class="score-msg">${msg}</div>
+      ${result.pct < 100 ? `<button class="btn-primary" style="margin-top:20px;" onclick="retakeQuiz()">Retake Quiz ↺</button>` : ''}
+    </div>
+  `;
+}
+
+function retakeQuiz() {
+  quizAnswers = {};
+  quizBuilt = false;
+  quizDone = false;
+  try { localStorage.removeItem(QAKEY); localStorage.removeItem(QKEY); } catch(e) {}
+  buildQuiz();
+}
+
+// ─── SAVE ALL ─────────────────────────────────────────────────
+function saveAll() {
+  saveWriting();
+  try { if (Object.keys(quizAnswers).length) localStorage.setItem(QAKEY, JSON.stringify(quizAnswers)); } catch(e) {}
+}
+
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAll(); });
+window.addEventListener('pagehide', saveAll);
+window.addEventListener('beforeunload', saveAll);
+window.addEventListener('blur', saveAll);
+
+// ─── INIT ─────────────────────────────────────────────────────
+initWriting();
+</script>
+</body>
+</html>

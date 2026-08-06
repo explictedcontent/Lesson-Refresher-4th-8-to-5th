@@ -604,7 +604,7 @@ const labSamples = [
 
 let labState = { idx: 0, revealed: false, got: 0, wrongOn: null };
 
-function strip(code, small) {
+function strip(code) {
   let h = '<div class="dna-strip">';
   for (const c of code) h += `<span class="base b-${c}">${c}</span>`;
   return h + '</div>';
@@ -878,8 +878,8 @@ const questions = [
     q: 'What is the honest LIMIT of what the 2017 study proved?',
     opts: [
       'It speaks only for the samples that were tested, not for everything unseen out there',
-      'It was thrown out after nobody could recall where the samples came from',
-      'It could not work, because DNA falls apart in freezing mountain weather',
+      'It was thrown out of the journal after nobody could recall where the samples came from',
+      'It could not possibly work, because DNA falls apart completely in freezing mountain weather',
       'It proved for certain that no unknown large animal lives anywhere in the Himalaya'
     ],
     ans: 0,
@@ -899,9 +899,9 @@ const questions = [
   {
     q: 'How does a yak get enough oxygen high on the Tibetan Plateau?',
     opts: [
-      'It breathes only through its nose, which filters ice crystals out of the air',
+      'It breathes only through its nose, which filters the ice crystals out of the freezing air',
       'It carries extra red blood cells, so each thin-air breath delivers more oxygen',
-      'It slows its heart nearly to a stop and hibernates through the coldest months',
+      'It slows its heart nearly to a stop and hibernates through the coldest part of the winter',
       'It has hollow hairs that fill with warm air and keep the snow off its back'
     ],
     ans: 1,
@@ -921,9 +921,9 @@ const questions = [
   {
     q: 'How does a bar-headed goose manage to fly over the Himalaya?',
     opts: [
-      'It grows an extra pair of wings each autumn before it starts the long journey',
+      'It grows an extra pair of wings every autumn before it starts out on the long journey',
       'It rides on the backs of larger birds for the hardest part of the crossing',
-      'It holds one enormous breath for the entire flight across the mountain range',
+      'It holds one enormous breath for the whole flight across the highest mountains on Earth',
       'Its hemoglobin grips oxygen tightly, and its flight muscles use oxygen very well'
     ],
     ans: 3,
